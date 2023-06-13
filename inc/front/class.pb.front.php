@@ -62,4 +62,7 @@ if ( !class_exists( 'PB_Front' ) ) {
 
 	}
 
+	add_action( 'plugins_loaded', function() {
+		PB()->front = new PB_Front;
+	} );
 }

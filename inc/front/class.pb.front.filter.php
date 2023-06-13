@@ -46,4 +46,7 @@ if ( !class_exists( 'PB_Front_Filter' ) ) {
 
 	}
 
+	add_action( 'plugins_loaded', function() {
+		PB()->front->filter = new PB_Front_Filter;
+	} );
 }

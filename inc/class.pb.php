@@ -15,14 +15,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'PB' ) ) {
 
-	include_once( PB_DIR . '/inc/lib/class.' . PB_PREFIX . '.licence.php' );
 	/**
 	 * The main PB class
 	 */
 	class PB {
 
 		private static $_instance = null;
-		private static $private_data = null;
 
 		var $admin = null,
 		    $front = null,
@@ -37,21 +35,14 @@ if ( !class_exists( 'PB' ) ) {
 		}
 
 		function __construct() {
-			self::$private_data = new PB_Licence();
+			
 			add_action( 'plugins_loaded', array( $this, 'action__plugins_loaded' ), 1 );
 
 			# Register plugin activation hook
 			register_activation_hook( PB_FILE, array( $this, 'action__plugin_activation' ) );
-			add_action( 'setup_theme', array( $this, 'action__setup_theme' ) );
 			
-			
-
 		}
-		// function bms_front_save_post_meta() {
-		// 	echo "test";
-		// 	error_log('front_save_post_meta function called');
-		// 	wp_die();
-		// }
+
 		/**
 		 * Action: plugins_loaded
 		 *
@@ -60,47 +51,39 @@ if ( !class_exists( 'PB' ) ) {
 		 * @return [type] [description]
 		 */
 		function action__plugins_loaded() {
+			
 
 			# Load Paypal SDK on int action
 
-			# Load plugin update file
-			require_once ( PB_DIR . '/inc/class.' . PB_PREFIX . '.update.php' );
+			# Action to load custom post type
+			// add_action( 'init', array( $this, 'action__init' ) );
 
-			$licence_instance = self::$private_data;
-			new PB_Update( PB_VERSION, PB_PLUGIN_BASENAME, get_option( $licence_instance::pb_licence_email, '' ), get_option( $licence_instance::pb_licence_key, '' ) );
+			global $wp_version;
 
-			if ( !empty( self::$private_data->instance() ) ) {
+			# Set filter for plugin's languages directory
+			$PB_lang_dir = dirname( PB_PLUGIN_BASENAME ) . '/languages/';
+			$PB_lang_dir = apply_filters( 'PB_languages_directory', $PB_lang_dir );
 
-				# Action to load custom post type
-				add_action( 'init', array( $this, 'action__init' ) );
+			# Traditional WordPress plugin locale filter.
+			$get_locale = get_locale();
 
-				global $wp_version;
+			if ( $wp_version >= 4.7 ) {
+				$get_locale = get_user_locale();
+			}
 
-				# Set filter for plugin's languages directory
-				$PB_lang_dir = dirname( PB_PLUGIN_BASENAME ) . '/languages/';
-				$PB_lang_dir = apply_filters( 'PB_languages_directory', $PB_lang_dir );
+			# Traditional WordPress plugin locale filter
+			$locale = apply_filters( 'plugin_locale',  $get_locale, 'plugin-text-domain' );
+			$mofile = sprintf( '%1$s-%2$s.mo', 'plugin-text-domain', $locale );
 
-				# Traditional WordPress plugin locale filter.
-				$get_locale = get_locale();
+			# Setup paths to current locale file
+			$mofile_global = WP_LANG_DIR . '/plugins/' . basename( PB_DIR ) . '/' . $mofile;
 
-				if ( $wp_version >= 4.7 ) {
-					$get_locale = get_user_locale();
-				}
-
-				# Traditional WordPress plugin locale filter
-				$locale = apply_filters( 'plugin_locale',  $get_locale, 'plugin-text-domain' );
-				$mofile = sprintf( '%1$s-%2$s.mo', 'plugin-text-domain', $locale );
-
-				# Setup paths to current locale file
-				$mofile_global = WP_LANG_DIR . '/plugins/' . basename( PB_DIR ) . '/' . $mofile;
-
-				if ( file_exists( $mofile_global ) ) {
-					# Look in global /wp-content/languages/plugin-name folder
-					load_textdomain( 'plugin-text-domain', $mofile_global );
-				} else {
-					# Load the default language files
-					load_plugin_textdomain( 'plugin-text-domain', false, $PB_lang_dir );
-				}
+			if ( file_exists( $mofile_global ) ) {
+				# Look in global /wp-content/languages/plugin-name folder
+				load_textdomain( 'plugin-text-domain', $mofile_global );
+			} else {
+				# Load the default language files
+				load_plugin_textdomain( 'plugin-text-domain', false, $PB_lang_dir );
 			}
 		}
 
@@ -117,6 +100,37 @@ if ( !class_exists( 'PB' ) ) {
 			# Post Type: Here you add your post type
 
 		}
+		function includes() {
+
+			require_once plugin_dir_path(__FILE__) . 'front/class.pb.front.action.php';
+			$PB_Front_Action = new PB_Front_Action();
+
+			// $PB_Front_Action  = new PB_Front_Action();
+		}
+	
+		function register_hooks() {
+
+			// Register activation hook.
+			// register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
+			
+			// Initialize the front-end class.
+				// if( is_admin()) {
+
+			// 	// require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.php' );
+			// 	// require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.action.php' );
+			// 	// require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.filter.php' );
+
+			// }else{
+
+			// 	// require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.php' );
+			// 	// require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.action.php' );
+			// 	// require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.filter.php' );
+
+				// $this->front = new PB_Front_Action();
+				$PB_Front_Action  = new PB_Front_Action();
+			// }
+
+		}
 
 		/**
 		 * register_activation_hook
@@ -125,9 +139,8 @@ if ( !class_exists( 'PB' ) ) {
 		 *
 		 */
 		function action__plugin_activation() {
-
+		
 		}
-
 		function action__setup_theme() {
 
 			if ( is_admin() ) {
@@ -150,6 +163,10 @@ if ( !class_exists( 'PB' ) ) {
 
 function PB() {
 	return PB::instance();
+	// $PB_Front_Action = new PB_Front_Action();
 }
 
 PB();
+// require_once plugin_dir_path(__FILE__) . 'front/class.pb.front.action.php';
+// $PB_Front_Action = new PB_Front_Action();
+

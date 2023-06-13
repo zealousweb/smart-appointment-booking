@@ -20,17 +20,19 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 	class PB_Admin_Action {
 
 		function __construct()  {
+
 			add_action( 'admin_init', array( $this, 'action__admin_init' ) );
 
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
 			add_action('admin_menu',array( $this, 'add_main_custom_post_type_menu' ));
 			
-			add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );		
+			// add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );		
 			add_action( 'wp_ajax_bms_save_form_data', array( $this, 'bms_save_form_data' ));
 			add_action('manage_bms_forms_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
-			
 
+			add_action('admin_enqueue_scripts',  array( $this, 'enqueue_admin_scripts' ), 10, 2);
+			
 		}
 
 		/*
@@ -50,10 +52,25 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		 *
 		 */
 		function action__admin_init() {
+
 			wp_register_script( PB_PREFIX . '_admin_js', PB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), PB_VERSION );
-			 wp_register_style( PB_PREFIX . '_admin_css', PB_URL . 'assets/css/admin.min.css', array(), PB_VERSION );
+			wp_register_style( PB_PREFIX . '_admin_css', PB_URL . 'assets/css/admin.min.css', array(), PB_VERSION );
+
 		}
 
+
+		/*
+		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
+		##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
+		##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
+		######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
+		##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
+		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
+		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
+		*/
+		/**
+		* WP Enqueue Styles
+		*/
 		function enqueue_styles() {
 
 			if(isset($_GET['post'])){
@@ -71,6 +88,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				
 			}
 		}
+
 		/**
 		* WP Enqueue Scripts
 		*/
@@ -89,20 +107,28 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			 	wp_enqueue_script( 'bms_bootstrap.min', PB_URL.'assets/js/bootstrap.min.js', array( 'jquery' ), 1.1, false );
 			 	wp_enqueue_script( 'bms_jquery-3.7.0.slim.min', PB_URL.'assets/js/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
 				wp_enqueue_script( 'bms_jquery-3.7.0.min',PB_URL.'assets/js/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
-			
+				wp_enqueue_script( 'booking-form', PB_URL.'assets/js/booking-form.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'admin', PB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
 			}
 		}
-		// Step 2: Add the main custom post type as the admin menu item
+
+		function enqueue_admin_scripts() {
+			wp_enqueue_script('jquery-ui-tabs');
+		}
+
+		/*
+		* Add the main custom post type as the admin menu item
+		*/
 		function add_main_custom_post_type_menu() {
-			// main menu
-			$labels = array(
+			
+			$labels_form = array(
 				'name' => 'Booking Form',
 				'singular_name' => 'Booking Form',
 			);
 
-			$args = array(
+			$args_form = array(
 				
-				'labels' => $labels,
+				'labels' => $labels_form,
 				'description' => '',
 				'public' => false,
 				'publicly_queryable' => false,
@@ -127,11 +153,11 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'query_var' => true,
 				'supports' => array( 'title' ),
 			);
-			register_post_type('bms_forms', $args);
+			register_post_type('bms_forms', $args_form);
 
 			$labels = array(
-				'name' => 'Form Builder',
-				'singular_name' => 'Form Builder',
+				'name' => 'Booking Entries',
+				'singular_name' => 'Booking Entry',
 			);
 
 			$args = array(
@@ -144,8 +170,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'show_in_rest' => true,
 				'rest_base' => '',
 				'has_archive' => false,
-				// 'show_in_menu' => 'wpcf7',
-				// 'show_in_menu' => 'stripe_dashboard',
 				'show_in_nav_menus' => false,
 				'exclude_from_search' => true,
 				'capability_type' => 'post',
@@ -198,118 +222,11 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		
 		
 		}
-			function bms_email_template_page_callback(){
+
+		function bms_email_template_page_callback(){
 			echo __('Email Template','bms');
 		}
-
-		/**
-		 * Adds the meta box container.
-		*/
-		function bms_add_meta_box( $post_type ) {
-			// Limit meta box to certain post types.
-			$post_types = array( 'zeal_formbuilder');
-
-			if ( in_array( $post_type, $post_types ) ) {
-				add_meta_box(
-					'Form Builder Library',
-					__( 'Form Builder Library', 'textdomain' ),
-					array( $this, 'render_meta_box_content' ),
-					$post_type,
-					'advanced',
-					'high'
-				);
-			}
-
-			$post_types = array( 'bms_forms');
-
-			if ( in_array( $post_type, $post_types ) ) {
-				add_meta_box(
-					'Form.io Library',
-					__( 'Form.io Library', 'textdomain' ),
-					array( $this, 'formio_render_meta_box_content' ),
-					$post_type,
-					'advanced',
-					'high'
-				);
-			}
-		}
-		/**
-		 * Render Meta Box content.
-		 *
-		 * @param WP_Post $post The post object.
-		 */
-		function formio_render_meta_box_content( $post ) {
-			
-			wp_nonce_field( 'myplugin_inner_custom_box', 'myplugin_inner_custom_box_nonce' );
-			$fields = get_post_meta( $post->ID, '_my_meta_value_key', true );	
-			$get_type = gettype($fields);
-			
-			if(!empty($fields) && $get_type === 'string') {
-				$myScriptData = $fields;
-				?>
-			
-				<div id='builder'></div>
-				<form-builder form="form"></form-builder>
-				<script type='text/javascript'>
-					
-					var myScriptData = <?php echo $myScriptData; ?>;
-					window.onload = function() {
-						
-						var formioBuilder = Formio.builder(document.getElementById('builder'), {
-							components: myScriptData // Use the stored meta value to populate the form
-						});
-						
-							
-						formioBuilder.then(function(builder) {
-							// Handle form submission
-							builder.on('change', function(submission) {
-								formdata = JSON.stringify(submission.components);
-								jQuery.post(ajaxurl, {
-									action: 'bms_save_form_data',  // Ajax action to handle saving the form data
-									post_id: <?php echo $post->ID; ?>,  // Current post ID
-									form_data: formdata // Submitted form data									
-								}, function(response) {
-									// console.log(submission.components);
-									console.log(response);
-								});
-							});
-						});
-					};
-				</script>
-			<?php
-
-			}else{
-				?>
-			
-				<div id='builder'></div>
-				<form-builder form="form"></form-builder>
-				<script type='text/javascript'>
-					
-					
-					window.onload = function() {
-						
-						var formioBuilder = Formio.builder(document.getElementById('builder'), {});
-						formioBuilder.then(function(builder) {
-							// Handle form submission
-							builder.on('change', function(submission) {
-								formdata = JSON.stringify(submission.components);
-								jQuery.post(ajaxurl, {
-									action: 'bms_save_form_data',  // Ajax action to handle saving the form data
-									post_id: <?php echo $post->ID; ?>,  // Current post ID
-									form_data: formdata // Submitted form data									
-								}, function(response) {
-									// console.log(submission.components);
-									console.log(response);
-								});
-							});
-						});
-					};
-				</script>
-			<?php
-			}
-			
-		}
-		
+				
 		function bms_save_form_data() {
 			
 			// Get the post ID
@@ -323,8 +240,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 
 			wp_send_json_success( 'Form data saved successfully.' );
 			exit;
+
 		}
 
+		
 		// Populate the custom column with data
 		function populate_custom_column($column, $post_id) {
 			if ($column === 'shortcode') {
@@ -333,17 +252,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			}
 		}
 
-		/*
-		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
-		##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
-		######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
-		##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
-		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
-		*/
-
-
+		
 	}
 
+	add_action( 'plugins_loaded', function() {
+		PB()->admin->action = new PB_Admin_Action;
+	} );
 }

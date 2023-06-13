@@ -19,16 +19,9 @@ if ( !class_exists( 'PB_Lib' ) ) {
 		private $lib_version = '1.14.0[72e2f24]'; // lib github commit
 
 		function __construct() {
-			// add_action('wp_ajax_bms_front_save_post_meta', array( $this, 'bms_front_save_post_meta' ) );
-			// add_action('wp_ajax_nopriv_bms_front_save_post_meta', array( $this, 'bms_front_save_post_meta' ) );
-			
-			// add_action( 'setup_theme', array( $this, 'action__setup_theme' ) );
+
 		}
-		// function bms_front_save_post_meta() {
-		// 	echo "test";
-		// 	error_log('front_save_post_meta function called');
-		// 	wp_die();
-		// }
+
 		/*
 		   ###     ######  ######## ####  #######  ##    ##  ######
 		  ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##

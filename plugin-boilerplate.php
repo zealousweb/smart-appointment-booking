@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Plugin Name
+ * Plugin Name: Booking Management System
  * Plugin URL: https://wordpress.org/plugin-url/
  * Description: Plugin description
  * Version: 1.0
@@ -59,16 +59,17 @@ if ( !defined( 'PB_PREFIX' ) ) {
  */
 if ( !function_exists( 'PB' ) ) {
 
-	if ( is_admin() ) {
+	if( is_admin()) {
 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.php' );
 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.action.php' );
+		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.fieldmeta.php' );
 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.filter.php' );
-	} else {
+	}else{
 		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.php' );
-		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.action.php' );
+		
 		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.filter.php' );
 	}
-
+	require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.action.php' );
 	require_once( PB_DIR . '/inc/lib/class.' . PB_PREFIX . '.lib.php' );
 
 	//Initialize all the things.

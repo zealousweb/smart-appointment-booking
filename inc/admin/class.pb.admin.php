@@ -61,4 +61,7 @@ if ( !class_exists( 'PB_Admin' ) ) {
 
 	}
 
+	add_action( 'plugins_loaded', function() {
+		PB()->admin = new PB_Admin;
+	} );
 }
