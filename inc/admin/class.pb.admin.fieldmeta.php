@@ -94,8 +94,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
                             components: myScriptData // Use the stored meta value to populate the form
                         });
-                        
-                            
+                                                    
                         formioBuilder.then(function(builder) {
                             // Handle form submission
                             builder.on('change', function(submission) {
@@ -161,8 +160,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $end_time = get_post_meta( $post->ID, 'end_time', true );
             $timeslot_duration = get_post_meta($post->ID, 'timeslot_duration', true);
             $steps_duration = get_post_meta( $post->ID, 'steps_duration', true );
-            $breaktimeslots = get_post_meta($post->ID, 'breaktimeslots', true);
-          
+
             $btimes = get_post_meta( $post->ID, 'break_repeater_field', true );
             $no_of_booking = get_post_meta($post->ID, 'no_of_booking', true);  
             $holiday_dates = get_post_meta($post->ID, 'holiday_dates', true);
@@ -532,7 +530,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 print_r($advancedata);
                 
                 update_post_meta($post_id, 'advancedata', $advancedata);
-                exit;
+                // exit;
             }
                // Holidays
             if (isset($_POST['holidays'])) {
