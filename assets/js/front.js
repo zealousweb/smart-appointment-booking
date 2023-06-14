@@ -1,13 +1,32 @@
+jQuery(document).ready(function($) {
+    jQuery(document).on('change', '#bms_year', function() {        
+        var currentMonth = document.getElementById('bms_month').value;
+        var currentYear = document.getElementById('bms_year').value;
+        reloadCalendar(currentMonth, currentYear);
+    });
+});
+jQuery(document).ready(function($) {
+    jQuery(document).on('change', '#bms_month', function() {        
+        var currentMonth = document.getElementById('bms_month').value;
+        var currentYear = document.getElementById('bms_year').value;       
+        reloadCalendar(currentMonth, currentYear);
+        // reload_timeslot_value(currentMonth, currentYear);
+    });
+});
+
 function getClickedId(element) {
-  var clickedId = element.getAttribute("data_day");
-    // console.log(clickedId); // Print the clicked ID to the console
+  var data_day = element.getAttribute("data_day");
+  var clickedId = element.getAttribute("id");  
+  jQuery('table td').removeClass('calselected_date');
+  jQuery('#'+clickedId).addClass('calselected_date');
     // Perform any further operations with the clicked ID as needed
     jQuery.ajax({
         url: myAjax.ajaxurl,
         type : 'post',
         data: { 
         action: "action_display_available_timeslots",
-        form_data: clickedId,
+        form_data: data_day,
+        clickedId:clickedId
         },
         success: function (data) {
             //console.log(data);
@@ -16,32 +35,78 @@ function getClickedId(element) {
         
     });
 }
- // Get the elements
-//  var prevMonthArrow = document.getElementById("prev-month");
-//  var nextMonthArrow = document.getElementById("next-month");
-//  var monthSelect = document.getElementById("month");
+function getClicked_next(element) {
+    var currentMonth = document.getElementById('bms_month').value;
+    var currentYear = document.getElementById('bms_year').value;
 
-//  // Add event listeners for navigation
-//  prevMonthArrow.addEventListener("click", navigateMonth.bind(null, -1));
-//  nextMonthArrow.addEventListener("click", navigateMonth.bind(null, 1));
-//  monthSelect.addEventListener("change", selectMonth);
-
-//  function navigateMonth(direction) {
-//      var selectedMonth = parseInt(monthSelect.value);
-//      selectedMonth += direction;
-
-//      if (selectedMonth < 1) {
-//          selectedMonth = 12;
-//          currentYear--;
-//      } else if (selectedMonth > 12) {
-//          selectedMonth = 1;
-//          currentYear++;
-//      }
-
-//      monthSelect.value = selectedMonth;
-//      // You can perform any necessary actions here, like updating the calendar with the new month
-//  }
-
-//  function selectMonth() {
-//      // You can perform any necessary actions here, like updating the calendar with the selected month
-//  }
+    if (parseInt(currentMonth) === 12) {
+        currentMonth = 1;
+        currentYear++;
+    }else{
+        currentMonth++;
+    }
+    reloadCalendar(currentMonth,currentYear);
+}
+function getClicked_prev(element) {
+  
+    var currentMonth = document.getElementById('bms_month').value;
+    var currentYear = document.getElementById('bms_year').value;
+    if (parseInt(currentMonth) === 1) {
+        currentMonth = 12;
+        currentYear--;
+    } else {
+        currentMonth--;
+    }
+    reloadCalendar(currentMonth,currentYear);
+}
+function reloadCalendar(currentMonth, currentYear) {
+    var form_id = document.getElementById('zealform_id').value;
+    var lastdateid = jQuery('#zeallastdate').val();
+    console.log(lastdateid);
+    jQuery.ajax({
+      url: myAjax.ajaxurl,
+      type: 'post',
+      data: {
+        action: "action_reload_calender",
+        currentMonth: currentMonth,
+        currentYear: currentYear,
+        lastdateid:lastdateid,
+        form_id: form_id,
+      },
+      success: function(data) {
+        jQuery('#calender_reload').html(data);
+        if (lastdateid) { // Check if lastdateid is not empty or falsy
+            // alert("test1");
+          var element = jQuery('#' + lastdateid);
+          if (element.length > 0) {
+            element.click();
+          } else {
+            // alert("test");
+            var currentMonth = document.getElementById('bms_month').value;
+            var currentYear = document.getElementById('bms_year').value;
+            var monthName = getMonthName(parseInt(currentMonth));
+            jQuery('#headtodays_date').html(monthName + ' ' + currentYear);
+            jQuery('#timeslot-container').html('');
+          }
+        }
+      }
+    });
+  }
+  
+function getMonthName(month) {
+    var monthNames = {
+        1: 'January',
+        2: 'February',
+        3: 'March',
+        4: 'April',
+        5: 'May',
+        6: 'June',
+        7: 'July',
+        8: 'August',
+        9: 'September',
+        10: 'October',
+        11: 'November',
+        12: 'December'
+      };
+    return monthNames[month];
+}
