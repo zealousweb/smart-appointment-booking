@@ -1,0 +1,24 @@
+.selected-timeslot {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  .previous-month {
+    color: #999;
+}
+
+.next-month {
+    color: #999;
+}
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+.calselected_date {
+background-color: #96c5ac;
+font-weight: bold;
+}

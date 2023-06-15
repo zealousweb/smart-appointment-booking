@@ -262,15 +262,26 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <input type="number" class="minutes" name="start_time[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($start_time['minutes']) ? esc_attr($start_time['minutes']) : ''; ?>" required>
                     <span>:</span>
                     <input type="number" class="seconds" name="start_time[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($start_time['seconds']) ? esc_attr($start_time['seconds']) : ''; ?>" required><br>
+                    <select name="start_time[ampm]" id="start_time_ampm" required>
+                        <option value="any" <?php  echo isset($start_time['ampm']) ? selected('any', $start_time['ampm'], false) : '' ?> >Select Any</option>
+                        <option value="am" <?php echo isset($start_time['ampm']) ? selected('am', $start_time['ampm'], false): ''  ?>>AM</option>
+                        <option value="pm" <?php echo isset($start_time['ampm']) ? selected('pm', $start_time['ampm'], false): ''  ?>>PM</option>
+                    </select>
                     <br>
-                  
+                 
                     <label><?php echo __('End Time: ', 'textdomain'); ?></label>
                     <input type="number" class="hours" name="end_time[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($end_time['hours']) ? esc_attr($end_time['hours']) : ''; ?>" required>
                     <span>:</span>
                     <input type="number" class="minutes" name="end_time[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($end_time['minutes']) ? esc_attr($end_time['minutes']) : ''; ?>" required>
                     <span>:</span>
                     <input type="number" class="seconds" name="end_time[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($end_time['seconds']) ? esc_attr($end_time['seconds']) : ''; ?>" required>
+                    <select name="end_time[ampm]" id="start_time_ampm" required>
+                        <option value="any" <?php echo selected('any', $end_time['ampm'], false); ?> >Select Any</option>
+                        <option value="am" <?php echo selected('am', $end_time['ampm'], false);?>>AM</option>
+                        <option value="pm" <?php echo selected('pm', $end_time['ampm'], false); ?>>PM</option>
+                    </select>
                     <span class="validation-message" style="color: red;"></span><br>
+                   
                       
                     <br>
                     <label><?php echo __('Timeslot Duration: ', 'textdomain'); ?></label>
@@ -447,6 +458,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     'hours' => sanitize_text_field( $time_slot['hours'] ),
                     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
                     'seconds' => sanitize_text_field( $time_slot['seconds'] ),
+                    'ampm' => sanitize_text_field( $time_slot['ampm'] ),
                 );
     
                 // Update the post meta data with the field value
@@ -459,6 +471,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     'hours' => sanitize_text_field( $time_slot['hours'] ),
                     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
                     'seconds' => sanitize_text_field( $time_slot['seconds'] ),
+                    'ampm' => sanitize_text_field( $time_slot['ampm'] ),
                 );
         
                 // Update the post meta data with the field value
@@ -470,7 +483,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $sanitized_steps_duration = array(
                     'hours' => sanitize_text_field( $steps_duration['hours'] ),
                     'minutes' => sanitize_text_field( $steps_duration['minutes'] ),
-                    'seconds' => sanitize_text_field( $steps_duration['seconds'] ),
+                    'seconds' => sanitize_text_field( $steps_duration['seconds'] ),                   
                 );
         
                 // Update the post meta data with the field value
@@ -526,11 +539,9 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             if (isset($_POST['advancedata'])) {
                 
                 $advancedata = $_POST['advancedata'];
-                echo "<pre>";
-                print_r($advancedata);
-                
+             
                 update_post_meta($post_id, 'advancedata', $advancedata);
-                // exit;
+                
             }
                // Holidays
             if (isset($_POST['holidays'])) {

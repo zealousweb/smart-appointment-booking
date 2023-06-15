@@ -110,3 +110,24 @@ function getMonthName(month) {
       };
     return monthNames[month];
 }
+jQuery(document).ready(function($) {
+  // Event delegation to handle click event for dynamically generated elements
+  $(document).on('click', '.p_timeslot', function() {
+    // Remove the active class from all elements with the timeslot class
+    $('.p_timeslot').removeClass('selected-timeslot');
+
+    // Add the active class to the clicked element
+    $(this).addClass('selected-timeslot');
+
+    // Get the start time and end time from the data attributes of the clicked element
+    var startTime = $(this).attr('start-time');    
+    var endTime = $(this).attr('end-time');
+
+    // Store the start time and end time in hidden input fields
+    $('#formio').hide();
+    $('#start-time-input-i').val(startTime);
+    $('#end-time-input-e').val(endTime);
+     $('#formio').show();
+  });
+});
+
