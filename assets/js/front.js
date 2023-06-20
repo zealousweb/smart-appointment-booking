@@ -16,6 +16,7 @@ jQuery(document).ready(function($) {
 
 function getClickedId(element) {
   var data_day = element.getAttribute("data_day");
+  var getid = element.getAttribute("id");
   var clickedId = element.getAttribute("id");  
   jQuery('table td').removeClass('calselected_date');
   jQuery('#'+clickedId).addClass('calselected_date');
@@ -30,7 +31,8 @@ function getClickedId(element) {
         },
         success: function (data) {
             //console.log(data);
-            jQuery('#timeslot_result_i').html(data);
+            jQuery('#zfb-timeslots-table-container').html(data);
+            jQuery('#booking_date').val(getid);
         }
         
     });
@@ -86,7 +88,7 @@ function reloadCalendar(currentMonth, currentYear) {
             var currentYear = document.getElementById('bms_year').value;
             var monthName = getMonthName(parseInt(currentMonth));
             jQuery('#headtodays_date').html(monthName + ' ' + currentYear);
-            jQuery('#timeslot-container').html('');
+            jQuery('#zfb-slot-list').html('');
           }
         }
       }
@@ -110,24 +112,60 @@ function getMonthName(month) {
       };
     return monthNames[month];
 }
+function selectTimeslot(element) {
+  const selectedElements = $('.zfb_timeslot.selected');
+  // Deselect all previously selected timeslots
+  selectedElements.removeClass('selected');
+  selectedElements.find('.zfb-selected-capacity').hide();
+  // Select the clicked timeslot
+  $(element).addClass('selected');
+  $(element).find('.zfb-selected-capacity').show();
+  // $(element).append('<input class="zfb-selected-capacity" type="number" name="zfb-selected-capacity_i" placeholder="Enter Slot Capacity" min="1" value="1">');
+}
 jQuery(document).ready(function($) {
-  // Event delegation to handle click event for dynamically generated elements
-  $(document).on('click', '.p_timeslot', function() {
-    // Remove the active class from all elements with the timeslot class
-    $('.p_timeslot').removeClass('selected-timeslot');
-
-    // Add the active class to the clicked element
-    $(this).addClass('selected-timeslot');
-
-    // Get the start time and end time from the data attributes of the clicked element
-    var startTime = $(this).attr('start-time');    
-    var endTime = $(this).attr('end-time');
-
-    // Store the start time and end time in hidden input fields
-    $('#formio').hide();
-    $('#start-time-input-i').val(startTime);
-    $('#end-time-input-e').val(endTime);
-     $('#formio').show();
+  var currentStep = 1;
+  var totalSteps = $('.container > .step').length;
+  // alert(totalSteps);
+  
+  function updateButtons() {
+    if (currentStep === 1) {
+      $('#backButton').hide();
+    } else {
+      $('#backButton').show();
+    }
+    
+    if (currentStep === totalSteps) {
+      $('#nextButton').hide();
+    } else {
+      $('#nextButton').show();
+    }
+  }
+  function showStep(step) {
+    $('.step').hide();
+    $('.step.step' + step).show();
+  }
+  
+  
+  $('#backButton').click(function() {
+    if (currentStep > 1) {
+      currentStep--;
+      showStep(currentStep);
+      updateButtons();
+    }
   });
+  
+  $('#nextButton').click(function() {
+    if (currentStep < totalSteps) {
+      currentStep++;
+      showStep(currentStep);
+      updateButtons();
+    } else {
+      // Perform actions for the last step (e.g., submit form, show success message)
+      alert('Form submitted!');
+    }
+  });
+  
+  // Initial setup
+  updateButtons();
+  showStep(currentStep);
 });
-

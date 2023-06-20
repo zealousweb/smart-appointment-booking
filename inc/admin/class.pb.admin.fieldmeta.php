@@ -53,12 +53,60 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         
             $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );	
             $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
+
+            $stringdata_timeInSeconds = get_post_meta( $post->ID, 'timeslot', true );
+            $array_of_timeInSeconds = explode('-',$stringdata_timeInSeconds);          
+            $start_time = $array_of_timeInSeconds[0];
+            $end_time = $array_of_timeInSeconds[1];           
+
+            $start_timeFormatted = gmdate('H:i:s', $start_time);  
+            $end_timeFormatted = gmdate('H:i:s', $end_time); 
+
+
+            // echo "<br>".	
+            $booking_date = get_post_meta( $post->ID, 'booking_date', true );
+            $array_of_date = explode('_',$booking_date);
+            // echo "<pre>";
+            // print_r($array_of_date);
+            $bookedmonth = $array_of_date[2];
+            $bookedday =$array_of_date[3];
+            $bookedyear =$array_of_date[4];
+            $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
+            // $totalbookings = get_post_meta( $post->ID, 'totalbookings', true );	
+            $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
+
             if(!empty($form_id)){ 
-                $booking_form_title = get_the_title($form_id); 
+               $booking_form_title = get_the_title($form_id);               
+            }
+            $date_generated = get_the_date($post->ID);
+            $status = get_post_meta( $post->ID, 'entry_status', true );
+            if(empty($status)){
+                $status = "Approval Pending";
+            }elseif($status == 'completed'){
+                $status = "Completed";
+            }elseif($status == 'approval_pending'){
+                $status = "Approval Pending";
+            }elseif($status == 'cancelled'){
+                $status = "Cancelled";
+            }elseif($status == 'manual'){
+                $status = "Manual";
+            }elseif($status == 'expired'){
+                $status = "Expired";
             }
             ?>
+            <h3>General</h3>
             <ul>
                 <li><?php echo __('Form Title', 'textdomain')." : ".$booking_form_title; ?></li>
+                <li><?php echo __('Date Generated', 'textdomain')." : ".$date_generated; ?></li>
+                <li><?php echo __('Status', 'textdomain')." : ".$status; ?></li>
+                <li><?php echo __('Customer', 'textdomain'); ?> : <?php echo __('Guest', 'textdomain');; ?></li>
+                <li><?php echo __('Booking Date', 'textdomain'); ?> : <?php echo __($booked_date, 'textdomain');; ?></li>
+                <li><?php echo __('Timeslot', 'textdomain'); ?> : <?php echo __($start_timeFormatted, 'textdomain'); ?> to <?php echo __($end_timeFormatted, 'textdomain'); ?></li>
+                <li><?php echo __('No of Slots Booked', 'textdomain'); ?> : <?php echo __($slotcapacity, 'textdomain'); ?></li>
+            </ul>   
+            <h3>Booking Details</h3>
+            <ul>
+                
                 <?php
                 
                 foreach($form_data['data'] as $form_key => $form_value){
@@ -165,6 +213,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $no_of_booking = get_post_meta($post->ID, 'no_of_booking', true);  
             $holiday_dates = get_post_meta($post->ID, 'holiday_dates', true);
             $enable_waiting = get_post_meta($post->ID, 'waiting_list', true);
+            $enable_auto_approve = get_post_meta($post->ID, 'enable_auto_approve', true);
             //section 2 
             $enable_recurring_apt = get_post_meta($post->ID, 'enable_recurring_apt', true);
             $recurring_type = get_post_meta($post->ID, 'recurring_type', true);
@@ -195,13 +244,19 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             if ( empty( $btimes ) ) {
                 $btimes = array( array( 'hours' => '', 'minutes' => '', 'seconds' => '' ) );
             }
-                      
+            //section 3
+           
+            $redirect_url = get_post_meta($post->ID, 'redirect_url', true);
+            $redirect_page = get_post_meta($post->ID, 'redirect_page', true);
+            $redirect_text = get_post_meta($post->ID, 'redirect_text', true);
+            $confirmation = get_post_meta($post->ID, 'confirmation', true);  
             ?>
             <div id="custom-meta-box-tabs">
                 <!-- Tab navigations -->
                 <ul class="tab-navigation">
                     <li><a href="#tab1">General</a></li>
                     <li><a href="#tab2">Recurring Appointment</a></li>
+                    <li><a href="#tab3">Confirmations</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
                 <div id="tab1" class="tab-content">
@@ -315,6 +370,10 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     </label>
                     <br>
                     <br>
+                    <label>
+                    <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
+                        Allow Auto Approve
+                    </label>
            
                 </div>
            
@@ -324,7 +383,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <label><input type="checkbox" id="enable_recurring_apt_i" name="enable_recurring_apt" value="1" <?php echo checked(1, $enable_recurring_apt, false); ?>> Enable Recurring Bookings</label><br> <br>
                     <!-- hide and show whole container on enable and disable button -->
                     <?php if ($enable_recurring_apt) : ?>
-                    <div id="recurring_result">
+                        <div id="recurring_result">
                     <?php else : ?>
                         <div id="recurring_result" style="display: none;">
                     <?php endif; ?>
@@ -374,8 +433,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                     <button type="button" class="remove-row">Remove Date</button>
                                 </div>
                             <?php } ?>
-                        
-                    </div>
+                        </div>
                 
                         <br><br>
                         <div class="holiday-repeater">
@@ -402,6 +460,75 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <br>
                         </div>
                     </div>
+                </div>
+                <div id="tab3" class="tab-content"> 
+                    <?php
+                    if ($confirmation == 'redirect_text'){
+                        $hiddenredirect_to = 'hidden';
+                        $hiddenredirect_page = 'hidden';
+                        
+                    }elseif($confirmation == 'redirect_page'){
+                          $hiddenredirect_text = 'hidden';
+                         $hiddenredirect_to = 'hidden';
+                       
+                    }elseif($confirmation == 'redirect_to'){
+                          $hiddenredirect_text = 'hidden';
+                         $hiddenredirect_to = 'hidden';
+                       
+                    }
+                    if(empty($confirmation) || !isset($confirmation)){
+                        $hiddenredirect_text = "hidden";
+                        $hiddenredirect_page = "hidden";
+                        $hiddenredirect_to = "hidden";
+                    }
+                    ?> 
+                    <h3>Confirmation Type</h3>
+                    <div class="">
+                        <input type="radio" name="confirmation" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>> Text<br>
+                    </div> 
+                    <div class="">
+                        <input type="radio" name="confirmation" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>> Page<br> 
+                    </div> 
+                    <div class="">
+                        <input type="radio" name="confirmation" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>> Redirect to<br>  
+                    </div> 
+                    <!-- Class is used for on change event display div: redirectto_main redirect_page , redirectto_main redirect_text, redirectto_main redirect_to -->
+                    <div class="redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?>">
+                        <?php
+                            wp_editor($redirect_text, 'redirect_text', array(
+                                'textarea_name' => 'redirect_text',
+                            ));
+                        ?>
+                    </div>
+                    <div class="redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?> ">
+                        <label>Select a page:</label>
+                        <input type="text" id="redirectpage-search" placeholder="Search...">
+                        <select name="redirect_page" id="redirectpage-dropdown">
+                            <option value="">Select a page</option>
+                            <?php
+                            $args = array(
+                                'post_type' => 'page',
+                                'posts_per_page' => -1,
+                                'orderby' => 'title',
+                                'order' => 'ASC'
+                            );
+                            $pages = get_posts($args);
+                            foreach ($pages as $page) {
+                                $selected = '';
+                                $selected_page_id = get_post_meta(get_the_ID(), 'selected_page', true);
+                                if ($selected_page_id == $page->ID) {
+                                    $selected = 'selected="selected"';
+                                }
+                                echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="redirectto_main redirect_to redirect_zfb <?php echo $hiddenredirect_to; ?>">
+                        <label><?php echo __('Url: ', 'textdomain'); ?></label>
+                        <input type="text" name="redirect_to" id="redirect-url" style="width: 500px !important;" required>
+                        <small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
+                    </div>   
                 </div>
             </div>
             <?php
@@ -513,6 +640,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             } else {
                 delete_post_meta($post_id, 'waiting_list');
             }
+            //enable_auto_approve
+            if (isset($_POST['enable_auto_approve'])) {
+                update_post_meta($post_id, 'enable_auto_approve', 1);
+            } else {
+                delete_post_meta($post_id, 'enable_auto_approve');
+            }
            
              //Enable Recurring Events
             if (isset($_POST['enable_recurring_apt'])) {
@@ -565,7 +698,23 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $end_repeats_after = sanitize_text_field($_POST['end_repeats_after']);
                 update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
             }
-
+            //section 3
+            if (isset($_POST['confirmation'])) {
+                $redirect_url = sanitize_text_field($_POST['confirmation']);
+                update_post_meta($post_id, 'confirmation', $redirect_url);
+            }
+            if (isset($_POST['redirect_text'])) {
+                $wp_editor_value = wp_kses_post($_POST['redirect_text']);
+                update_post_meta($post_id, 'redirect_text', $wp_editor_value);
+            }
+            if (isset($_POST['redirect_page'])) {
+                $redirect_page = sanitize_text_field($_POST['redirect_page']);
+                update_post_meta($post_id, 'redirect_page', $redirect_page);
+            }
+            if (isset($_POST['redirect_url'])) {
+                $redirect_url = sanitize_text_field($_POST['redirect_url']);
+                update_post_meta($post_id, 'redirect_url', $redirect_url);
+            }
          }
         /**
 	 	* Adds the meta box container.

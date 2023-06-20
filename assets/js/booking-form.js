@@ -229,3 +229,48 @@ jQuery(document).ready(function($) {
         $(this).closest('.timeslot-row').remove();
     });
 });
+jQuery(document).ready(function($) {
+    $('input[name="confirmation"]').change(function() {
+        // alert("test");
+        var selectedOption = $(this).val();
+        // alert(selectedOption);
+        $('.redirectto_main').addClass('hidden');
+        $('.redirectto_main.' + selectedOption).removeClass('hidden');
+    });
+});
+jQuery(document).ready(function($) {
+    // Search functionality
+    $('#redirectpage-search').on('keyup', function() {
+        var searchValue = $(this).val().toLowerCase();
+
+        $('#page-dropdown option').each(function() {
+            var optionText = $(this).text().toLowerCase();
+
+            if (optionText.indexOf(searchValue) > -1) {
+                $(this).prop('hidden', false);
+            } else {
+                $(this).prop('hidden', true);
+            }
+        });
+    });
+});
+// show error if url is entered wrong
+jQuery(document).ready(function($) {
+    // URL validation
+    $('#redirect-url').on('blur', function() {
+        var url = $(this).val();
+
+        if (url !== '') {
+            var pattern = /^(https?:\/\/)?[\w.-]+\.[a-zA-Z]{2,7}\/?$/;
+            var isValidUrl = pattern.test(url);
+
+            if (!isValidUrl) {
+                $(this).addClass('error');
+                $(this).next('.redirecturl-error').show();
+            } else {
+                $(this).removeClass('error');
+                $(this).next('.redirecturl-error').hide();
+            }
+        }
+    });
+});
