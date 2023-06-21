@@ -64,29 +64,7 @@ jQuery(document).ready(function($) {
         $('.repeater-container').hide();
       }
     });
-  
-    // Add timeslot functionality
-    // $('.add-breaktimeslot').on('click', function() {
-    //     // alert("test");
-    //   var timeslotHTML = '<div class="breaktimeslot">' +
-    //     '<label>Start Time:</label>' +
-    //     '<input type="number" name="breaktimeslots[start_hours][]" min="0" max="23"  placeholder="HH" value="">' +
-    //     '<input type="number" name="breaktimeslots[start_minutes][]" min="0" max="59" placeholder="MM" value="">' +
-    //     '<input type="number" name="breaktimeslots[start_seconds][]" min="0" max="59" placeholder="SS" value="">' +
-    //     '<br>' +
-    //     '<label>End Time:</label>' +
-    //     '<input type="number" name="breaktimeslots[end_hours][]" min="0" max="23"  placeholder="HH" value="">' +
-    //     '<input type="number" name="breaktimeslots[end_minutes][]" min="0" max="59" placeholder="MM" value="">' +
-    //     '<input type="number" name="breaktimeslots[end_seconds][]" min="0" max="59" placeholder="SS" value="">' +
-    //      '<button type="button" class="remove-breaktimeslot">Remove Timeslot</button>' +
-    //     '</div>';
-    //   $('.breaktimeslot-repeater').append(timeslotHTML);
-    // });
-  
-    // // Remove timeslot functionality
-    // $('.breaktimeslot-repeater').on('click', '.remove-breaktimeslot', function() {
-    //   $(this).closest('.breaktimeslot').remove();
-    // });
+    
   });
   
 jQuery(document).ready(function($) {
@@ -255,22 +233,86 @@ jQuery(document).ready(function($) {
     });
 });
 // show error if url is entered wrong
+// jQuery(document).ready(function($) {
+//     // URL validation
+//     $('#redirect-url').on('blur', function() {
+//         var url = $(this).val();
+
+//         if (url !== '') {
+//             var pattern = /^(https?:\/\/)?[\w.-]+\.[a-zA-Z]{2,7}\/?$/;
+//             var isValidUrl = pattern.test(url);
+
+//             if (!isValidUrl) {
+//                 $(this).addClass('error');
+//                 $(this).next('.redirecturl-error').show();
+//             } else {
+//                 $(this).removeClass('error');
+//                 $(this).next('.redirecturl-error').hide();
+//             }
+//         }
+//     });
+// });
 jQuery(document).ready(function($) {
-    // URL validation
-    $('#redirect-url').on('blur', function() {
-        var url = $(this).val();
+    jQuery(document).on('click', '#preview_timeslot', function() {        
+        var post = $(this).attr("pid");
+        var url=window.location.href;
+        var arr=url.split('wp-admin')[0];
+        var link=arr+'wp-admin/admin-ajax.php';
+        jQuery.ajax({
+            url: link,
+            type: "POST",
+            data: { 
+            action: "zfb_preiveiw_timeslot",
+            post_id: post,  // Current post ID
+            },
+            success: function (response) {
+                var start_time = response.data.output;
+                jQuery('#preview_output').html('<p>' + start_time + '</p>');               
+                console.log(start_time);
+                // console.log(end_time);
+                // console.log(break_times);
+                // console.log(gap_minutes);
+                // console.log(duration_minutes);
 
-        if (url !== '') {
-            var pattern = /^(https?:\/\/)?[\w.-]+\.[a-zA-Z]{2,7}\/?$/;
-            var isValidUrl = pattern.test(url);
-
-            if (!isValidUrl) {
-                $(this).addClass('error');
-                $(this).next('.redirecturl-error').show();
-            } else {
-                $(this).removeClass('error');
-                $(this).next('.redirecturl-error').hide();
+                // if (confirmationType === 'redirect_text') {
+                //     // Replace div content with wpEditorValue or message
+                //     jQuery('#calender_reload').html(wpEditorValue);
+                // } else if (confirmationType === 'redirect_to') {
+                //     jQuery('#calender_reload').html('<p>' + message + '</p>');
+                //     // Replace div content with message
+                //     jQuery('#preview_output').html('<p>' + message + '</p>');
+                // } else if (confirmationType === 'redirect_page') {
+                    
+                //     jQuery('#calender_reload').html('<p>' + message + '</p>');
+                //     setTimeout(function() {
+                //         window.location.href = pageUrl;
+                //     }, 3000); // Redirect after 3 seconds (adjust as needed)
+                // }
             }
-        }
+            
+        });
+
     });
 });
+$(document).ready(function() {
+    // Add Timeslot
+    $('.add-breaktimeslot').click(function() {
+        var index = $('.breaktimeslot-repeater .breaktimeslot').length;
+        var timeslot = `
+          <div class="breaktimeslot">
+            <label>Start Time:</label>
+            <input type="time" name="breaktimeslots[${index}][start_time]" value="">
+            <br>
+            <label>End Time:</label>
+            <input type="time" name="breaktimeslots[${index}][end_time]" value="">
+            <button type="button" class="remove-timeslot">Remove Timeslot</button>
+          </div>
+        `;
+        $('.breaktimeslot-repeater').append(timeslot);
+      });
+
+      // Remove Timeslot
+      $(document).on('click', '.remove-breaktimeslot', function() {
+        $(this).closest('.breaktimeslot').remove();
+      });
+  });

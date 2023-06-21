@@ -30,6 +30,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			// add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );		
 			add_action( 'wp_ajax_bms_save_form_data', array( $this, 'bms_save_form_data' ));
 			add_action('manage_bms_forms_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
+			add_action('manage_bms_entries_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
+
+			add_action('wp_ajax_zfb_preiveiw_timeslot', array( $this, 'zfb_preiveiw_timeslot' ) );
+			add_action('wp_ajax_nopriv_zfb_preiveiw_timeslot', array( $this, 'zfb_preiveiw_timeslot' ) );
 
 			add_action('admin_enqueue_scripts',  array( $this, 'enqueue_admin_scripts' ), 10, 2);
 			
@@ -102,8 +106,9 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			}
 
 			if (is_singular('bms_forms') || is_singular('zeal_formbuilder') || $post_type == 'bms_forms' || isset($_GET['post_type']) && $_GET['post_type'] === 'bms_forms') {
-			
+				wp_enqueue_script( 'bms_bootstrapbundlemin', PB_URL.'assets/js/bootstrap.bundle.min.js', array( 'jquery' ), 1.1, false );
 			 	wp_enqueue_script( 'bms_formio_full_min', PB_URL.'assets/js/formio.full.min.js', array( 'jquery' ), 1.1, false );
+				 wp_enqueue_script( 'bms_popper.minjs', PB_URL.'assets/js/popper.min.js', array( 'jquery' ), 1.1, false );
 			 	wp_enqueue_script( 'bms_bootstrap.min', PB_URL.'assets/js/bootstrap.min.js', array( 'jquery' ), 1.1, false );
 			 	wp_enqueue_script( 'bms_jquery-3.7.0.slim.min', PB_URL.'assets/js/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
 				wp_enqueue_script( 'bms_jquery-3.7.0.min',PB_URL.'assets/js/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
@@ -246,13 +251,131 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		
 		// Populate the custom column with data
 		function populate_custom_column($column, $post_id) {
-			if ($column === 'shortcode') {
-				// Display the data for your custom column
+			if ($column === 'shortcode') {				
 				echo "[booking_form form_id='".$post_id."']";
 			}
-		}
+			if ($column === 'form') {	
+				$form_id = get_post_meta($post_id,'bms_form_id',true);	
+				$form_title = get_the_title($form_id);	
+				echo __($form_title,'textdomain');
+			}
+			if ($column === 'booking_status') {		
+				$booking_status = get_post_meta($post_id,'entry_status',true);
+				echo __($booking_status,'textdomain');
+				
+			}
+			if ($column === 'event_status') {
+				$form_id = get_post_meta($post_id,'bms_form_id',true);	
+				$form_title = get_the_title($form_id);					
+				echo __($form_title,'textdomain');
+			}
+			
 
+		}
+		function zfb_preiveiw_timeslot() {
+			$error = 0;
+			$output = '';		
+			if (isset($_POST['post_id'])) {
+				
+				$post_id = $_POST['post_id'];
+				$start_time = get_post_meta($post_id, 'start_time', true);
+				$end_time = get_post_meta($post_id, 'end_time', true);
+				$break_times = get_post_meta($post_id, 'breaktimeslots', true);
+				$duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
+				$gap_minutes = get_post_meta($post_id, 'steps_duration', true);
 		
+				$available_timeslots = $this->admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id);
+				// Generate the output string
+				$output = implode('<br>', $available_timeslots);
+				// $output = $available_timeslots;
+			} else {
+				$error = 1;
+				$error_mess = "Something went wrong";
+				error_log("post_id not found while preview");
+			}
+		
+			if ($error == 1) {
+				// Send error response
+				wp_send_json_error(array(
+					'error_mess' => $error_mess
+				));
+			} else {
+				// Send success response with timeslots
+				wp_send_json_success(array(
+					'message' => 'Submitted Successfully',
+					'output' => $output
+				));
+			}
+			wp_die();
+		}
+		function admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id){
+			// Convert start time and end time to Unix timestamps
+			$start_timestamp = strtotime($start_time);
+			$end_timestamp = strtotime($end_time);
+	
+			// Convert duration and gap to minutes
+			$duration = ($duration_minutes['hours'] * 60) + $duration_minutes['minutes'];
+			$gap = ($gap_minutes['hours'] * 60) + $gap_minutes['minutes'];
+	
+			// Convert break times to Unix timestamps
+			$break_timestamps = array();
+			foreach ($break_times as $break_time) {
+				$break_start_timestamp = strtotime($break_time['start_time']);
+				$break_end_timestamp = strtotime($break_time['end_time']);
+				$break_timestamps[] = array($break_start_timestamp, $break_end_timestamp);
+			}
+	
+			// Initialize the current timestamp with the start timestamp
+			$current_timestamp = $start_timestamp;
+	
+			// Initialize an array to store available timeslots
+			$available_timeslots = array();
+	
+			// Loop through the durations between the start time and end time
+			while ($current_timestamp <= $end_timestamp) {
+				// Check if the current timestamp falls within any break time
+				$within_break = false;
+				foreach ($break_timestamps as $break_timestamp) {
+					if ($current_timestamp >= $break_timestamp[0] && $current_timestamp < $break_timestamp[1]) {
+						$current_timestamp = $break_timestamp[1]; // Move to the end of the break
+						$within_break = true;
+						break;
+					}
+				}
+	
+				if ($within_break) {
+					continue;
+				}
+	
+				// Calculate the end timestamp for the current timeslot
+				$end_timeslot = $current_timestamp + ($duration * 60);
+	
+				// Check if the timeslot extends beyond the end time
+				if ($end_timeslot > $end_timestamp) {
+					break;
+				}
+	
+				// Check if the timeslot extends into any break time
+				foreach ($break_timestamps as $break_timestamp) {
+					if ($end_timeslot > $break_timestamp[0] && $current_timestamp < $break_timestamp[0]) {
+						$end_timeslot = $break_timestamp[0]; // Adjust the end of the timeslot to the start of the break
+						break;
+					}
+				}
+	
+				// Format the start time and end time of the timeslot
+				$start_time_slot = date('h:i A', $current_timestamp);
+				$end_time_slot = date('h:i A', $end_timeslot);
+	
+				// Add the timeslot to the available timeslots array
+				$available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
+	
+				// Move to the next available timeslot (including the gap)
+				$current_timestamp = $end_timeslot + ($gap * 60);
+			}
+			return $available_timeslots;
+		}
+        		
 	}
 
 	add_action( 'plugins_loaded', function() {

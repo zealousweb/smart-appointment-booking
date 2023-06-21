@@ -38,6 +38,7 @@ function getClickedId(element) {
     });
 }
 function getClicked_next(element) {
+  // alert("test");
     var currentMonth = document.getElementById('bms_month').value;
     var currentYear = document.getElementById('bms_year').value;
 
@@ -62,6 +63,7 @@ function getClicked_prev(element) {
     reloadCalendar(currentMonth,currentYear);
 }
 function reloadCalendar(currentMonth, currentYear) {
+  // alert("wee");
     var form_id = document.getElementById('zealform_id').value;
     var lastdateid = jQuery('#zeallastdate').val();
     console.log(lastdateid);
@@ -76,7 +78,8 @@ function reloadCalendar(currentMonth, currentYear) {
         form_id: form_id,
       },
       success: function(data) {
-        jQuery('#calender_reload').html(data);
+        jQuery('#month-navigationid').html(data);
+        jQuery('#zfb-timeslots-table-container').html('');
         if (lastdateid) { // Check if lastdateid is not empty or falsy
             // alert("test1");
           var element = jQuery('#' + lastdateid);
@@ -87,8 +90,9 @@ function reloadCalendar(currentMonth, currentYear) {
             var currentMonth = document.getElementById('bms_month').value;
             var currentYear = document.getElementById('bms_year').value;
             var monthName = getMonthName(parseInt(currentMonth));
-            jQuery('#headtodays_date').html(monthName + ' ' + currentYear);
-            jQuery('#zfb-slot-list').html('');
+            // jQuery('#headtodays_date').html(monthName + ' ' + currentYear);
+            // jQuery('#zfb-slot-list').html('');
+           
           }
         }
       }
@@ -113,13 +117,28 @@ function getMonthName(month) {
     return monthNames[month];
 }
 function selectTimeslot(element) {
+  // alert("test");
   const selectedElements = $('.zfb_timeslot.selected');
   // Deselect all previously selected timeslots
   selectedElements.removeClass('selected');
   selectedElements.find('.zfb-selected-capacity').hide();
   // Select the clicked timeslot
   $(element).addClass('selected');
-  $(element).find('.zfb-selected-capacity').show();
+  
+  var seats = $(element).find('.zfb-tooltip-text').attr('data-seats');
+  var datawaiting = $(element).find('.zfb-waiting').attr('data-waiting');
+  if(seats == 0 || seats === 'not_available' ){
+    if(datawaiting == 0){
+      $(element).find('.zfb-selected-capacity').hide();
+    }else{
+      $(element).find('.zfb-selected-capacity').show();
+    }   
+  }else{
+    
+   $(element).find('.zfb-selected-capacity').show();
+  }
+  // console.log(seats);
+  // alert(seats);  
   // $(element).append('<input class="zfb-selected-capacity" type="number" name="zfb-selected-capacity_i" placeholder="Enter Slot Capacity" min="1" value="1">');
 }
 jQuery(document).ready(function($) {
@@ -144,8 +163,6 @@ jQuery(document).ready(function($) {
     $('.step').hide();
     $('.step.step' + step).show();
   }
-  
-  
   $('#backButton').click(function() {
     if (currentStep > 1) {
       currentStep--;

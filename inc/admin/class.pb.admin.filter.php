@@ -20,7 +20,8 @@ if ( !class_exists( 'PB_Admin_Filter' ) ) {
 	class PB_Admin_Filter {
 
 		function __construct() {
-			add_filter('manage_bms_forms_posts_columns', array( $this,'add_custom_column'), 10, 2 );		
+			add_filter('manage_bms_forms_posts_columns', array( $this,'add_custom_column_bms_forms'), 10, 2 );		
+			add_filter('manage_bms_entries_posts_columns', array( $this,'add_custom_column_bms_entries'), 10, 2 );		
 
 		}
 
@@ -47,12 +48,24 @@ if ( !class_exists( 'PB_Admin_Filter' ) ) {
 		/**
 		* Add custom column to the custom post type list
 		*/
-		function add_custom_column($columns) {
+		function add_custom_column_bms_forms($columns) {
 
 			$new_columns = array();
 			$new_columns['cb'] = '';
 			$new_columns['title'] = 'Title';
 			$new_columns['shortcode'] = 'Shortcode';		
+			$new_columns = array_merge($new_columns, $columns);
+			return $new_columns;
+		}
+		function add_custom_column_bms_entries($columns) {
+			
+			$new_columns = array();
+			$new_columns['cb'] = '';
+			$new_columns['title'] = 'Title';
+			$new_columns['form'] = 'Form';
+			$new_columns['booking_status'] = 'Booking Status';
+			$new_columns['event_status'] = 'Event Status';	
+			$columns['date'] = 'Booked Date';
 			$new_columns = array_merge($new_columns, $columns);
 			return $new_columns;
 		}

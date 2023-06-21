@@ -99,139 +99,173 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			return ob_get_clean();
 		}
 		function bms_front_save_post_meta() {
-
-        	$timeslot = $_POST['timeslot'];
+			$error = '';
+			$timeslot = $_POST['timeslot'];
 			$booking_date = $_POST['booking_date'];
 			// $totalbookings = $_POST['totalbookings'];
 			$slotcapacity = $_POST['slotcapacity'];
 			$form_id = $_POST['fid'];
-            $form_data = $_POST['form_data'];
+			$form_data = $_POST['form_data'];
 			$enable_auto_approve = get_post_meta($form_id, 'enable_auto_approve', true);
-
+			$check_waiting = get_post_meta($form_id, 'waiting_list', true);
+			$no_of_seats = $this->get_available_seats_per_timeslot($timeslot, $booking_date);
+			$tot_no_of_seats =  $slotcapacity - $no_of_seats;
+			$waiting_list = 'false';
 		
-            // Prepare the new post data
-			$pid = get_option('tot_bms_entries');
-			if(empty($pid)){
-				$pid = 1;
-			}else{
-				$pid++;
+			if ($tot_no_of_seats <= 0 || $no_of_seats === 'not_available') {
+				if ($check_waiting) {
+					$register_booking = 'true';
+					$waiting_list = 'true';
+				} else {
+					$register_booking = 'false';
+					$error = 'No available seats';
+				}
+			} else {
+				$register_booking = 'true';
 			}
-            $new_post = array(
-              	'post_title'   => 'booking_#' . $pid,
-             	'post_type'    => 'bms_entries',
-             	'post_status'  => 'publish'
-            );
-            
-            $created_post_id = wp_insert_post($new_post);
-			if($enable_auto_approve){
-				update_post_meta($created_post_id,'entry_status','completed');
-			}else{
-				update_post_meta($created_post_id,'entry_status','approval_pending');				
-			}
-			update_option('tot_bms_entries',$pid);
-			update_post_meta($created_post_id,'bms_submission_data',$form_data);
-			update_post_meta($created_post_id,'bms_form_id',$form_id);
-
-			update_post_meta($created_post_id,'timeslot',$timeslot);
-			update_post_meta($created_post_id,'booking_date',$booking_date);
-			// update_post_meta($created_post_id,'totalbookings',$totalbookings);
-			update_post_meta($created_post_id,'slotcapacity',$slotcapacity);
+		
+			if ($register_booking === 'true') {
 				
-			$confirmation = get_post_meta($form_id, 'confirmation', true);
-
-			if ($confirmation == 'redirect_text') {
-				$wp_editor_value = get_post_meta($form_id, 'redirect_text', true);				
-			}
-			if ($confirmation == 'redirect_page') {
-
-				$redirect_page = get_post_meta($form_id, 'redirect_page', true);
-				$redirect_url = get_permalink($redirect_page);
-			}
-			if ($confirmation == 'redirect_to') {
-				$redirect_url = get_post_meta($form_id, 'redirect_url', true);
+				$pid = get_option('tot_bms_entries');
+				if (empty($pid)) {
+					$pid = 1;
+				} else {
+					$pid++;
+				}
+				$new_post = array(
+					'post_title'   => 'booking_#' . $pid,
+					'post_type'    => 'bms_entries',
+					'post_status'  => 'publish'
+				);
+		
+				$created_post_id = wp_insert_post($new_post);
+				if ($enable_auto_approve) {
+					if ($waiting_list === 'true') {
+						
+						update_post_meta($created_post_id, 'entry_status', 'waiting');
+					} else {
+						update_post_meta($created_post_id, 'entry_status', 'completed');
+					}
+				} else {
+					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
+				}
+				update_option('tot_bms_entries', $pid);
+				update_post_meta($created_post_id, 'bms_submission_data', $form_data);
+				update_post_meta($created_post_id, 'bms_form_id', $form_id);
+		
+				update_post_meta($created_post_id, 'timeslot', $timeslot);
+				update_post_meta($created_post_id, 'booking_date', $booking_date);
+				// update_post_meta($created_post_id, 'totalbookings', $totalbookings);
+				update_post_meta($created_post_id, 'slotcapacity', $slotcapacity);
+		
+				$confirmation = get_post_meta($form_id, 'confirmation', true);
+				$success_message = get_post_meta($form_id, 'your_field_key', true);
+				$formatted_message = wpautop($success_message);
+				$redirect_url = '';
+		
+				if ($confirmation == 'redirect_text') {
+					$wp_editor_value = get_post_meta($form_id, 'redirect_text', true);
+				} elseif ($confirmation == 'redirect_page') {
+					$redirect_page = get_post_meta($form_id, 'redirect_page', true);
+					$redirect_url = get_permalink($redirect_page);
+				} elseif ($confirmation == 'redirect_to') {
+					$redirect_url = get_post_meta($form_id, 'redirect_to', true);
+				}
+		
+				// Send success response
+				wp_send_json_success(array(					
+					'message' => 'Sucessfully Submitted',
+					'redirect_page' => $redirect_url,
+					'wp_editor_value' => $formatted_message,
+					'redirect_url' => $redirect_url,
+					'confirmation' => $confirmation
+				));
+			} else {
+				// Send error response
+				wp_send_json_error(array(
+					'message' => 'Something went wrong, Please try again later',
+					'error' => $error,
+				));
 			}
 		
-			// Send success response
-			wp_send_json_success(array(
-				'message' => 'Sumbitted Successfully',
-				'redirect_page' => $redirect_url,
-				'wp_editor_value' => $wp_editor_value,
-				'redirect_url' => $redirect_url,
-				'confirmation' => $confirmation
-			));
-			wp_die();            
+			wp_die();
 		}
-		function processDate($post_id = null) {
+		
+		function processDate($post_id = null, $date = null) {
 			if ($post_id === null) {
 				return false;
 			} else {
-
-
 				$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
 				if ($check_type) {
 					$weekdays_num = $arrayofdates = array();
 					$weekdays = get_post_meta($post_id, 'weekdays', true);					
 					$all_days = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-					$selected_date = get_post_meta($post_id, 'selected_date', true);
-					$selected_date = date("Y-m-d", strtotime($selected_date));
-					$recurring_type = get_post_meta($post_id, 'recurring_type', true);
-					$holiday_dates = get_post_meta($post_id, 'holiday_dates', true);
-					$end_repeats_type = get_post_meta($post_id, 'end_repeats', true);
-					if ($end_repeats_type == 'on') {
-						$end_repeats_on = get_post_meta($post_id, 'end_repeats_on',true);
-						$end_repeats_on_date = date("Y-m-d", strtotime($end_repeats_on));
-					}
 					
-					if ($recurring_type == 'weekend') {
-						$remaining_days = array_diff($all_days, $weekdays);
-						foreach ($remaining_days as $wdays) {
-							$weekdays_num[] = date('N', strtotime($wdays));
-						}
-						// return $weekdays_num;
+                    $selected_date = get_post_meta($post_id, 'selected_date', true);
+                    $selected_date = date("Y-m-d", strtotime($selected_date));
+                    if($date < $selected_date){
+                        $arrayofdates = array();
+                    }else{
+                        $recurring_type = get_post_meta($post_id, 'recurring_type', true);
+                        $holiday_dates = get_post_meta($post_id, 'holiday_dates', true);
+                        $end_repeats_type = get_post_meta($post_id, 'end_repeats', true);
+                        if ($end_repeats_type == 'on') {
+                            $end_repeats_on = get_post_meta($post_id, 'end_repeats_on',true);
+                            $end_repeats_on_date = date("Y-m-d", strtotime($end_repeats_on));
+                        }
+                        
+                        if ($recurring_type == 'weekend') {
+                            $remaining_days = array_diff($all_days, $weekdays);
+                            foreach ($remaining_days as $wdays) {
+                                $weekdays_num[] = date('N', strtotime($wdays));
+                            }
+                            // return $weekdays_num;
 
-					}elseif ($recurring_type == 'weekdays') {
-						
-						foreach ($weekdays as $wdays) {
-							$weekdays_num[] = date('N', strtotime($wdays));
-						}
-						
-					}elseif ($recurring_type == 'certain_weekdays') {
-						$recur_weekdays = get_post_meta($post_id, 'recur_weekdays', true);
-						foreach ($recur_weekdays as $wdays) {
-							$weekdays_num[] = date('N', strtotime($wdays));
-						}
-					}else{
-						foreach ($weekdays as $wdays) {
-							$weekdays_num[] = date('N', strtotime($wdays));
-						}
-					}
+                        }elseif ($recurring_type == 'weekdays') {
+                            
+                            foreach ($weekdays as $wdays) {
+                                $weekdays_num[] = date('N', strtotime($wdays));
+                            }
+                            
+                        }elseif ($recurring_type == 'certain_weekdays') {
+                            $recur_weekdays = get_post_meta($post_id, 'recur_weekdays', true);
+                            foreach ($recur_weekdays as $wdays) {
+                                $weekdays_num[] = date('N', strtotime($wdays));
+                            }
+                        }else{
+                            foreach ($weekdays as $wdays) {
+                                $weekdays_num[] = date('N', strtotime($wdays));
+                            }
+                        }
 
-					if($recurring_type == 'advanced'){
-						$advancedata = get_post_meta($post_id, 'advancedata', true);
-						foreach ($advancedata as $index => $data) {
-							if (!in_array($data['advance_date'], $holiday_dates)) {
-								$arrayofdates[] = $data['advance_date'];
-							}
-						}
-					}else{
-						$current_date = $selected_date;
-						while ($current_date <= $end_repeats_on_date) {
-							if ($recurring_type == 'daily') {						
-								if (!in_array($current_date, $holiday_dates)) {
-									$arrayofdates[] = $current_date;
-								}
-							}else{
-								$day_of_week = date('N', strtotime($current_date));
-								if (in_array($day_of_week, $weekdays_num)) {
-									if (!in_array($current_date, $holiday_dates)) {
-										$arrayofdates[] = $current_date;
-									}
-								}
-							}
-							
-							$current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
-						}
-					}
+                        if($recurring_type == 'advanced'){
+                            $advancedata = get_post_meta($post_id, 'advancedata', true);
+                            foreach ($advancedata as $index => $data) {
+                                if (!in_array($data['advance_date'], $holiday_dates)) {
+                                    $arrayofdates[] = $data['advance_date'];
+                                }
+                            }
+                        }else{
+                            $current_date = $selected_date;
+                            while ($current_date <= $end_repeats_on_date) {
+                                if ($recurring_type === 'daily') {						
+                                    if (!in_array($current_date, $holiday_dates)) {
+                                        $arrayofdates[] = $current_date;
+                                    }
+                                }else{
+                                    $day_of_week = date('N', strtotime($current_date));
+                                    if (in_array($day_of_week, $weekdays_num)) {
+                                        if (!in_array($current_date, $holiday_dates)) {
+                                            $arrayofdates[] = $current_date;
+                                        }
+                                    }
+                                }
+                                
+                                $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+                            }
+                        }
+                    }
+					
 					return $arrayofdates;
 				}
 			}		
@@ -277,7 +311,157 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			}
 			return $output_timeslot;
 		}
-		function get_timeslots($post_id){			
+        function front_generate_timeslots($post_id, $todaysDate = null){
+
+            $output_timeslot = '';
+            $start_time = get_post_meta($post_id, 'start_time', true);
+            $end_time = get_post_meta($post_id, 'end_time', true);
+            $break_times = get_post_meta($post_id, 'breaktimeslots', true);
+            $duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
+            $gap_minutes = get_post_meta($post_id, 'steps_duration', true);
+            $no_of_booking = get_post_meta($post_id, 'no_of_booking', true); 
+
+			// Convert start time and end time to Unix timestamps
+			$start_timestamp = strtotime($start_time);
+			$end_timestamp = strtotime($end_time);
+	
+			// Convert duration and gap to minutes
+			$duration = ($duration_minutes['hours'] * 60) + $duration_minutes['minutes'];
+			$gap = ($gap_minutes['hours'] * 60) + $gap_minutes['minutes'];
+	
+			// Convert break times to Unix timestamps
+			$break_timestamps = array();
+			foreach ($break_times as $break_time) {
+				$break_start_timestamp = strtotime($break_time['start_time']);
+				$break_end_timestamp = strtotime($break_time['end_time']);
+				$break_timestamps[] = array($break_start_timestamp, $break_end_timestamp);
+			}
+	
+			// Initialize the current timestamp with the start timestamp
+			$current_timestamp = $start_timestamp;
+	
+			// Initialize an array to store available timeslots
+			$available_timeslots = array();
+	
+			// Loop through the durations between the start time and end time
+			while ($current_timestamp <= $end_timestamp) {
+				// Check if the current timestamp falls within any break time
+				$within_break = false;
+				foreach ($break_timestamps as $break_timestamp) {
+					if ($current_timestamp >= $break_timestamp[0] && $current_timestamp < $break_timestamp[1]) {
+						$current_timestamp = $break_timestamp[1]; // Move to the end of the break
+						$within_break = true;
+						break;
+					}
+				}
+	
+				if ($within_break) {
+					continue;
+				}
+	
+				// Calculate the end timestamp for the current timeslot
+				$end_timeslot = $current_timestamp + ($duration * 60);
+	
+				// Check if the timeslot extends beyond the end time
+				if ($end_timeslot > $end_timestamp) {
+					break;
+				}
+	
+				// Check if the timeslot extends into any break time
+				foreach ($break_timestamps as $break_timestamp) {
+					if ($end_timeslot > $break_timestamp[0] && $current_timestamp < $break_timestamp[0]) {
+						$end_timeslot = $break_timestamp[0]; // Adjust the end of the timeslot to the start of the break
+						break;
+					}
+				}
+	
+				// Format the start time and end time of the timeslot
+				$start_time_slot = date('h:i A', $current_timestamp);
+				$end_time_slot = date('h:i A', $end_timeslot);
+	
+				// Add the timeslot to the available timeslots array
+				$available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
+                $checktimeslot = $start_time_slot."-".$end_time_slot;
+				
+                $iswaiting_alllowed = get_post_meta( $post_id,'waiting_list', true );
+				if(!$iswaiting_alllowed){
+					$iswaiting_alllowed = 0;
+				}
+                $checkseats = $this->get_available_seats_per_timeslot($checktimeslot,$todaysDate);
+				$selected_date = get_post_meta( $post_id,'selected_date', true );
+				$check_date = 0;
+				if($todaysDate < $selected_date){
+					$check_date = 1;
+				}
+				// echo "<pre>"; print_r($checkseats);
+                // echo $no_of_booking. ' - '. $checkseats;
+                $available_seats = $no_of_booking - $checkseats;
+                $output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+                $output_timeslot .= '<span>'.$start_time_slot.' - ' . $end_time_slot.'</span>';
+                $output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
+                $output_timeslot .= '<input class="zfb-selected-time" name="booking_slots"  type="hidden" value="'.$start_time_slot."-".$end_time_slot.'">';					
+                $output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_seats.'" >Available seats : '.$available_seats.'</span>';
+				$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" >'.$iswaiting_alllowed.'</span>';
+                $output_timeslot .= '</li>';
+				// Move to the next available timeslot (including the gap)
+				$current_timestamp = $end_timeslot + ($gap * 60);
+			}
+			return $output_timeslot;
+		}
+        function get_available_seats_per_timeslot($timeslot,$booking_date){
+           
+            $array_data = explode('_',$booking_date);
+            // print_r($array_data);
+            $post_id = $array_data[1];
+            $current_month = $array_data[2];
+            $current_day = $array_data[3];
+            $current_year = $array_data[4];
+            $args = array(
+                'post_type' => 'bms_entries',
+                'posts_per_page' => -1,
+                'meta_query' => array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => 'timeslot',
+                        'value' => $timeslot,
+                        'compare' => '='
+                    ),
+                    array(
+                        'key' => 'booking_date',
+                        'value' => $booking_date,
+                        'compare' => '='
+                    )
+                )
+            );
+            
+            $query = new WP_Query($args);
+
+			if ($query->have_posts()) {
+				$post_count = $query->found_posts;
+				$no_of_booking = 0; // Initialize the variable to store the number of bookings
+				$arr = array();
+				while ($query->have_posts()) {
+					$query->the_post();
+					$slotcapacity = get_post_meta(get_the_ID(), 'slotcapacity', true);
+									
+					// Update the total number of bookings
+					// $arr[]=array(get_the_ID,$slotcapacity);
+					$no_of_booking += $slotcapacity;
+				}
+				
+				wp_reset_postdata();
+				
+				// Now you have the total number of bookings
+				// echo "Total number of bookings: {$slotcapacity}";
+			} else {
+				$slotcapacity = 0;
+				// echo "No posts found with timeslot '{$timeslot}' and booking date '{$booking_date}'.";
+			}
+
+            
+            return $slotcapacity;
+        }
+		function get_timeslots_old($post_id){			
 			
 				$output_timeslot = '';
 				$start_time = get_post_meta( $post_id, 'start_time', true );
@@ -338,11 +522,12 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					
 					$start_timeslot = $st_formatted_time." ".$sampm;
 					$end_timeslot = $et_formatted_time ." " . $eampm;
+					$selected_date = get_post_meta( $post_id, 'selected_date', true );
 					// $output_timeslot .= "<p class='zfb_timeslot'  start-time='".$start_timeslot."' end-time='".$end_timeslot."'>".$start_timeslot." - " . $end_timeslot."</p>";
 					$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 					$output_timeslot .= '<span>'.$start_timeslot.' - ' . $end_timeslot.'</span>';
 					$output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
-					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots"  type="hidden" value="'.$st_seconds."-".$et_seconds.'">';					
+					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots" type="hidden" value="'.$st_seconds."-".$et_seconds.'">';					
 					$output_timeslot .= '<span class="zfb-tooltip-text"> 5 seats Available </span>';
 					$output_timeslot .= '</li>';
 					$current_time += $gap_seconds;
@@ -387,7 +572,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			?>
 			<div class='zfb-smart-calender container' style='display: inline-block; vertical-align: top;margin-left:660px' id='calender_reload'>
 				<div class="step step1">
-					<div class="month-navigation zfb-cal-container">
+					<div class="month-navigation zfb-cal-container" id="month-navigationid">
 						<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>">
 						
 						<span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
@@ -418,7 +603,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							?>
 						</select>
 						<span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
-					</div>
+					
 						<table class="zfb-cal-table zfb-cal-table-bordered">
 							<tr>
 								<th>Sun</th>
@@ -470,22 +655,23 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							?>
 						</table>
 				
-
+                    </div>
 					<!-- // Output the additional div with the provided heading and time slots -->
 					<div class='timeslot_result_c' id='zfb-timeslots-table-container' style='display: inline-block; vertical-align: top; margin-left: 25px;'>
 									
 						<?php
 						$TodaysDate = date('F d, Y');	
+                        $todaysDate = date('Y-m-d');
 						echo "<h3 id='head_avail_time'>Available Time Slots</h3>";
 						echo "<h4 id='headtodays_date'>$TodaysDate</h4>";			
 						// Get array of available dates 
-						$is_available = $this->processDate($post_id);
+						$is_available = $this->processDate($post_id,$todaysDate);
 						// echo "<pre>";
 						// print_r($is_available);
 						?>
 						<ul id='zfb-slot-list'>
 							<?php
-							$todaysDate = date('Y-m-d');	
+							
 							// echo $todaysDate;				
 							if(isset($is_available) && is_array($is_available) && in_array($todaysDate,$is_available)){
 								
@@ -495,7 +681,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 								if($check_type && $recurring_type== 'advanced'){
 									echo $this->get_advanced_timeslots($post_id,$todaysDate);	
 								}else{
-									echo $this->get_timeslots($post_id);	
+                                    echo $this->front_generate_timeslots($post_id,$lastdateid);	
+									// echo $this->get_timeslots($post_id);	
 								}						
 												
 							}else{						
@@ -514,8 +701,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				
 				
 				<?php					
-				//  if($timeslot && $currentMonth){			
-					
 					if (get_post($post_id)) {
 						$post_status = get_post_status($post_id);
 						if ($post_status === 'publish') {
@@ -526,7 +711,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							<script type='text/javascript'>								
 								var myScriptData = <?php echo $fields; ?>;															
 								var value = myScriptData;
-								console.log(value);
+								// console.log(value);
 								Formio.createForm(document.getElementById('formio'), {
 								components: value
 								}).then(function(form) {
@@ -540,14 +725,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 											if (jQuery(this).hasClass('selected')) {
 												timeslot = jQuery(this).find('input[name="booking_slots"]').val();	
 												slotcapacity = jQuery(this).find('input[name="zfbslotcapacity"]').val();
-												// Other code related to the selected timeslot
 											} 
 										});
-
-										
-										console.log(timeslot);
-										console.log(booking_date);
-										console.log(slotcapacity);
 
 										jQuery.ajax({
 											url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -567,27 +746,27 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 													var redirectPage = response.data.redirect_page;
 													var wpEditorValue = response.data.wp_editor_value;
 													var redirectUrl = response.data.redirect_url;
-													var pageUrl = response.data.page_url;
-
 													// Check the confirmation type
 													if (confirmationType === 'redirect_text') {
 														// Replace div content with wpEditorValue or message
 														jQuery('#calender_reload').html(wpEditorValue);
 													} else if (confirmationType === 'redirect_to') {
 														jQuery('#calender_reload').html('<p>' + message + '</p>');
-														// Replace div content with message
-														jQuery('#calender_reload').html('<p>' + message + '</p>');
+														setTimeout(function() {
+															window.location.href = redirectUrl;
+														}, 2000); // Redirect after 3 seconds (adjust as needed)
 													} else if (confirmationType === 'redirect_page') {
-														
 														jQuery('#calender_reload').html('<p>' + message + '</p>');
 														setTimeout(function() {
-															window.location.href = pageUrl;
-														}, 3000); // Redirect after 3 seconds (adjust as needed)
+															window.location.href = redirectUrl;
+														}, 2000); // Redirect after 3 seconds (adjust as needed)
 													}
 													jQuery('#nextButton').css('display', 'none');
 													jQuery('#backButton').css('display', 'none');
 													
-												} 
+												} else {
+													var errorMessage = response.data.error;
+												}
 											}
 											
 										});
@@ -609,7 +788,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 						// Post does not exist
 						echo __("Post does not exist.", 'bms');
 					}
-				// }
 				?>
 				</div>
 			</div>
@@ -638,80 +816,80 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$post_id = $_POST['form_id'];
 			ob_start();
 			?>
-			<div class="month-navigation">
-					<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>" >
-					<span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
-					<select name='bms_month_n' id='bms_month'>
-						<?php
-						for ($i = 1; $i <= 12; $i++) {
-							echo "<option value='$i'";
-							if ($i == $currentMonth) {
-								echo " selected";
-							}
-							echo ">{$monthNames[$i]}</option>";
-						}
-						?>
-					</select>
-					<select name="bms_year_n" id="bms_year">
-						<?php
-						$startYear = $currentYear+5;
-						$endYear = 1990;
-						for ($year = $startYear; $year >= $endYear; $year--) {
-							echo "<option value='$year'";
-							if ($year == $currentYear) {
-								echo " selected";
-							}
-							echo ">$year</option>";
-						}
-						?>
-					</select>
-					<span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
-				</div>
-				<table>
-					<tr>
-						<th>Sun</th>
-						<th>Mon</th>
-						<th>Tue</th>
-						<th>Wed</th>
-						<th>Thu</th>
-						<th>Fri</th>
-						<th>Sat</th>
-					</tr>
-					<?php
-					$firstDayOfWeek = date('N', strtotime($currentYear . '-' . $currentMonth . '-01'));
-					$firstDayOfWeek += 1;
-					$totalDays = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
-					$daysInPreviousMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth - 1, $currentYear);
+            
+                <input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>" >
+                <span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
+                <select name='bms_month_n' id='bms_month'>
+                    <?php
+                    for ($i = 1; $i <= 12; $i++) {
+                        echo "<option value='$i'";
+                        if ($i == $currentMonth) {
+                            echo " selected";
+                        }
+                        echo ">{$monthNames[$i]}</option>";
+                    }
+                    ?>
+                </select>
+                <select name="bms_year_n" id="bms_year">
+                    <?php
+                    $startYear = $currentYear+5;
+                    $endYear = 1990;
+                    for ($year = $startYear; $year >= $endYear; $year--) {
+                        echo "<option value='$year'";
+                        if ($year == $currentYear) {
+                            echo " selected";
+                        }
+                        echo ">$year</option>";
+                    }
+                    ?>
+                </select>
+                <span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
+           
+            <table>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+                <?php
+                $firstDayOfWeek = date('N', strtotime($currentYear . '-' . $currentMonth . '-01'));
+                $firstDayOfWeek += 1;
+                $totalDays = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
+                $daysInPreviousMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth - 1, $currentYear);
 
-					// Calculate the number of cells needed
-					$totalCells = ($totalDays + $firstDayOfWeek - 1) % 7 === 0 ? $totalDays + $firstDayOfWeek - 1 : ceil(($totalDays + $firstDayOfWeek - 1) / 7) * 7;
+                // Calculate the number of cells needed
+                $totalCells = ($totalDays + $firstDayOfWeek - 1) % 7 === 0 ? $totalDays + $firstDayOfWeek - 1 : ceil(($totalDays + $firstDayOfWeek - 1) / 7) * 7;
 
-					$dayCounter = 1;
-					$date = 1;
-					$monthYear = $currentMonth . '-' . $currentYear;
+                $dayCounter = 1;
+                $date = 1;
+                $monthYear = $currentMonth . '-' . $currentYear;
 
-					while ($dayCounter <= $totalCells) {
-						echo "<tr>";
-						for ($i = 1; $i <= 7; $i++) {
-							if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
-								// $isToday = ($date == date('j') && $monthYear == date('n-Y')) ? "calselected_date" : "";
-								echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='bms_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='bms_cal_day' onclick='getClickedId(this)'>$date</td>";
-								$date++;
-							} elseif ($dayCounter < $firstDayOfWeek) {
-								$prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);
-								echo "<td class='previous-month'>$prevDate</td>";
-							} else {
-								$nextDate = $dayCounter - ($totalDays + $firstDayOfWeek) + 1;
-								echo "<td class='next-month'>$nextDate</td>";
-							}
+                while ($dayCounter <= $totalCells) {
+                    echo "<tr>";
+                    for ($i = 1; $i <= 7; $i++) {
+                        if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
+                            // $isToday = ($date == date('j') && $monthYear == date('n-Y')) ? "calselected_date" : "";
+                            echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='bms_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='bms_cal_day' onclick='getClickedId(this)'>$date</td>";
+                            $date++;
+                        } elseif ($dayCounter < $firstDayOfWeek) {
+                            $prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);
+                            echo "<td class='previous-month'>$prevDate</td>";
+                        } else {
+                            $nextDate = $dayCounter - ($totalDays + $firstDayOfWeek) + 1;
+                            echo "<td class='next-month'>$nextDate</td>";
+                        }
 
-							$dayCounter++;
-						}
+                        $dayCounter++;
+                    }
 
-						echo "</tr>";
-					}
-					?>
-				</table>
+                    echo "</tr>";
+                }
+                ?>
+            </table>
 			<?php
 			$output = ob_get_clean();
 			echo $output;
@@ -737,21 +915,28 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				echo "<h4 id='headtodays_date'>$TodaysDate_F</h4>";
 				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="'.$clickedId.'" >';
 				echo "<ul id='zfb-slot-list'>";
-					$is_available = $this->processDate($post_id);				
-					if(isset($is_available) && is_array($is_available) && in_array($todaysDate,$is_available)){
-						
-						$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
-						$recurring_type = get_post_meta($post_id, 'recurring_type', true);
-						
-						if($check_type && $recurring_type== 'advanced'){
-							echo $this->get_advanced_timeslots($post_id,$todaysDate);	
-						}else{
-							echo $this->get_timeslots($post_id);	
-						}						
-										
-					}else{						
-						echo "<p class='not_avail'>Not Available</p>";
-					}
+                    //check if selected date is equals or greater or else show timeslots have been expired.
+
+					$is_available = $this->processDate($post_id,$todaysDate);
+                    if (isset($is_available) && is_array($is_available)) {
+                        if (in_array($todaysDate, $is_available)) {
+                            $check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
+                            $recurring_type = get_post_meta($post_id, 'recurring_type', true);
+                            
+                            if($check_type && $recurring_type== 'advanced'){
+                                echo $this->get_advanced_timeslots($post_id,$todaysDate);	
+                            }else{
+                                // echo $this->get_timeslots($post_id);
+                                echo $this->front_generate_timeslots($post_id,$form_data);		
+                            }	
+                        } else {
+                            error_log('Check End date! Selected date exceed the selected end date');
+                            ?><p class='not_avail'><?php echo __('No timeslots found for selected date. Event may be not scheduled or might have expired.','textdomain');?></p><?php
+                        }
+                    } else {
+                        echo "<p class='not_avail'>Something went wrong</p>";
+                        error_log('Array does not exist.');
+                    }	
 				echo "</ul>";
 				wp_die();
 		  }
