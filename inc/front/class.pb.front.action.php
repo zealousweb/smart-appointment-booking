@@ -570,8 +570,13 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			
 			// Output the calendar
 			?>
-			<div class='zfb-smart-calender container' style='display: inline-block; vertical-align: top;margin-left:660px' id='calender_reload'>
+			<div class='zfb-smart-calender container alignwide' id='calender_reload'>
 				<div class="step step1">
+					<div class=''>
+						<span class='zfb-caltitle'>Sample Title</span>
+						<p class='zfb-cal-desc'>It is not neccessary that user will add : content, and title.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley 
+							of type and scrambled it to make a type specimen book. </p>
+					</div>
 					<div class="month-navigation zfb-cal-container" id="month-navigationid">
 						<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>">
 						
@@ -657,12 +662,12 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				
                     </div>
 					<!-- // Output the additional div with the provided heading and time slots -->
-					<div class='timeslot_result_c' id='zfb-timeslots-table-container' style='display: inline-block; vertical-align: top; margin-left: 25px;'>
+					<div class='timeslot_result_c' id='zfb-timeslots-table-container' style='display: inline-block; vertical-align: top;'>
 									
 						<?php
 						$TodaysDate = date('F d, Y');	
                         $todaysDate = date('Y-m-d');
-						echo "<h3 id='head_avail_time'>Available Time Slots</h3>";
+						echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: America/New_York</span></h3>";
 						echo "<h4 id='headtodays_date'>$TodaysDate</h4>";			
 						// Get array of available dates 
 						$is_available = $this->processDate($post_id,$todaysDate);
@@ -691,6 +696,9 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 								
 							?>
 						</ul>
+					</div>
+					<div class="zfb-cost-label">
+						<span class="zfb-cost">Cost: $100</span>
 					</div>
 					<input type="hidden" id="booking_date" name="booking_date" value="<?php echo $lastdateid; ?>" name="booking_date" >
 				</div>
@@ -791,8 +799,9 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				?>
 				</div>
 			</div>
-			<button id="backButton">Back</button>
-			<button id="nextButton">Next</button>
+			<div class="dc_backButton"><button id="backButton">Back</button></div>
+			<div class="dc_nextButton"><button id="nextButton">Next</button></div>
+			
 			<?php
 			return ob_get_clean();
 		  }

@@ -1,9 +1,9 @@
 .selected-timeslot {
-    background-color: #f2f2f2;
-    font-weight: bold;
-  }
-  
-  .previous-month {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.previous-month {
     color: #999;
 }
 
@@ -32,33 +32,55 @@ font-weight: bold;
     display: block;
   } */
   
-  .zfb-selected-capacity {
-    display: none;
-  }
-  
-  .zfb_timeslot {
-  display: inline-block;
-  margin: 10px;
+.zfb-selected-capacity {
+  display: none;
+}
+ul#zfb-slot-list{
+  padding: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.zfb_timeslot {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
   padding: 10px;
+  margin: 0;
   background-color: #f0f0f0;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  max-width: calc(33.33% - 10px);
+  flex: 0 0 calc(33.33% - 10px);
+  font-size: 16px;
+}
+.zfb_timeslot.selected{
+  background-color: #96c5ac;
 }
 
 .zfb_timeslot:hover {
   background-color: #e0e0e0;
 }
-
-  .zfb-tooltip-text {
+.zfb_timeslot .zfb-selected-capacity{
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 5px;
+  border: 1px solid #333
+}
+.zfb-tooltip-text {
     display: none;
     position: absolute;
     background-color: #f0f0f0;
     color: #000;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 6px;
+    border-radius: 4px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1;
     pointer-events: none;
+    font-size: 14px;
+    line-height: 1;
+    top: calc(100% - 7px);
   }
   
   .zfb_timeslot:hover .zfb-tooltip-text {
@@ -90,16 +112,23 @@ font-weight: bold;
     border-width: 8px;
     border-color: #f0f0f0 transparent transparent transparent;
   }
-  .zfb_timeslot {
-    display: inline-block;
-    margin: 10px;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  .entry-content > .zfb-smart-calender.alignwide {
+    display: block
   }
-  
-  .zfb_timeslot:hover {
-    background-color: #e0e0e0;
+  .zfb-smart-calender .step{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
   }
-  
+  .step.step1 > div:first-child{
+    flex: 0 0 100%;
+    margin-bottom: 40px;
+  }
+  .step.step1 .month-navigation ,
+  .step.step1 .timeslot_result_c{
+    max-width: 50%;
+    flex: 0 0 50%;
+    padding: 0 15px;
+  }
+
+

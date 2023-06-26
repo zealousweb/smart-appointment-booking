@@ -167,6 +167,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 					'type' => sanitize_text_field($form_data['type']),
 					'to' => sanitize_text_field($form_data['email_to']),
 					'from' => sanitize_text_field($form_data['email_from']),
+					'replyto' => sanitize_text_field($form_data['email_replyto']),
+					'bcc' => sanitize_text_field($form_data['email_bcc']),
+					'cc' => sanitize_text_field($form_data['email_cc']),
+					'subject' => sanitize_text_field($form_data['email_subject']),
 					'additional_headers' => sanitize_textarea_field($form_data['additional_headers']),
 					'mail_body' => wp_kses_post($form_data[$mail_body]),
 					
@@ -474,7 +478,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 								?>
 								<!-- <form id="notification-listform"> -->
 									<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
-									<table class="table notificationtable" id="notifytable" >
+									<table class="table notificationtable datatable" id="notifytable" >
 										<thead>
 											<tr>
 												<th scope="col"></th>
@@ -563,8 +567,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				}
 			}
 		
-			echo json_encode($response);
-			exit;
+			wp_send_json($response);
 		}
 		
 		function delete_notification_indexes() {
@@ -611,14 +614,19 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			if ($checkedit === 'edit' && isset($data[$index])) {
 				$title = 'Edit Notification';
 				$item = $data[$index];
-				$notificationName = $item['notification_name'];
-				$state = $item['state'];
-				$type = $item['type'];
-				$email_to = $item['to'];
-				$email_from = $item['from'];
-				$additional_headers = $item['additional_headers'];
-				$mail_body = $item['mail_body'];
+				$notificationName = isset($item['notification_name']) ? $item['notification_name'] : '';
+				$state = isset($item['state']) ? $item['state'] : '';
+				$type = isset($item['type']) ? $item['type'] : '';
+				$email_to = isset($item['to']) ? $item['to'] : '';
+				$email_from = isset($item['from']) ? $item['from'] : '';
+				$email_replyto = isset($item['replyto']) ? $item['replyto'] : '';
+				$email_bcc = isset($item['bcc']) ? $item['bcc'] : '';
+				$email_cc = isset($item['cc']) ? $item['cc'] : '';
+				$email_subject = isset($item['subject']) ? $item['subject'] : '';
+				// $additional_headers = $item['additional_headers'];
+				$mail_body = isset($item['mail_body']) ? $item['mail_body'] : '';
 			}
+			
 			// ob_start();
 			?>
 			<div class="modal fade notification-modal" id="notifyModal<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo $index; ?>" aria-hidden="true">
@@ -634,7 +642,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							</div>
 							
 							<!-- Modal body -->
-							<div class="modal-body notification-mdialog">
+							<div class="modal-body notification-mdialog" style="max-height: 100%;overflow-y: auto;">
 								
 								<div class="border p-4 m-1">
 									<h5>General Notification Setting</h5>
@@ -687,11 +695,26 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 										<label for="email-from">From</label>
 										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
 									</div>
-
 									<div class="form-group">
+										<label for="email-from">Reply To</label>
+										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" required>
+									</div>
+									<div class="form-group">
+										<label for="email-from">Bcc</label>
+										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" required>
+									</div>
+									<div class="form-group">
+										<label for="email-from">Cc</label>
+										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" required>
+									</div>
+									<div class="form-group">
+										<label for="email-subject">Subject</label>
+										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
+									</div>
+									<!-- <div class="form-group">
 										<label for="additional-header">Additional Headers</label>
 										<textarea id="additional-header" name="additional_headers" class="form-control" rows="4" required><?php echo isset($additional_headers) ? $additional_headers : ''; ?></textarea>
-									</div>
+									</div> -->
 
 									<div class="form-group">
 										<label for="mail-body">Mail Body</label>

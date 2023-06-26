@@ -434,95 +434,58 @@ jQuery(document).ready(function($) {
         $('.child-checkall').prop('checked', isChecked);
     });
 });
-// jQuery(document).ready(function($) {
-// 	$('.enable-btn').on('click', function() {
-// 		var post_id = $('#post_id').val();
-//         var notifyTable = $('#notifytable');
-// 		var notificationId = $(this).data('notification-id');
-// 		var notificationState = $(this).data('notification-state');
-// 		var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
-
-// 		// AJAX request to update the notification status
-// 		$.ajax({
-// 			url: ajaxurl,
-// 			type: 'POST',
-// 			data: {
-// 				action: 'zfb_update_notification_state',
-// 				notification_id: notificationId,
-// 				new_state: newState,
-// 				post_id: post_id
-// 			},
-// 			success: function(response) {
-// 				response = JSON.parse(response); // Parse the JSON response
-// 				if (response.success) {
-// 					// Update the button text and data attribute
-// 					 $('.enable-btn[data-notification-id="' + notificationId + '"]').text(newState === 'enabled' ? 'Enable' : 'Disable');
-// 					 $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
-                  
-// 				} else {
-// 					// Display an error message
-// 					console.log('Failed to update notification status. Message: ' + response.message);
-// 				}
-//                 // $('#notifytable').load(location.href + ' #notifytable');
-//                 notifyTable.load(location.href + ' #notifytable');
-// 			},
-// 			error: function(xhr, textStatus, errorThrown) {
-// 				// Display an error message
-// 				console.log('AJAX request failed: ' + errorThrown);
-// 			}
-// 		});
-// 	});
-// });
-
-function enableButtonEventHandlers() {
-    // Event handler for enable buttons
+jQuery(document).ready(function($) {
     $(document).on('click', '.enable-btn', function() {
-      var post_id = $('#post_id').val();
-      var notificationId = $(this).data('notification-id');
-      var notificationState = $(this).data('notification-state');
-      var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
-  
-      // AJAX request to update the notification status
-      $.ajax({
-        url: ajaxurl,
-        type: 'POST',
-        data: {
-          action: 'zfb_update_notification_state',
-          notification_id: notificationId,
-          new_state: newState,
-          post_id: post_id
-        },
-        success: function(response) {
-            console.log(response.success);
-            if (response.success === 'true') {
-            // Update the button text and data attribute
-            $('.enable-btn[data-notification-id="' + notificationId + '"]').html(newState === 'enabled' ? 'Enabled' : 'Disabled');
-            $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
-            console.log(newState);
-            // console.log(newState);
-          } else {
-            // $('.enable-btn[data-notification-id="' + notificationId + '"]').html(newState === 'enabled' ? 'Enabled' : 'Disabled');
-            // $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
-            // // Display an error message
-            console.log('Failed to update notification status.');
-          }
-        },
-        error: function(xhr, textStatus, errorThrown) {
-          // Display an error message
-          console.log('AJAX request failed: ' + errorThrown);
-        }
-      });
+        var post_id = $('#post_id').val();
+        var notifyTable = $('#notifytable');
+        var notificationId = $(this).data('notification-id');
+        var notificationState = $(this).data('notification-state');
+        var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
+
+        // AJAX request to update the notification status
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'zfb_update_notification_state',
+                notification_id: notificationId,
+                new_state: newState,
+                post_id: post_id
+            },
+            // success: function(response) {
+            //     if (response.success) {                  
+            //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').text(newState === 'enabled' ? 'Enabled' : 'Disabled');
+            //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
+            //     } else {
+            //         // Display an error message
+            //         console.log('Failed to update notification status. Message: ' + response.message);
+            //     }
+            //     //refresh ajax content after 
+            //     $('#notifytable').load(location.href + ' #notifytable');
+            // },
+            success: function(response) {
+                if (response.success) {
+                  // Update the button text and data attribute
+                  var enableBtn = $('.enable-btn[data-notification-id="' + notificationId + '"]');
+                  enableBtn.text(newState === 'enabled' ? 'Enable' : 'Disable');
+                  enableBtn.data('notification-state', newState);
+              
+                  // Reload the table content
+                  $('.datatable').DataTable().ajax.reload();
+                } else {
+                  // Display an error message
+                  console.log('Failed to update notification status. Message: ' + response.message);
+                }
+              },
+              
+            error: function(xhr, textStatus, errorThrown) {
+                // Display an error message
+                console.log('AJAX request failed: ' + errorThrown);
+            }
+        });
     });
-  }
-  
-  jQuery(document).ready(function($) {
-    // Call the enableButtonEventHandlers function
-    enableButtonEventHandlers();
-  
-    // Reload the table content after the page is reloaded
-    $('#notifytable').load(location.href + ' #notifytable', function() {
-      // Reattach event handlers to the newly loaded elements
-      enableButtonEventHandlers();
-    });
+});
+
+$(document).ready(function($) {
+    $('#notifytable').DataTable();
   });
-  
