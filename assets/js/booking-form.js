@@ -434,33 +434,95 @@ jQuery(document).ready(function($) {
         $('.child-checkall').prop('checked', isChecked);
     });
 });
-jQuery(document).on('click', '.toggle-notification', function() {
-    var row = jQuery(this).closest('tr');
-    var index = row.data('index');
-    var postID = jQuery('#post_id').val();
-    var currentState = row.find('.notification-state').text();
-    var newState = currentState === 'Enabled' ? 'Disabled' : 'Enabled';
-    
-    // Send AJAX request to update the notification state
-    jQuery.ajax({
+// jQuery(document).ready(function($) {
+// 	$('.enable-btn').on('click', function() {
+// 		var post_id = $('#post_id').val();
+//         var notifyTable = $('#notifytable');
+// 		var notificationId = $(this).data('notification-id');
+// 		var notificationState = $(this).data('notification-state');
+// 		var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
+
+// 		// AJAX request to update the notification status
+// 		$.ajax({
+// 			url: ajaxurl,
+// 			type: 'POST',
+// 			data: {
+// 				action: 'zfb_update_notification_state',
+// 				notification_id: notificationId,
+// 				new_state: newState,
+// 				post_id: post_id
+// 			},
+// 			success: function(response) {
+// 				response = JSON.parse(response); // Parse the JSON response
+// 				if (response.success) {
+// 					// Update the button text and data attribute
+// 					 $('.enable-btn[data-notification-id="' + notificationId + '"]').text(newState === 'enabled' ? 'Enable' : 'Disable');
+// 					 $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
+                  
+// 				} else {
+// 					// Display an error message
+// 					console.log('Failed to update notification status. Message: ' + response.message);
+// 				}
+//                 // $('#notifytable').load(location.href + ' #notifytable');
+//                 notifyTable.load(location.href + ' #notifytable');
+// 			},
+// 			error: function(xhr, textStatus, errorThrown) {
+// 				// Display an error message
+// 				console.log('AJAX request failed: ' + errorThrown);
+// 			}
+// 		});
+// 	});
+// });
+
+function enableButtonEventHandlers() {
+    // Event handler for enable buttons
+    $(document).on('click', '.enable-btn', function() {
+      var post_id = $('#post_id').val();
+      var notificationId = $(this).data('notification-id');
+      var notificationState = $(this).data('notification-state');
+      var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
+  
+      // AJAX request to update the notification status
+      $.ajax({
         url: ajaxurl,
-        method: 'POST',
+        type: 'POST',
         data: {
-            action: 'zfb_update_notification_state',
-            index: index,
-            post_id: postID,
-            state: newState,
+          action: 'zfb_update_notification_state',
+          notification_id: notificationId,
+          new_state: newState,
+          post_id: post_id
         },
         success: function(response) {
-            // Update the row with the new state
-            row.find('.notification-state').text(newState);
-            
-            // Add/remove classes for styling
-            row.toggleClass('enabled-notification', newState === 'Enabled');
-            row.toggleClass('disabled-notification', newState === 'Disabled');
+            console.log(response.success);
+            if (response.success === 'true') {
+            // Update the button text and data attribute
+            $('.enable-btn[data-notification-id="' + notificationId + '"]').html(newState === 'enabled' ? 'Enabled' : 'Disabled');
+            $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
+            console.log(newState);
+            // console.log(newState);
+          } else {
+            // $('.enable-btn[data-notification-id="' + notificationId + '"]').html(newState === 'enabled' ? 'Enabled' : 'Disabled');
+            // $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
+            // // Display an error message
+            console.log('Failed to update notification status.');
+          }
         },
-        error: function(xhr, status, error) {
-            console.log(error);
+        error: function(xhr, textStatus, errorThrown) {
+          // Display an error message
+          console.log('AJAX request failed: ' + errorThrown);
         }
+      });
     });
-});
+  }
+  
+  jQuery(document).ready(function($) {
+    // Call the enableButtonEventHandlers function
+    enableButtonEventHandlers();
+  
+    // Reload the table content after the page is reloaded
+    $('#notifytable').load(location.href + ' #notifytable', function() {
+      // Reattach event handlers to the newly loaded elements
+      enableButtonEventHandlers();
+    });
+  });
+  

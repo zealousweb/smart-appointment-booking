@@ -152,6 +152,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'success' => false,
 				'message' => 'Invalid request.',
 			);
+			$get_notification_array = array();
 			if (isset($_POST['notification_data'])) {
 				// Get the form data
 				parse_str($_POST['notification_data'], $form_data);
@@ -180,13 +181,20 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							// Update existing array element
 							$get_notification_array[$index] = $notification_data;
 						} else {
-							// Add new array element
-							$get_notification_array[] = $notification_data;
+							if(is_string($get_notification_array)){
+								update_post_meta($post_id, 'notification_data','');
+								$get_notification_array[] = $notification_data;
+								update_post_meta($post_id, 'notification_data', $get_notification_array);
+							}else{
+								$get_notification_array[] = $notification_data;
+							}
+							
+							
 						}
 		
 						update_post_meta($post_id, 'notification_data', $get_notification_array);
 					} else {
-						$get_notification_array[] = $notification_data;
+						$get_notification_array = array($notification_data);
 						update_post_meta($post_id, 'notification_data', $get_notification_array);
 					}
 		
@@ -461,7 +469,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							$notification_metadata = get_post_meta($post_id, 'notification_data', true);
 							// echo "<pre>";
 							// print_r($notification_metadata);
-							if (!empty($notification_metadata)) {
+							if (!empty($notification_metadata) && is_array($notification_metadata)) {
 								$post_id = $_GET['post_id'];
 								?>
 								<!-- <form id="notification-listform"> -->
@@ -481,6 +489,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 											foreach ($notification_metadata as $index => $notification) {
 												$notification_name = $notification['notification_name'];
 												$state = $notification['state'];
+												$notification_id = 'notify_' . $index;
 												?>
 												<tr>
 													<th scope="row">
@@ -490,7 +499,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 														</svg>
 													</th>
 													<td><?php echo $notification_name; ?></td>
-													<td><span><?php echo $state; ?></span> <span>(Enabled)</span></td>
+													<!-- <td><span><?php //echo $state; ?></span> <span>(Enabled)</span></td> -->
+													<td>
+													<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
+                        							<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
 													<td> 
 														<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Edit</button>
 														<!-- Modal -->
@@ -526,41 +538,35 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'success' => false,
 				'message' => 'Invalid request.',
 			);
-			$post_id = $_POST['post_id']; // Replace with your actual post ID
-			$index = $_POST['index'];
-
-			// Get the existing notification metadata
-			$notification_data = get_post_meta($post_id, 'notification_data', true);
-			if ($post_id) {
-				$get_notification_array = get_post_meta($post_id, 'notification_data', true);
-			
-				// Verify if the meta key exists and contains data
-				if (!empty($get_notification_array)) {
-					if (isset($get_notification_array[$index])) {
-						// Update existing array element
-						$get_notification_array[$index] = $notification_data;
+		
+			if (isset($_POST['post_id'], $_POST['notification_id'], $_POST['new_state'])) {
+				$post_id = $_POST['post_id'];
+				$notification_id = $_POST['notification_id'];
+				$index = ltrim($notification_id, "notify_");
+				$new_state = $_POST['new_state'];
+		
+				// Get the existing notification metadata
+				$notification_data = get_post_meta($post_id, 'notification_data', true);
+				if ($notification_data) {
+					if (isset($notification_data[$index])) {
+						$notification_data[$index]['state'] = $new_state;
+						update_post_meta($post_id, 'notification_data', $notification_data);
+		
+						$response['success'] = true;
+						$response['message'] = __('Notification saved successfully', 'textdomain');
+						$response['state'] = $new_state;
 					} else {
-						// Add new array element
-						$get_notification_array[] = $notification_data;
+						$response['message'] = __('Something went wrong', 'textdomain');
 					}
 				} else {
-					$get_notification_array[] = $notification_data;
+					$response['message'] = __('Something went wrong', 'textdomain');
 				}
-			
-				// Update the notification state in the meta field
-				$notification_state = ($notification_data['state'] === 'Enabled') ? 'Enabled' : 'Disabled';
-				$get_notification_array[$index]['state'] = $notification_state;
-			
-				update_post_meta($post_id, 'notification_data', $get_notification_array);
-			
-				$response = array(
-					'success' => true,
-					'message' => 'Notification saved successfully.',
-					'state' => $notification_state,
-				);
 			}
-			
+		
+			echo json_encode($response);
+			exit;
 		}
+		
 		function delete_notification_indexes() {
 			if (isset($_POST['indexes'])) {
 				$post_id = $_POST['post_id']; // Replace with your actual post ID
@@ -644,12 +650,12 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 									<div class="form-group">
 										<label for="state">State</label>
 										<div class="form-check">
-											<input class="form-check" type="radio" name="state" id="disable" value="disable"<?php echo ($state === 'disable') ? 'checked' : ''; ?>>
+											<input class="form-check" type="radio" name="state" id="disable" value="disabled"<?php echo ($state === 'disabled' || $state === 'disable') ? 'checked' : ''; ?>>
 											<label class="form-check-label" for="disable">Disable</label>
 											</div>
 										<div class="form-check">
-											<input class="form-check" type="radio" name="state" id="enable" value="enable"<?php echo ($state === 'enable') ? 'checked' : ''; ?>>
-											<label class="form-check-label" for="enable">Enable</label>
+											<input class="form-check" type="radio" name="state" id="enable" value="enabled"<?php echo ($state === 'enabled' || $state === 'enable') ? 'checked' : ''; ?>>
+											<label class="form-check-label" for="enabled">Enable</label>
 										</div>
 									</div>
 
