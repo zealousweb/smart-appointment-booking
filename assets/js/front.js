@@ -30,7 +30,7 @@ function getClickedId(element) {
         clickedId:clickedId
         },
         success: function (data) {
-            //console.log(data);
+           
             jQuery('#zfb-timeslots-table-container').html(data);
             jQuery('#booking_date').val(getid);
         }
@@ -38,7 +38,7 @@ function getClickedId(element) {
     });
 }
 function getClicked_next(element) {
-  // alert("test");
+  
     var currentMonth = document.getElementById('bms_month').value;
     var currentYear = document.getElementById('bms_year').value;
 
@@ -63,7 +63,6 @@ function getClicked_prev(element) {
     reloadCalendar(currentMonth,currentYear);
 }
 function reloadCalendar(currentMonth, currentYear) {
-  // alert("wee");
     var form_id = document.getElementById('zealform_id').value;
     var lastdateid = jQuery('#zeallastdate').val();
     console.log(lastdateid);
@@ -80,18 +79,14 @@ function reloadCalendar(currentMonth, currentYear) {
       success: function(data) {
         jQuery('#month-navigationid').html(data);
         jQuery('#zfb-timeslots-table-container').html('');
-        if (lastdateid) { // Check if lastdateid is not empty or falsy
-            // alert("test1");
+        if (lastdateid) { 
           var element = jQuery('#' + lastdateid);
           if (element.length > 0) {
             element.click();
           } else {
-            // alert("test");
             var currentMonth = document.getElementById('bms_month').value;
             var currentYear = document.getElementById('bms_year').value;
             var monthName = getMonthName(parseInt(currentMonth));
-            // jQuery('#headtodays_date').html(monthName + ' ' + currentYear);
-            // jQuery('#zfb-slot-list').html('');
            
           }
         }
@@ -117,35 +112,34 @@ function getMonthName(month) {
     return monthNames[month];
 }
 function selectTimeslot(element) {
-  // alert("test");
   const selectedElements = $('.zfb_timeslot.selected');
-  // Deselect all previously selected timeslots
   selectedElements.removeClass('selected');
-  selectedElements.find('.zfb-selected-capacity').hide();
-  // Select the clicked timeslot
   $(element).addClass('selected');
-  
+  var isEnabled = true; 
+  $('.zfb-selected-capacity').prop('disabled', isEnabled);
+  $('.zfb-selected-capacity').show();
   var seats = $(element).find('.zfb-tooltip-text').attr('data-seats');
   var datawaiting = $(element).find('.zfb-waiting').attr('data-waiting');
   if(seats == 0 || seats === 'not_available' ){
     if(datawaiting == 0){
-      $(element).find('.zfb-selected-capacity').hide();
+      $('.zfb-selected-capacity').hide();
+      var isEnabled = true; 
+      $('.zfb-selected-capacity').prop('disabled', isEnabled);
     }else{
-      $(element).find('.zfb-selected-capacity').show();
+      var isEnabled = true; 
+      $('.zfb-selected-capacity').prop('disabled', !isEnabled);     
     }   
-  }else{
-    
-   $(element).find('.zfb-selected-capacity').show();
+  }else{    
+    var isEnabled = false;
+    $('.zfb-selected-capacity').prop('disabled', isEnabled);
+    $(element).find('.zfb-selected-capacity').show();
   }
-  // console.log(seats);
-  // alert(seats);  
-  // $(element).append('<input class="zfb-selected-capacity" type="number" name="zfb-selected-capacity_i" placeholder="Enter Slot Capacity" min="1" value="1">');
+  $('.zfb-selected-capacity').attr('max', seats);
 }
+
 jQuery(document).ready(function($) {
   var currentStep = 1;
   var totalSteps = $('.container > .step').length;
-  // alert(totalSteps);
-  
   function updateButtons() {
     if (currentStep === 1) {
       $('#backButton').hide();
@@ -177,12 +171,9 @@ jQuery(document).ready(function($) {
       showStep(currentStep);
       updateButtons();
     } else {
-      // Perform actions for the last step (e.g., submit form, show success message)
       alert('Form submitted!');
     }
   });
-  
-  // Initial setup
   updateButtons();
   showStep(currentStep);
 });

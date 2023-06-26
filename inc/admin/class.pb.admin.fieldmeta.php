@@ -290,6 +290,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <li class="nav-link"><a href="#tab1">General</a></li>
                     <li class="nav-link"><a href="#tab2">Recurring Appointment</a></li>
                     <li class="nav-link"><a href="#tab3">Confirmations</a></li>
+                    <li class="nav-link"><a href="#tab4">Field Mapping</a></li>
                     <li class="nav-link"><a href="#tab5">Preview</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
@@ -497,7 +498,6 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <input type="date" name="end_repeats_on" value="<?php echo esc_attr($end_repeats_on); ?>">
                             <br>
                         </div>
-                       
                     </div>
                     
                 </div>
@@ -570,6 +570,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         <small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
                     </div>   
                 </div>
+                <div id="tab4" class="tab-content"></div>
                 <div id="tab5" class="tab-content">
                     <div class="preview_main">
                         <p id="preview_timeslot" pid="<?php echo get_the_ID(); ?>">Click Here to Preview Timeslots</p>

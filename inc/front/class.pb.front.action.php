@@ -398,7 +398,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                 $available_seats = $no_of_booking - $checkseats;
                 $output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
                 $output_timeslot .= '<span>'.$start_time_slot.' - ' . $end_time_slot.'</span>';
-                $output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
+                // $output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
                 $output_timeslot .= '<input class="zfb-selected-time" name="booking_slots"  type="hidden" value="'.$start_time_slot."-".$end_time_slot.'">';					
                 $output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_seats.'" >Available seats : '.$available_seats.'</span>';
 				$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" >'.$iswaiting_alllowed.'</span>';
@@ -406,6 +406,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				// Move to the next available timeslot (including the gap)
 				$current_timestamp = $end_timeslot + ($gap * 60);
 			}
+
 			return $output_timeslot;
 		}
         function get_available_seats_per_timeslot($timeslot,$booking_date){
@@ -526,7 +527,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					// $output_timeslot .= "<p class='zfb_timeslot'  start-time='".$start_timeslot."' end-time='".$end_timeslot."'>".$start_timeslot." - " . $end_timeslot."</p>";
 					$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 					$output_timeslot .= '<span>'.$start_timeslot.' - ' . $end_timeslot.'</span>';
-					$output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
+					// $output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
 					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots" type="hidden" value="'.$st_seconds."-".$et_seconds.'">';					
 					$output_timeslot .= '<span class="zfb-tooltip-text"> 5 seats Available </span>';
 					$output_timeslot .= '</li>';
@@ -578,36 +579,39 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							of type and scrambled it to make a type specimen book. </p>
 					</div>
 					<div class="month-navigation zfb-cal-container" id="month-navigationid">
-						<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>">
+						<div class="header-calender">
+							<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>">
+							
+							<span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
+							<!-- months -->
+							<select name='bms_month_n' id='bms_month'>
+								<?php
+								for ($i = 1; $i <= 12; $i++) {
+									echo "<option value='$i'";
+									if ($i == $currentMonth) {
+										echo " selected";
+									}
+									echo ">{$monthNames[$i]}</option>";
+								}
+								?>
+							</select>
+							<!-- Year -->
+							<select name="bms_year_n" id="bms_year">
+								<?php
+								$startYear = $currentYear + 5;
+								$endYear = 1990;
+								for ($year = $startYear; $year >= $endYear; $year--) {
+									echo "<option value='$year'";
+									if ($year == $currentYear) {
+										echo " selected";
+									}
+									echo ">$year</option>";
+								}
+								?>
+							</select>
+							<span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
+						</div>
 						
-						<span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
-						<!-- months -->
-						<select name='bms_month_n' id='bms_month'>
-							<?php
-							for ($i = 1; $i <= 12; $i++) {
-								echo "<option value='$i'";
-								if ($i == $currentMonth) {
-									echo " selected";
-								}
-								echo ">{$monthNames[$i]}</option>";
-							}
-							?>
-						</select>
-						<!-- Year -->
-						<select name="bms_year_n" id="bms_year">
-							<?php
-							$startYear = $currentYear + 5;
-							$endYear = 1990;
-							for ($year = $startYear; $year >= $endYear; $year--) {
-								echo "<option value='$year'";
-								if ($year == $currentYear) {
-									echo " selected";
-								}
-								echo ">$year</option>";
-							}
-							?>
-						</select>
-						<span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
 					
 						<table class="zfb-cal-table zfb-cal-table-bordered">
 							<tr>
@@ -696,6 +700,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 								
 							?>
 						</ul>
+						<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">
+			
 					</div>
 					<div class="zfb-cost-label">
 						<span class="zfb-cost">Cost: $100</span>
@@ -732,10 +738,10 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 										jQuery('.zfb_timeslot').each(function() {
 											if (jQuery(this).hasClass('selected')) {
 												timeslot = jQuery(this).find('input[name="booking_slots"]').val();	
-												slotcapacity = jQuery(this).find('input[name="zfbslotcapacity"]').val();
+												// slotcapacity = jQuery(this).find('input[name="zfbslotcapacity"]').val();
 											} 
 										});
-
+										slotcapacity = jQuery('input[name="zfbslotcapacity"]').val();
 										jQuery.ajax({
 											url: '<?php echo admin_url('admin-ajax.php'); ?>',
 											type : 'post',
@@ -799,8 +805,10 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				?>
 				</div>
 			</div>
-			<div class="dc_backButton"><button id="backButton">Back</button></div>
-			<div class="dc_nextButton"><button id="nextButton">Next</button></div>
+			<div class="dc_backButton alignwide">
+				<button id="backButton">Back</button>
+				<button id="nextButton">Next</button>
+			</div>
 			
 			<?php
 			return ob_get_clean();
@@ -825,8 +833,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$post_id = $_POST['form_id'];
 			ob_start();
 			?>
-            
-                <input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>" >
+			<div class="header-calender">
+				<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>" >
                 <span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
                 <select name='bms_month_n' id='bms_month'>
                     <?php
@@ -853,6 +861,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                     ?>
                 </select>
                 <span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
+			</div>
+                
            
             <table>
                 <tr>
@@ -905,7 +915,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			wp_die();
 		  }
 		  function action_display_available_timeslots(){
-
+				$error = false;
 				if(isset( $_POST['form_data'])){
 					$form_data = $_POST['form_data'];
 					$array_data = explode('_',$form_data);
@@ -939,14 +949,24 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                                 echo $this->front_generate_timeslots($post_id,$form_data);		
                             }	
                         } else {
+							$error = true;
                             error_log('Check End date! Selected date exceed the selected end date');
-                            ?><p class='not_avail'><?php echo __('No timeslots found for selected date. Event may be not scheduled or might have expired.','textdomain');?></p><?php
+                            
                         }
                     } else {
-                        echo "<p class='not_avail'>Something went wrong</p>";
+						$error = true;
+                        // echo "<p class='not_avail'>Something went wrong</p>";
+						// echo '<li class="zfb_timeslot zfb_timeslot_msg"><?php echo __("No timeslots found for selected date. Event may be not scheduled or might have expired.","textdomain")';
+                		// echo '<span class="zfb-tooltip-text" data-seats="0" >Available seats : "0"</span>';
+                		// echo '</li>';
                         error_log('Array does not exist.');
                     }	
 				echo "</ul>";
+				if($error === true){
+					echo __('No timeslots found for selected date. Event may be not scheduled or might have expired.','textdomain');
+				}else{
+					echo '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
+				}
 				wp_die();
 		  }
 

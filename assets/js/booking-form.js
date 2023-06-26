@@ -486,6 +486,52 @@ jQuery(document).ready(function($) {
     });
 });
 
-$(document).ready(function($) {
+jQuery(document).ready(function($) {
     $('#notifytable').DataTable();
-  });
+    $('#notification-search').on('keyup', function() {
+        table.columns(1).search(this.value).draw();
+    });
+});
+// jQuery(document).ready(function() {
+//     var table = $('#notifytable').DataTable();
+  
+//     // Apply search on keyup in the search box
+//     $('#notification-search').on('keyup', function() {
+//       table.search(this.value).draw();
+//     });
+// });
+// $(document).ready(function() {
+//     var table = $('#notifytable').DataTable();
+  
+//     // Apply search on keyup in the search box
+//     $('#notification-search').on('keyup', function() {
+//       table.columns(1).search(this.value).draw();
+//     });
+//   });
+  
+
+// jQuery(document).ready(function() {
+//     var old_table  =  jQuery('#notifytable').DataTable( {
+//                 dom: 'Bfrtip',
+//                 info:     false,
+//                 paging: false,
+//                 searching: true,
+//                 aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
+//                 columnDefs: [{
+//                         "targets": 2,
+//                         "orderable": false
+//                     }],
+//                     rowReorder: {
+//                 selector: 'td:nth-child(2)'
+//             },
+//             responsive: true
+//             } );
+            
+//               jQuery("#notification-search").keyup(function() {
+//                 //table.fnFilter();
+//                 old_table.search(this.value).draw();
+    
+//             }); 
+            
+//     } );
+    

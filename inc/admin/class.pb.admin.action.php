@@ -475,8 +475,15 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							// print_r($notification_metadata);
 							if (!empty($notification_metadata) && is_array($notification_metadata)) {
 								$post_id = $_GET['post_id'];
-								?>
-								<!-- <form id="notification-listform"> -->
+								?>	
+									<div class="dataTables_filter">
+										<label>
+											Search:
+											<input type="search" class="form-control" id="notification-search" placeholder="Search by notification title">
+										</label>
+									</div>
+
+									 <div id="tab5" class="tab-content">
 									<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
 									<table class="table notificationtable datatable" id="notifytable" >
 										<thead>
@@ -520,8 +527,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 										</tbody>
 									</table>
 									<button type="button" class="btn btn-danger" id="deletenotify">Delete</button>
-								<!-- </form -->
-						
 								<?php
 							}else{
 								echo 'No notification data found for the post.';
