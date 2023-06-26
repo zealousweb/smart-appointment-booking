@@ -44,8 +44,6 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
 		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
 		*/
-//calid_5085_6_20_2023
-//SELECT * FROM `wp_postmeta` WHERE (`meta_key` = '09:30 AM-10:30 AM' OR `meta_value` = '09:30 AM-10:30 AM') LIMIT 50
         function get_available_seats_per_timeslot($checktimeslot,$date){
             
             // $timeslot = '09:30 AM-10:30 AM';
@@ -288,12 +286,11 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             ?>
             <div id="custom-meta-box-tabs">
                 <!-- Tab navigations -->
-                <ul class="tab-navigation">
-                    <li><a href="#tab1">General</a></li>
-                    <li><a href="#tab2">Recurring Appointment</a></li>
-                    <li><a href="#tab3">Confirmations</a></li>
-                    <li><a href="#tab4">Notification</a></li>
-                    <li><a href="#tab5">Preview</a></li>
+                <ul class="tab-navigation nav nav-tabs">
+                    <li class="nav-link"><a href="#tab1">General</a></li>
+                    <li class="nav-link"><a href="#tab2">Recurring Appointment</a></li>
+                    <li class="nav-link"><a href="#tab3">Confirmations</a></li>
+                    <li class="nav-link"><a href="#tab5">Preview</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
                 <div id="tab1" class="tab-content">
@@ -592,198 +589,6 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         ?>
                        
                     </div>  
-                </div>
-                <div id="tab4" class="tab-content">
-                    <h3>Notifcation</h3>
-                    <?php 
-                    $get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
-                    if(empty($get_no_of_notification)){
-                        ?>
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-success btn-success" data-bs-toggle="modal" data-bs-target="#newnotication">
-                        New Notification
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade mod_notification" id="newnotication" tabindex="-1" aria-labelledby="newnoticationLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content mod_notification_content">
-                                <div class="modal-header mod_notification_header">
-                                <h5>Add New Email Notification</h5>
-                                <!-- <h1 class="modal-title fs-5 mod_notification_title" id="newnoticationLabel">Add New Notification</h1> -->
-                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
-                                </div>
-                                <div class="modal-body mod_notification_body">
-                                    <a class="h5" data-bs-toggle="collapse" href="#notifycollapse1" role="button" aria-expanded="false" aria-controls="notifycollapse1">
-                                            Notification Setting <i class="fa fa-caret-down" aria-hidden="true"></i></a>
-                                    <div class="row notify-row">
-                                        <div class="col notify-col">
-                                            <div class="collapse multi-collapse notify-multi-collapse" id="notifycollapse1">
-                                            <fieldset id="form-fieldset" class="form-related-slug">
-                                                    <div class="form-group">
-                                                        <label for="from-field">Name</label>
-                                                        <input type="text" id="from-field" name="name" class="form-control" placeholder="Enter Title of Notification"required>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Choose State whether notification is enabled and sending messages or 
-                                                            it is disabled and no messages are sent until you activate the notification.
-                                                        </label>
-                                                        <div class="form-check">
-                                                            <input class="form-control" type="radio" name="state" id="disable" value="disable">
-                                                            <label class="form-check-label" for="disable">Disable</label>
-                                                            </div>
-                                                        <div class="form-check">
-                                                            <input class="form-control" type="radio" name="state" id="enable" value="enable">
-                                                            <label class="form-check-label" for="enable">Enable</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="appointment-status">Appointment Status</label>
-                                                        <select class="form-select form-control" id="appointment-status" name="appointment_status">
-                                                            <option value="booked">Booked</option>
-                                                            <option value="cancelled">Cancelled</option>
-                                                            <option value="approved">Approved</option>
-                                                        </select>
-                                                    </div>
-                                                </fieldset>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a class="h5" data-bs-toggle="collapse" href="#notifycollapse2" role="button" aria-expanded="false" aria-controls="notifycollapse2">
-                                    Email Setting <i class="fa fa-caret-down" aria-hidden="true"></i></a>
-                                    
-                                    <div class="row notify-row">
-                                        <div class="col notify-col">
-                                            <div class="collapse multi-collapse notify-multi-collapse" id="notifycollapse2">
-                                                <div class="notify-card-body">
-                                                <fieldset id="form-fieldset" class="form-related-slug">
-                                                    <div class="form-group">
-                                                        <label for="from-field">From</label>
-                                                        <input type="text" id="from-field" name="from" class="form-control" required>
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <label for="subject-field">Subject</label>
-                                                        <input type="text" id="subject-field" name="subject" class="form-control" required>
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <label for="additional-headers-field">Additional Headers</label>
-                                                        <!-- <input type="text" id="additional-headers-field" name="additional_headers" class="form-control"> -->
-                                                        <textarea id="message-body-field" name="additional_headers" class="form-control" rows="4" required></textarea>
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <label for="message-body-field">Message Body</label>
-                                                        <?php
-                                                            wp_editor('', 'message_body', array(
-                                                                'textarea_name' => 'message_body',
-                                                            ));
-                                                        ?>
-                                                        <!-- <textarea id="message-body-field" name="message_body" class="form-control" rows="4" required></textarea> -->
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <input type="checkbox" id="exclude-blank-lines-checkbox" name="exclude_blank_lines" value="1">
-                                                        <label for="exclude-blank-lines-checkbox">Exclude lines with blank mail-tags from output</label>
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <input type="checkbox" id="use-html-content-checkbox" name="use_html_content" value="1">
-                                                        <label for="use-html-content-checkbox">Use HTML content type</label>
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <label for="file-attachments-field">File Attachments</label>
-                                                        <input type="file" id="file-attachments-field" name="file_attachments[]" multiple>
-                                                    </div>
-                                                </fieldset>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer mod_notification_footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary">Save changes</button>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php
-                    }else{
-                        ?>
-                        <table class="table">
-                        <thead>
-                            <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">First</th>
-                            <th scope="col">Last</th>
-                            <th scope="col">Handle</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            </tr>
-                            <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            </tr>
-                            <tr>
-                            <th scope="row">3</th>
-                            <td colspan="2">Larry the Bird</td>
-                            <td>@twitter</td>
-                            </tr>
-                        </tbody>
-                        </table><?php
-                    }
-                    ?>
-                    
-                    <!-- <fieldset id="form-fieldset" class="form-related-slug">
-                        <legend>Form Fields</legend>
-                        
-                        <div class="form-group">
-                            <label for="from-field">From</label>
-                            <input type="text" id="from-field" name="from" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="subject-field">Subject</label>
-                            <input type="text" id="subject-field" name="subject" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="additional-headers-field">Additional Headers</label>
-                            <input type="text" id="additional-headers-field" name="additional_headers" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="message-body-field">Message Body</label>
-                            <textarea id="message-body-field" name="message_body" class="form-control" rows="4" required></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <input type="checkbox" id="exclude-blank-lines-checkbox" name="exclude_blank_lines" value="1">
-                            <label for="exclude-blank-lines-checkbox">Exclude lines with blank mail-tags from output</label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <input type="checkbox" id="use-html-content-checkbox" name="use_html_content" value="1">
-                            <label for="use-html-content-checkbox">Use HTML content type</label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="file-attachments-field">File Attachments</label>
-                            <input type="file" id="file-attachments-field" name="file_attachments[]" multiple>
-                        </div>
-                    </fieldset> -->
-
                 </div>
                
             </div>

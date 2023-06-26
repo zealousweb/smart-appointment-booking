@@ -22,6 +22,8 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 		function __construct() {
             add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );	
             add_action( 'save_post', array( $this, 'bms_save_post_function' ) );
+
+          
 		}
 
 		/*
@@ -42,27 +44,52 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
 		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
 		*/
-
-
+//calid_5085_6_20_2023
+//SELECT * FROM `wp_postmeta` WHERE (`meta_key` = '09:30 AM-10:30 AM' OR `meta_value` = '09:30 AM-10:30 AM') LIMIT 50
+        function get_available_seats_per_timeslot($checktimeslot,$date){
+            
+            // $timeslot = '09:30 AM-10:30 AM';
+            // $booking_date = 'calid_5085_6_20_2023';
+            
+            $args = array(
+                'post_type' => 'bms_entries',
+                'posts_per_page' => -1,
+                'meta_query' => array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => 'timeslot',
+                        'value' => $checktimeslot,
+                        'compare' => '='
+                    ),
+                    array(
+                        'key' => 'booking_date',
+                        'value' => $date,
+                        'compare' => '='
+                    )
+                )
+            );
+            
+            $query = new WP_Query($args);
+            
+            if ($query->have_posts()) {
+                $post_count = $query->found_posts;
+                // echo "Number of posts with timeslot '{$timeslot}' and booking date '{$booking_date}': {$post_count}";
+            } else {
+                // echo "No posts found with timeslot '{$timeslot}' and booking date '{$booking_date}'.";
+            }
+            
+            return $post_count;
+        }
 	
 
         /**
          * Display BMS submission Entries
          */ 
         function bms_entries_render_meta_box_content( $post ){
-        
+            
             $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );	
             $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
-
-            $stringdata_timeInSeconds = get_post_meta( $post->ID, 'timeslot', true );
-            $array_of_timeInSeconds = explode('-',$stringdata_timeInSeconds);          
-            $start_time = $array_of_timeInSeconds[0];
-            $end_time = $array_of_timeInSeconds[1];           
-
-            $start_timeFormatted = gmdate('H:i:s', $start_time);  
-            $end_timeFormatted = gmdate('H:i:s', $end_time); 
-
-
+            $timeslot = get_post_meta( $post->ID, 'timeslot', true );
             // echo "<br>".	
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
             $array_of_date = explode('_',$booking_date);
@@ -74,6 +101,8 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
             // $totalbookings = get_post_meta( $post->ID, 'totalbookings', true );	
             $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
+
+            // echo $checkseats = $this->get_available_seats_per_timeslot($timeslot,$booked_date);
 
             if(!empty($form_id)){ 
                $booking_form_title = get_the_title($form_id);               
@@ -101,14 +130,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 <li><?php echo __('Status', 'textdomain')." : ".$status; ?></li>
                 <li><?php echo __('Customer', 'textdomain'); ?> : <?php echo __('Guest', 'textdomain');; ?></li>
                 <li><?php echo __('Booking Date', 'textdomain'); ?> : <?php echo __($booked_date, 'textdomain');; ?></li>
-                <li><?php echo __('Timeslot', 'textdomain'); ?> : <?php echo __($start_timeFormatted, 'textdomain'); ?> to <?php echo __($end_timeFormatted, 'textdomain'); ?></li>
+                <li><?php echo __('Timeslot', 'textdomain'); ?> : <?php echo __($timeslot, 'textdomain'); ?></li>
                 <li><?php echo __('No of Slots Booked', 'textdomain'); ?> : <?php echo __($slotcapacity, 'textdomain'); ?></li>
             </ul>   
             <h3>Booking Details</h3>
             <ul>
-                
                 <?php
-                
                 foreach($form_data['data'] as $form_key => $form_value){
                     if($form_key !== 'submit'){
                         echo "<li>".$form_key." : ".$form_value."</li>";
@@ -198,7 +225,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         
             $appointment_type = get_post_meta($post->ID, 'appointment_type', true);
             $virtual_link = get_post_meta($post->ID, 'virtual_link', true);
-
+            $redirect_to= get_post_meta($post->ID, 'redirect_to', true);
             $symbol = get_post_meta($post->ID, 'label_symbol', true);
             $cost = get_post_meta($post->ID, 'cost', true);
             
@@ -214,7 +241,17 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $holiday_dates = get_post_meta($post->ID, 'holiday_dates', true);
             $enable_waiting = get_post_meta($post->ID, 'waiting_list', true);
             $enable_auto_approve = get_post_meta($post->ID, 'enable_auto_approve', true);
+            // $breaktimeslots = get_post_meta($post->ID, 'breaktimeslots', true);
+
             $breaktimeslots = get_post_meta($post->ID, 'breaktimeslots', true);
+            if (empty($breaktimeslots)) {
+                $breaktimeslots = array(
+                array(
+                    'start_time' => '',
+                    'end_time' => '',
+                ),
+                );
+            }
             //section 2 
             $enable_recurring_apt = get_post_meta($post->ID, 'enable_recurring_apt', true);
             $recurring_type = get_post_meta($post->ID, 'recurring_type', true);
@@ -251,10 +288,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             ?>
             <div id="custom-meta-box-tabs">
                 <!-- Tab navigations -->
-                <ul class="tab-navigation">
-                    <li><a href="#tab1">General</a></li>
-                    <li><a href="#tab2">Recurring Appointment</a></li>
-                    <li><a href="#tab3">Confirmations</a></li>
+                <ul class="tab-navigation nav nav-tabs">
+                    <li class="nav-link"><a href="#tab1">General</a></li>
+                    <li class="nav-link"><a href="#tab2">Recurring Appointment</a></li>
+                    <li class="nav-link"><a href="#tab3">Confirmations</a></li>
+                    <li class="nav-link"><a href="#tab4">Notification</a></li>
+                    <li class="nav-link"><a href="#tab5">Preview</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
                 <div id="tab1" class="tab-content">
@@ -310,56 +349,59 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 
 
                     <label><?php echo __('Start Time: ', 'textdomain'); ?></label>
-                    <input type="number" class="hours" name="start_time[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($start_time['hours']) ? esc_attr($start_time['hours']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="minutes" name="start_time[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($start_time['minutes']) ? esc_attr($start_time['minutes']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="seconds" name="start_time[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($start_time['seconds']) ? esc_attr($start_time['seconds']) : ''; ?>" required><br>
-                    <select name="start_time[ampm]" id="start_time_ampm" required>
-                        <option value="any" <?php  echo isset($start_time['ampm']) ? selected('any', $start_time['ampm'], false) : '' ?> >Select Any</option>
-                        <option value="am" <?php echo isset($start_time['ampm']) ? selected('am', $start_time['ampm'], false): ''  ?>>AM</option>
-                        <option value="pm" <?php echo isset($start_time['ampm']) ? selected('pm', $start_time['ampm'], false): ''  ?>>PM</option>
-                    </select>
-                    <br>
-                 
+                    <input type="time" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" required><br>
+
                     <label><?php echo __('End Time: ', 'textdomain'); ?></label>
-                    <input type="number" class="hours" name="end_time[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($end_time['hours']) ? esc_attr($end_time['hours']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="minutes" name="end_time[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($end_time['minutes']) ? esc_attr($end_time['minutes']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="seconds" name="end_time[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($end_time['seconds']) ? esc_attr($end_time['seconds']) : ''; ?>" required>
-                    <select name="end_time[ampm]" id="start_time_ampm" required>
-                        <option value="any" <?php echo selected('any', $end_time['ampm'], false); ?> >Select Any</option>
-                        <option value="am" <?php echo selected('am', $end_time['ampm'], false);?>>AM</option>
-                        <option value="pm" <?php echo selected('pm', $end_time['ampm'], false); ?>>PM</option>
-                    </select>
+                    <input type="time" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" required>
                     <span class="validation-message" style="color: red;"></span><br>
+
                    
                       
                     <br>
-                    <label><?php echo __('Timeslot Duration: ', 'textdomain'); ?></label>
+                    <label><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
                     <input type="number" class="hours" name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" required>
                     <span>:</span>
                     <input type="number" class="minutes" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="seconds" name="timeslot_duration[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($timeslot_duration['seconds']) ? esc_attr($timeslot_duration['seconds']) : ''; ?>" required>
-                    <br>
-                    <span class="timeslot-validation-message" style="color: red;"></span>
+                   <span class="timeslot-validation-message" style="color: red;"></span>
                     <br>
 
-                    <label><?php echo __('Timeslot Repeat Duration:: ', 'textdomain'); ?></label>
+                    <label><?php echo __('Timeslot Margin (Interval Gap in hh-mm): ', 'textdomain'); ?></label>
                     <input type="number" class="hours" name="steps_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($steps_duration['hours']) ? esc_attr($steps_duration['hours']) : ''; ?>" required>
                     <span>:</span>
                     <input type="number" class="minutes" name="steps_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($steps_duration['minutes']) ? esc_attr($steps_duration['minutes']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="seconds" name="steps_duration[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($steps_duration['seconds']) ? esc_attr($steps_duration['seconds']) : ''; ?>" required><br>
+                    <!-- <span>:</span> -->
+                    <!-- <input type="number" class="seconds" name="steps_duration[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($steps_duration['seconds']) ? esc_attr($steps_duration['seconds']) : ''; ?>" required><br> -->
                     <br>
                 
                     <!-- Booking per Timeslots -->
                     <label><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
                     <input type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>"><br>
                     <br>
-
+                    <!-- Add Breaks -->
+                    <br><br>
+                        <?php
+                        // echo "<pre>";
+                        // print_r($steps_duration);
+                        // echo "<pre>";
+                        // print_r($timeslot_duration);
+                        ?>
+                    <div class="breaktimeslot-repeater">
+                        <label>Add Break Timeslots:</label>
+                        <button type="button" class="add-breaktimeslot">Add Timeslot</button>
+                        <?php foreach ($breaktimeslots as $index => $timeslot) : ?>
+                            <div class="breaktimeslot">
+                            <label>Start Time:</label>
+                            <input type="time" name="breaktimeslots[<?php echo $index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                            <br>
+                            <label>End Time:</label>
+                            <input type="time" name="breaktimeslots[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">
+                            
+                                <button type="button" class="remove-breaktimeslot">Remove Timeslot</button>
+                           
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <br>
                     <!-- waiting List -->
                     
                     <label>
@@ -373,34 +415,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
                         Allow Auto Approve
                     </label>
-
-                    <div class="breaktimeslot-repeater">
-                    <label>Break Timeslots:</label>
-
-                    <?php if ($breaktimeslots && is_array($breaktimeslots)): ?>
-                        <?php foreach ($breaktimeslots as $index => $breaktimeslot): 
-                            // echo $index;
-                            ?>
-                            <div class="breaktimeslot">
-                                <label>Start Time:</label>
-                                <input type="number" name="breaktimeslots[start_hours][]" min="0" max="23" placeholder="HH" value="<?php echo esc_attr($breaktimeslot['start_hours']); ?>">:
-                                <input type="number" name="breaktimeslots[start_minutes][]" min="0" max="59" placeholder="MM" value="<?php echo esc_attr($breaktimeslot['start_minutes']); ?>">:
-                                <input type="number" name="breaktimeslots[start_seconds][]" min="0" max="59" placeholder="SS" value="<?php echo esc_attr($breaktimeslot['start_seconds']); ?>">
-                                <br>
-                                <label>End Time:</label>
-                                <input type="number" name="breaktimeslots[end_hours][]" min="0" max="23" placeholder="HH" value="<?php echo esc_attr($breaktimeslot['end_hours']); ?>">:
-                                <input type="number" name="breaktimeslots[end_minutes][]" min="0" max="59" placeholder="MM" value="<?php echo esc_attr($breaktimeslot['end_minutes']); ?>">:
-                                <input type="number" name="breaktimeslots[end_seconds][]" min="0" max="59" placeholder="SS" value="<?php echo esc_attr($breaktimeslot['end_seconds']); ?>">
-                                <?php if ($index !== 0): ?>
-                                    <button type="button" class="remove-breaktimeslot">Remove Timeslot</button>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-
-                    <button type="button" class="add-breaktimeslot">Add Timeslot</button>
-                </div>
-           
+                    
                 </div>
            
                 <!-- Tabination 2 content  -->
@@ -485,7 +500,9 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <input type="date" name="end_repeats_on" value="<?php echo esc_attr($end_repeats_on); ?>">
                             <br>
                         </div>
+                       
                     </div>
+                    
                 </div>
                 <div id="tab3" class="tab-content"> 
                     <?php
@@ -499,7 +516,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                        
                     }elseif($confirmation == 'redirect_to'){
                           $hiddenredirect_text = 'hidden';
-                         $hiddenredirect_to = 'hidden';
+                         $hiddenredirect_page = 'hidden';
                        
                     }
                     if(empty($confirmation) || !isset($confirmation)){
@@ -550,12 +567,203 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             ?>
                         </select>
                     </div>
-                    <div class="redirectto_main redirect_to redirect_zfb <?php echo $hiddenredirect_to; ?>">
-                        <label><?php echo __('Url: ', 'textdomain'); ?></label>
-                        <input type="text" name="redirect_to" id="redirect-url" style="width: 500px !important;" required>
+                    <div class="redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?>">
+                        <label><?php //echo __('Url: ', 'textdomain'); ?></label>
+                        <input type="text" name="redirect_to" id="redirect-url"   value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
                         <small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
                     </div>   
                 </div>
+                <div id="tab5" class="tab-content">
+                    <div class="preview_main">
+                        <p id="preview_timeslot" pid="<?php echo get_the_ID(); ?>">Click Here to Preview Timeslots</p>
+                        <?php 
+                               $post_id = get_the_ID();
+                               $start_time = get_post_meta($post_id, 'start_time', true);
+                               $end_time = get_post_meta($post_id, 'end_time', true);
+                               $duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
+                               if($start_time && $end_time && $duration_minutes){
+                                 echo '<div id="preview_output"></div>';
+                               }else{
+                                echo "<p class='note_preview' > To Preview Timeslots, Set General Setting : start time, end time , Duration, steps , breaks </p>";
+                               }
+                                // $break_times = get_post_meta($post_id, 'breaktimeslots', true);
+                           
+                                //$gap_minutes = get_post_meta($post_id, 'steps_duration', true);
+                        ?>
+                       
+                    </div>  
+                </div>
+                <div id="tab4" class="tab-content">
+                    <!-- <h3>Notifcation</h3> -->
+                    <?php
+                   
+                    $post_id = get_the_ID(); // Replace 123 with the ID of the post you want to check
+                    
+                    // Get the post status
+                    $status = get_post_status($post_id);
+                    
+                    // Check if the post is published
+                    if ($status === 'publish') {
+
+                        $get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
+                        ?>
+                        <!-- Button to trigger the modal -->
+                        <button type="button" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <!-- Modal header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="myModalLabel">Form Modal</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                </div>
+                                
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    <h5>hello</h5>
+                                        <div class="form-group">
+                                            <input type="hidden" name="form_id" value="<?php echo get_the_ID(); ?>">
+                                            <input type="hidden" name="site_id" value="<?php echo site_url(); ?>">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="notification-name">Notification Name</label>
+                                            <input type="text" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>State</label>
+                                            <div class="form-check">
+                                                <input class="form-check" type="radio" name="state" id="disable" value="disable">
+                                                <label class="form-check-label" for="disable">Disable</label>
+                                                </div>
+                                            <div class="form-check">
+                                                <input class="form-check" type="radio" name="state" id="enable" value="enable">
+                                                <label class="form-check-label" for="enable">Enable</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="type-dropdown">Type</label>
+                                            <select class="form-select form-control" id="type-dropdown" name="type">
+                                                <option value="any">Any</option>
+                                                <option value="booked">Booked</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="cancelled">Cancelled</option>
+                                                <option value="approved">Approved</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="email-to">To</label>
+                                            <input type="text" id="email-to" name="email_to" class="form-control" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="email-from">From</label>
+                                            <input type="text" id="email-from" name="email_from" class="form-control" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="additional-header">Additional Headers</label>
+                                            <textarea id="additional-header" name="additional_headers" class="form-control" rows="4" required></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="mail-body">Mail Body</label>
+                                            <?php
+                                                // wp_editor('', 'mail_body', array(
+                                                // 'textarea_name' => 'mail_body',
+                                                // ));
+                                            ?>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="attachments">Attachments</label>
+                                            <input type="file" id="attachments" name="attachments[]" multiple>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                        
+                                            <input type="submit" id="submit" name="submit_notification" >
+                                        </div>
+                                    </form>
+                                    <!-- <p id="suc_loc"></p> -->
+                                </div>
+                                
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <!-- <form id="notifyform" method="post">
+                                        <div class="form-group">
+                                            <label for="name">Name</label>
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                                        </div>
+                                        </form> -->
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Notification</th>
+                                <th scope="col">State</th>
+                                <th scope="col">
+                                <input type="checkbox" id="zfb-check-all" class="" value="1"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <th scope="row">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+                                    <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
+                                    <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
+                                    </svg>
+                                </th>
+                                <td>Notification to customer about Booked appointment</td>
+                                <td><span>disabled</span> <span>(Enabled)</span></td>
+                                <td><input type="checkbox" id="zfb-check-all" class="" value="1"></td>
+                                </tr>
+                                <tr>
+                                <th scope="row">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+                                    <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
+                                    <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
+                                    </svg>
+                                </th>
+                                <td>Notification to customer about pending appointment</td>
+                                <td><span>disabled</span> <span>(Enabled)</span></td>
+                                <td><input type="checkbox" id="zfb-check-all" class="" value="1"></td>
+                                </tr>
+                                <tr>
+                                <th scope="row">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+                                    <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
+                                    <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
+                                    </svg>
+                                </th>
+                                <td>Notification to customer about approved appointment</td>
+                                <td><span>disabled</span> <span>(Enabled)</span></td>
+                                <td><input type="checkbox" id="zfb-check-all" class="" value="1"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <?php
+                
+                    } else {
+                        echo 'Publish Post to Create Notification';
+                    }
+                        ?>
+                </div>
+               
             </div>
             <?php
         }
@@ -589,10 +797,14 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $link_value = sanitize_text_field($_POST['virtual_link']);
                 update_post_meta($post_id, 'virtual_link', $link_value);
             }
+            if (isset($_POST['redirect_to'])) {
+                $link_value = sanitize_text_field($_POST['redirect_to']);
+                update_post_meta($post_id, 'redirect_to', $link_value);
+            }
              //Symbol
              if ( isset( $_POST['label_symbol'] ) ) {
-                $selected_date = $_POST['label_symbol'];
-                update_post_meta( $post_id, 'label_symbol', $selected_date );
+                $label_symbol = $_POST['label_symbol'];
+                update_post_meta( $post_id, 'label_symbol', $label_symbol );
             }
              //Cost
             if ( isset( $_POST['cost'] ) ) {
@@ -607,36 +819,36 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             //Start Time
             if ( isset( $_POST['start_time'] ) ) {
                 $time_slot = $_POST['start_time'];
-                $sanitized_start_time = array(
-                    'hours' => sanitize_text_field( $time_slot['hours'] ),
-                    'minutes' => sanitize_text_field( $time_slot['minutes'] ),
-                    'seconds' => sanitize_text_field( $time_slot['seconds'] ),
-                    'ampm' => sanitize_text_field( $time_slot['ampm'] ),
-                );
+                // $sanitized_start_time = array(
+                //     'hours' => sanitize_text_field( $time_slot['hours'] ),
+                //     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
+                //     'seconds' => sanitize_text_field( $time_slot['seconds'] ),
+                //     'ampm' => sanitize_text_field( $time_slot['ampm'] ),
+                // );
     
                 // Update the post meta data with the field value
-                update_post_meta( $post_id, 'start_time', $sanitized_start_time );
+                update_post_meta( $post_id, 'start_time', $time_slot );
             }
              //End Time
              if ( isset( $_POST['end_time'] ) ) {
                 $time_slot = $_POST['end_time'];
-                $sanitized_end_time = array(
-                    'hours' => sanitize_text_field( $time_slot['hours'] ),
-                    'minutes' => sanitize_text_field( $time_slot['minutes'] ),
-                    'seconds' => sanitize_text_field( $time_slot['seconds'] ),
-                    'ampm' => sanitize_text_field( $time_slot['ampm'] ),
-                );
+                // $sanitized_end_time = array(
+                //     'hours' => sanitize_text_field( $time_slot['hours'] ),
+                //     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
+                //     'seconds' => sanitize_text_field( $time_slot['seconds'] ),
+                //     'ampm' => sanitize_text_field( $time_slot['ampm'] ),
+                // );
         
                 // Update the post meta data with the field value
-                update_post_meta( $post_id, 'end_time', $sanitized_end_time );
+                update_post_meta( $post_id, 'end_time', $time_slot );
             }
              //Steps Duration
              if ( isset( $_POST['steps_duration'] ) ) {
                 $steps_duration = $_POST['steps_duration'];
                 $sanitized_steps_duration = array(
                     'hours' => sanitize_text_field( $steps_duration['hours'] ),
-                    'minutes' => sanitize_text_field( $steps_duration['minutes'] ),
-                    'seconds' => sanitize_text_field( $steps_duration['seconds'] ),                   
+                    'minutes' => sanitize_text_field( $steps_duration['minutes'] )
+                    // 'seconds' => sanitize_text_field( $steps_duration['seconds'] ),                   
                 );
         
                 // Update the post meta data with the field value
@@ -647,8 +859,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $timeslot_duration = $_POST['timeslot_duration'];
                 $sanitized_timeslot_duration = array(
                     'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
-                    'minutes' => sanitize_text_field( $timeslot_duration['minutes'] ),
-                    'seconds' => sanitize_text_field( $timeslot_duration['seconds'] ),
+                    'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
                 );
         
                 // Update the post meta data with the field value
@@ -675,47 +886,31 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             //multiple breaks
             if (isset($_POST['breaktimeslots'])) {
                 $breaktimeslots = $_POST['breaktimeslots'];
-        
-                // Sanitize and validate the timeslots data before saving
+            
+                // Sanitize and save the values
                 $sanitized_breaktimeslots = array();
-        
-                if (
-                    is_array($breaktimeslots['start_hours']) &&
-                    is_array($breaktimeslots['start_minutes']) &&
-                    is_array($breaktimeslots['start_seconds']) &&
-                    is_array($breaktimeslots['end_hours']) &&
-                    is_array($breaktimeslots['end_minutes']) &&
-                    is_array($breaktimeslots['end_seconds'])
-                ) {
-                    $count = min(
-                        count($breaktimeslots['start_hours']),
-                        count($breaktimeslots['start_minutes']),
-                        count($breaktimeslots['start_seconds']),
-                        count($breaktimeslots['end_hours']),
-                        count($breaktimeslots['end_minutes']),
-                        count($breaktimeslots['end_seconds'])
-                    );
-        
-                    for ($i = 0; $i < $count; $i++) {
-                        $start_hours = absint($breaktimeslots['start_hours'][$i]);
-                        $start_minutes = absint($breaktimeslots['start_minutes'][$i]);
-                        $start_seconds = absint($breaktimeslots['start_seconds'][$i]);
-                        $end_hours = absint($breaktimeslots['end_hours'][$i]);
-                        $end_minutes = absint($breaktimeslots['end_minutes'][$i]);
-                        $end_seconds = absint($breaktimeslots['end_seconds'][$i]);
-        
-                        $sanitized_breaktimeslots[] = array(
-                            'start_hours' => $start_hours,
-                            'start_minutes' => $start_minutes,
-                            'start_seconds' => $start_seconds,
-                            'end_hours' => $end_hours,
-                            'end_minutes' => $end_minutes,
-                            'end_seconds' => $end_seconds,
+                foreach ($breaktimeslots as $breaktimeslot) {
+                  $breakstart_time = sanitize_text_field($breaktimeslot['start_time']);
+                  $breakend_time = sanitize_text_field($breaktimeslot['end_time']);
+                  $sanitized_breaktimeslots[] = array(
+                    'start_time' => $breakstart_time,
+                    'end_time' => $breakend_time,
+                  );
+                }            
+                update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
+              }else{
+                    $breaktimeslots = get_post_meta($post_id, 'timeslots', true);
+                    if (empty($timeslots)) {
+                        $sanitized_breaktimeslots = array(
+                            array(
+                            'start_time' => '',
+                            'end_time' => '',
+                            ),
                         );
                     }
-                }
-                update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
-            }
+                    update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
+              }
+            
            
              //Enable Recurring Events
             if (isset($_POST['enable_recurring_apt'])) {
@@ -827,7 +1022,6 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 				);
 			}
 		}
-        
         
 	}			
 

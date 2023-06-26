@@ -294,7 +294,7 @@ jQuery(document).ready(function($) {
 
     });
 });
-$(document).ready(function() {
+jQuery(document).ready(function($) {
     // Add Timeslot
     $('.add-breaktimeslot').click(function() {
         var index = $('.breaktimeslot-repeater .breaktimeslot').length;
@@ -316,3 +316,151 @@ $(document).ready(function() {
         $(this).closest('.breaktimeslot').remove();
       });
   });
+//   jQuery(document).ready(function() {
+//     jQuery(document).on('submit', '#notifyform, #notifyformadd', function(event) {
+//         event.preventDefault();
+
+//         var form = jQuery(this).serialize();
+//         var formData = new FormData();
+//         formData.append('action', 'zfb_save_new_notification');
+//         formData.append('notification_data', form);
+
+//         jQuery.ajax({
+//             type: 'POST',
+//             url: ajaxurl,
+//             data: formData,
+//             processData: false,
+//             contentType: false,
+//             success: function(response) {
+//                 console.log(response);
+//                 // Perform any desired actions upon successful submission
+//             }
+//         });
+//     });
+// });
+
+jQuery(document).ready(function() {
+    jQuery(document).on('submit', '#notifyformadd', function(event) {    
+        event.preventDefault();    
+        var form=jQuery('#notifyformadd').serialize();
+        var formData=new FormData();
+        formData.append('action','zfb_save_new_notification');
+        formData.append('notification_data',form);
+        var modalId = jQuery(this).data('target');
+        var modal = jQuery(modalId); 
+
+        jQuery.ajax({
+            type: 'POST',
+            url: ajaxurl,
+            data:formData,
+            processData:false,//off other action only run this event
+		    contentType:false,        
+            success: function (response) {
+                 console.log(response);
+                 jQuery('#notifytable').load(location.href + ' #notifytable');
+                 modal.modal('hide');
+            }
+            
+        });
+
+    });
+});
+jQuery(document).ready(function() {
+    jQuery(document).on('submit', '#notifyform', function(event) {    
+        event.preventDefault();    
+        var form=jQuery('#notifyform').serialize();
+        var formData=new FormData();
+        formData.append('action','zfb_save_new_notification');
+        formData.append('notification_data',form);
+        jQuery.ajax({
+            type: 'POST',
+            url: ajaxurl,
+            data:formData,
+            processData:false,//off other action only run this event
+		    contentType:false,        
+            success: function (response) {
+                jQuery('#notifytable').load(location.href + ' #notifytable');
+                 console.log(response);
+                // jQuery('#closemodal').click();
+                
+            }
+            
+        });
+
+    });
+});
+jQuery(document).ready(function($) {
+    // Delete button click event
+    $('#deletenotify').on('click', function() {
+
+        var post_id = jQuery('#post_id').val();
+        // Get the checked checkboxes
+        var checkedItems = $('.child-checkall:checked');
+        var indexesToDelete = [];
+
+        // Extract the indexes of checked checkboxes
+        checkedItems.each(function() {
+            indexesToDelete.push($(this).val());
+        });
+        console.log(indexesToDelete);
+        // Perform AJAX request to delete the indexes
+        $.ajax({
+            type: 'POST',
+            url: ajaxurl,
+            data: {
+                action: 'delete_notification_indexes',
+                indexes: indexesToDelete,
+                post_id: post_id,
+            },
+            success: function(response) {
+                // Handle the success response here
+                console.log(response);
+                $('#notifytable').load(location.href + ' #notifytable');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Handle the error here
+                console.log(errorThrown);
+            }
+        });
+    });
+});
+jQuery(document).ready(function($) {
+    // Check all checkbox click event
+    $('#main-check-all').on('click', function() {
+        // Get the checked status of the main checkbox
+        var isChecked = $(this).prop('checked');
+        
+        // Set the checked status of all child checkboxes accordingly
+        $('.child-checkall').prop('checked', isChecked);
+    });
+});
+jQuery(document).on('click', '.toggle-notification', function() {
+    var row = jQuery(this).closest('tr');
+    var index = row.data('index');
+    var postID = jQuery('#post_id').val();
+    var currentState = row.find('.notification-state').text();
+    var newState = currentState === 'Enabled' ? 'Disabled' : 'Enabled';
+    
+    // Send AJAX request to update the notification state
+    jQuery.ajax({
+        url: ajaxurl,
+        method: 'POST',
+        data: {
+            action: 'zfb_update_notification_state',
+            index: index,
+            post_id: postID,
+            state: newState,
+        },
+        success: function(response) {
+            // Update the row with the new state
+            row.find('.notification-state').text(newState);
+            
+            // Add/remove classes for styling
+            row.toggleClass('enabled-notification', newState === 'Enabled');
+            row.toggleClass('disabled-notification', newState === 'Disabled');
+        },
+        error: function(xhr, status, error) {
+            console.log(error);
+        }
+    });
+});

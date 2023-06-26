@@ -22,7 +22,17 @@ if ( !class_exists( 'PB_Admin_Filter' ) ) {
 		function __construct() {
 			add_filter('manage_bms_forms_posts_columns', array( $this,'add_custom_column_bms_forms'), 10, 2 );		
 			add_filter('manage_bms_entries_posts_columns', array( $this,'add_custom_column_bms_entries'), 10, 2 );		
-
+			add_filter('post_row_actions',  array( $this,'add_notification_row_action'), 10, 2 );	
+		}
+		// Add custom action link to row actions
+		function add_notification_row_action($actions, $post) {
+			if ($post->post_type === 'bms_forms') {
+				// Generate the notification URL
+				$notification_url = admin_url('admin.php?page=notification-settings&post_type=' . $post->post_type.'&post_id=' . $post->ID);
+				// Add the "Notification" link to the row actions
+				$actions['notification'] = '<a href="' . esc_url($notification_url) . '">Email Notification</a>';
+			}
+			return $actions;
 		}
 
 		/*
@@ -102,6 +112,13 @@ if ( !class_exists( 'PB_Admin_Filter' ) ) {
 		        unset( $form_fields['align'] );
 		    return $form_fields;
 		}
+
+		
+		function add_custom_post_type_column($columns) {
+			$columns['notification'] = 'Notification';
+			return $columns;
+		}
+
 
 
 	}
