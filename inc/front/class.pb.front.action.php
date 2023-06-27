@@ -200,10 +200,11 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					$weekdays_num = $arrayofdates = array();
 					$weekdays = get_post_meta($post_id, 'weekdays', true);					
 					$all_days = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-					
+					$todays_date = date("Y-m-d");
                     $selected_date = get_post_meta($post_id, 'selected_date', true);
-                    $selected_date = date("Y-m-d", strtotime($selected_date));
-                    if($date < $selected_date){
+					$selected_date = date("Y-m-d", strtotime($selected_date));
+					$date;
+                    if($date < $selected_date || $date < $todays_date){
                         $arrayofdates = array();
                     }else{
                         $recurring_type = get_post_meta($post_id, 'recurring_type', true);
@@ -599,7 +600,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							<select name="bms_year_n" id="bms_year">
 								<?php
 								$startYear = $currentYear + 5;
-								$endYear = 1990;
+								$endYear = 2023;
 								for ($year = $startYear; $year >= $endYear; $year--) {
 									echo "<option value='$year'";
 									if ($year == $currentYear) {
@@ -849,9 +850,11 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                 </select>
                 <select name="bms_year_n" id="bms_year">
                     <?php
-                    $startYear = $currentYear+5;
-                    $endYear = 1990;
-                    for ($year = $startYear; $year >= $endYear; $year--) {
+					//here
+					$futureYear = date("Y", strtotime("+10 years"));
+                  
+                    $endYear = 2023;
+                    for ($year = $futureYear; $year >= $endYear; $year--) {
                         echo "<option value='$year'";
                         if ($year == $currentYear) {
                             echo " selected";
@@ -935,8 +938,9 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="'.$clickedId.'" >';
 				echo "<ul id='zfb-slot-list'>";
                     //check if selected date is equals or greater or else show timeslots have been expired.
-
+				
 					$is_available = $this->processDate($post_id,$todaysDate);
+					// echo "<pre>";print_r($is_available);
                     if (isset($is_available) && is_array($is_available)) {
                         if (in_array($todaysDate, $is_available)) {
                             $check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
