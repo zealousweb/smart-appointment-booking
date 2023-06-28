@@ -893,9 +893,13 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                 while ($dayCounter <= $totalCells) {
                     echo "<tr>";
                     for ($i = 1; $i <= 7; $i++) {
+						$calselected_date = "";
+						if ($date == 1) {
+                           $calselected_date = "calselected_date";
+                        }
                         if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
                             // $isToday = ($date == date('j') && $monthYear == date('n-Y')) ? "calselected_date" : "";
-                            echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='bms_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='bms_cal_day' onclick='getClickedId(this)'>$date</td>";
+                            echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='bms_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='bms_cal_day ".$calselected_date."' onclick='getClickedId(this)'>$date</td>";
                             $date++;
                         } elseif ($dayCounter < $firstDayOfWeek) {
                             $prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);

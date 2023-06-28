@@ -638,7 +638,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				<div class="modal-dialog modal-lg notification-mdialog">
 					<div class="modal-content notification-mcontent">
 						<form id="notifyform<?php echo $mode; ?>" method="post">
-							<input type="hidden" value="<?php echo $index; ?>" name="editnotify">
+							
 							<input type="hidden" value="<?php echo $post_id; ?>" name="form_id">
 							<!-- Modal header -->
 							<div class="modal-header">
@@ -651,7 +651,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 								
 								<div class="border p-4 m-1">
 									<h5>General Notification Setting</h5>
-									<input type="text" value="<?php echo $index; ?>" name="editnotify" >
+									<input type="hidden" value="<?php echo $index; ?>" name="editnotify" >
 									<div class="form-group">
 										<input type="hidden" name="form_id" value="<?php echo $post_id; ?>">
 									</div>

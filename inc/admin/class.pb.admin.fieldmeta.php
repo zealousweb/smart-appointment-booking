@@ -295,124 +295,127 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 </ul>
                 <!-- Tabination 1 content  -->            
                 <div id="tab1" class="tab-content">
-                    <h3>General</h3>
-                    <label>
-                    <input type="checkbox" name="enable_booking" value="1" <?php echo checked(1, $enable_booking, false); ?>>
-                    Enable or disable booking form
-                    </label>
-                    <br>
-                    <br>
-
-                    <label><?php echo __('Select Weekdays : ', 'textdomain'); ?></label>
-                    <input type="checkbox" name="weekdays[]" value="monday" <?php echo (is_array($weekdays) && in_array('monday', $weekdays)) ? 'checked' : ''; ?>> Monday
-                    <input type="checkbox" name="weekdays[]" value="tuesday" <?php echo (is_array($weekdays) && in_array('tuesday', $weekdays)) ? 'checked' : ''; ?>> Tuesday
-                    <input type="checkbox" name="weekdays[]" value="wednesday" <?php echo (is_array($weekdays) && in_array('wednesday', $weekdays)) ? 'checked' : ''; ?>> Wednesday
-                    <input type="checkbox" name="weekdays[]" value="thursday" <?php echo (is_array($weekdays) && in_array('thursday', $weekdays)) ? 'checked' : ''; ?>> Thursday
-                    <input type="checkbox" name="weekdays[]" value="friday" <?php echo (is_array($weekdays) && in_array('friday', $weekdays)) ? 'checked' : ''; ?>> Friday
-                    <input type="checkbox" name="weekdays[]" value="saturday" <?php echo (is_array($weekdays) && in_array('saturday', $weekdays)) ? 'checked' : ''; ?>> Saturday
-                    <input type="checkbox" name="weekdays[]" value="sunday" <?php echo (is_array($weekdays) && in_array('sunday', $weekdays)) ? 'checked' : ''; ?>> Sunday
-                    <br>
-                    <br>
-
-                    <label><?php echo __('Appointment Type: ', 'textdomain'); ?></label>
-                    <label><input type="radio" name="appointment_type" value="virtual" <?php if ($appointment_type == 'virtual') echo 'checked="checked"'; ?>> Virtual </label>
-                    <label><input type="radio" name="appointment_type" value="physical" <?php if ($appointment_type == 'physical') echo 'checked="checked"'; ?>>Physical</label>
-                    <br>
-
-                    <?php if ($appointment_type == 'virtual') : ?>
-                    <div class="vlink-container">
-                        <label><?php echo __('Link: ', 'textdomain'); ?></label>
-                        <input type="text" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>" pattern="https?://.+" style="width: 500px !important;" required>
-                        <small class="validation-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
-                    </div>
-                    <?php else : ?>
-                    <div class="vlink-container hidden">
-                        <label><?php echo __('Link: ', 'textdomain'); ?></label>
-                        <input type="text" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>">
-                    </div>
-                    <?php endif; ?>
-
-
-                    <br>
-                    <label><?php echo __('Prefix Symbol : ', 'textdomain'); ?></label>
-                    <input type="text" name="label_symbol" value="<?php echo esc_attr($symbol); ?>"><br>
-
-                    <label><?php echo __('Cost : ', 'textdomain'); ?></label>
-                    <input type="number" name="cost" value="<?php echo esc_attr($cost); ?>"><br>
-                    <br>
-
-                    <label><?php echo __('Select Date : ', 'textdomain'); ?></label>
-                    <input type="date" name="selected_date" value="<?php echo esc_attr($selected_date); ?>"><br>
-                    <br>
-
-
-                    <label><?php echo __('Start Time: ', 'textdomain'); ?></label>
-                    <input type="time" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" required><br>
-
-                    <label><?php echo __('End Time: ', 'textdomain'); ?></label>
-                    <input type="time" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" required>
-                    <span class="validation-message" style="color: red;"></span><br>
-
                    
-                      
-                    <br>
-                    <label><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
-                    <input type="number" class="hours" name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="minutes" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" required>
-                   <span class="timeslot-validation-message" style="color: red;"></span>
-                    <br>
+                    <div class="form-group">
+                            <input type="checkbox" name="enable_booking" value="1" <?php echo checked(1, $enable_booking, false); ?>>
+                            <label class="form-check-label" for="enable_booking"> Enable or disable booking form</label>
+                        </div>
+                    <div class="form-group">
+                        <label><?php echo __('Select Weekdays: ', 'textdomain'); ?></label>
+                        <div class="form-check">
+                            
+                            <input type="checkbox" name="weekdays[]" value="monday" <?php echo (is_array($weekdays) && in_array('monday', $weekdays)) ? 'checked' : ''; ?> id="weekday_monday">
+                            <label class="form-check-label" for="weekday_monday">Monday</label>
+                            <input type="checkbox" name="weekdays[]" value="tuesday" <?php echo (is_array($weekdays) && in_array('tuesday', $weekdays)) ? 'checked' : ''; ?> id="weekday_tuesday">
+                            <label class="form-check-label" for="weekday_tuesday">Tuesday</label>
+                            <input type="checkbox" name="weekdays[]" value="wednesday" <?php echo (is_array($weekdays) && in_array('wednesday', $weekdays)) ? 'checked' : ''; ?> id="weekday_wednesday">
+                            <label class="form-check-label" for="weekday_wednesday">Wednesday</label>
+                            <input type="checkbox" name="weekdays[]" value="thursday" <?php echo (is_array($weekdays) && in_array('thursday', $weekdays)) ? 'checked' : ''; ?> id="weekday_thursday">
+                            <label class="form-check-label" for="weekday_thursday">Thursday</label>
+                            <input type="checkbox" name="weekdays[]" value="friday" <?php echo (is_array($weekdays) && in_array('friday', $weekdays)) ? 'checked' : ''; ?> id="weekday_friday">
+                            <label class="form-check-label" for="weekday_friday">Friday</label>
+                            <input type="checkbox" name="weekdays[]" value="saturday" <?php echo (is_array($weekdays) && in_array('saturday', $weekdays)) ? 'checked' : ''; ?> id="weekday_saturday">
+                            <label class="form-check-label" for="weekday_saturday">Saturday</label>
+                            <input type="checkbox" name="weekdays[]" value="sunday" <?php echo (is_array($weekdays) && in_array('sunday', $weekdays)) ? 'checked' : ''; ?> id="weekday_sunday">
+                            <label class="form-check-label" for="weekday_sunday">Sunday</label>
+                        </div>
+                    </div>
 
-                    <label><?php echo __('Timeslot Margin (Interval Gap in hh-mm): ', 'textdomain'); ?></label>
-                    <input type="number" class="hours" name="steps_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($steps_duration['hours']) ? esc_attr($steps_duration['hours']) : ''; ?>" required>
-                    <span>:</span>
-                    <input type="number" class="minutes" name="steps_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($steps_duration['minutes']) ? esc_attr($steps_duration['minutes']) : ''; ?>" required>
-                    <!-- <span>:</span> -->
-                    <!-- <input type="number" class="seconds" name="steps_duration[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($steps_duration['seconds']) ? esc_attr($steps_duration['seconds']) : ''; ?>" required><br> -->
-                    <br>
-                
-                    <!-- Booking per Timeslots -->
-                    <label><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
-                    <input type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>"><br>
-                    <br>
-                    <!-- Add Breaks -->
-                    <br><br>
-                        <?php
-                        // echo "<pre>";
-                        // print_r($steps_duration);
-                        // echo "<pre>";
-                        // print_r($timeslot_duration);
-                        ?>
+                    <div class="form-group"><label><?php echo __('Appointment Type: ', 'textdomain'); ?></label>
+
+                        <div class="form-check">
+                        <input type="radio" name="appointment_type" id="appointment_type_virtual" value="virtual" <?php if ($appointment_type == 'virtual') echo 'checked="checked"'; ?>>
+                        <label class="form-check-label" for="appointment_type_virtual">Virtual</label>
+                        </div>
+
+                        <div class="form-check">
+                        <input type="radio" name="appointment_type" id="appointment_type_physical" value="physical" <?php if ($appointment_type == 'physical') echo 'checked="checked"'; ?>>
+                        <label class="form-check-label" for="appointment_type_physical">Physical</label>
+                        </div>
+                    </div>
+                   
+                    <?php if ($appointment_type == 'virtual') : ?>
+                        <div class="vlink-container form-group">
+                            <label for="virtual_link">Link</label>
+                            <input type="text" class="form-control" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>" pattern="https?://.+" style="width: 500px !important;" required>
+                            <small class="validation-error form-text text-muted" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
+                        </div>
+                        <?php else : ?>
+                            <div class="vlink-container hidden form-group">
+                                <label for="virtual_link"><?php echo __('Link: ', 'textdomain'); ?></label>
+                                <input type="text" class="form-control" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>">
+                            </div>
+                        <?php endif; ?>
+                    <div class="form-group">
+                        <label><?php echo __('Prefix Symbol : ', 'textdomain'); ?></label>
+                        <input type="text" class="" name="label_symbol" value="<?php echo esc_attr($symbol); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo __('Cost : ', 'textdomain'); ?></label>
+                        <input type="number" class="" name="cost" value="<?php echo esc_attr($cost); ?>">
+                        </div>
+                    <div class="form-group">
+                        <label><?php echo __('Select Date : ', 'textdomain'); ?></label>
+                        <input type="date" name="selected_date" value="<?php echo esc_attr($selected_date); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo __('Start Time: ', 'textdomain'); ?></label>
+                        <input type="time" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" required><br>
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo __('End Time: ', 'textdomain'); ?></label>
+                        <input type="time" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" required>
+                        <span class="validation-message" style="color: red;"></span>
+                        </div>
+                    <div class="form-group">
+                        <label><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
+                        <input type="number" class="hours" name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" required>
+                        <span>:</span>
+                        <input type="number" class="minutes" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" required>
+                        <span class="timeslot-validation-message" style="color: red;"></span>
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo __('Timeslot Margin (Interval Gap in hh-mm): ', 'textdomain'); ?></label>
+                        <input type="number" class="hours" name="steps_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($steps_duration['hours']) ? esc_attr($steps_duration['hours']) : ''; ?>" required>
+                        <span>:</span>
+                        <input type="number" class="minutes" name="steps_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($steps_duration['minutes']) ? esc_attr($steps_duration['minutes']) : ''; ?>" required>
+                        <!-- <span>:</span> -->
+                        <!-- <input type="number" class="seconds" name="steps_duration[seconds]" min="0" max="59" placeholder="SS" value="<?php echo isset($steps_duration['seconds']) ? esc_attr($steps_duration['seconds']) : ''; ?>" required><br> -->
+                        <br>
+                    </div>
+                    <div class="form-group">                
+                        <!-- Booking per Timeslots -->
+                        <label><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
+                        <input type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>"><br>
+                    </div>
                     <div class="breaktimeslot-repeater">
                         <label>Add Break Timeslots:</label>
                         <button type="button" class="add-breaktimeslot">Add Timeslot</button>
                         <?php foreach ($breaktimeslots as $index => $timeslot) : ?>
                             <div class="breaktimeslot">
-                            <label>Start Time:</label>
-                            <input type="time" name="breaktimeslots[<?php echo $index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
-                            <br>
-                            <label>End Time:</label>
-                            <input type="time" name="breaktimeslots[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">
-                            
+                                <div class="form-group">
+                                    <label>Start Time:</label>
+                                    <input type="time" name="breaktimeslots[<?php echo $index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Time:</label>
+                                    <input type="time" name="breaktimeslots[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
+                                </div>
                                 <button type="button" class="remove-breaktimeslot">Remove Timeslot</button>
-                           
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <br>
                     <!-- waiting List -->
-                    
-                    <label>
-                    <input type="checkbox" name="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
-                        Allow Waiting List
-                    </label>
-                    <br>
-                    <br>
-                    <!-- Allow Auto Approve -->
-                    <label>
-                    <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
-                        Allow Auto Approve
-                    </label>
+                    <div class="form-group">
+                        <label class="form-check-label" for="waiting_list">Allow Waiting List</label>
+                        <input type="checkbox" name="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
+                         
+                    </div>
+                    <div class="form-group">
+                        <!-- Allow Auto Approve -->
+                        <label class="form-check-label" for="waiting_list">Allow Auto Approve</label>
+                        <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
+                    </div>
                     
                 </div>
            

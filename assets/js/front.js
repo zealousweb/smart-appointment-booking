@@ -90,6 +90,10 @@ function reloadCalendar(currentMonth, currentYear) {
            
           }
         }
+        calid_5085_6_1_2023
+        '#'
+        jQuery('#zfb-timeslots-table-container').load(location.href + ' #zfb-timeslots-table-container');
+                 
       }
     });
   }

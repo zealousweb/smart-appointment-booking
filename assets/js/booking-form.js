@@ -295,27 +295,31 @@ jQuery(document).ready(function($) {
     });
 });
 jQuery(document).ready(function($) {
-    // Add Timeslot
-    $('.add-breaktimeslot').click(function() {
-        var index = $('.breaktimeslot-repeater .breaktimeslot').length;
-        var timeslot = `
-          <div class="breaktimeslot">
-            <label>Start Time:</label>
-            <input type="time" name="breaktimeslots[${index}][start_time]" value="">
-            <br>
-            <label>End Time:</label>
-            <input type="time" name="breaktimeslots[${index}][end_time]" value="">
-            <button type="button" class="remove-timeslot">Remove Timeslot</button>
-          </div>
-        `;
-        $('.breaktimeslot-repeater').append(timeslot);
-      });
-
-      // Remove Timeslot
-      $(document).on('click', '.remove-breaktimeslot', function() {
-        $(this).closest('.breaktimeslot').remove();
-      });
+  // Add Timeslot
+  $('.add-breaktimeslot').click(function() {
+    var index = $('.breaktimeslot-repeater .breaktimeslot').length;
+    var timeslot = `
+      <div class="breaktimeslot form-group">
+        <div class="form-group">
+          <label>Start Time:</label>
+          <input type="time" name="breaktimeslots[${index}][start_time]" value="">
+        </div>
+        <div class="form-group">
+          <label>End Time:</label>
+          <input type="time" name="breaktimeslots[${index}][end_time]" value="">
+        </div>
+        <button type="button" class="remove-breaktimeslot">Remove Timeslot</button>
+      </div>
+    `;
+    $('.breaktimeslot-repeater').append(timeslot);
   });
+
+  // Remove Timeslot
+  $(document).on('click', '.remove-breaktimeslot', function() {
+    $(this).closest('.breaktimeslot').remove();
+  });
+});
+
 //   jQuery(document).ready(function() {
 //     jQuery(document).on('submit', '#notifyform, #notifyformadd', function(event) {
 //         event.preventDefault();
@@ -486,12 +490,12 @@ jQuery(document).ready(function($) {
     });
 });
 
-jQuery(document).ready(function($) {
-    $('#notifytable').DataTable();
-    $('#notification-search').on('keyup', function() {
-        table.columns(1).search(this.value).draw();
-    });
-});
+// jQuery(document).ready(function($) {
+//     $('#notifytable').DataTable();
+//     $('#notification-search').on('keyup', function() {
+//         table.columns(1).search(this.value).draw();
+//     });
+// });
 // jQuery(document).ready(function() {
 //     var table = $('#notifytable').DataTable();
   
