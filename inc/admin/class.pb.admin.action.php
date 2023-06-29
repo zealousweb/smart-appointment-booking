@@ -68,8 +68,8 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		function action__admin_init() {
 
 			wp_register_script( PB_PREFIX . '_admin_js', PB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), PB_VERSION );
-			wp_register_style( PB_PREFIX . '_admin_css', PB_URL . 'assets/css/admin.min.css', array(), PB_VERSION );
-
+			wp_register_style( PB_PREFIX . '_admin_min_css', PB_URL . 'assets/css/admin.min.css', array(), PB_VERSION );
+			wp_register_style( PB_PREFIX . '_admin_css', PB_URL . 'assets/css/admin.css', array(), PB_VERSION );
 		}
 
 
@@ -95,12 +95,16 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			}
 			
 			 if (is_singular('bms_forms') || is_singular('zeal_formbuilder') || $post_type == 'bms_forms' || isset($_GET['post_type']) && $_GET['post_type'] === 'bms_forms') {
-				
+				wp_enqueue_style( '_admin_css',PB_URL.'assets/css/admin.css', array(), 1.1, 'all' );
 				wp_enqueue_style( 'bms_boostrap_min',PB_URL.'assets/css/bootstrap.min.css', array(), 1.1, 'all' );
 				wp_enqueue_style( 'bms_formio_full_min',PB_URL.'assets/css/formio.full.min.css', array(), 1.1, 'all' );
 				wp_enqueue_style( 'bms_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
 				
 			 }
+			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
+				wp_enqueue_style( 'dattable_admin_css',PB_URL.'assets/css/jquery.dataTables.min.css', array(), 1.1, 'all' );
+			 }
+			
 		}
 
 		/**
@@ -131,6 +135,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				));
 	
 				wp_enqueue_script( 'admin', PB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
+			 }
+			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
+				wp_enqueue_script( 'datatble_admin',PB_URL.'assets/js/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'datatbleboostrap',PB_URL.'assets/js/dataTables.bootstrap5.min.js',array( 'jquery' ), 1.1, false );
 			 }
 		}
 
@@ -173,9 +181,35 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 					'subject' => sanitize_text_field($form_data['email_subject']),
 					'additional_headers' => sanitize_textarea_field($form_data['additional_headers']),
 					'mail_body' => wp_kses_post($form_data[$mail_body]),
-					
+					// 'attachments' => $_FILES['attachments'],
 				);
-		
+				 // Handle attachments
+				//  $attachments = array();
+				//  $file_names = $_FILES['attachments']['name'];
+				//  $file_tmps = $_FILES['attachments']['tmp_name'];
+				//  $file_types = $_FILES['attachments']['type'];
+				//  $file_sizes = $_FILES['attachments']['size'];
+				//  $file_errors = $_FILES['attachments']['error'];
+		 
+				//  foreach ($file_names as $key => $file_name) {
+				// 	 if ($file_errors[$key] === UPLOAD_ERR_OK) {
+				// 		 $file_tmp = $file_tmps[$key];
+				// 		 $file_size = $file_sizes[$key];
+				// 		 $file_type = $file_types[$key];
+		 
+				// 		 // You can implement additional checks for file type, size, etc. here
+		 
+				// 		 $uploaded_file_name = sanitize_file_name($file_name);
+				// 		 $upload_dir = wp_upload_dir();
+				// 		 $upload_path = $upload_dir['path'] . '/' . $uploaded_file_name;
+		 
+				// 		 if (move_uploaded_file($file_tmp, $upload_path)) {
+				// 			 $attachments[] = $upload_path;
+				// 		 }
+				// 	 }
+				//  }
+		 
+				// $notification_data['attachments'] = $attachments;
 				if ($post_id) {
 					$get_notification_array = get_post_meta($post_id, 'notification_data', true);
 		
@@ -439,106 +473,168 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		
 		function render_notification_settings_page() {
 			// Add your page content here
-
-			echo '<h4>Notification Settings</h4>';
+			echo "<div class='notification-page-main m-4 p-1 ' >";
+			// echo '<h4>Notification Settings</h4>';
 
 			if (isset($_GET['post_type']) && isset($_GET['post_id'])) {
 				$post_type = $_GET['post_type'];
 				$post_id = $_GET['post_id'];
 				// echo "Post Type: $post_type<br>";
 				// echo "Post ID: $post_id";
-			
-			
 				?>
-				<div id="notify-main-content" class="notify-main-container">
-                    <!-- <h3>Notifcation</h3> -->
-                    <?php
-                   
-                    // Get the post status
-                    $status = get_post_status($post_id);
-                    
-                    // Check if the post is published
-                    if ($status === 'publish') {
+				<ul class="nav nav-tabs" id="myTabs" role="tablist">
+					<li class="nav-item">
+						<a class="nav-link active" id="tab_fieldmapping" data-bs-toggle="tab" href="#content_fieldmapping" role="tab" aria-controls="content_fieldmapping" aria-selected="true">Field Mapping</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="tab_notification" data-bs-toggle="tab" href="#content_notification" role="tab" aria-controls="content_notification" aria-selected="false">Notification</a>
+					</li>
+				</ul>
 
-                        $get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
-						$index='add';
-                        ?>
-						
-                        <!-- Button to trigger the modal -->
-                        <button type="button" class="btn btn-secondary" id="add_notify_btn" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Add New notification </button>
-						<!-- Modal -->
-						<?php  $this->generateModal($index,$post_id); ?>
-                        <!-- Modal -->
-                       <?php
-							$notification_metadata = get_post_meta($post_id, 'notification_data', true);
-							// echo "<pre>";
-							// print_r($notification_metadata);
-							if (!empty($notification_metadata) && is_array($notification_metadata)) {
-								$post_id = $_GET['post_id'];
-								?>	
-									<div class="dataTables_filter">
-										<label>
-											Search:
-											<input type="search" class="form-control" id="notification-search" placeholder="Search by notification title">
-										</label>
-									</div>
-
-									 <div id="tab5" class="tab-content">
-									<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
-									<table class="table notificationtable datatable" id="notifytable" >
-										<thead>
-											<tr>
-												<th scope="col"></th>
-												<th scope="col">Notification</th>
-												<th scope="col">State</th>
-												<th scope="col">Actions</th>
-												<th scope="col"><input type="checkbox" id="main-check-all" class="maincheckall" value="1"></th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php
-											foreach ($notification_metadata as $index => $notification) {
-												$notification_name = $notification['notification_name'];
-												$state = $notification['state'];
-												$notification_id = 'notify_' . $index;
-												?>
-												<tr>
-													<th scope="row">
-														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
-															<path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
-															<path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
-														</svg>
-													</th>
-													<td><?php echo $notification_name; ?></td>
-													<!-- <td><span><?php //echo $state; ?></span> <span>(Enabled)</span></td> -->
-													<td>
-													<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
-                        							<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
-													<td> 
-														<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Edit</button>
-														<!-- Modal -->
-														<?php  $this->generateModal($index,$post_id); ?>
-													</td>
-													<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
-												</tr>
-												<?php
-											}
-											?>
-										</tbody>
-									</table>
-									<button type="button" class="btn btn-danger" id="deletenotify">Delete</button>
-								<?php
-							}else{
-								echo 'No notification data found for the post.';
+				<div class="tab-content p-1" id="myTabContent">
+					<div class="tab-pane fade show active" id="content_fieldmapping" role="tabpanel" aria-labelledby="tab_fieldmapping">
+						<?php
+						$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
+						Echo "<pre>";
+						print_r($form_data);
+						 foreach($form_data['data'] as $form_key => $form_value){
+							if($form_key !== 'submit'){
+								echo "<li>".$form_key." : ".$form_value."</li>";
 							}
-                
-                    } else {
-                        echo 'Publish Post to Create Notification';
-                    }
-              	echo '</div>';
+						}
+						?>
+					<form>
+						<div>
+							<label for="first-name">First Name:</label>
+							<select id="first-name" name="first-name">
+							<option value="John">John</option>
+							<option value="Jane">Jane</option>
+							<option value="James">James</option>
+							</select>
+						</div>
+						<div>
+							<label for="last-name">Last Name:</label>
+							<select id="last-name" name="last-name">
+							<option value="Doe">Doe</option>
+							<option value="Smith">Smith</option>
+							<option value="Johnson">Johnson</option>
+							</select>
+						</div>
+						<div>
+							<label for="email">Email:</label>
+							<select id="email" name="email">
+							<option value="john@example.com">john@example.com</option>
+							<option value="jane@example.com">jane@example.com</option>
+							<option value="james@example.com">james@example.com</option>
+							</select>
+						</div>
+						<button type="submit">Submit</button>
+					</form>
+
+					</div>
+					<div class="tab-pane fade" id="content_notification" role="tabpanel" aria-labelledby="tab_notification">
+						<div id="notify-main-content" class="notify-main-container">
+						<!-- <h3>Notifcation</h3> -->
+						<?php
+					
+						// Get the post status
+						$status = get_post_status($post_id);
+						
+						// Check if the post is published
+						if ($status === 'publish') {
+
+							$get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
+							$index='add';
+							?>
+							<div class="main-container-notification border border-light" >
+								<div class="form-group">
+								<!-- Button to trigger the modal -->
+								<button type="button" class="btn btn-secondary" id="add_notify_btn" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Add New notification </button>
+								</div>
+								<!-- Modal -->
+								<?php  $this->generateModal($index,$post_id); ?>
+								<!-- Modal -->
+								<?php
+								$notification_metadata = get_post_meta($post_id, 'notification_data', true);
+								// echo "<pre>";
+								// print_r($notification_metadata);
+								if (!empty($notification_metadata) && is_array($notification_metadata)) {
+									$post_id = $_GET['post_id'];
+									?>	
+										<!-- <div class="dataTables_filter">
+											<label>
+												Search:
+												<input type="search" class="form-control" id="notification-search" placeholder="Search by notification title">
+											</label>
+										</div> -->
+										<!-- <input type="search" class="form-control" id="searchbox" placeholder="Search by notification title"> -->
+										<div id="tab5" class="tab-content">
+										<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
+										<table class="table notificationtable datatable table-striped" id="notifytable" >
+											<thead>
+												<tr>
+													<th scope="col"></th>
+													<th scope="col">
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+																<path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
+																<path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
+															</svg>	
+													Notification</th>
+													<th scope="col">State</th>
+													<th scope="col">Actions</th>
+													<th scope="col"><input type="checkbox" id="main-check-all" class="maincheckall" value="1"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<?php
+												$ni=1;
+												foreach ($notification_metadata as $index => $notification) {
+													$notification_name = $notification['notification_name'];
+													$state = $notification['state'];
+													$notification_id = 'notify_' . $index;
+													?>
+													<tr>
+														<th scope="row">
+															<?php 
+															echo $ni; 
+															$ni++;
+															 ?>
+														</th>
+														<td><?php echo $notification_name; ?></td>
+														<!-- <td><span><?php //echo $state; ?></span> <span>(Enabled)</span></td> -->
+														<td>
+														<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
+														<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
+														<td> 
+															<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Edit</button>
+															<!-- Modal -->
+															<?php  $this->generateModal($index,$post_id); ?>
+														</td>
+														<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
+													</tr>
+													<?php
+												}
+												?>
+											</tbody>
+										</table>
+										<button type="button" class="btn btn-danger" id="deletenotify">Delete</button>
+									<?php
+								}else{
+									echo 'No notification data found for the post.';
+								}
+							echo '</div>';
+						} else {
+							echo 'Publish Post to Create Notification';
+						}
+						echo '</div>';
+						?>
+					</div>
+				</div>
+				<?php
 			} else {
 				echo "Error: Post type and/or post ID not found.";
 			}
+			echo '</div>';
 			// Include your form or other content for extending the notification properties
 		}
 		
@@ -630,8 +726,24 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$email_subject = isset($item['subject']) ? $item['subject'] : '';
 				// $additional_headers = $item['additional_headers'];
 				$mail_body = isset($item['mail_body']) ? $item['mail_body'] : '';
+				// $attachments =  isset($item['attachments']) ? $item['attachments'] : '';
 			}
 			
+			// Iterate through the attachments
+			// foreach ($attachments['name'] as $key => $attachment_name) {
+			// 	$attachment_tmp = $attachments['tmp_name'][$key];
+			// 	$attachment_size = $attachments['size'][$key];
+			// 	$attachment_type = $attachments['type'][$key];
+
+			// 	// Do something with the attachment
+			// 	// For example, you can move it to a specific directory
+			// 	$upload_dir = wp_upload_dir();
+			// 	$attachment_path = $upload_dir['path'] . '/' . $attachment_name;
+			// 	move_uploaded_file($attachment_tmp, $attachment_path);
+
+			// 	// You can also store the attachment path in an array for later use
+			// 	$attachment_paths[] = $attachment_path;
+			// }
 			// ob_start();
 			?>
 			<div class="modal fade notification-modal" id="notifyModal<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo $index; ?>" aria-hidden="true">
@@ -676,13 +788,14 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 										<label for="type-dropdown">Type</label>
 										<select class="form-select form-control" id="type-dropdown" name="type">
 											<?php
-											$types = array('any', 'booked', 'pending', 'cancelled', 'approved');
-											foreach ($types as $type) {
-												$selected = ($type === $data['type']) ? 'selected' : '';
-												echo '<option value="' . $type . '" ' . $selected . '>' . ucfirst($type) . '</option>';
+											$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved');
+											foreach ($available_types as $avail_type) {
+												$selected = ($avail_type === $type) ? 'selected' : '';
+												echo '<option value="' . $avail_type . '" ' . $selected . '>' . ucfirst($avail_type) . '</option>';
 											}
 											?>
 										</select>
+
 									</div>
 
 								</div>
@@ -729,10 +842,14 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 										));
 										?>
 									</div>
-									<!-- <div class="form-group">
+									<div class="form-group">
 										<label for="attachments">Attachments</label>
 										<input type="file" id="attachments" name="attachments[]" multiple>
-									</div> -->
+									</div>
+									<?php
+										// echo "<pre>";
+										// print_r($attachments);
+									?>
 								</div>
 								
 								<!-- <p id="suc_loc"></p> -->

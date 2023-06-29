@@ -104,6 +104,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$booking_date = $_POST['booking_date'];
 			// $totalbookings = $_POST['totalbookings'];
 			$slotcapacity = $_POST['slotcapacity'];
+			$bookedseats = $_POST['bookedseats'];
 			$form_id = $_POST['fid'];
 			$form_data = $_POST['form_data'];
 			$enable_auto_approve = get_post_meta($form_id, 'enable_auto_approve', true);
@@ -141,13 +142,25 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				$created_post_id = wp_insert_post($new_post);
 				if ($enable_auto_approve) {
 					if ($waiting_list === 'true') {
-						
+						$status = 'waiting';
 						update_post_meta($created_post_id, 'entry_status', 'waiting');
+						$message = $this->zfb_send_notification($status, $created_post_id);
+
 					} else {
+						$status = 'booked';
 						update_post_meta($created_post_id, 'entry_status', 'completed');
+						$message = $this->zfb_send_notification($status, $created_post_id);
 					}
 				} else {
+					$status = 'pending';
 					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
+					
+					$to = 'mansi@zealousweb.com';
+					$subject = 'Approval Pending';
+					$body = 'The email body content';
+					$headers = array('Content-Type: text/html; charset=UTF-8','From: My Site Name <zealtesting1301@gmail.com>');
+	
+					wp_mail( $to, $subject, $body, $headers );
 				}
 				update_option('tot_bms_entries', $pid);
 				update_post_meta($created_post_id, 'bms_submission_data', $form_data);
@@ -156,13 +169,13 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				update_post_meta($created_post_id, 'timeslot', $timeslot);
 				update_post_meta($created_post_id, 'booking_date', $booking_date);
 				// update_post_meta($created_post_id, 'totalbookings', $totalbookings);
-				update_post_meta($created_post_id, 'slotcapacity', $slotcapacity);
+				update_post_meta($created_post_id, 'slotcapacity', $bookedseats);
 		
 				$confirmation = get_post_meta($form_id, 'confirmation', true);
 				$success_message = get_post_meta($form_id, 'your_field_key', true);
 				$formatted_message = wpautop($success_message);
 				$redirect_url = '';
-		
+				
 				if ($confirmation == 'redirect_text') {
 					$wp_editor_value = get_post_meta($form_id, 'redirect_text', true);
 				} elseif ($confirmation == 'redirect_page') {
@@ -171,7 +184,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				} elseif ($confirmation == 'redirect_to') {
 					$redirect_url = get_post_meta($form_id, 'redirect_to', true);
 				}
-		
+				
 				// Send success response
 				wp_send_json_success(array(					
 					'message' => 'Sucessfully Submitted',
@@ -187,10 +200,37 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					'error' => $error,
 				));
 			}
-		
+			
 			wp_die();
 		}
+		function zfb_send_notification($status, $post_id) {
+
+			$get_notification_array = get_post_meta($post_id, 'notification_data', true);		
+			foreach ($get_notification_array as $notification) {
+				if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
+					$to = $notification['to'];
+					$subject = $notification['subject'];
+					$body = $notification['mail_body'];
+					$headers = array(
+						'Content-Type: text/html; charset=UTF-8',
+						'From: ' . $notification['from'],
+						'Reply-To: ' . $notification['replyto'],
+						'Bcc: ' . $notification['bcc'],
+						'Cc: ' . $notification['cc']
+					);
 		
+					$result = wp_mail($to, $subject, $body, $headers);
+		
+					if ($result === true) {
+						return 'Email sent successfully';
+					} else {
+						return 'Failed to send email';
+					}
+				}
+			}
+		
+			return 'No matching notification found';
+		}
 		function processDate($post_id = null, $date = null) {
 			if ($post_id === null) {
 				return false;
@@ -413,7 +453,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
         function get_available_seats_per_timeslot($timeslot,$booking_date){
            
             $array_data = explode('_',$booking_date);
-            // print_r($array_data);
+            //  print_r($array_data);
             $post_id = $array_data[1];
             $current_month = $array_data[2];
             $current_day = $array_data[3];
@@ -437,7 +477,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
             );
             
             $query = new WP_Query($args);
-
+			// echo "<pre>";
+			// print_r($query);
 			if ($query->have_posts()) {
 				$post_count = $query->found_posts;
 				$no_of_booking = 0; // Initialize the variable to store the number of bookings
@@ -456,12 +497,12 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				// Now you have the total number of bookings
 				// echo "Total number of bookings: {$slotcapacity}";
 			} else {
-				$slotcapacity = 0;
+				$no_of_booking = 0;
 				// echo "No posts found with timeslot '{$timeslot}' and booking date '{$booking_date}'.";
 			}
 
             
-            return $slotcapacity;
+            return $no_of_booking;
         }
 		function get_timeslots_old($post_id){			
 			
@@ -739,10 +780,12 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 										jQuery('.zfb_timeslot').each(function() {
 											if (jQuery(this).hasClass('selected')) {
 												timeslot = jQuery(this).find('input[name="booking_slots"]').val();	
-												// slotcapacity = jQuery(this).find('input[name="zfbslotcapacity"]').val();
+												slotcapacity = jQuery(this).find('.zfb-tooltip-text').attr('data-seats');
 											} 
 										});
-										slotcapacity = jQuery('input[name="zfbslotcapacity"]').val();
+										bookedseats = jQuery('input[name="zfbslotcapacity"]').val();
+										bookedseats = jQuery('input[name="zfbslotcapacity"]').val();
+										
 										jQuery.ajax({
 											url: '<?php echo admin_url('admin-ajax.php'); ?>',
 											type : 'post',
@@ -752,6 +795,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 											fid:formid,
 											timeslot:timeslot,
 											booking_date:booking_date,
+											bookedseats:bookedseats,
 											slotcapacity:slotcapacity,
 											},
 											success: function (response) {

@@ -1,40 +1,205 @@
 .vlink-container.hidden {
     display: none;
-  }
+}
 .date-advancerepeater.hidden {
   display: none;
 }
-/* #custom-meta-box-tabs .tab-navigation {
+#custom-meta-box-tabs .tab-navigation {
   list-style-type: none;
   margin: 0;
   padding: 0;
   display: flex;
+  border: 0;
+  margin-bottom: -1px;
 }
-
+#custom-meta-box-tabs{
+  margin-top: 15px;
+}
 #custom-meta-box-tabs .tab-navigation li {
-  flex: 1;
+  /* flex-grow: 1; */
+  border: 0;
+  margin: 0 4px;
+  padding-left: 0;
+  background-image: none;
+  position: relative;
+  font-size: 16px;
+  color: #000;
+  line-height: 1.5;
+  background-repeat: no-repeat;
+  background-position: left 7px;
+  background-size: 17px auto;
+}
+#custom-meta-box-tabs .tab-navigation li:first-child{
+  margin-left: 0;
+}
+#custom-meta-box-tabs .tab-navigation li:last-child{
+  margin-right: 0;
 }
 
 #custom-meta-box-tabs .tab-navigation a {
-  display: block;
-  padding: 10px;
   text-decoration: none;
-  background-color: lightgray;
-  color: black;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #777;
+  display: block;
+  text-align: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  background-color: rgba(20,75,112,.1);
+  border-radius: 5px 5px 0 0;
+  position: relative;
+  z-index: 4;
+  outline: none;
+  box-shadow: none;
 }
-
+#custom-meta-box-tabs .tab-navigation .ui-tab.ui-tabs-active a{
+  border: 1px solid lightgray;
+  border-bottom: 1px solid #fff;
+  border-bottom: 0;
+  background-color: #fff;
+}
 #custom-meta-box-tabs .tab-navigation a:hover {
   background-color: gray;
   color: white;
 }
+#custom-meta-box-tabs .tab-navigation .ui-tab.ui-tabs-active a:hover {
+  color: #777;
+}
 
 #custom-meta-box-tabs .tab-content {
   display: none;
-  padding: 10px;
+  padding: 20px;
   background-color: white;
   border: 1px solid lightgray;
+  margin: 0;
 }
 
 #custom-meta-box-tabs .tab-content:first-child {
   display: block;
-} */
+}
+#appointment_setting .card{
+  max-width: 100%;
+}
+
+.breaktimeslot-repeater {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.breaktimeslot-repeater > label {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0;
+  color: #333;
+}
+.breaktimeslot-repeater button{
+  background: #2271b1;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: none;
+  font-size: 13px;
+  line-height: 2.15384615;
+  min-height: 30px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid #2271b1;
+  -webkit-appearance: none;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.breaktimeslot-repeater .breaktimeslot:first-of-type{
+  margin-top: 20px;
+}
+.breaktimeslot-repeater .breaktimeslot{
+  max-width: 100%;
+  flex: 0 0 100%;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.breaktimeslot-repeater .breaktimeslot button {
+  margin-left: auto;
+  background-color: #dd3f3f;
+  border-color: #dd3f3f;
+}
+.breaktimeslot-repeater .breaktimeslot label{
+  min-width: 80px;
+  margin-bottom: 0;
+
+}
+.breaktimeslot-repeater .breaktimeslot input{
+  margin-right: 10px;
+  min-width: 100px;
+}
+
+#advanced-sortables .card{
+  padding: 0;
+}
+.form-check label{
+  font-size: 16px;
+  line-height: 20px;
+}
+.form-check input[type="radio"],
+.form-check input[type="checkbox"]{
+  height: 20px;
+  width: 20px;
+  position: relative;
+  margin: 0;
+}
+
+.form-check input[type="checkbox"]:checked::before{
+  margin: 0;
+  height: 24px;
+  width: 24px;
+  top: -2px;
+  position: absolute;
+  left: -4px;
+}
+.form-check input[type="radio"]:checked::before{
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+#custom-meta-box-tabs li{
+  padding: 0;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+
+
+.formio.formbuilder {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+.formio.formbuilder .formcomponents {
+  flex: 0 0 400px;
+  max-width: 400px;
+  padding: 0 15px;
+}
+.formio.formbuilder .formarea {
+  flex: 0 0 calc(100% - 400px);
+  padding: 0 15px;
+  max-width: calc(100% - 400px);
+}
+
+.form-builder-panel .collapse .card-body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.form-builder-panel .collapse .card-body .btn {
+  max-width: calc(50% - 5px);
+  flex: 0 0 calc(50% - 5px);
+  margin: 0;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.form-builder-panel .collapse .card-body .btn i {
+  width: 100%;
+}

@@ -1,5 +1,5 @@
 jQuery(document).ready(function() {
-    jQuery("#custom-meta-box-tabs").tabs();
+    // jQuery("#custom-meta-box-tabs").tabs();
 }); 
 //Url Link hide and show
 jQuery(document).ready(function() {
@@ -41,10 +41,23 @@ jQuery(document).ready(function($) {
 jQuery(document).ready(function($) {
     // Add date functionality
     $(document).on('click', '.add-holidate', function() {
-        var dateFieldHTML = '<div class="holidate-field">' +
-            '<input type="date" name="holidays[]" value="">' +
-            '<button type="button" class="remove-holidate">Remove Holiday</button>' +
-            '</div>';
+        // var dateFieldHTML = '<div class="holidate-field">' +
+        //     '<input type="date" name="holidays[]" value="">' +
+        //     '<button type="button" class="remove-holidate">Remove Holiday</button>' +
+        //     '</div>';
+        var dateFieldHTML = `
+            <div class="form-row holidate-field">
+                <div class="form-group col-md-2">
+                    <input type="date" class="form-control" name="holidays[]" value="">
+                </div>
+                <div class="form-group col-md-2"> 
+                    <svg class="remove-holidate" xmlns="http://www.w3.org/2000/svg" width="16" 
+                        height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                    </svg>
+                </div>
+            </div>
+          `;
         $('.holiday-repeater').append(dateFieldHTML);
     });
 
@@ -156,26 +169,41 @@ jQuery(document).ready(function($) {
     $('#add-row').click(function() {
         var intial_index = $('.repeater-row').length;
         var index = intial_index + 1 ;
-        var row = '<div class="repeater-row">' +
+        var row = '<div class="repeater-row border-left m-1 ">' +
+            '<div class="form-group col-md-3">' +
             '<label for="advance_date_' + index + '">Advance Date:</label>' +
-            '<input type="date" id="advance_date_' + index + '" name="advancedata[' + index + '][advance_date]" value="">' +
+            '<input type="date" class="form-control" id="advance_date_' + index + '" name="advancedata[' + index + '][advance_date]" value="">' +
+            '</div>' +
             '<div id="timeslot-repeater-' + index + '" class="timeslot-repeater timeslot-container">' +
-            '<label>Advance Timeslots:</label>' +
-            '<div class="timeslot-row">' +
+            '<svg class="add-timeslot" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">'+
+            '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>'+
+            '<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>'+
+            '</svg><label class="h6 ml-1">Add Timeslots </label>'+
+            '<div class="form-row timeslot-row ">'+
+            '<div class="form-group col-md-2">'+
             '<label>Start Time:</label>' +
-            '<input type="time" name="advancedata[' + index + '][advance_timeslot][0][start_time]" value="">' +
+            '<input type="time" class="form-control" name="advancedata[' + index + '][advance_timeslot][0][start_time]" value="">' +
+            '</div>'+
+            '<div class="form-group col-md-2">'+
             '<label>End Time:</label>' +
-            '<input type="time" name="advancedata[' + index + '][advance_timeslot][0][end_time]" value="">' +
+            '<input type="time" class="form-control" name="advancedata[' + index + '][advance_timeslot][0][end_time]" value="">' +
+            '</div>'+
+            '<div class="form-group col-md-2"> '+
             '<label>Bookings:</label>' +
-            '<input type="number" name="advancedata[' + index + '][advance_timeslot][0][bookings]" value="">' +
-            '<button type="button" class="remove-timeslot">Remove Timeslot</button>' +
+            '<input type="number" class="form-control" name="advancedata[' + index + '][advance_timeslot][0][bookings]" value="">' +
+            '</div>'+
+            '<div class="form-group col-md-2"> '+
+            '<svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" '+
+            'height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">'+
+            '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>'+
+            '</svg>' +
+            '</div>'+
             '</div>' +
-            '<button type="button" class="add-timeslot">Add Timeslot</button>' +
             '</div>' +
-            '<button type="button" class="remove-row">Remove Date</button>' +
+            '<button type="btn button" class="remove-row btn btn-light">Remove Date</button>' +
             '</div>';
 
-        $('#advance-meta-box').append(row);
+        jQuery('#advance-meta-box').append(row);
     });
 
     // Add timeslot
@@ -184,14 +212,25 @@ jQuery(document).ready(function($) {
         var $timeslotContainer = $repeaterRow.find('.timeslot-container');
         var repeaterIndex = $repeaterRow.index();
 
-        var timeslotRow = '<div class="timeslot-row">' +
+        var timeslotRow = '<div class="form-row timeslot-row ">'+
+            '<div class="form-group col-md-2">'+
             '<label>Start Time:</label>' +
-            '<input type="time" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][start_time]" value="">' +
+            '<input type="time"  class="form-control"  name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][start_time]" value="">' +
+            '</div>'+
+            '<div class="form-group col-md-2">'+
             '<label>End Time:</label>' +
-            '<input type="time" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][end_time]" value="">' +
+            '<input type="time"  class="form-control"  name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][end_time]" value="">' +
+            '</div>'+
+            '<div class="form-group col-md-2"> '+
             '<label>Bookings:</label>' +
-            '<input type="number" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][bookings]" value="">' +
-            '<button type="button" class="remove-timeslot">Remove Timeslot</button>' +
+            '<input type="number"  class="form-control" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][bookings]" value="">' +
+            '</div>'+
+            '<div class="form-group col-md-2"> '+
+            '<svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" '+
+            'height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">'+
+            '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>'+
+            '</svg>' +
+            '</div>'+
             '</div>';
 
         $timeslotContainer.append(timeslotRow);
@@ -221,7 +260,7 @@ jQuery(document).ready(function($) {
     $('#redirectpage-search').on('keyup', function() {
         var searchValue = $(this).val().toLowerCase();
 
-        $('#page-dropdown option').each(function() {
+        $('#redirectpage-dropdown option').each(function() {
             var optionText = $(this).text().toLowerCase();
 
             if (optionText.indexOf(searchValue) > -1) {
@@ -299,17 +338,27 @@ jQuery(document).ready(function($) {
   $('.add-breaktimeslot').click(function() {
     var index = $('.breaktimeslot-repeater .breaktimeslot').length;
     var timeslot = `
-      <div class="breaktimeslot form-group">
-        <div class="form-group">
-          <label>Start Time:</label>
-          <input type="time" name="breaktimeslots[${index}][start_time]" value="">
-        </div>
-        <div class="form-group">
-          <label>End Time:</label>
-          <input type="time" name="breaktimeslots[${index}][end_time]" value="">
-        </div>
-        <button type="button" class="remove-breaktimeslot">Remove Timeslot</button>
+      <div class="row breaktimeslot">
+      <div class="col-2">
+          <div class="form-group">
+              <label>Start Time:</label>
+              <input type="time" class="form-control" name="breaktimeslots[${index}][start_time]" value="">
+          </div>
       </div>
+      <div class="col-2">
+          <div class="form-group">
+              <label>End Time:</label>
+              <input type="time" class="form-control" name="breaktimeslots[${index}][end_time]" value="">                            
+          </div>
+      </div>
+      <div class="col-2">
+          <label></label>
+          <svg class="remove-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+          </svg>
+      </div>
+  </div>
     `;
     $('.breaktimeslot-repeater').append(timeslot);
   });
@@ -538,4 +587,40 @@ jQuery(document).ready(function($) {
 //             }); 
             
 //     } );
-    
+// jQuery(document).ready(function() {
+//     jQuery('#notifytable').DataTable({
+//       dom: 'Bfrtip',
+//       info: false,
+//       paging: false,
+//       searching: true,
+//       aaSorting: [[1, 'asc']],
+//       columnDefs: [{
+//         targets: 3,
+//         orderable: false
+//       }],
+//       responsive: true
+//     });
+//   });
+
+jQuery(document).ready(function() {
+    var notifytable = jQuery('#notifytable').DataTable();({
+      dom: 'Bfrtip',
+      paging: true, // Enable pagination
+      pageLength: 1,
+      searching: true,
+      ordering: true, // Enable column sorting
+      aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
+      columnDefs: [{
+        targets: [4], // Column index for which sorting should be disabled
+        orderable: false
+      }],
+      responsive: true
+      
+    });
+    jQuery("#searchbox").keyup(function() {
+        //table.fnFilter();
+        notifytable.search(this.value).draw();
+    }); 
+  });
+  
+  
