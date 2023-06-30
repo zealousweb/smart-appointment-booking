@@ -169,6 +169,16 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         });
                                                     
                         formioBuilder.then(function(builder) {
+                            // var fieldSlugs = []; // Array to store field slugs
+                            // // Iterate through the form components and extract field slugs
+                            // builder.instance.form.components.forEach(function(component) {
+                            //     if (component.key) {
+                            //         fieldSlugs.push(component.key);
+                            //     }
+                            // });
+
+                            // console.log(fieldSlugs); // Output the field slugs
+
                             // Handle form submission
                             builder.on('change', function(submission) {
                                 formdata = JSON.stringify(submission.components);
@@ -302,7 +312,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <div class="row">
                         <div class="col-6">
                             <!-- <div class=""> -->
-                                <div class="form-group form-general-group">
+                                <div class="form-check form-check-inline">
                                     <input type="checkbox" name="enable_booking" value="1" <?php echo checked(1, $enable_booking, false); ?>>
                                     <label class="form-check-label h6" for="enable_booking"> Enable or disable booking form</label>
                                 </div>
@@ -371,12 +381,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                
                                 <div class="form-group form-general-group"><label  class="h6"><?php echo __('Appointment Type: ', 'textdomain'); ?></label>
 
-                                    <div class="form-check form-general-group">
+                                    <div class="form-check form-check-inline">
                                     <input type="radio" name="appointment_type" id="appointment_type_virtual" value="virtual" <?php if ($appointment_type == 'virtual') echo 'checked="checked"'; ?>>
                                     <label class="form-check-label h6" for="appointment_type_virtual">Virtual</label>
                                     </div>
 
-                                    <div class="form-check form-general-group">
+                                    <div class="form-check form-check-inline">
                                     <input type="radio" name="appointment_type" id="appointment_type_physical" value="physical" <?php if ($appointment_type == 'physical') echo 'checked="checked"'; ?>>
                                     <label class="form-check-label h6" for="appointment_type_physical">Physical</label>
                                     </div>
@@ -407,7 +417,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     </div>
                 </div>
                 <div id="tab2" class="tab-content">
-                    <div class="card border-0">
+                    <div class="">
                         <div class="form-group form-general-group ">
                             <label  class="h6"><?php echo __('Select Date : ', 'textdomain'); ?></label>
                             <input type="date" class="form-control col-md-8" name="selected_date" value="<?php echo esc_attr($selected_date); ?>">
@@ -423,15 +433,17 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
+                        
                         <!-- waiting List -->
-                        <div class="form-group form-general-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" name="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
                             <label class="form-check-label h6" for="waiting_list">Allow Waiting List</label>
-                            <input type="checkbox" class="form-control"  name="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
                         </div>
-                        <div class="form-group form-general-group">
+                        <div class="form-check form-check-inline">
                             <!-- Allow Auto Approve -->
+                            <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
                             <label class="form-check-label h6" for="waiting_list">Allow Auto Approve</label>
-                            <input type="checkbox" class="form-control"  name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
+                            
                         </div>
                         <div class="form-group form-general-group">
                             <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
@@ -458,43 +470,37 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
                             <input class="form-control col-md-8" type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>">
                         </div>
-                        <div class="breaktimeslot-repeater form-general-group">
-                            
+                        <div class="breaktimeslot-repeater">
                             <label  class="h6">Add Break Timeslots:</label>
-                                <svg class="add-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                </svg>
+                            <svg class="add-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                           
                             <?php foreach ($breaktimeslots as $index => $timeslot) : ?>
-                                <div class="row breaktimeslot">
-                                    <div class="col-2">
-                                        <div class="form-group">
-                                            <label  class="h6">Start Time:</label>
-                                            <input type="time" class="form-control" name="breaktimeslots[<?php echo $index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
-                                        </div>
+                                    <div class="breaktimeslot">
+                                        <label  class="h6">Start Time:</label>
+                                        <input type="time"name="breaktimeslots[<?php echo $index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                                    
+                                        <label  class="h6">End Time:</label>
+                                        <input type="time" name="breaktimeslots[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
+                                        <button class="remove-breaktimeslot rm-brktime-slot">
+                                            <svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                                            </svg>
+                                        </button>
                                     </div>
-                                    <div class="col-2">
-                                        <div class="form-group">
-                                            <label  class="h6">End Time:</label>
-                                            <input type="time" class="form-control" name="breaktimeslots[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
-                                        </div>
-                                    </div>
-                                    <div class="col-2">
-                                        <label></label>
-                                        <svg class="remove-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
-                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
-                                        </svg>
-                                    </div>
-                                </div>
                             <?php endforeach; ?>
+                           
                         </div>
                     </div>
                 </div>
                 <!-- Tabination 2 content  -->
                 <div id="tab3" class="tab-content">               
                     <!-- <div class="p-4 m-1"> -->
-                        <div class="form-group form-general-group">
+                       
+                        <div class="form-check form-check-inline">
                             <input type="checkbox" id="enable_recurring_apt_i" name="enable_recurring_apt" value="1" <?php echo checked(1, $enable_recurring_apt, false); ?>>
                             <label class="form-check-label h6" for="waiting_list">Enable Recurring Bookings</label>
                         </div>
@@ -504,9 +510,8 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         <?php else : ?>
                             <div id="recurring_result" style="display: none;">
                         <?php endif; ?>
-                            
+                            <label class="h6" for="recurring_type">Repeat Recurring</label>
                             <div class="form-group form-general-group col-md-3">
-                                    <label class="h6" for="recurring_type">Repeat Recurring</label>
                                     <select class="form-control " name="recurring_type" id="recurring_type">
                                         <option value="any" <?php echo selected('any', $recurring_type, false); ?>>Select Any</option>
                                         <option value="daily" <?php echo selected('daily', $recurring_type, false); ?>>Daily</option>
@@ -645,35 +650,34 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         $hiddenredirect_to = "hidden";
                     }
                     ?> 
-                  
                         <div class="form-check form-check-inline ">
-                            <input class="form-check" type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
+                            <input  type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
                             <label class="form-check-label" for="radioText">
                                 Text
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check" type="radio" name="confirmation" id="radioPage" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>>
+                            <input  type="radio" name="confirmation" id="radioPage" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>>
                             <label class="form-check-label" for="radioPage">
                                 Page
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check" type="radio" name="confirmation" id="radioRedirect" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>>
+                            <input type="radio" name="confirmation" id="radioRedirect" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>>
                             <label class="form-check-label" for="radioRedirect">
                                 Redirect to
                             </label>
                         </div>
                 
                         <!-- Class is used for on change event display div: redirectto_main redirect_page , redirectto_main redirect_text, redirectto_main redirect_to -->
-                        <div class="form-group redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?> m-3">
+                        <div class="form-group redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?> ">
                             <?php
                                 wp_editor($redirect_text, 'redirect_text', array(
                                     'textarea_name' => 'redirect_text',
                                 ));
                             ?>
                         </div>
-                        <div class="form-group redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?> m-3 ">
+                        <div class="form-group redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?>  ">
                             <label  class="h6">Select a page:</label>
                             <input type="text" id="redirectpage-search" placeholder="Search...">
                             <select name="redirect_page" id="redirectpage-dropdown">
@@ -697,7 +701,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                 ?>
                             </select>
                         </div>
-                        <div class="form-group redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?> m-3">
+                        <div class="form-group redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?> ">
                             <label class="h6"><?php echo __('Enter Url: ', 'textdomain'); ?></label>
                             <input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
                             <small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>

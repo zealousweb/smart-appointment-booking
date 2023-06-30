@@ -1,5 +1,5 @@
 jQuery(document).ready(function() {
-    // jQuery("#custom-meta-box-tabs").tabs();
+     jQuery("#custom-meta-box-tabs").tabs();
 }); 
 //Url Link hide and show
 jQuery(document).ready(function() {
@@ -338,27 +338,19 @@ jQuery(document).ready(function($) {
   $('.add-breaktimeslot').click(function() {
     var index = $('.breaktimeslot-repeater .breaktimeslot').length;
     var timeslot = `
-      <div class="row breaktimeslot">
-      <div class="col-2">
-          <div class="form-group">
-              <label>Start Time:</label>
-              <input type="time" class="form-control" name="breaktimeslots[${index}][start_time]" value="">
-          </div>
-      </div>
-      <div class="col-2">
-          <div class="form-group">
-              <label>End Time:</label>
-              <input type="time" class="form-control" name="breaktimeslots[${index}][end_time]" value="">                            
-          </div>
-      </div>
-      <div class="col-2">
-          <label></label>
-          <svg class="remove-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
-              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
-          </svg>
-      </div>
-  </div>
+        <div class="breaktimeslot">
+            <label  class="h6">Start Time:</label>
+            <input type="time" name="breaktimeslots[${index}][start_time]" value="">
+        
+            <label  class="h6">End Time:</label>
+            <input type="time" name="breaktimeslots[${index}][end_time]" value="">                           
+            <button class="remove-breaktimeslot rm-brktime-slot">
+                <svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                </svg>
+            </button>
+        </div>
     `;
     $('.breaktimeslot-repeater').append(timeslot);
   });
@@ -368,259 +360,201 @@ jQuery(document).ready(function($) {
     $(this).closest('.breaktimeslot').remove();
   });
 });
+// Function to retrieve the value of a query parameter from the URL
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+const pageParam = getQueryParam("page");
+if (pageParam === "notification-settings") {
+    //run all jquery for if page is notification-settings
+    jQuery(document).ready(function() {
+        jQuery(document).on('submit', '#notifyformadd', function(event) {    
+            event.preventDefault();    
+            var form=jQuery('#notifyformadd').serialize();
+            var formData=new FormData();
+            formData.append('action','zfb_save_new_notification');
+            formData.append('notification_data',form);
+            var modalId = jQuery(this).data('target');
+            var modal = jQuery(modalId); 
 
-//   jQuery(document).ready(function() {
-//     jQuery(document).on('submit', '#notifyform, #notifyformadd', function(event) {
-//         event.preventDefault();
-
-//         var form = jQuery(this).serialize();
-//         var formData = new FormData();
-//         formData.append('action', 'zfb_save_new_notification');
-//         formData.append('notification_data', form);
-
-//         jQuery.ajax({
-//             type: 'POST',
-//             url: ajaxurl,
-//             data: formData,
-//             processData: false,
-//             contentType: false,
-//             success: function(response) {
-//                 console.log(response);
-//                 // Perform any desired actions upon successful submission
-//             }
-//         });
-//     });
-// });
-
-jQuery(document).ready(function() {
-    jQuery(document).on('submit', '#notifyformadd', function(event) {    
-        event.preventDefault();    
-        var form=jQuery('#notifyformadd').serialize();
-        var formData=new FormData();
-        formData.append('action','zfb_save_new_notification');
-        formData.append('notification_data',form);
-        var modalId = jQuery(this).data('target');
-        var modal = jQuery(modalId); 
-
-        jQuery.ajax({
-            type: 'POST',
-            url: ajaxurl,
-            data:formData,
-            processData:false,//off other action only run this event
-		    contentType:false,        
-            success: function (response) {
-                 console.log(response);
-                 jQuery('#notifytable').load(location.href + ' #notifytable');
-                 modal.modal('hide');
-            }
-            
-        });
-
-    });
-});
-jQuery(document).ready(function() {
-    jQuery(document).on('submit', '#notifyform', function(event) {    
-        event.preventDefault();    
-        var form=jQuery('#notifyform').serialize();
-        var formData=new FormData();
-        formData.append('action','zfb_save_new_notification');
-        formData.append('notification_data',form);
-        jQuery.ajax({
-            type: 'POST',
-            url: ajaxurl,
-            data:formData,
-            processData:false,//off other action only run this event
-		    contentType:false,        
-            success: function (response) {
-                jQuery('#notifytable').load(location.href + ' #notifytable');
-                 console.log(response);
-                // jQuery('#closemodal').click();
-                
-            }
-            
-        });
-
-    });
-});
-jQuery(document).ready(function($) {
-    // Delete button click event
-    $('#deletenotify').on('click', function() {
-
-        var post_id = jQuery('#post_id').val();
-        // Get the checked checkboxes
-        var checkedItems = $('.child-checkall:checked');
-        var indexesToDelete = [];
-
-        // Extract the indexes of checked checkboxes
-        checkedItems.each(function() {
-            indexesToDelete.push($(this).val());
-        });
-        console.log(indexesToDelete);
-        // Perform AJAX request to delete the indexes
-        $.ajax({
-            type: 'POST',
-            url: ajaxurl,
-            data: {
-                action: 'delete_notification_indexes',
-                indexes: indexesToDelete,
-                post_id: post_id,
-            },
-            success: function(response) {
-                // Handle the success response here
-                console.log(response);
-                $('#notifytable').load(location.href + ' #notifytable');
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                // Handle the error here
-                console.log(errorThrown);
-            }
-        });
-    });
-});
-jQuery(document).ready(function($) {
-    // Check all checkbox click event
-    $('#main-check-all').on('click', function() {
-        // Get the checked status of the main checkbox
-        var isChecked = $(this).prop('checked');
-        
-        // Set the checked status of all child checkboxes accordingly
-        $('.child-checkall').prop('checked', isChecked);
-    });
-});
-jQuery(document).ready(function($) {
-    $(document).on('click', '.enable-btn', function() {
-        var post_id = $('#post_id').val();
-        var notifyTable = $('#notifytable');
-        var notificationId = $(this).data('notification-id');
-        var notificationState = $(this).data('notification-state');
-        var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
-
-        // AJAX request to update the notification status
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'zfb_update_notification_state',
-                notification_id: notificationId,
-                new_state: newState,
-                post_id: post_id
-            },
-            // success: function(response) {
-            //     if (response.success) {                  
-            //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').text(newState === 'enabled' ? 'Enabled' : 'Disabled');
-            //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
-            //     } else {
-            //         // Display an error message
-            //         console.log('Failed to update notification status. Message: ' + response.message);
-            //     }
-            //     //refresh ajax content after 
-            //     $('#notifytable').load(location.href + ' #notifytable');
-            // },
-            success: function(response) {
-                if (response.success) {
-                  // Update the button text and data attribute
-                  var enableBtn = $('.enable-btn[data-notification-id="' + notificationId + '"]');
-                  enableBtn.text(newState === 'enabled' ? 'Enable' : 'Disable');
-                  enableBtn.data('notification-state', newState);
-              
-                  // Reload the table content
-                  $('.datatable').DataTable().ajax.reload();
-                } else {
-                  // Display an error message
-                  console.log('Failed to update notification status. Message: ' + response.message);
+            jQuery.ajax({
+                type: 'POST',
+                url: ajaxurl,
+                data:formData,
+                processData:false,//off other action only run this event
+                contentType:false,        
+                success: function (response) {
+                    console.log(response);
+                    jQuery('#notifytable').load(location.href + ' #notifytable');
+                    modal.modal('hide');
                 }
-              },
-              
-            error: function(xhr, textStatus, errorThrown) {
-                // Display an error message
-                console.log('AJAX request failed: ' + errorThrown);
-            }
+                
+            });
+
         });
     });
-});
+    jQuery(document).ready(function() {
+        jQuery(document).on('submit', '#notifyform', function(event) {    
+            event.preventDefault();    
+            var form=jQuery('#notifyform').serialize();
+            var formData=new FormData();
+            formData.append('action','zfb_save_new_notification');
+            formData.append('notification_data',form);
+            jQuery.ajax({
+                type: 'POST',
+                url: ajaxurl,
+                data:formData,
+                processData:false,//off other action only run this event
+                contentType:false,        
+                success: function (response) {
+                    jQuery('#notifytable').load(location.href + ' #notifytable');
+                    console.log(response);
+                    // jQuery('#closemodal').click();
+                    
+                }
+                
+            });
 
-// jQuery(document).ready(function($) {
-//     $('#notifytable').DataTable();
-//     $('#notification-search').on('keyup', function() {
-//         table.columns(1).search(this.value).draw();
-//     });
-// });
-// jQuery(document).ready(function() {
-//     var table = $('#notifytable').DataTable();
-  
-//     // Apply search on keyup in the search box
-//     $('#notification-search').on('keyup', function() {
-//       table.search(this.value).draw();
-//     });
-// });
-// $(document).ready(function() {
-//     var table = $('#notifytable').DataTable();
-  
-//     // Apply search on keyup in the search box
-//     $('#notification-search').on('keyup', function() {
-//       table.columns(1).search(this.value).draw();
-//     });
-//   });
-  
-
-// jQuery(document).ready(function() {
-//     var old_table  =  jQuery('#notifytable').DataTable( {
-//                 dom: 'Bfrtip',
-//                 info:     false,
-//                 paging: false,
-//                 searching: true,
-//                 aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
-//                 columnDefs: [{
-//                         "targets": 2,
-//                         "orderable": false
-//                     }],
-//                     rowReorder: {
-//                 selector: 'td:nth-child(2)'
-//             },
-//             responsive: true
-//             } );
-            
-//               jQuery("#notification-search").keyup(function() {
-//                 //table.fnFilter();
-//                 old_table.search(this.value).draw();
-    
-//             }); 
-            
-//     } );
-// jQuery(document).ready(function() {
-//     jQuery('#notifytable').DataTable({
-//       dom: 'Bfrtip',
-//       info: false,
-//       paging: false,
-//       searching: true,
-//       aaSorting: [[1, 'asc']],
-//       columnDefs: [{
-//         targets: 3,
-//         orderable: false
-//       }],
-//       responsive: true
-//     });
-//   });
-
-jQuery(document).ready(function() {
-    var notifytable = jQuery('#notifytable').DataTable();({
-      dom: 'Bfrtip',
-      paging: true, // Enable pagination
-      pageLength: 1,
-      searching: true,
-      ordering: true, // Enable column sorting
-      aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
-      columnDefs: [{
-        targets: [4], // Column index for which sorting should be disabled
-        orderable: false
-      }],
-      responsive: true
-      
+        });
     });
-    jQuery("#searchbox").keyup(function() {
-        //table.fnFilter();
-        notifytable.search(this.value).draw();
-    }); 
-  });
-  
-  
+    jQuery(document).ready(function($) {
+        // Delete button click event
+        $('#deletenotify').on('click', function() {
+
+            var post_id = jQuery('#post_id').val();
+            // Get the checked checkboxes
+            var checkedItems = $('.child-checkall:checked');
+            var indexesToDelete = [];
+
+            // Extract the indexes of checked checkboxes
+            checkedItems.each(function() {
+                indexesToDelete.push($(this).val());
+            });
+            console.log(indexesToDelete);
+            // Perform AJAX request to delete the indexes
+            $.ajax({
+                type: 'POST',
+                url: ajaxurl,
+                data: {
+                    action: 'delete_notification_indexes',
+                    indexes: indexesToDelete,
+                    post_id: post_id,
+                },
+                success: function(response) {
+                    // Handle the success response here
+                    console.log(response);
+                    $('#notifytable').load(location.href + ' #notifytable');
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // Handle the error here
+                    console.log(errorThrown);
+                }
+            });
+        });
+    });
+    jQuery(document).ready(function($) {
+        // Check all checkbox click event
+        $('#main-check-all').on('click', function() {
+            // Get the checked status of the main checkbox
+            var isChecked = $(this).prop('checked');
+            
+            // Set the checked status of all child checkboxes accordingly
+            $('.child-checkall').prop('checked', isChecked);
+        });
+    });
+    jQuery(document).ready(function($) {
+        $(document).on('click', '.enable-btn', function() {
+            var post_id = $('#post_id').val();
+            var notifyTable = $('#notifytable');
+            var notificationId = $(this).data('notification-id');
+            var notificationState = $(this).data('notification-state');
+            var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
+
+            // AJAX request to update the notification status
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'zfb_update_notification_state',
+                    notification_id: notificationId,
+                    new_state: newState,
+                    post_id: post_id
+                },
+                // success: function(response) {
+                //     if (response.success) {                  
+                //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').text(newState === 'enabled' ? 'Enabled' : 'Disabled');
+                //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
+                //     } else {
+                //         // Display an error message
+                //         console.log('Failed to update notification status. Message: ' + response.message);
+                //     }
+                //     //refresh ajax content after 
+                //     $('#notifytable').load(location.href + ' #notifytable');
+                // },
+                success: function(response) {
+                    if (response.success) {
+                    // Update the button text and data attribute
+                    var enableBtn = $('.enable-btn[data-notification-id="' + notificationId + '"]');
+                    enableBtn.text(newState === 'enabled' ? 'Enable' : 'Disable');
+                    enableBtn.data('notification-state', newState);
+                
+                    // Reload the table content
+                    $('.datatable').DataTable().ajax.reload();
+                    } else {
+                    // Display an error message
+                    console.log('Failed to update notification status. Message: ' + response.message);
+                    }
+                },
+                
+                error: function(xhr, textStatus, errorThrown) {
+                    // Display an error message
+                    console.log('AJAX request failed: ' + errorThrown);
+                }
+            });
+        });
+    });
+
+    jQuery(document).ready(function() {
+        var notifytable = jQuery('#notifytable').DataTable();({
+        dom: 'Bfrtip',
+        paging: true, // Enable pagination
+        pageLength: 1,
+        searching: true,
+        ordering: true, // Enable column sorting
+        aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
+        columnDefs: [{
+            targets: [4], // Column index for which sorting should be disabled
+            orderable: false
+        }],
+        responsive: true
+        
+        });
+        jQuery("#searchbox").keyup(function() {
+            //table.fnFilter();
+            notifytable.search(this.value).draw();
+        }); 
+    });
+
+    jQuery(document).on('submit', '#usermap_form', function(event) {    
+        event.preventDefault();    
+        var form=jQuery('#usermap_form').serialize();
+        var formData=new FormData();
+        formData.append('action','zfb_save_user_mapping');
+        formData.append('zfbuser_mapping',form);
+      
+        jQuery.ajax({
+            type: 'POST',
+            url: ajaxurl,
+            data:formData,
+            processData:false,//off other action only run this event
+            contentType:false,        
+            success: function (response) {
+                // console.log(response);
+                // jQuery('#notifytable').load(location.href + ' #notifytable');
+            }
+        });
+
+    });
+
+}

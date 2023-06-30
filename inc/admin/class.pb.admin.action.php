@@ -46,6 +46,8 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			add_action( 'wp_ajax_zfb_update_notification_state', array( $this, 'zfb_update_notification_state' ));
 			add_action('wp_ajax_nopriv_zfb_update_notification_state', array( $this, 'zfb_update_notification_state' ) );
 
+			add_action('wp_ajax_zfb_save_user_mapping', array( $this, 'zfb_save_user_mapping' ) );
+			add_action('wp_ajax_nopriv_zfb_save_user_mapping', array( $this, 'zfb_save_user_mapping' ) );
 			
 		}
 
@@ -228,8 +230,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							}
 							
 							
-						}
-		
+						}		
 						update_post_meta($post_id, 'notification_data', $get_notification_array);
 					} else {
 						$get_notification_array = array($notification_data);
@@ -470,7 +471,19 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				array($this, 'render_notification_settings_page')
 			);
 		}
-		
+		function get_shortcodes($post_id){
+			$shortcode_list = array();
+			$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
+			$form_data=json_decode($form_data);
+			foreach ($form_data as $obj) {     
+				$shortcode_list[] = array(
+					'fieldkey'=>esc_attr($obj->key),
+					'fieldlabel'=>esc_html($obj->label),
+				);
+			   
+			}
+			return $shortcode_list;
+		}
 		function render_notification_settings_page() {
 			// Add your page content here
 			echo "<div class='notification-page-main m-4 p-1 ' >";
@@ -491,45 +504,111 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 					</li>
 				</ul>
 
-				<div class="tab-content p-1" id="myTabContent">
-					<div class="tab-pane fade show active" id="content_fieldmapping" role="tabpanel" aria-labelledby="tab_fieldmapping">
+				<div class="tab-content p-1 border" id="myTabContent">
+					<div class="tab-pane fade show active " id="content_fieldmapping" role="tabpanel" aria-labelledby="tab_fieldmapping">
 						<?php
 						$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
-						Echo "<pre>";
-						print_r($form_data);
-						 foreach($form_data['data'] as $form_key => $form_value){
-							if($form_key !== 'submit'){
-								echo "<li>".$form_key." : ".$form_value."</li>";
-							}
-						}
+						$form_data=json_decode($form_data);
+						$shortcodes = $this->get_shortcodes($post_id);
+						// echo "<pre>";
+						// print_r($shortcodes);
 						?>
-					<form>
-						<div>
-							<label for="first-name">First Name:</label>
-							<select id="first-name" name="first-name">
-							<option value="John">John</option>
-							<option value="Jane">Jane</option>
-							<option value="James">James</option>
-							</select>
-						</div>
-						<div>
-							<label for="last-name">Last Name:</label>
-							<select id="last-name" name="last-name">
-							<option value="Doe">Doe</option>
-							<option value="Smith">Smith</option>
-							<option value="Johnson">Johnson</option>
-							</select>
-						</div>
-						<div>
-							<label for="email">Email:</label>
-							<select id="email" name="email">
-							<option value="john@example.com">john@example.com</option>
-							<option value="jane@example.com">jane@example.com</option>
-							<option value="james@example.com">james@example.com</option>
-							</select>
-						</div>
-						<button type="submit">Submit</button>
-					</form>
+						<div class="row">
+							<div class="col col-md-3 m-4">	
+
+								<?php
+								$post_id = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
+								$user_mapping = get_post_meta($post_id, 'user_mapping', true);
+								if ($user_mapping) {
+									$first_name = isset($user_mapping['first_name']) ? sanitize_text_field($user_mapping['first_name']) : '';
+									$last_name = isset($user_mapping['last_name']) ? sanitize_text_field($user_mapping['last_name']) : '';
+									$email = isset($user_mapping['email']) ? sanitize_text_field($user_mapping['email']) : '';
+								} else {
+									$first_name = '';
+									$last_name = '';
+									$email = '';
+								}
+								?>
+
+								<form id="usermap_form" method="post" data-pid="">
+									<input type="hidden" name="post_id" id="post_id" value="<?php echo esc_attr($post_id); ?>">
+									<div class="form-row">
+										<div class="form-group col-md-6">
+											<label class="h6" for="first-name">First Name:</label>
+											<select class="form-control" id="first-name" name="first_name">
+												<option value="any" disabled>Any</option>
+												<?php 													
+													$fieldFirstName = $this->get_shortcodes($post_id);
+													foreach ($fieldFirstName as $option) {
+														$fieldKey = $option['fieldkey'];
+														$fieldLabel = $option['fieldlabel'];
+														$selected = ($fieldKey == $first_name) ? 'selected' : '';
+														echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+													}
+												?>
+											</select>
+										</div>
+										<div class="form-group col-md-6">
+											<label class="h6" for="last-name">Last Name:</label>
+											<select class="form-control" id="last-name" name="last_name">
+												<option value="any" disabled>Any</option>
+												<?php 													
+													$fieldLastName = $this->get_shortcodes($post_id);
+													foreach ($fieldLastName as $option) {
+														$fieldKey = $option['fieldkey'];
+														$fieldLabel = $option['fieldlabel'];
+														$selected = ($fieldKey == $last_name) ? 'selected' : '';
+														echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+													}
+												?>
+											</select>
+										</div>
+									</div>
+									<div class="form-row">
+										<div class="form-group col">
+											<label class="h6" for="email">Email:</label>
+											<select class="form-control" id="email" name="email">
+											<option value="any" disabled>Any</option>
+											<?php 													
+												$fieldEmail = $this->get_shortcodes($post_id);
+												foreach ($fieldEmail as $option) {
+													$fieldKey = $option['fieldkey'];
+													$fieldLabel = $option['fieldlabel'];
+													$selected = ($fieldKey == $email) ? 'selected' : '';
+													echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+												}
+											?>
+											</select>
+										</div>
+									</div>
+									<input type="submit" value="Save" name="Save">
+									
+								</form>
+
+							</div>
+
+							<div class="shortcodes_list col-md-6 m-4">
+								<p class="h5 head-shortcode">Shortcodes for Notification</p>
+								<p class="smal head-shortcode">Here is a list of available shortcodes to use in email notification mail body</p>
+								<span>[formId]</span>
+								<span>[bookingId]</span>
+								<span>[status]</span>
+								<span>[formTitle]</span>
+								<span>[To]</span>
+								<span>[firstName]</span>
+								<span>[lastName]</span>
+								<span>[timeslot]</span>
+								<span>[bookedSlots]</span>
+								<span>[bookingDate]</span>
+								<span>[bookedDate]</span>
+								
+								<?php
+									foreach ($form_data as $obj) {
+										echo '<span>['.$obj->key.']</span>';
+									}
+								?>
+							</div>
+							</div>
 
 					</div>
 					<div class="tab-pane fade" id="content_notification" role="tabpanel" aria-labelledby="tab_notification">
@@ -712,6 +791,9 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$mail_body = '';
 
 			$data = get_post_meta($post_id, 'notification_data', true);
+			// echo "<pre>";
+			// print_r($data);
+
 			if ($checkedit === 'edit' && isset($data[$index])) {
 				$title = 'Edit Notification';
 				$item = $data[$index];
@@ -1018,6 +1100,24 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			return $available_timeslots;
 		}
 
+		function zfb_save_user_mapping() {
+			// Check if the request came from the admin side (optional)
+			if (!is_admin()) {
+				wp_send_json_error('Invalid request.');
+			}
+		
+			$user_mapping = isset($_POST['zfbuser_mapping']) ? stripslashes($_POST['zfbuser_mapping']) : '';
+		
+			parse_str($user_mapping, $user_mapping_array);
+		
+			$post_id = isset($user_mapping_array['post_id']) ? sanitize_text_field($user_mapping_array['post_id']) : '';
+			if (!empty($post_id)) {
+				update_post_meta($post_id, 'user_mapping', $user_mapping_array);
+				wp_send_json_success('User mapping saved successfully.');
+			} else {
+				wp_send_json_error('Post ID is missing.');
+			}
+		}
 		
         		
 	}

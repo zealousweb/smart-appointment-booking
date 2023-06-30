@@ -25,9 +25,6 @@
   font-size: 16px;
   color: #000;
   line-height: 1.5;
-  background-repeat: no-repeat;
-  background-position: left 7px;
-  background-size: 17px auto;
 }
 #custom-meta-box-tabs .tab-navigation li:first-child{
   margin-left: 0;
@@ -119,6 +116,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  margin: 0;
 }
 .breaktimeslot-repeater .breaktimeslot button {
   margin-left: auto;
@@ -132,22 +130,31 @@
 }
 .breaktimeslot-repeater .breaktimeslot input{
   margin-right: 10px;
-  min-width: 100px;
+  min-width: 200px;
 }
 
 #advanced-sortables .card{
   padding: 0;
 }
-.form-check label{
+#custom-meta-box-tabs .form-check{
+  margin-bottom: 10px;
+  padding-left: 0;
+}
+.form-check > label{
   font-size: 16px;
-  line-height: 20px;
+  line-height: 20px;  
+}
+.form-group > label{
+  width: 100%;
 }
 .form-check input[type="radio"],
 .form-check input[type="checkbox"]{
   height: 20px;
   width: 20px;
+  flex: 0 0 20px;
   position: relative;
   margin: 0;
+  margin-right: 8px;
 }
 
 .form-check input[type="checkbox"]:checked::before{
@@ -177,29 +184,137 @@
   margin: 0 -15px;
 }
 .formio.formbuilder .formcomponents {
-  flex: 0 0 400px;
-  max-width: 400px;
+  flex: 0 0 350px;
+  max-width: 350px;
   padding: 0 15px;
 }
 .formio.formbuilder .formarea {
-  flex: 0 0 calc(100% - 400px);
+  flex: 0 0 calc(100% - 350px);
   padding: 0 15px;
-  max-width: calc(100% - 400px);
+  max-width: calc(100% - 350px);
 }
 
-.form-builder-panel .collapse .card-body {
+.form-builder-panel .card-body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
 }
-.form-builder-panel .collapse .card-body .btn {
+.form-builder-panel .card-body .btn{
   max-width: calc(50% - 5px);
   flex: 0 0 calc(50% - 5px);
   margin: 0;
   margin-bottom: 10px;
   display: flex;
   flex-wrap: wrap;
+  min-height: 80px;
+  text-align: center;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  color: #666;
+  background-color: #f5f5f5;
+  border: 1px solid lightgray;
+  font-size: 14px;
+  font-weight: 700;
 }
-.form-builder-panel .collapse .card-body .btn i {
+.form-builder-panel .card-body .btn i {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: gray;
   width: 100%;
+}
+.form-builder-group-header h5 .builder-group-button{
+  font-weight: 700;
+  font-size: 16px;
+  position: relative;
+  box-shadow: none;
+  outline: none;
+}
+.form-builder-group-header h5 .builder-group-button::after{
+  position: absolute;
+  content: "\f343";
+  font: normal 16px/1 dashicons;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.form-builder-group-header h5 .builder-group-button.collapsed::after{
+  content: "\f347";
+}
+
+input, textarea{
+  border: 1px solid #8c8f94;
+}
+
+.post-type-bms_forms .component-settings {
+  padding-top: 40px !important;
+}
+
+.component-settings .formio-dialog-content{
+  max-width: 1170px !important;
+  width: 100% !important;
+}
+
+.component-edit-container .component-edit-tabs .card{
+  padding: 0;
+  margin-top: 0;
+  border: 0;
+}
+.component-edit-container .component-edit-tabs .formio-component-tabs > .card > .card-header{
+  padding: 0;
+  background-color: #f0f0f0;
+  border: 0;
+}
+.component-edit-container .preview-panel.card{
+  padding: 0;
+}
+.component-edit-container .component-edit-tabs .card-header .card-header-tabs {
+  list-style-type: none;
+  margin: 0;
+  margin-bottom: 0px;
+  padding: 0;
+  display: flex;
+  border: 0;
+  margin-bottom: 0;
+}
+.card-header-tabs .nav-item{
+  border: 0;
+  margin: 0 2px;
+  padding-left: 0;
+  background-image: none;
+  position: relative;
+  font-size: 16px;
+  color: #000;
+  line-height: 1.5;
+}
+.card-header-tabs .nav-item:first-child{
+  margin-left: 0;
+}
+.card-header-tabs .nav-item:last-child{
+  margin-right: 0;
+}
+.card-header-tabs .nav-link {
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #777;
+  display: block;
+  text-align: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  background-color: rgba(20,75,112,.1);
+  border-radius: 5px 5px 0 0;
+  position: relative;
+  z-index: 4;
+  outline: none;
+  box-shadow: none;
+}
+.component-edit-container .col-form-label{
+  padding-top: 0;
+}
+.redirectto_main.redirect_page input#redirectpage-search,
+.redirectto_main.redirect_page select#redirectpage-dropdown{
+  max-width: 33.33%;
+  width: 100%;
+  flex: 0 0 33.33%;
 }

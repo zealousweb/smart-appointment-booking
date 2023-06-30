@@ -154,13 +154,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				} else {
 					$status = 'pending';
 					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
+					$message = $this->zfb_send_notification($status, $created_post_id);
 					
-					$to = 'mansi@zealousweb.com';
-					$subject = 'Approval Pending';
-					$body = 'The email body content';
-					$headers = array('Content-Type: text/html; charset=UTF-8','From: My Site Name <zealtesting1301@gmail.com>');
-	
-					wp_mail( $to, $subject, $body, $headers );
 				}
 				update_option('tot_bms_entries', $pid);
 				update_post_meta($created_post_id, 'bms_submission_data', $form_data);
