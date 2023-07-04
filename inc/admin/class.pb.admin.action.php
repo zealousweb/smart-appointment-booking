@@ -164,12 +164,12 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			);
 			$get_notification_array = array();
 			if (isset($_POST['notification_data'])) {
-				// Get the form data
+			
 				parse_str($_POST['notification_data'], $form_data);
 				$post_id = $form_data['form_id'];
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
-				// Process and store the form data as a single array
+				
 				$notification_data = array(
 					'form_id' => sanitize_text_field($form_data['form_id']),
 					'notification_name' => sanitize_text_field($form_data['notification_name']),
@@ -183,35 +183,9 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 					'subject' => sanitize_text_field($form_data['email_subject']),
 					'additional_headers' => sanitize_textarea_field($form_data['additional_headers']),
 					'mail_body' => wp_kses_post($form_data[$mail_body]),
-					// 'attachments' => $_FILES['attachments'],
+					'use_html' => sanitize_text_field($form_data['use_html']),
 				);
-				 // Handle attachments
-				//  $attachments = array();
-				//  $file_names = $_FILES['attachments']['name'];
-				//  $file_tmps = $_FILES['attachments']['tmp_name'];
-				//  $file_types = $_FILES['attachments']['type'];
-				//  $file_sizes = $_FILES['attachments']['size'];
-				//  $file_errors = $_FILES['attachments']['error'];
-		 
-				//  foreach ($file_names as $key => $file_name) {
-				// 	 if ($file_errors[$key] === UPLOAD_ERR_OK) {
-				// 		 $file_tmp = $file_tmps[$key];
-				// 		 $file_size = $file_sizes[$key];
-				// 		 $file_type = $file_types[$key];
-		 
-				// 		 // You can implement additional checks for file type, size, etc. here
-		 
-				// 		 $uploaded_file_name = sanitize_file_name($file_name);
-				// 		 $upload_dir = wp_upload_dir();
-				// 		 $upload_path = $upload_dir['path'] . '/' . $uploaded_file_name;
-		 
-				// 		 if (move_uploaded_file($file_tmp, $upload_path)) {
-				// 			 $attachments[] = $upload_path;
-				// 		 }
-				// 	 }
-				//  }
-		 
-				// $notification_data['attachments'] = $attachments;
+			
 				if ($post_id) {
 					$get_notification_array = get_post_meta($post_id, 'notification_data', true);
 		
@@ -471,7 +445,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				array($this, 'render_notification_settings_page')
 			);
 		}
-		function get_shortcodes($post_id){
+		function admin_get_shortcodes_keylabel($post_id){
 			$shortcode_list = array();
 			$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
 			$form_data=json_decode($form_data);
@@ -504,17 +478,17 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 					</li>
 				</ul>
 
-				<div class="tab-content p-1 border" id="myTabContent">
+				<div class="tab-content p-4 border" id="myTabContent">
 					<div class="tab-pane fade show active " id="content_fieldmapping" role="tabpanel" aria-labelledby="tab_fieldmapping">
 						<?php
 						$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
 						$form_data=json_decode($form_data);
-						$shortcodes = $this->get_shortcodes($post_id);
+						$shortcodes = $this->admin_get_shortcodes_keylabel($post_id);
 						// echo "<pre>";
 						// print_r($shortcodes);
 						?>
 						<div class="row">
-							<div class="col col-md-3 m-4">	
+							<div class="col col-md-3">	
 
 								<?php
 								$post_id = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
@@ -523,10 +497,12 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 									$first_name = isset($user_mapping['first_name']) ? sanitize_text_field($user_mapping['first_name']) : '';
 									$last_name = isset($user_mapping['last_name']) ? sanitize_text_field($user_mapping['last_name']) : '';
 									$email = isset($user_mapping['email']) ? sanitize_text_field($user_mapping['email']) : '';
+									$service = isset($user_mapping['service']) ? sanitize_text_field($user_mapping['service']) : '';
 								} else {
 									$first_name = '';
 									$last_name = '';
 									$email = '';
+									$service = '';
 								}
 								?>
 
@@ -538,7 +514,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 											<select class="form-control" id="first-name" name="first_name">
 												<option value="any" disabled>Any</option>
 												<?php 													
-													$fieldFirstName = $this->get_shortcodes($post_id);
+													$fieldFirstName = $this->admin_get_shortcodes_keylabel($post_id);
 													foreach ($fieldFirstName as $option) {
 														$fieldKey = $option['fieldkey'];
 														$fieldLabel = $option['fieldlabel'];
@@ -553,7 +529,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 											<select class="form-control" id="last-name" name="last_name">
 												<option value="any" disabled>Any</option>
 												<?php 													
-													$fieldLastName = $this->get_shortcodes($post_id);
+													$fieldLastName = $this->admin_get_shortcodes_keylabel($post_id);
 													foreach ($fieldLastName as $option) {
 														$fieldKey = $option['fieldkey'];
 														$fieldLabel = $option['fieldlabel'];
@@ -570,7 +546,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 											<select class="form-control" id="email" name="email">
 											<option value="any" disabled>Any</option>
 											<?php 													
-												$fieldEmail = $this->get_shortcodes($post_id);
+												$fieldEmail = $this->admin_get_shortcodes_keylabel($post_id);
 												foreach ($fieldEmail as $option) {
 													$fieldKey = $option['fieldkey'];
 													$fieldLabel = $option['fieldlabel'];
@@ -581,7 +557,24 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 											</select>
 										</div>
 									</div>
-									<input type="submit" value="Save" name="Save">
+									<div class="form-row">
+										<div class="form-group col">
+											<label class="h6" for="service">Service:</label>
+											<select class="form-control" id="service" name="service">
+											<option value="any" disabled>Any</option>
+											<?php 													
+												$fieldService = $this->admin_get_shortcodes_keylabel($post_id);
+												foreach ($fieldService as $option) {
+													$fieldKey = $option['fieldkey'];
+													$fieldLabel = $option['fieldlabel'];
+													$selected = ($fieldKey == $service) ? 'selected' : '';
+													echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+												}
+											?>
+											</select>
+										</div>
+									</div>
+									<input type="submit" value="Save" class="btn btn-primary" name="Save">
 									
 								</form>
 
@@ -590,22 +583,14 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							<div class="shortcodes_list col-md-6 m-4">
 								<p class="h5 head-shortcode">Shortcodes for Notification</p>
 								<p class="smal head-shortcode">Here is a list of available shortcodes to use in email notification mail body</p>
-								<span>[formId]</span>
-								<span>[bookingId]</span>
-								<span>[status]</span>
-								<span>[formTitle]</span>
-								<span>[To]</span>
-								<span>[firstName]</span>
-								<span>[lastName]</span>
-								<span>[timeslot]</span>
-								<span>[bookedSlots]</span>
-								<span>[bookingDate]</span>
-								<span>[bookedDate]</span>
-								
+																
 								<?php
-									foreach ($form_data as $obj) {
-										echo '<span>['.$obj->key.']</span>';
-									}
+								
+								$form_data = $this->admin_get_shortcodes($post_id);
+								foreach ($form_data as $obj) {
+									echo '<span>['.$obj.']</span>';
+									echo ' ';
+								}
 								?>
 							</div>
 							</div>
@@ -652,7 +637,8 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 										<table class="table notificationtable datatable table-striped" id="notifytable" >
 											<thead>
 												<tr>
-													<th scope="col"></th>
+													<th scope="col" ><input type="checkbox" id="main-check-all" class="maincheckall" value="1" ></th>
+													<!-- <th scope="col"></th> -->
 													<th scope="col">
 													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
 																<path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
@@ -661,7 +647,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 													Notification</th>
 													<th scope="col">State</th>
 													<th scope="col">Actions</th>
-													<th scope="col"><input type="checkbox" id="main-check-all" class="maincheckall" value="1"></th>
+													
 												</tr>
 											</thead>
 											<tbody>
@@ -673,24 +659,30 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 													$notification_id = 'notify_' . $index;
 													?>
 													<tr>
-														<th scope="row">
+														<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
+														<td>
 															<?php 
-															echo $ni; 
+															echo $ni."."; 
 															$ni++;
-															 ?>
-														</th>
-														<td><?php echo $notification_name; ?></td>
+															echo " ".$notification_name; 
+															?>
+														</td>
 														<!-- <td><span><?php //echo $state; ?></span> <span>(Enabled)</span></td> -->
 														<td>
 														<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
 														<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
 														<td> 
-															<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Edit</button>
+															<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">
+															<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+																<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+																<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+															</svg>
+																Edit
+															</button>
 															<!-- Modal -->
 															<?php  $this->generateModal($index,$post_id); ?>
 														</td>
-														<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
-													</tr>
+														</tr>
 													<?php
 												}
 												?>
@@ -716,7 +708,19 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			echo '</div>';
 			// Include your form or other content for extending the notification properties
 		}
-		
+		function admin_get_shortcodes($post_id){
+			$shortcode_list = array();
+			$form_data1 = get_post_meta( $post_id, '_my_meta_value_key', true ); 
+			$form_data1=json_decode($form_data1);
+
+			foreach ($form_data1 as $obj) {  				
+				$shortcode_list[] = $obj->key;
+			}
+			$tobe_merged = array('FormId','BookingId','Status','FormTitle','To','FirstName','LastName','Timeslot','BookedSeats','BookingDate','BookedDate','Service','prefixlabel','cost','StartTime','EndTime','CancelBooking');
+			$shortcode_list = array_merge($tobe_merged,$shortcode_list);
+			
+			return $shortcode_list;
+		}
 		function zfb_update_notification_state() {
 			$response = array(
 				'success' => false,
@@ -755,33 +759,26 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$post_id = $_POST['post_id']; // Replace with your actual post ID
 				$indexesToDelete = $_POST['indexes'];
 
-				// Get the existing notification metadata
 				$notification_metadata = get_post_meta($post_id, 'notification_data', true);
 
-				// Delete the selected indexes from the metadata
 				foreach ($indexesToDelete as $index) {
 					if (isset($notification_metadata[$index])) {
 						unset($notification_metadata[$index]);
 					}
 				}
 
-				// Update the notification metadata
 				update_post_meta($post_id, 'notification_data', $notification_metadata);
-
-				// Send the success response
 				wp_send_json_success('Indexes deleted successfully.');
 			} else {
-				// Send the error response
 				wp_send_json_error('Invalid request.');
 			}
 		}
 		
 		function generateModal($index,$post_id) {
-			// Determine the mode based on $index value
+			
 			$mode = ($index === 'add') ? 'add' : '';
 			$checkedit = ($index === 'add') ? 'add' : 'edit';
 			$title = ($index === 'add') ? 'Add New Notification' : 'Edit Notification';
-			// Define variables with initial empty values
 			$notificationName = '';
 			$state = '';
 			$type = '';
@@ -791,9 +788,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$mail_body = '';
 
 			$data = get_post_meta($post_id, 'notification_data', true);
-			// echo "<pre>";
 			// print_r($data);
-
 			if ($checkedit === 'edit' && isset($data[$index])) {
 				$title = 'Edit Notification';
 				$item = $data[$index];
@@ -806,32 +801,15 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$email_bcc = isset($item['bcc']) ? $item['bcc'] : '';
 				$email_cc = isset($item['cc']) ? $item['cc'] : '';
 				$email_subject = isset($item['subject']) ? $item['subject'] : '';
-				// $additional_headers = $item['additional_headers'];
 				$mail_body = isset($item['mail_body']) ? $item['mail_body'] : '';
-				// $attachments =  isset($item['attachments']) ? $item['attachments'] : '';
+				$use_html =  isset($item['use_html']) ? $item['use_html'] : '';
 			}
 			
-			// Iterate through the attachments
-			// foreach ($attachments['name'] as $key => $attachment_name) {
-			// 	$attachment_tmp = $attachments['tmp_name'][$key];
-			// 	$attachment_size = $attachments['size'][$key];
-			// 	$attachment_type = $attachments['type'][$key];
-
-			// 	// Do something with the attachment
-			// 	// For example, you can move it to a specific directory
-			// 	$upload_dir = wp_upload_dir();
-			// 	$attachment_path = $upload_dir['path'] . '/' . $attachment_name;
-			// 	move_uploaded_file($attachment_tmp, $attachment_path);
-
-			// 	// You can also store the attachment path in an array for later use
-			// 	$attachment_paths[] = $attachment_path;
-			// }
-			// ob_start();
 			?>
 			<div class="modal fade notification-modal" id="notifyModal<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo $index; ?>" aria-hidden="true">
-				<div class="modal-dialog modal-lg notification-mdialog">
+				<div class="modal-dialog modal-lg notification-mdialog modal-dialog-scrollable">
 					<div class="modal-content notification-mcontent">
-						<form id="notifyform<?php echo $mode; ?>" method="post">
+						
 							
 							<input type="hidden" value="<?php echo $post_id; ?>" name="form_id">
 							<!-- Modal header -->
@@ -842,108 +820,118 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 							
 							<!-- Modal body -->
 							<div class="modal-body notification-mdialog" style="max-height: 100%;overflow-y: auto;">
-								
-								<div class="border p-4 m-1">
-									<h5>General Notification Setting</h5>
-									<input type="hidden" value="<?php echo $index; ?>" name="editnotify" >
-									<div class="form-group">
-										<input type="hidden" name="form_id" value="<?php echo $post_id; ?>">
-									</div>
-									<div class="form-group">
-										<label for="notification-name">Notification Name</label>
-										<input type="text" value="<?php echo $notificationName; ?>" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
-									</div>
-
-									<div class="form-group">
-										<label for="state">State</label>
-										<div class="form-check">
-											<input class="form-check" type="radio" name="state" id="disable" value="disabled"<?php echo ($state === 'disabled' || $state === 'disable') ? 'checked' : ''; ?>>
-											<label class="form-check-label" for="disable">Disable</label>
-											</div>
-										<div class="form-check">
-											<input class="form-check" type="radio" name="state" id="enable" value="enabled"<?php echo ($state === 'enabled' || $state === 'enable') ? 'checked' : ''; ?>>
-											<label class="form-check-label" for="enabled">Enable</label>
+								<form class="notifyform<?php echo $mode; ?>" data-id ="<?php echo $index; ?>" method="post">
+									<div class="border p-4 m-1">
+										<h5>General Notification Setting</h5>
+										<input type="hidden" value="<?php echo $index; ?>" name="editnotify" >
+										<div class="form-group">
+											<input type="hidden" name="form_id" value="<?php echo $post_id; ?>">
 										</div>
-									</div>
+										<div class="form-group">
+											<label for="notification-name">Notification Name</label>
+											<input type="text" value="<?php echo $notificationName; ?>" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
+										</div>
 
-									<div class="form-group">
-										<label for="type-dropdown">Type</label>
-										<select class="form-select form-control" id="type-dropdown" name="type">
+										<div class="form-group">
+											<label for="state">State</label>
+											<div class="form-check">
+												<input class="form-check" type="radio" name="state" id="disable" value="disabled"<?php echo ($state === 'disabled' || $state === 'disable') ? 'checked' : ''; ?>>
+												<label class="form-check-label" for="disable">Disable</label>
+												</div>
+											<div class="form-check">
+												<input class="form-check" type="radio" name="state" id="enable" value="enabled"<?php echo ($state === 'enabled' || $state === 'enable') ? 'checked' : ''; ?>>
+												<label class="form-check-label" for="enabled">Enable</label>
+											</div>
+										</div>
+
+										<div class="form-group">
+											<label for="type-dropdown">Type</label>
+											<select class="form-select form-control" id="type-dropdown" name="type">
+												<?php
+												$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved');
+												foreach ($available_types as $avail_type) {
+													$selected = ($avail_type === $type) ? 'selected' : '';
+													echo '<option value="' . $avail_type . '" ' . $selected . '>' . ucfirst($avail_type) . '</option>';
+												}
+												?>
+											</select>
+
+										</div>
+
+									</div>
+									<div class="border p-4 m-1">
+										<h5>Email</h5>
+										<!-- <div class="form-group">
+											<label>Email Setting</label>
+										</div> -->
+										<div class="form-group">
+											<label for="email-to">To</label>
+											<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
+										</div>
+
+										<div class="form-group">
+											<label for="email-from">From</label>
+											<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
+										</div>
+										<div class="form-group">
+											<label for="email-from">Reply To</label>
+											<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" required>
+										</div>
+										<div class="form-group">
+											<label for="email-from">Bcc</label>
+											<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" required>
+										</div>
+										<div class="form-group">
+											<label for="email-from">Cc</label>
+											<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" required>
+										</div>
+										<div class="form-group">
+											<label for="email-subject">Subject</label>
+											<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
+										</div>
+										<!-- <div class="form-group">
+											<label for="additional-header">Additional Headers</label>
+											<textarea id="additional-header" name="additional_headers" class="form-control" rows="4" required><?php echo isset($additional_headers) ? $additional_headers : ''; ?></textarea>
+										</div> -->
+
+										<div class="form-group">
+											<label for="mail-body">Mail Body</label>
 											<?php
-											$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved');
-											foreach ($available_types as $avail_type) {
-												$selected = ($avail_type === $type) ? 'selected' : '';
-												echo '<option value="' . $avail_type . '" ' . $selected . '>' . ucfirst($avail_type) . '</option>';
-											}
+											wp_editor(isset($mail_body) ? $mail_body : '', 'mail_body' . $index, array(
+												'textarea_name' =>  'mail_body' . $index,
+											));
 											?>
-										</select>
-
-									</div>
-
-								</div>
-								<div class="border p-4 m-1">
-									<h5>Email</h5>
-									<!-- <div class="form-group">
-										<label>Email Setting</label>
-									</div> -->
-									<div class="form-group">
-										<label for="email-to">To</label>
-										<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
-									</div>
-
-									<div class="form-group">
-										<label for="email-from">From</label>
-										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
-									</div>
-									<div class="form-group">
-										<label for="email-from">Reply To</label>
-										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" required>
-									</div>
-									<div class="form-group">
-										<label for="email-from">Bcc</label>
-										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" required>
-									</div>
-									<div class="form-group">
-										<label for="email-from">Cc</label>
-										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" required>
-									</div>
-									<div class="form-group">
-										<label for="email-subject">Subject</label>
-										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
-									</div>
-									<!-- <div class="form-group">
-										<label for="additional-header">Additional Headers</label>
-										<textarea id="additional-header" name="additional_headers" class="form-control" rows="4" required><?php echo isset($additional_headers) ? $additional_headers : ''; ?></textarea>
-									</div> -->
-
-									<div class="form-group">
-										<label for="mail-body">Mail Body</label>
+										</div>
+										
+										<div class="form-check">
+											
+											<?php 
+												if($use_html){
+													$checked = 'checked';
+												}else{
+													$checked = '';
+												}
+											?>
+											<input class="form-check-input" type="checkbox" id="use_html" name="use_html" value="1" <?php echo $checked;?>>
+											<label class="form-check-label" for="flexCheckDefault">
+												Use HTML content type
+											</label>
+										</div>
+										<!-- <div class="form-group">
+											<label for="attachments">Attachments</label>
+											<input type="file" id="attachments" name="attachments[]" multiple>
+										</div> -->
 										<?php
-										wp_editor(isset($mail_body) ? $mail_body : '', 'mail_body' . $index, array(
-											'textarea_name' =>  'mail_body' . $index,
-										));
+											// echo "<pre>";
+											// print_r($attachments);
 										?>
 									</div>
-									<div class="form-group">
-										<label for="attachments">Attachments</label>
-										<input type="file" id="attachments" name="attachments[]" multiple>
-									</div>
-									<?php
-										// echo "<pre>";
-										// print_r($attachments);
-									?>
-								</div>
-								
+									<p id="suc_loc" ></p>
+									<input type="submit" id="submit_notification" name="submit_notification" class="btn btn-primary">
+									<button type="button" class="btn btn-secondary" id="closemodal" data-dismiss="modal">Close</button>
+								</form>
 								<!-- <p id="suc_loc"></p> -->
 							</div>
-							
-							<!-- Modal footer -->
-							<div class="modal-footer notification-mfooter">
-								<p id="suc_loc" ></p>
-								<input type="submit" id="submit_notification" name="submit_notification" class="btn btn-primary">
-								<button type="button" class="btn btn-secondary" id="closemodal" data-dismiss="modal">Close</button>
-							</div>
-						</form>
 					</div>
 				</div> 
 			</div>

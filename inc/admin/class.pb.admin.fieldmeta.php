@@ -511,15 +511,15 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <div id="recurring_result" style="display: none;">
                         <?php endif; ?>
                             <label class="h6" for="recurring_type">Repeat Recurring</label>
-                            <div class="form-group form-general-group col-md-3">
-                                    <select class="form-control " name="recurring_type" id="recurring_type">
-                                        <option value="any" <?php echo selected('any', $recurring_type, false); ?>>Select Any</option>
-                                        <option value="daily" <?php echo selected('daily', $recurring_type, false); ?>>Daily</option>
-                                        <option value="weekend" <?php echo selected('weekend', $recurring_type, false); ?>>Every Weekend</option>
-                                        <option value="weekdays" <?php echo selected('weekdays', $recurring_type, false); ?>>Every Weekday</option>
-                                        <option value="certain_weekdays" <?php echo selected('certain_weekdays', $recurring_type, false); ?>>Certain Weekdays</option>
-                                        <option value="advanced" <?php echo selected('advanced', $recurring_type, false); ?>>Advanced</option>
-                                    </select>
+                            <div class="form-group form-general-group col-md-3 pl-md-0">
+                                <select class="form-control " name="recurring_type" id="recurring_type">
+                                    <option value="any" <?php echo selected('any', $recurring_type, false); ?>>Select Any</option>
+                                    <option value="daily" <?php echo selected('daily', $recurring_type, false); ?>>Daily</option>
+                                    <option value="weekend" <?php echo selected('weekend', $recurring_type, false); ?>>Every Weekend</option>
+                                    <option value="weekdays" <?php echo selected('weekdays', $recurring_type, false); ?>>Every Weekday</option>
+                                    <option value="certain_weekdays" <?php echo selected('certain_weekdays', $recurring_type, false); ?>>Certain Weekdays</option>
+                                    <option value="advanced" <?php echo selected('advanced', $recurring_type, false); ?>>Advanced</option>
+                                </select>
                             </div>
                             <div id="certain_weekdays_fields" class="form-group form-general-group" style="display: none;" >
                             <label for="recurring_type"><?php echo __('Select Weekdays: ', 'textdomain'); ?></label>
@@ -543,37 +543,42 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             </div>
                             <div id="advance-meta-box">
                                 <!-- <button type="button" id="add-row" class="btn btn-info">Add Date Group</button> -->
-                                <label class="h6">Add Date Field Group</label>
-                                <svg id="add-row" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                </svg>
+                                <div id="add-row" class="adddatefieldgroup">
+                                    <label class="h6">Add Date Field Group</label>
+                                    <svg  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                    </svg>
+                                </div>
                                 <?php foreach ($advancedata as $index => $data) { ?>
-                                    <div class="repeater-row border-left m-1 ">
+                                    <div class="repeater-row border m-0 mb-2 p-3 row">
                                         <div class="form-group col-md-3">
-                                            <label for="advance_date_<?php echo $index; ?>">Advance Date:</label>
+                                            <label class="h6" for="advance_date_<?php echo $index; ?>">Advance Date:</label>
                                             <input type="date" class="form-control" id="advance_date_<?php echo $index; ?>" name="advancedata[<?php echo $index; ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
                                         </div>
-                                        <div class="timeslot-repeater timeslot-container "  id="timeslot-repeater-<?php echo $index; ?>">
-                                            <svg class="add-timeslot" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                            </svg><label class="h6 ml-1">Add Timeslots </label>
+                                        <div class="timeslot-repeater timeslot-container col-md-9 "  id="timeslot-repeater-<?php echo $index; ?>">
+                                            <div class="add-timeslot" id="add_timeslot_m">
+                                                <label class="h6 ml-1">Add Timeslots </label>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                                </svg>
+                                            </div>
                                             <?php foreach ($data['advance_timeslot'] as $slot_index => $timeslot) { ?>
                                                 <div class="form-row timeslot-row ">
-                                                    <div class="form-group col-md-2">
+                                                    <div class="form-group col-md-3">
                                                         <label>Start Time:</label>
                                                         <input type="time" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
                                                     </div>
-                                                    <div class="form-group col-md-2"> 
+                                                    <div class="form-group col-md-3"> 
                                                         <label>End Time:</label>
                                                         <input type="time" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">
                                                     </div>
-                                                    <div class="form-group col-md-2">
+                                                    <div class="form-group col-md-3">
                                                         <label>Bookings:</label>
                                                         <input type="number" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][bookings]" value="<?php echo esc_attr($timeslot['bookings']); ?>">
                                                     </div>
-                                                    <div class="form-group col-md-2">
+                                                    <div class="form-group col-2 remove-timeslot-wrapper">
                                                     <svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" 
                                                         height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
                                                         <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
@@ -583,7 +588,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                             <?php } ?>
                                             <!-- <button type="btn button" class="add-timeslot btn btn-secondary">Add Timeslot</button> -->
                                         </div>
-                                        <button type="btn button" class="remove-row btn btn-light">Remove Date</button>
+                                        <button type="button" class="remove-row btn btn-danger">Remove Date</button>
                                     </div>
                                 <?php } ?>
                             </div>

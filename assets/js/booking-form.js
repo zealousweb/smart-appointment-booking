@@ -169,30 +169,33 @@ jQuery(document).ready(function($) {
     $('#add-row').click(function() {
         var intial_index = $('.repeater-row').length;
         var index = intial_index + 1 ;
-        var row = '<div class="repeater-row border-left m-1 ">' +
+        var row = '<div class="repeater-row border m-0 mb-2 p-3 row">' +
             '<div class="form-group col-md-3">' +
-            '<label for="advance_date_' + index + '">Advance Date:</label>' +
+            '<label class="h6" for="advance_date_' + index + '">Advance Date:</label>' +
             '<input type="date" class="form-control" id="advance_date_' + index + '" name="advancedata[' + index + '][advance_date]" value="">' +
             '</div>' +
-            '<div id="timeslot-repeater-' + index + '" class="timeslot-repeater timeslot-container">' +
-            '<svg class="add-timeslot" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">'+
+            '<div id="timeslot-repeater-' + index + '" class="timeslot-repeater timeslot-container  col-md-9">' +
+            '<div class="add-timeslot" id="add_timeslot_m">'+
+            '<label class="h6 ml-1">Add Timeslots </label>'+
+            '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">'+
             '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>'+
             '<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>'+
-            '</svg><label class="h6 ml-1">Add Timeslots </label>'+
+            '</svg>'+
+            '</div>'+
             '<div class="form-row timeslot-row ">'+
-            '<div class="form-group col-md-2">'+
+            '<div class="form-group col-md-3">'+
             '<label>Start Time:</label>' +
             '<input type="time" class="form-control" name="advancedata[' + index + '][advance_timeslot][0][start_time]" value="">' +
             '</div>'+
-            '<div class="form-group col-md-2">'+
+            '<div class="form-group col-md-3">'+
             '<label>End Time:</label>' +
             '<input type="time" class="form-control" name="advancedata[' + index + '][advance_timeslot][0][end_time]" value="">' +
             '</div>'+
-            '<div class="form-group col-md-2"> '+
+            '<div class="form-group col-md-3"> '+
             '<label>Bookings:</label>' +
             '<input type="number" class="form-control" name="advancedata[' + index + '][advance_timeslot][0][bookings]" value="">' +
             '</div>'+
-            '<div class="form-group col-md-2"> '+
+            '<div class="form-group col-2 remove-timeslot-wrapper">'+
             '<svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" '+
             'height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">'+
             '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>'+
@@ -200,7 +203,7 @@ jQuery(document).ready(function($) {
             '</div>'+
             '</div>' +
             '</div>' +
-            '<button type="btn button" class="remove-row btn btn-light">Remove Date</button>' +
+            '<button type="button" class="remove-row btn btn-danger">Remove Date</button>' +
             '</div>';
 
         jQuery('#advance-meta-box').append(row);
@@ -213,19 +216,19 @@ jQuery(document).ready(function($) {
         var repeaterIndex = $repeaterRow.index();
 
         var timeslotRow = '<div class="form-row timeslot-row ">'+
-            '<div class="form-group col-md-2">'+
+            '<div class="form-group col-md-3">'+
             '<label>Start Time:</label>' +
             '<input type="time"  class="form-control"  name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][start_time]" value="">' +
             '</div>'+
-            '<div class="form-group col-md-2">'+
+            '<div class="form-group col-md-3">'+
             '<label>End Time:</label>' +
             '<input type="time"  class="form-control"  name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][end_time]" value="">' +
             '</div>'+
-            '<div class="form-group col-md-2"> '+
+            '<div class="form-group col-md-3"> '+
             '<label>Bookings:</label>' +
             '<input type="number"  class="form-control" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][bookings]" value="">' +
             '</div>'+
-            '<div class="form-group col-md-2"> '+
+            '<div class="form-group col-2 remove-timeslot-wrapper">'+
             '<svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" '+
             'height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">'+
             '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>'+
@@ -394,13 +397,18 @@ if (pageParam === "notification-settings") {
 
         });
     });
+  
     jQuery(document).ready(function() {
-        jQuery(document).on('submit', '#notifyform', function(event) {    
+        jQuery(document).on('submit', '.notifyform', function(event) {   
+           
             event.preventDefault();    
-            var form=jQuery('#notifyform').serialize();
+            var form= jQuery(this).serialize();
+            var index =  jQuery(this).data('id');
+            console.log(index);
             var formData=new FormData();
             formData.append('action','zfb_save_new_notification');
             formData.append('notification_data',form);
+            formData.append('editnotify', index);
             jQuery.ajax({
                 type: 'POST',
                 url: ajaxurl,
@@ -456,6 +464,7 @@ if (pageParam === "notification-settings") {
     jQuery(document).ready(function($) {
         // Check all checkbox click event
         $('#main-check-all').on('click', function() {
+            // alert("test");
             // Get the checked status of the main checkbox
             var isChecked = $(this).prop('checked');
             
@@ -523,10 +532,17 @@ if (pageParam === "notification-settings") {
         searching: true,
         ordering: true, // Enable column sorting
         aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
-        columnDefs: [{
-            targets: [4], // Column index for which sorting should be disabled
-            orderable: false
-        }],
+        columnDefs: [
+            {
+                // targets: [4], // Column index for which sorting should be disabled
+                // orderable: false
+            },
+            {
+                // targets: [1,2, 3, 4], // Column indexes for which width should be set
+                // width: '200px'
+            }
+            // Add more columnDefs to set widths for other columns if needed
+        ],
         responsive: true
         
         });
@@ -557,4 +573,39 @@ if (pageParam === "notification-settings") {
 
     });
 
+    jQuery(document).ready(function() {
+        var url = window.location.href;
+        var searchParams = new URLSearchParams(url);
+        
+        if (searchParams.has('booking_id') && searchParams.has('status')) {
+            var bookingId = searchParams.get('booking_id');
+            var status = searchParams.get('status');
+            
+            if (status === 'cancel') {
+                if (confirm("Are you sure you want to cancel this booking?")) {
+                    jQuery.ajax({
+                        url: link,
+                        type: "POST",
+                        data: { 
+                            action: "zfb_cancel_booking",
+                            bookingId: bookingId,
+                            status: status,
+                        },
+                        success: function(response) {
+                            console.log(response); // Log the response message
+                            // Display the response message on the page
+                            jQuery('#responseMsg').text(response);
+                        }
+                    });
+                } else {
+                    console.log('Booking cancellation canceled.');
+                }
+            } else {
+                console.log('Invalid status value.');
+            }
+        } else {
+            console.log('Invalid URL.');
+        }
+    });
+    
 }

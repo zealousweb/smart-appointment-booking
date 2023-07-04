@@ -4,7 +4,8 @@
 .date-advancerepeater.hidden {
   display: none;
 }
-#custom-meta-box-tabs .tab-navigation {
+#custom-meta-box-tabs .tab-navigation,
+.notification-page-main ul.nav-tabs{
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -15,7 +16,8 @@
 #custom-meta-box-tabs{
   margin-top: 15px;
 }
-#custom-meta-box-tabs .tab-navigation li {
+#custom-meta-box-tabs .tab-navigation li,
+.notification-page-main ul.nav-tabs li {
   /* flex-grow: 1; */
   border: 0;
   margin: 0 4px;
@@ -26,14 +28,17 @@
   color: #000;
   line-height: 1.5;
 }
-#custom-meta-box-tabs .tab-navigation li:first-child{
+#custom-meta-box-tabs .tab-navigation li:first-child,
+.notification-page-main ul.nav-tabs li:first-child{
   margin-left: 0;
 }
-#custom-meta-box-tabs .tab-navigation li:last-child{
+#custom-meta-box-tabs .tab-navigation li:last-child,
+.notification-page-main ul.nav-tabs li:last-child{
   margin-right: 0;
 }
 
-#custom-meta-box-tabs .tab-navigation a {
+#custom-meta-box-tabs .tab-navigation a ,
+.notification-page-main ul.nav-tabs a{
   text-decoration: none;
   font-size: 16px;
   line-height: 1.2;
@@ -255,10 +260,8 @@ input, textarea{
   width: 100% !important;
 }
 
-.component-edit-container .component-edit-tabs .card{
+.formbuilder .builder-sidebar  .card{
   padding: 0;
-  margin-top: 0;
-  border: 0;
 }
 .component-edit-container .component-edit-tabs .formio-component-tabs > .card > .card-header{
   padding: 0;
@@ -317,4 +320,62 @@ input, textarea{
   max-width: 33.33%;
   width: 100%;
   flex: 0 0 33.33%;
+}
+.notification-page-main .dataTables_length select.form-select {
+  padding-right: 25px;
+}
+.notification-page-main .dataTables_filter label{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+table.dataTable thead .sorting:nth-child(1){
+  width: 50px !important;
+  max-width: 50px !important;
+}
+table.dataTable thead .sorting:nth-child(2){
+  width: 70% !important;
+}
+table.dataTable thead .sorting:nth-child(3),
+table.dataTable thead .sorting:nth-child(4){
+  width: 150px !important;
+  width: 150px !important;
+  max-width: 150px !important;
+}
+#notifytable_wrapper table.dataTable thead th,
+#notifytable_wrapper table.dataTable tbody td{
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #ccc;
+}
+#notifytable_wrapper  table.dataTable.no-footer{
+  border-bottom: 0;
+}
+#content_notification  .notify-main-container > div{
+  border: 0 !important;
+}
+.timeslot-repeater .timeslot-row{
+  border-top: 1px solid #ccc;
+  margin-top: 10px;
+  padding-top: 5px;
+}
+.timeslot-repeater .timeslot-row .remove-timeslot-wrapper{
+  display: flex;
+  align-items: flex-end;  
+}
+.timeslot-repeater .timeslot-row .remove-timeslot-wrapper svg{
+  margin-bottom: 12px;
+}
+.timeslot-repeater .add-timeslot > label{
+  margin-right: 10px;  
+  margin-bottom: 5px;
+}
+#advance-meta-box #add-row{
+  margin-bottom: 10px;
+}
+.holiday-repeater .holidate-field{
+  margin-top: 5px;
+}
+#recurring_result > div{
+  margin-bottom: 20px;
 }

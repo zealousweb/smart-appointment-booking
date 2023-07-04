@@ -36,6 +36,10 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			add_action( 'wp_enqueue_scripts', array( $this, 'action__wp_enqueue_scripts' ));
 
 			add_shortcode('booking_form',array( $this, 'zealbms_get_booking_form' ));
+
+			add_action('wp_ajax_bms_zfb_cancel_booking', array( $this, 'zfb_cancel_booking' ) );
+			add_action('wp_ajax_nopriv_zfb_cancel_booking', array( $this, 'zfb_cancel_booking' ) );
+
 		}
 
 		/*
@@ -106,14 +110,17 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$slotcapacity = $_POST['slotcapacity'];
 			$bookedseats = $_POST['bookedseats'];
 			$form_id = $_POST['fid'];
+			$FormTitle = get_the_title($form_id);
 			$form_data = $_POST['form_data'];
+			// 	print_r($form_data['data']);
 			$enable_auto_approve = get_post_meta($form_id, 'enable_auto_approve', true);
 			$check_waiting = get_post_meta($form_id, 'waiting_list', true);
 			$no_of_seats = $this->get_available_seats_per_timeslot($timeslot, $booking_date);
-			$tot_no_of_seats =  $slotcapacity - $no_of_seats;
+			// $tot_no_of_seats =  $slotcapacity - $no_of_seats;
+			$tot_no_of_seats = $slotcapacity - $bookedseats;
 			$waiting_list = 'false';
-		
-			if ($tot_no_of_seats <= 0 || $no_of_seats === 'not_available') {
+			
+			if ($tot_no_of_seats < 0 || $no_of_seats === 'not_available' || $tot_no_of_seats === 0) {
 				if ($check_waiting) {
 					$register_booking = 'true';
 					$waiting_list = 'true';
@@ -140,23 +147,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				);
 		
 				$created_post_id = wp_insert_post($new_post);
-				if ($enable_auto_approve) {
-					if ($waiting_list === 'true') {
-						$status = 'waiting';
-						update_post_meta($created_post_id, 'entry_status', 'waiting');
-						$message = $this->zfb_send_notification($status, $created_post_id);
-
-					} else {
-						$status = 'booked';
-						update_post_meta($created_post_id, 'entry_status', 'completed');
-						$message = $this->zfb_send_notification($status, $created_post_id);
-					}
-				} else {
-					$status = 'pending';
-					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
-					$message = $this->zfb_send_notification($status, $created_post_id);
-					
-				}
+			
 				update_option('tot_bms_entries', $pid);
 				update_post_meta($created_post_id, 'bms_submission_data', $form_data);
 				update_post_meta($created_post_id, 'bms_form_id', $form_id);
@@ -165,20 +156,104 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				update_post_meta($created_post_id, 'booking_date', $booking_date);
 				// update_post_meta($created_post_id, 'totalbookings', $totalbookings);
 				update_post_meta($created_post_id, 'slotcapacity', $bookedseats);
-		
+				$submission_key_val = array();				
+				foreach($form_data['data'] as $form_key => $form_value){
+                    if($form_key !== 'submit'){
+						$submission_key_val[$form_key] = esc_attr($form_value);
+                    }
+                }
+				$explode_booking_date = explode('_',$booking_date);
+				$explode_timeslot = explode('-',$timeslot);
+
+				$get_user_mapping = get_post_meta($form_id, 'user_mapping', true);
+				
+				$getfirst_name = isset($get_user_mapping['first_name']) ? sanitize_text_field($get_user_mapping['first_name']) : '';
+				if ($getfirst_name) {
+					$first_name = $form_data['data'][$getfirst_name];					
+				}
+				$getlast_name = isset($get_user_mapping['last_name']) ? sanitize_text_field($get_user_mapping['last_name']) : '';
+				if ($getlast_name) {
+					$last_name =  $form_data['data'][$getlast_name];					
+				}
+				$getemail = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
+				if ($getemail) {
+					$emailTo =  $form_data['data'][$getemail];					
+				}
+				$getservice = isset($get_user_mapping['service']) ? sanitize_text_field($get_user_mapping['service']) : '';
+				if ($getservice) {
+					$service =  ucfirst($form_data['data'][$getservice]);					
+				}
+				$format_bookingdate = $explode_booking_date[4] . "-" . $explode_booking_date[2] . "-" . $explode_booking_date[3];
+				$converted_bookingdate = date('Y-m-d', strtotime($format_bookingdate));
+				
+				$encrypted_booking_id = base64_encode($created_post_id);
+				$cancelbooking_url = home_url('/cancel-booking/?booking_id=' . $encrypted_booking_id . '&status=cancel');
+
+				$prefixlabel = get_post_meta( $form_id, 'label_symbol', true );
+				$cost = get_post_meta( $form_id, 'cost', true );
+				$BookingDate = get_the_date( 'M d,Y', $form_id );
+
+				$other_label_val = array(
+					'FormId' => $form_id,
+					'BookingId' => $created_post_id,
+					'FormTitle' => $FormTitle,
+					'To' => $emailTo,
+					'FirstName' => $first_name,
+					'LastName' => $last_name,
+					'Timeslot' => $timeslot,
+					'BookingDate' => $BookingDate,
+					'BookingSeats' => $no_of_seats,
+					'BookedDate' =>$converted_bookingdate,					
+					'Service' => $service,
+					'prefixlabel' => $prefixlabel,
+					'cost' => $cost,					
+					'slotcapacity' => $slotcapacity,
+					'bookedseats' => $bookedseats,	
+					'form_data' => $form_data,
+					'no_of_seats' => $no_of_seats,
+					'tot_no_of_seats' => $tot_no_of_seats,
+					'StartTime' => $explode_timeslot[0],
+					'EndTime' => $explode_timeslot[1],
+					'CancelBooking' => $cancelbooking_url,
+				);
+
+				$listform_label_val = array_merge($submission_key_val, $other_label_val);
+				// echo "<pre>"; print_r($listform_label_val);
+				if ($enable_auto_approve) {
+					if ($waiting_list === 'true') {
+
+						$status = 'waiting';
+						$listform_label_val['Status'] = $status;
+						update_post_meta($created_post_id, 'entry_status', 'waiting');
+						$message = $this->zfb_send_notification($status,$form_id, $created_post_id, $listform_label_val );
+
+					} else {
+						
+						$status = 'booked';
+						$listform_label_val['Status'] = $status;
+						update_post_meta($created_post_id, 'entry_status', 'completed');
+						$message = $this->zfb_send_notification($status,$form_id,$created_post_id,$listform_label_val );
+					}
+				} else {
+					$status = 'pending';
+					$listform_label_val['Status'] = $status;
+					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
+					$message = $this->zfb_send_notification($status, $form_id, $created_post_id,$listform_label_val );
+
+				}
 				$confirmation = get_post_meta($form_id, 'confirmation', true);
 				$success_message = get_post_meta($form_id, 'your_field_key', true);
 				$formatted_message = wpautop($success_message);
 				$redirect_url = '';
 				
-				if ($confirmation == 'redirect_text') {
-					$wp_editor_value = get_post_meta($form_id, 'redirect_text', true);
-				} elseif ($confirmation == 'redirect_page') {
-					$redirect_page = get_post_meta($form_id, 'redirect_page', true);
-					$redirect_url = get_permalink($redirect_page);
-				} elseif ($confirmation == 'redirect_to') {
-					$redirect_url = get_post_meta($form_id, 'redirect_to', true);
-				}
+				// if ($confirmation == 'redirect_text') {
+				// 	$wp_editor_value = get_post_meta($form_id, 'redirect_text', true);
+				// } elseif ($confirmation == 'redirect_page') {
+				// 	$redirect_page = get_post_meta($form_id, 'redirect_page', true);
+				// 	$redirect_url = get_permalink($redirect_page);
+				// } elseif ($confirmation == 'redirect_to') {
+				// 	$redirect_url = get_post_meta($form_id, 'redirect_to', true);
+				// }
 				
 				// Send success response
 				wp_send_json_success(array(					
@@ -198,33 +273,132 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			
 			wp_die();
 		}
-		function zfb_send_notification($status, $post_id) {
-
-			$get_notification_array = get_post_meta($post_id, 'notification_data', true);		
+		function zfb_send_notification($status,$form_id, $post_id, $form_data	) {
+			
+			$get_notification_array = get_post_meta($form_id, 'notification_data', true);	
+			
 			foreach ($get_notification_array as $notification) {
+				
 				if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
-					$to = $notification['to'];
+					// echo $status;
+					$check_to = $notification['to'];
+					$check_replyto = $notification['replyto'];
+					$check_bcc = $notification['bcc'];
+					$check_cc = $notification['cc'];
+					$check_from = $notification['from'];
 					$subject = $notification['subject'];
-					$body = $notification['mail_body'];
-					$headers = array(
-						'Content-Type: text/html; charset=UTF-8',
-						'From: ' . $notification['from'],
-						'Reply-To: ' . $notification['replyto'],
-						'Bcc: ' . $notification['bcc'],
-						'Cc: ' . $notification['cc']
+					$check_body = $notification['mail_body'];
+					
+					$shortcodesArray = $this->front_get_shortcodes($form_id);
+
+					$to = $this->check_shortcode_exist($check_to,$form_id, $form_data,$shortcodesArray );
+					$from = $this->check_shortcode_exist($check_from,$form_id, $form_data,$shortcodesArray );
+					$replyto = $this->check_shortcode_exist($check_replyto,$form_id, $form_data,$shortcodesArray );
+					$bcc = $this->check_shortcode_exist($check_bcc,$form_id, $form_data ,$shortcodesArray );
+					$cc = $this->check_shortcode_exist($check_cc,$form_id, $form_data,$shortcodesArray );
+					$check_body = $this->check_shortcodes_exist_in_editor($check_body,$form_id, $form_data,$shortcodesArray );
+				
+					
+					$notification['use_html'];
+					$headers = array(						
+						'From: ' . $from,
+						'Reply-To: ' . $replyto,
+						'Bcc: ' . $bcc,
+						'Cc: ' . $cc
 					);
-		
-					$result = wp_mail($to, $subject, $body, $headers);
-		
+
+					if($notification['use_html'] == 1){
+						$headers[] = 'Content-Type: text/html; charset=UTF-8';
+					}else{
+						$headers[] = 'Content-Type: text/plain; charset=UTF-8';
+					}
+					$result = wp_mail($to, $subject, $check_body, $headers);		
 					if ($result === true) {
 						return 'Email sent successfully';
 					} else {
 						return 'Failed to send email';
 					}
 				}
+				
 			}
 		
 			return 'No matching notification found';
+		}
+		function check_shortcode_exist($fieldValue, $form_id, $form_data,$dataArray) {
+			
+			$fieldValue_exploded = explode(',', $fieldValue);
+			$processed_fieldValue = [];
+		
+			foreach ($fieldValue_exploded as $index => $Value_exploded) {
+				$Value_exploded = trim($Value_exploded);
+				foreach ($dataArray as $shortcode) {
+					if (strpos($Value_exploded, $shortcode) !== false) {
+						if ($shortcode === '[To]') {
+							$get_user_mapping = get_post_meta($form_id, 'user_mapping', true);
+							$email = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
+							if ($email) {
+								$to_email = $form_data[$email];
+								if (is_email($to_email)) {
+									$Value_exploded = str_replace('[To]', $to_email, $Value_exploded);
+								} else {
+									$Value_exploded = null; // This avoids the need for duplicate unset() statements 
+									break;
+								}
+							} else {
+								$Value_exploded = null;
+								break;
+							}
+						} else {
+							$shcodeWithoutBrackets = str_replace(['[', ']'], '', $shortcode);
+							$othershval = $form_data[$shcodeWithoutBrackets];
+							if ($othershval && is_email($othershval)) {
+								$Value_exploded = str_replace($shortcode, $othershval, $Value_exploded);
+							} else {
+								$Value_exploded = null;
+								break;
+							}
+						}
+					}
+				}
+				if ($Value_exploded !== null) {
+					$processed_fieldValue[] = $Value_exploded;
+				}
+			}
+		
+			$to = implode(',', $processed_fieldValue);
+			return $to; 
+		}
+
+		function check_shortcodes_exist_in_editor($fieldValue, $form_id, $form_data, $shortcodes) {
+			foreach ($shortcodes as $shortcode) {
+				$shcodeWithoutBrackets = str_replace(['[', ']'], '', $shortcode);
+				$shortcodePattern = '/\[' . preg_quote($shcodeWithoutBrackets, '/') . '\]/';
+		
+				if (preg_match($shortcodePattern, $fieldValue)) {
+
+					$keyExists = isset($form_data[$shcodeWithoutBrackets]);
+					if ($keyExists) {
+						$fieldValue = str_replace('[' . $shcodeWithoutBrackets . ']', $form_data[$shcodeWithoutBrackets], $fieldValue);
+					} else {
+						$fieldValue = str_replace('[' . $shcodeWithoutBrackets . ']', '', $fieldValue);
+					}
+				}
+			}
+			echo $fieldValue;
+			return $fieldValue;
+		}
+		
+		function front_get_shortcodes($form_id){
+			$shortcode_list = array();
+			$form_data1 = get_post_meta( $form_id, '_my_meta_value_key', true ); 
+			$form_data1=json_decode($form_data1);
+			foreach ($form_data1 as $obj) { 
+				$shortcode_list[] = "[".$obj->key."]";
+			}
+			$tobe_merged = array('[FormId]', '[BookingId]', '[Status]', '[FormTitle]', '[To]', '[FirstName]', '[LastName]', '[Timeslot]', '[BookedSeats]', '[BookingDate]', '[BookedDate]', '[Service]', '[prefixlabel]', '[cost]', '[StartTime]', '[EndTime]', '[CancelBooking]');
+			$shortcode_list = array_merge($tobe_merged,$shortcode_list);
+
+			return $shortcode_list;
 		}
 		function processDate($post_id = null, $date = null) {
 			if ($post_id === null) {
@@ -238,7 +412,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					$todays_date = date("Y-m-d");
                     $selected_date = get_post_meta($post_id, 'selected_date', true);
 					$selected_date = date("Y-m-d", strtotime($selected_date));
-					$date;
+					
                     if($date < $selected_date || $date < $todays_date){
                         $arrayofdates = array();
                     }else{
@@ -255,8 +429,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                             foreach ($remaining_days as $wdays) {
                                 $weekdays_num[] = date('N', strtotime($wdays));
                             }
-                            // return $weekdays_num;
-
+                          
                         }elseif ($recurring_type == 'weekdays') {
                             
                             foreach ($weekdays as $wdays) {
@@ -273,7 +446,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                                 $weekdays_num[] = date('N', strtotime($wdays));
                             }
                         }
-
                         if($recurring_type == 'advanced'){
                             $advancedata = get_post_meta($post_id, 'advancedata', true);
                             foreach ($advancedata as $index => $data) {
@@ -800,21 +972,21 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 													var redirectPage = response.data.redirect_page;
 													var wpEditorValue = response.data.wp_editor_value;
 													var redirectUrl = response.data.redirect_url;
-													// Check the confirmation type
-													if (confirmationType === 'redirect_text') {
-														// Replace div content with wpEditorValue or message
-														jQuery('#calender_reload').html(wpEditorValue);
-													} else if (confirmationType === 'redirect_to') {
-														jQuery('#calender_reload').html('<p>' + message + '</p>');
-														setTimeout(function() {
-															window.location.href = redirectUrl;
-														}, 2000); // Redirect after 3 seconds (adjust as needed)
-													} else if (confirmationType === 'redirect_page') {
-														jQuery('#calender_reload').html('<p>' + message + '</p>');
-														setTimeout(function() {
-															window.location.href = redirectUrl;
-														}, 2000); // Redirect after 3 seconds (adjust as needed)
-													}
+													// // Check the confirmation type
+													// if (confirmationType === 'redirect_text') {
+													// 	// Replace div content with wpEditorValue or message
+													// 	jQuery('#calender_reload').html(wpEditorValue);
+													// } else if (confirmationType === 'redirect_to') {
+													// 	jQuery('#calender_reload').html('<p>' + message + '</p>');
+													// 	setTimeout(function() {
+													// 		window.location.href = redirectUrl;
+													// 	}, 2000); // Redirect after 3 seconds (adjust as needed)
+													// } else if (confirmationType === 'redirect_page') {
+													// 	jQuery('#calender_reload').html('<p>' + message + '</p>');
+													// 	setTimeout(function() {
+													// 		window.location.href = redirectUrl;
+													// 	}, 2000); // Redirect after 3 seconds (adjust as needed)
+													// }
 													jQuery('#nextButton').css('display', 'none');
 													jQuery('#backButton').css('display', 'none');
 													
@@ -1016,8 +1188,30 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				}
 				wp_die();
 		  }
+		function zfb_cancel_booking(){
 
-	}//eoc
+			$encrypt_bookingId = $_POST['bookingId'];	
+			if (isset($_POST['bookingId']) && isset($_POST['status'])) {
+				$booking_id = base64_decode($encrypt_bookingId);
+				$status = $_POST['status'];
+
+				if ($status === 'cancelled') {
+					update_post_meta($booking_id, 'entry_status', 'cancelled');
+					$msg = __('Booking has been cancelled successfully','textdomain');
+					
+				} else {
+					$msg = __('Booking has been cancelled successfully','textdomain');
+					
+				}
+			} else {
+				$msg = __('Invalid URL.','textdomain');
+				
+			}
+
+			wp_die();
+		}
+
+	}
 
 	add_action( 'plugins_loaded', function() {
 		// PB()->front->action = new PB_Front_Action;
