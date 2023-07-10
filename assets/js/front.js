@@ -181,3 +181,47 @@ jQuery(document).ready(function($) {
   updateButtons();
   showStep(currentStep);
 });
+function cancelbooking_getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+//cancel booking shortcode
+jQuery(document).ready(function($) {
+  $('.booking-cancellation-buttons .btn-yes').on('click', function() {
+    console.log("test");
+      var bookingId = cancelbooking_getQueryParam("booking_id");
+      var bookingstatus = cancelbooking_getQueryParam("status");
+
+      if (bookingId && bookingstatus === 'cancel') {
+          $.ajax({
+              url: myAjax.ajaxurl,
+              type: 'post',
+              data: {
+                  action: 'cancel_booking_shortcode',
+                  bookingId: bookingId
+              },
+              success: function(response) {
+                // console.log(response.message);
+                  if (response.message) {
+                      $('.booking-cancellation-card').html('<p>'+ response.message+'</p>');
+                  } else {
+                      $('#msg_booking_cancel').html('<p>Failed to cancel the booking. Please try again.</p>');
+                      
+                  }
+              },
+              error: function(xhr, status, error) {
+                  console.log(xhr.responseText);
+              }
+          });
+      } else {
+          $('#msg_booking_cancel').html('<p>Unable to cancel the booking.</p>');
+      }
+  });
+});
+jQuery(document).ready(function($) {
+  jQuery('#nextButton').prop('disabled', true); 
+  $('#zfb-slot-list li').click(function() {      
+      var isSelected = $(this).hasClass('selected');     
+      $('#nextButton').prop('disabled', !isSelected);
+  }); 
+});

@@ -215,7 +215,7 @@ ul#zfb-slot-list {
 }
 
 .month-navigation .header-calender {
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	border: 1px solid gray;
 	padding: 5px;
 	display: -webkit-box;
@@ -227,6 +227,7 @@ ul#zfb-slot-list {
 	-webkit-box-align: center;
 	-ms-flex-align: center;
 	align-items: center;
+	/* background-color: #ffffff; */
 }
 
 .header-calender .arrow {
@@ -297,3 +298,44 @@ ul#zfb-slot-list {
     padding: 0 15px;
   }
 }
+/** cancel booking **/
+.booking-cancellation-card {
+	background: #ffffff;
+	padding: 20px;
+	border-radius: 5px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.booking-cancellation-card label {
+	font-size: 18px;
+	margin-bottom: 10px;
+}
+.booking-cancellation-buttons button {
+	padding: 8px 12px;
+	font-size: 16px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.booking-cancellation-buttons button.btn-yes {
+	background: #4caf50;
+	color: #ffffff;
+}
+
+.booking-cancellation-buttons button.btn-no {
+	background: #ff0000;
+	color: #ffffff;
+}
+/*form response */
+#formio_res_msg {
+	background-color: #f8f9fa;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	padding: 10px;
+	margin-top: 10px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  #formio_res_msg > * {
+	margin-top: 10px;
+  }  
+  

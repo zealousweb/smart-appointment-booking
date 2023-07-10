@@ -83,23 +83,25 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         /**
          * Display BMS submission Entries
          */ 
-        function bms_entries_render_meta_box_content( $post ){
+        function zfb_entries_render_meta_box_content( $post ){
             
             $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );	
             $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
+
             $timeslot = get_post_meta( $post->ID, 'timeslot', true );
             // echo "<br>".	
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
+           
+            
             $array_of_date = explode('_',$booking_date);
-            // echo "<pre>";
-            // print_r($array_of_date);
-            $bookedmonth = $array_of_date[2];
-            $bookedday =$array_of_date[3];
-            $bookedyear =$array_of_date[4];
-            $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
-            // $totalbookings = get_post_meta( $post->ID, 'totalbookings', true );	
-            $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
-
+            if(isset($array_of_date) && !empty( $array_of_date[2]) && !empty( $array_of_date[3]) && !empty( $array_of_date[4])){
+                $bookedmonth = $array_of_date[2];
+                $bookedday =$array_of_date[3];
+                $bookedyear =$array_of_date[4];
+                $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
+                // $totalbookings = get_post_meta( $post->ID, 'totalbookings', true );	
+                $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
+            }
             // echo $checkseats = $this->get_available_seats_per_timeslot($timeslot,$booked_date);
 
             if(!empty($form_id)){ 
@@ -120,28 +122,29 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             }elseif($status == 'expired'){
                 $status = "Expired";
             }
+           
             ?>
-            <h3>General</h3>
             <ul>
                 <li><?php echo __('Form Title', 'textdomain')." : ".$booking_form_title; ?></li>
+                <?php  if(isset($date_generated) ){ ?>
                 <li><?php echo __('Date Generated', 'textdomain')." : ".$date_generated; ?></li>
+                <?php } ?>
+                <?php  if(isset($status) ){ ?>
                 <li><?php echo __('Status', 'textdomain')." : ".$status; ?></li>
-                <li><?php echo __('Customer', 'textdomain'); ?> : <?php echo __('Guest', 'textdomain');; ?></li>
+                <?php } ?>
+                <li><?php echo __('Customer', 'textdomain'); ?> : <?php echo __('Guest', 'textdomain'); ?></li>
+                <?php  if( isset($booked_date)){ ?>
                 <li><?php echo __('Booking Date', 'textdomain'); ?> : <?php echo __($booked_date, 'textdomain');; ?></li>
+                <?php } ?>
+                <?php  if( isset($timeslot) && !empty($timeslot)){ ?>
                 <li><?php echo __('Timeslot', 'textdomain'); ?> : <?php echo __($timeslot, 'textdomain'); ?></li>
+                <?php } ?>
+                <?php  if(isset($slotcapacity)){ ?>
                 <li><?php echo __('No of Slots Booked', 'textdomain'); ?> : <?php echo __($slotcapacity, 'textdomain'); ?></li>
-            </ul>   
-            <h3>Booking Details</h3>
-            <ul>
-                <?php
-                foreach($form_data['data'] as $form_key => $form_value){
-                    if($form_key !== 'submit'){
-                        echo "<li>".$form_key." : ".$form_value."</li>";
-                    }
-                }
-                ?>
-            </ul>
+                <?php } ?>
+            </ul>  
             <?php
+           
         }
 
         /**
@@ -227,15 +230,14 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         function bms_repeat_appointment($post) {
 
             // Retrieve saved meta box values
-            $title = get_post_meta($post->ID, 'title', true);
-            $description = get_post_meta($post->ID, 'description', true);
+            $title = get_post_meta($post->ID, 'cal_title', true);
+            $description = get_post_meta($post->ID, 'cal_description', true);
             $enable_booking = get_post_meta($post->ID, 'enable_booking', true);
             $weekdays = get_post_meta($post->ID, 'weekdays', true);
             // $weekend = get_post_meta($post->ID, 'weekend', true);
                         
             $appointment_type = get_post_meta($post->ID, 'appointment_type', true);
             $virtual_link = get_post_meta($post->ID, 'virtual_link', true);
-            $redirect_to= get_post_meta($post->ID, 'redirect_to', true);
             $symbol = get_post_meta($post->ID, 'label_symbol', true);
             $cost = get_post_meta($post->ID, 'cost', true);
             
@@ -289,12 +291,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             // $end_repeats_after = get_post_meta($post->ID, 'end_repeats_after',true);
             $recur_weekdays = get_post_meta($post->ID, 'recur_weekdays', true);
             
-            //section 3
            
-            $redirect_url = get_post_meta($post->ID, 'redirect_url', true);
-            $redirect_page = get_post_meta($post->ID, 'redirect_page', true);
-            $redirect_text = get_post_meta($post->ID, 'redirect_text', true);
-            $confirmation = get_post_meta($post->ID, 'confirmation', true);  
             ?>
             <div id="custom-meta-box-tabs">
                 <!-- Tab navigations -->
@@ -303,7 +300,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <li class="nav-link"><a href="#tab1">General</a></li>
                     <li class="nav-link"><a href="#tab2">Timeslots</a></li>
                     <li class="nav-link"><a href="#tab3">Recurring Appointment</a></li>
-                    <li class="nav-link"><a href="#tab4">Confirmations</a></li>
+                  
                     <li class="nav-link"><a href="#tab5">Preview</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
@@ -319,12 +316,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="title" class="h6">Enter Calender Title</label>
-                                    <input class="form-control" type="text" name="title" value="<?php echo esc_attr($title); ?>" width="30px" >
+                                    <input class="form-control" type="text" name="cal_title" value="<?php echo esc_attr($title); ?>" width="30px" >
                                 </div>
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label for="timezone"  class="h6">Description</label>
-                                    <textarea class="form-control" rows="3" cols="50"><?php echo $description; ?></textarea>
+                                    <textarea class="form-control" rows="3" cols="50" name="cal_description"><?php echo $description; ?></textarea>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
@@ -409,7 +406,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
-                                    <input class="form-control" type="text" name="timezone" value="<?php echo esc_attr($timezone); ?>" >
+                                    <?php echo $this->timezone_dropdown($post->ID); ?>
                                 </div> 
                                 
                             <!-- </div> -->
@@ -517,7 +514,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                     <option value="daily" <?php echo selected('daily', $recurring_type, false); ?>>Daily</option>
                                     <option value="weekend" <?php echo selected('weekend', $recurring_type, false); ?>>Every Weekend</option>
                                     <option value="weekdays" <?php echo selected('weekdays', $recurring_type, false); ?>>Every Weekday</option>
-                                    <option value="certain_weekdays" <?php echo selected('certain_weekdays', $recurring_type, false); ?>>Certain Weekdays</option>
+                                    <option value="certain_weekdays" <?php echo selected('certain_weekdays', $recurring_type, false); ?>>Certain Days</option>
                                     <option value="advanced" <?php echo selected('advanced', $recurring_type, false); ?>>Advanced</option>
                                 </select>
                             </div>
@@ -634,85 +631,6 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         </div>
                     <!-- </div> -->
                 </div>
-                <div id="tab4" class="tab-content"> 
-                    <?php
-                    if ($confirmation == 'redirect_text'){
-                        $hiddenredirect_to = 'hidden';
-                        $hiddenredirect_page = 'hidden';
-                        
-                    }elseif($confirmation == 'redirect_page'){
-                          $hiddenredirect_text = 'hidden';
-                         $hiddenredirect_to = 'hidden';
-                       
-                    }elseif($confirmation == 'redirect_to'){
-                          $hiddenredirect_text = 'hidden';
-                         $hiddenredirect_page = 'hidden';
-                       
-                    }
-                    if(empty($confirmation) || !isset($confirmation)){
-                        $hiddenredirect_text = "hidden";
-                        $hiddenredirect_page = "hidden";
-                        $hiddenredirect_to = "hidden";
-                    }
-                    ?> 
-                        <div class="form-check form-check-inline ">
-                            <input  type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
-                            <label class="form-check-label" for="radioText">
-                                Text
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input  type="radio" name="confirmation" id="radioPage" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>>
-                            <label class="form-check-label" for="radioPage">
-                                Page
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input type="radio" name="confirmation" id="radioRedirect" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>>
-                            <label class="form-check-label" for="radioRedirect">
-                                Redirect to
-                            </label>
-                        </div>
-                
-                        <!-- Class is used for on change event display div: redirectto_main redirect_page , redirectto_main redirect_text, redirectto_main redirect_to -->
-                        <div class="form-group redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?> ">
-                            <?php
-                                wp_editor($redirect_text, 'redirect_text', array(
-                                    'textarea_name' => 'redirect_text',
-                                ));
-                            ?>
-                        </div>
-                        <div class="form-group redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?>  ">
-                            <label  class="h6">Select a page:</label>
-                            <input type="text" id="redirectpage-search" placeholder="Search...">
-                            <select name="redirect_page" id="redirectpage-dropdown">
-                                <option value="">Select a page</option>
-                                <?php
-                                $args = array(
-                                    'post_type' => 'page',
-                                    'posts_per_page' => -1,
-                                    'orderby' => 'title',
-                                    'order' => 'ASC'
-                                );
-                                $pages = get_posts($args);
-                                foreach ($pages as $page) {
-                                    $selected = '';
-                                    $selected_page_id = get_post_meta(get_the_ID(), 'selected_page', true);
-                                    if ($selected_page_id == $page->ID) {
-                                        $selected = 'selected="selected"';
-                                    }
-                                    echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="form-group redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?> ">
-                            <label class="h6"><?php echo __('Enter Url: ', 'textdomain'); ?></label>
-                            <input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
-                            <small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
-                        </div>  
-                    
-                </div>
                 
                 <div id="tab5" class="tab-content">
                     <div class="preview_main">
@@ -744,6 +662,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             if($get_type !== 'bms_forms'){
                 return;
             }
+            if (isset($_POST['cal_title'])) {
+                update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
+            } 
+            if (isset($_POST['cal_description'])) {
+                update_post_meta($post_id, 'cal_description', $_POST['cal_description']);
+            } 
             // Section Tab 1 
             // Check if the enable_booking field is set and save the value
             if (isset($_POST['enable_booking'])) {
@@ -768,10 +692,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $link_value = sanitize_text_field($_POST['virtual_link']);
                 update_post_meta($post_id, 'virtual_link', $link_value);
             }
-            if (isset($_POST['redirect_to'])) {
-                $link_value = sanitize_text_field($_POST['redirect_to']);
-                update_post_meta($post_id, 'redirect_to', $link_value);
-            }
+           
              //Symbol
              if ( isset( $_POST['label_symbol'] ) ) {
                 $label_symbol = $_POST['label_symbol'];
@@ -789,7 +710,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             }
             //Start Time
             if ( isset( $_POST['start_time'] ) ) {
-                $time_slot = $_POST['start_time'];
+              $time_slot = $_POST['start_time'];
                 // $sanitized_start_time = array(
                 //     'hours' => sanitize_text_field( $time_slot['hours'] ),
                 //     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
@@ -934,23 +855,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $end_repeats_after = sanitize_text_field($_POST['end_repeats_after']);
                 update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
             }
-            //section 3
-            if (isset($_POST['confirmation'])) {
-                $redirect_url = sanitize_text_field($_POST['confirmation']);
-                update_post_meta($post_id, 'confirmation', $redirect_url);
-            }
-            if (isset($_POST['redirect_text'])) {
-                $wp_editor_value = wp_kses_post($_POST['redirect_text']);
-                update_post_meta($post_id, 'redirect_text', $wp_editor_value);
-            }
-            if (isset($_POST['redirect_page'])) {
-                $redirect_page = sanitize_text_field($_POST['redirect_page']);
-                update_post_meta($post_id, 'redirect_page', $redirect_page);
-            }
-            if (isset($_POST['redirect_url'])) {
-                $redirect_url = sanitize_text_field($_POST['redirect_url']);
-                update_post_meta($post_id, 'redirect_url', $redirect_url);
-            }
+          
          }
         /**
 	 	* Adds the meta box container.
@@ -962,8 +867,17 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 			if ( in_array( $post_type, $post_types ) ) {
 				add_meta_box(
 					'form_submission_data',
-					__( 'Form Builder Library', 'textdomain' ),
-					array( $this, 'bms_entries_render_meta_box_content' ),
+					__( 'General Details', 'textdomain' ),
+					array( $this, 'zfb_entries_render_meta_box_content' ),
+					$post_type,
+					'advanced',
+					'high'
+				);
+
+                add_meta_box(
+					'edit_form_data',
+					__( 'Edit Forms Details', 'textdomain' ),
+					array( $this, 'zfb_edit_form_details' ),
 					$post_type,
 					'advanced',
 					'high'
@@ -976,23 +890,597 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 
 				add_meta_box(
 					'create_bms_form',
-					__( 'BMS Form', 'textdomain' ),
+					__( 'Form Configuration', 'textdomain' ),
 					array( $this, 'formio_render_meta_box_content' ),
 					$post_type,
-					'advanced',
-					'high'
+					'normal',
+                    'high'
 				);
 
 				add_meta_box(
 					'appointment_setting', // Unique ID
-					__( 'Appointment Setting', 'textdomain' ),
+					__( 'Booking Configuration', 'textdomain' ),
 					array( $this, 'bms_repeat_appointment' ),
 					$post_type,
-					'normal', // Context
-					'default' // Priority
+					'normal',
+                    'high'
 				);
 			}
 		}
+        function zfb_edit_form_details($post){
+            // echo $post_id;
+            $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
+            $form_schema = get_post_meta($form_id, '_my_meta_value_key', true);
+            $form_data = get_post_meta($post->ID, 'bms_submission_data', true );
+            //  echo "<pre>";print_r( $form_data );
+			if ($form_schema) {
+                ?>
+               <div id="formio"></div>
+
+                <script>
+                var myScriptData = <?php echo $form_schema; ?>;                                                          
+                var value = myScriptData;
+                var entryData = <?php echo json_encode($form_data['data']); ?>; // Extract the form data from the entry data
+
+                Formio.createForm(document.getElementById('formio'), {
+                    components: value,
+                    readOnly: false, // Enable editing
+                    noAlerts: true, // Disable default Form.io alerts
+                    options: {
+                    noSubmit: true // Disable form submission
+                    }
+                }).then(function(form) {
+                    form.setSubmission({
+                    data: entryData // Set the pre-filled entry data
+                    });
+                    form.redraw();
+                    form.on('submit', function(submission) {
+                    event.preventDefault();
+
+                    // Retrieve the entry ID
+                    var entryId = <?php echo $post->ID; ?>;
+
+                    // Retrieve the form field values from the submission
+                    var updatedData = submission.data;
+
+                    // Perform AJAX request to update the entry data in the post meta
+                    jQuery.ajax({
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        type: 'post',
+                        data: {
+                        action: 'update_form_entry_data', // AJAX action to handle the update
+                        entry_id: entryId,
+                        updated_data: updatedData
+                        },
+                        success: function(response) {
+                        if (response.success) {
+                            // Handle success message or redirect after update
+                            console.log('Form data updated successfully');
+                        } else {
+                            // Handle error response
+                            console.log('Failed to update form data');
+                        }
+                        },
+                        error: function() {
+                        // Handle AJAX error
+                        console.log('Failed to update form data');
+                        }
+                    });
+
+                    return false;
+                    });
+
+                });
+                </script>
+
+             <?php
+
+            }
+        }
+        function timezone_dropdown($post_id){
+            $get_timezone_value = get_post_meta( $post_id,'timezone',true);
+            $dropdown_timezone = '<select name="timezone" id="zfb-timezone">
+            <optgroup label="Africa">
+            <option value="Africa/Abidjan">Abidjan</option>
+            <option value="Africa/Accra">Accra</option>
+            <option value="Africa/Addis_Ababa">Addis Ababa</option>
+            <option value="Africa/Algiers">Algiers</option>
+            <option value="Africa/Asmara">Asmara</option>
+            <option value="Africa/Bamako">Bamako</option>
+            <option value="Africa/Bangui">Bangui</option>
+            <option value="Africa/Banjul">Banjul</option>
+            <option value="Africa/Bissau">Bissau</option>
+            <option value="Africa/Blantyre">Blantyre</option>
+            <option value="Africa/Brazzaville">Brazzaville</option>
+            <option value="Africa/Bujumbura">Bujumbura</option>
+            <option value="Africa/Cairo">Cairo</option>
+            <option value="Africa/Casablanca">Casablanca</option>
+            <option value="Africa/Ceuta">Ceuta</option>
+            <option value="Africa/Conakry">Conakry</option>
+            <option value="Africa/Dakar">Dakar</option>
+            <option value="Africa/Dar_es_Salaam">Dar es Salaam</option>
+            <option value="Africa/Djibouti">Djibouti</option>
+            <option value="Africa/Douala">Douala</option>
+            <option value="Africa/El_Aaiun">El Aaiun</option>
+            <option value="Africa/Freetown">Freetown</option>
+            <option value="Africa/Gaborone">Gaborone</option>
+            <option value="Africa/Harare">Harare</option>
+            <option value="Africa/Johannesburg">Johannesburg</option>
+            <option value="Africa/Juba">Juba</option>
+            <option value="Africa/Kampala">Kampala</option>
+            <option value="Africa/Khartoum">Khartoum</option>
+            <option value="Africa/Kigali">Kigali</option>
+            <option value="Africa/Kinshasa">Kinshasa</option>
+            <option value="Africa/Lagos">Lagos</option>
+            <option value="Africa/Libreville">Libreville</option>
+            <option value="Africa/Lome">Lome</option>
+            <option value="Africa/Luanda">Luanda</option>
+            <option value="Africa/Lubumbashi">Lubumbashi</option>
+            <option value="Africa/Lusaka">Lusaka</option>
+            <option value="Africa/Malabo">Malabo</option>
+            <option value="Africa/Maputo">Maputo</option>
+            <option value="Africa/Maseru">Maseru</option>
+            <option value="Africa/Mbabane">Mbabane</option>
+            <option value="Africa/Mogadishu">Mogadishu</option>
+            <option value="Africa/Monrovia">Monrovia</option>
+            <option value="Africa/Nairobi">Nairobi</option>
+            <option value="Africa/Ndjamena">Ndjamena</option>
+            <option value="Africa/Niamey">Niamey</option>
+            <option value="Africa/Nouakchott">Nouakchott</option>
+            <option value="Africa/Ouagadougou">Ouagadougou</option>
+            <option value="Africa/Porto-Novo">Porto-Novo</option>
+            <option value="Africa/Sao_Tome">Sao Tome</option>
+            <option value="Africa/Tripoli">Tripoli</option>
+            <option value="Africa/Tunis">Tunis</option>
+            <option value="Africa/Windhoek">Windhoek</option>
+            </optgroup>
+            <optgroup label="America">
+            <option value="America/Adak">Adak</option>
+            <option value="America/Anchorage">Anchorage</option>
+            <option value="America/Anguilla">Anguilla</option>
+            <option value="America/Antigua">Antigua</option>
+            <option value="America/Araguaina">Araguaina</option>
+            <option value="America/Argentina/Buenos_Aires">Argentina - Buenos Aires</option>
+            <option value="America/Argentina/Catamarca">Argentina - Catamarca</option>
+            <option value="America/Argentina/Cordoba">Argentina - Cordoba</option>
+            <option value="America/Argentina/Jujuy">Argentina - Jujuy</option>
+            <option value="America/Argentina/La_Rioja">Argentina - La Rioja</option>
+            <option value="America/Argentina/Mendoza">Argentina - Mendoza</option>
+            <option value="America/Argentina/Rio_Gallegos">Argentina - Rio Gallegos</option>
+            <option value="America/Argentina/Salta">Argentina - Salta</option>
+            <option value="America/Argentina/San_Juan">Argentina - San Juan</option>
+            <option value="America/Argentina/San_Luis">Argentina - San Luis</option>
+            <option value="America/Argentina/Tucuman">Argentina - Tucuman</option>
+            <option value="America/Argentina/Ushuaia">Argentina - Ushuaia</option>
+            <option value="America/Aruba">Aruba</option>
+            <option value="America/Asuncion">Asuncion</option>
+            <option value="America/Atikokan">Atikokan</option>
+            <option value="America/Bahia">Bahia</option>
+            <option value="America/Bahia_Banderas">Bahia Banderas</option>
+            <option value="America/Barbados">Barbados</option>
+            <option value="America/Belem">Belem</option>
+            <option value="America/Belize">Belize</option>
+            <option value="America/Blanc-Sablon">Blanc-Sablon</option>
+            <option value="America/Boa_Vista">Boa Vista</option>
+            <option value="America/Bogota">Bogota</option>
+            <option value="America/Boise">Boise</option>
+            <option value="America/Cambridge_Bay">Cambridge Bay</option>
+            <option value="America/Campo_Grande">Campo Grande</option>
+            <option value="America/Cancun">Cancun</option>
+            <option value="America/Caracas">Caracas</option>
+            <option value="America/Cayenne">Cayenne</option>
+            <option value="America/Cayman">Cayman</option>
+            <option value="America/Chicago">Chicago</option>
+            <option value="America/Chihuahua">Chihuahua</option>
+            <option value="America/Ciudad_Juarez">Ciudad Juarez</option>
+            <option value="America/Costa_Rica">Costa Rica</option>
+            <option value="America/Creston">Creston</option>
+            <option value="America/Cuiaba">Cuiaba</option>
+            <option value="America/Curacao">Curacao</option>
+            <option value="America/Danmarkshavn">Danmarkshavn</option>
+            <option value="America/Dawson">Dawson</option>
+            <option value="America/Dawson_Creek">Dawson Creek</option>
+            <option value="America/Denver">Denver</option>
+            <option value="America/Detroit">Detroit</option>
+            <option value="America/Dominica">Dominica</option>
+            <option value="America/Edmonton">Edmonton</option>
+            <option value="America/Eirunepe">Eirunepe</option>
+            <option value="America/El_Salvador">El Salvador</option>
+            <option value="America/Fortaleza">Fortaleza</option>
+            <option value="America/Fort_Nelson">Fort Nelson</option>
+            <option value="America/Glace_Bay">Glace Bay</option>
+            <option value="America/Goose_Bay">Goose Bay</option>
+            <option value="America/Grand_Turk">Grand Turk</option>
+            <option value="America/Grenada">Grenada</option>
+            <option value="America/Guadeloupe">Guadeloupe</option>
+            <option value="America/Guatemala">Guatemala</option>
+            <option value="America/Guayaquil">Guayaquil</option>
+            <option value="America/Guyana">Guyana</option>
+            <option value="America/Halifax">Halifax</option>
+            <option value="America/Havana">Havana</option>
+            <option value="America/Hermosillo">Hermosillo</option>
+            <option value="America/Indiana/Indianapolis">Indiana - Indianapolis</option>
+            <option value="America/Indiana/Knox">Indiana - Knox</option>
+            <option value="America/Indiana/Marengo">Indiana - Marengo</option>
+            <option value="America/Indiana/Petersburg">Indiana - Petersburg</option>
+            <option value="America/Indiana/Tell_City">Indiana - Tell City</option>
+            <option value="America/Indiana/Vevay">Indiana - Vevay</option>
+            <option value="America/Indiana/Vincennes">Indiana - Vincennes</option>
+            <option value="America/Indiana/Winamac">Indiana - Winamac</option>
+            <option value="America/Inuvik">Inuvik</option>
+            <option value="America/Iqaluit">Iqaluit</option>
+            <option value="America/Jamaica">Jamaica</option>
+            <option value="America/Juneau">Juneau</option>
+            <option value="America/Kentucky/Louisville">Kentucky - Louisville</option>
+            <option value="America/Kentucky/Monticello">Kentucky - Monticello</option>
+            <option value="America/Kralendijk">Kralendijk</option>
+            <option value="America/La_Paz">La Paz</option>
+            <option value="America/Lima">Lima</option>
+            <option value="America/Los_Angeles">Los Angeles</option>
+            <option value="America/Lower_Princes">Lower Princes</option>
+            <option value="America/Maceio">Maceio</option>
+            <option value="America/Managua">Managua</option>
+            <option value="America/Manaus">Manaus</option>
+            <option value="America/Marigot">Marigot</option>
+            <option value="America/Martinique">Martinique</option>
+            <option value="America/Matamoros">Matamoros</option>
+            <option value="America/Mazatlan">Mazatlan</option>
+            <option value="America/Menominee">Menominee</option>
+            <option value="America/Merida">Merida</option>
+            <option value="America/Metlakatla">Metlakatla</option>
+            <option value="America/Mexico_City">Mexico City</option>
+            <option value="America/Miquelon">Miquelon</option>
+            <option value="America/Moncton">Moncton</option>
+            <option value="America/Monterrey">Monterrey</option>
+            <option value="America/Montevideo">Montevideo</option>
+            <option value="America/Montserrat">Montserrat</option>
+            <option value="America/Nassau">Nassau</option>
+            <option value="America/New_York">New York</option>
+            <option value="America/Nome">Nome</option>
+            <option value="America/Noronha">Noronha</option>
+            <option value="America/North_Dakota/Beulah">North Dakota - Beulah</option>
+            <option value="America/North_Dakota/Center">North Dakota - Center</option>
+            <option value="America/North_Dakota/New_Salem">North Dakota - New Salem</option>
+            <option value="America/Nuuk">Nuuk</option>
+            <option value="America/Ojinaga">Ojinaga</option>
+            <option value="America/Panama">Panama</option>
+            <option value="America/Paramaribo">Paramaribo</option>
+            <option value="America/Phoenix">Phoenix</option>
+            <option value="America/Port-au-Prince">Port-au-Prince</option>
+            <option value="America/Port_of_Spain">Port of Spain</option>
+            <option value="America/Porto_Velho">Porto Velho</option>
+            <option value="America/Puerto_Rico">Puerto Rico</option>
+            <option value="America/Punta_Arenas">Punta Arenas</option>
+            <option value="America/Rankin_Inlet">Rankin Inlet</option>
+            <option value="America/Recife">Recife</option>
+            <option value="America/Regina">Regina</option>
+            <option value="America/Resolute">Resolute</option>
+            <option value="America/Rio_Branco">Rio Branco</option>
+            <option value="America/Santarem">Santarem</option>
+            <option value="America/Santiago">Santiago</option>
+            <option value="America/Santo_Domingo">Santo Domingo</option>
+            <option value="America/Sao_Paulo">Sao Paulo</option>
+            <option value="America/Scoresbysund">Scoresbysund</option>
+            <option value="America/Sitka">Sitka</option>
+            <option value="America/St_Barthelemy">St Barthelemy</option>
+            <option value="America/St_Johns">St Johns</option>
+            <option value="America/St_Kitts">St Kitts</option>
+            <option value="America/St_Lucia">St Lucia</option>
+            <option value="America/St_Thomas">St Thomas</option>
+            <option value="America/St_Vincent">St Vincent</option>
+            <option value="America/Swift_Current">Swift Current</option>
+            <option value="America/Tegucigalpa">Tegucigalpa</option>
+            <option value="America/Thule">Thule</option>
+            <option value="America/Tijuana">Tijuana</option>
+            <option value="America/Toronto">Toronto</option>
+            <option value="America/Tortola">Tortola</option>
+            <option value="America/Vancouver">Vancouver</option>
+            <option value="America/Whitehorse">Whitehorse</option>
+            <option value="America/Winnipeg">Winnipeg</option>
+            <option value="America/Yakutat">Yakutat</option>
+            </optgroup>
+            <optgroup label="Antarctica">
+            <option value="Antarctica/Casey">Casey</option>
+            <option value="Antarctica/Davis">Davis</option>
+            <option value="Antarctica/DumontDUrville">DumontDUrville</option>
+            <option value="Antarctica/Macquarie">Macquarie</option>
+            <option value="Antarctica/Mawson">Mawson</option>
+            <option value="Antarctica/McMurdo">McMurdo</option>
+            <option value="Antarctica/Palmer">Palmer</option>
+            <option value="Antarctica/Rothera">Rothera</option>
+            <option value="Antarctica/Syowa">Syowa</option>
+            <option value="Antarctica/Troll">Troll</option>
+            <option value="Antarctica/Vostok">Vostok</option>
+            </optgroup>
+            <optgroup label="Arctic">
+            <option value="Arctic/Longyearbyen">Longyearbyen</option>
+            </optgroup>
+            <optgroup label="Asia">
+            <option value="Asia/Aden">Aden</option>
+            <option value="Asia/Almaty">Almaty</option>
+            <option value="Asia/Amman">Amman</option>
+            <option value="Asia/Anadyr">Anadyr</option>
+            <option value="Asia/Aqtau">Aqtau</option>
+            <option value="Asia/Aqtobe">Aqtobe</option>
+            <option value="Asia/Ashgabat">Ashgabat</option>
+            <option value="Asia/Atyrau">Atyrau</option>
+            <option value="Asia/Baghdad">Baghdad</option>
+            <option value="Asia/Bahrain">Bahrain</option>
+            <option value="Asia/Baku">Baku</option>
+            <option value="Asia/Bangkok">Bangkok</option>
+            <option value="Asia/Barnaul">Barnaul</option>
+            <option value="Asia/Beirut">Beirut</option>
+            <option value="Asia/Bishkek">Bishkek</option>
+            <option value="Asia/Brunei">Brunei</option>
+            <option value="Asia/Chita">Chita</option>
+            <option value="Asia/Choibalsan">Choibalsan</option>
+            <option value="Asia/Colombo">Colombo</option>
+            <option value="Asia/Damascus">Damascus</option>
+            <option value="Asia/Dhaka">Dhaka</option>
+            <option value="Asia/Dili">Dili</option>
+            <option value="Asia/Dubai">Dubai</option>
+            <option value="Asia/Dushanbe">Dushanbe</option>
+            <option value="Asia/Famagusta">Famagusta</option>
+            <option value="Asia/Gaza">Gaza</option>
+            <option value="Asia/Hebron">Hebron</option>
+            <option value="Asia/Ho_Chi_Minh">Ho Chi Minh</option>
+            <option value="Asia/Hong_Kong">Hong Kong</option>
+            <option value="Asia/Hovd">Hovd</option>
+            <option value="Asia/Irkutsk">Irkutsk</option>
+            <option value="Asia/Jakarta">Jakarta</option>
+            <option value="Asia/Jayapura">Jayapura</option>
+            <option value="Asia/Jerusalem">Jerusalem</option>
+            <option value="Asia/Kabul">Kabul</option>
+            <option value="Asia/Kamchatka">Kamchatka</option>
+            <option value="Asia/Karachi">Karachi</option>
+            <option value="Asia/Kathmandu">Kathmandu</option>
+            <option value="Asia/Khandyga">Khandyga</option>
+            <option selected="selected" value="Asia/Kolkata">Kolkata</option>
+            <option value="Asia/Krasnoyarsk">Krasnoyarsk</option>
+            <option value="Asia/Kuala_Lumpur">Kuala Lumpur</option>
+            <option value="Asia/Kuching">Kuching</option>
+            <option value="Asia/Kuwait">Kuwait</option>
+            <option value="Asia/Macau">Macau</option>
+            <option value="Asia/Magadan">Magadan</option>
+            <option value="Asia/Makassar">Makassar</option>
+            <option value="Asia/Manila">Manila</option>
+            <option value="Asia/Muscat">Muscat</option>
+            <option value="Asia/Nicosia">Nicosia</option>
+            <option value="Asia/Novokuznetsk">Novokuznetsk</option>
+            <option value="Asia/Novosibirsk">Novosibirsk</option>
+            <option value="Asia/Omsk">Omsk</option>
+            <option value="Asia/Oral">Oral</option>
+            <option value="Asia/Phnom_Penh">Phnom Penh</option>
+            <option value="Asia/Pontianak">Pontianak</option>
+            <option value="Asia/Pyongyang">Pyongyang</option>
+            <option value="Asia/Qatar">Qatar</option>
+            <option value="Asia/Qostanay">Qostanay</option>
+            <option value="Asia/Qyzylorda">Qyzylorda</option>
+            <option value="Asia/Riyadh">Riyadh</option>
+            <option value="Asia/Sakhalin">Sakhalin</option>
+            <option value="Asia/Samarkand">Samarkand</option>
+            <option value="Asia/Seoul">Seoul</option>
+            <option value="Asia/Shanghai">Shanghai</option>
+            <option value="Asia/Singapore">Singapore</option>
+            <option value="Asia/Srednekolymsk">Srednekolymsk</option>
+            <option value="Asia/Taipei">Taipei</option>
+            <option value="Asia/Tashkent">Tashkent</option>
+            <option value="Asia/Tbilisi">Tbilisi</option>
+            <option value="Asia/Tehran">Tehran</option>
+            <option value="Asia/Thimphu">Thimphu</option>
+            <option value="Asia/Tokyo">Tokyo</option>
+            <option value="Asia/Tomsk">Tomsk</option>
+            <option value="Asia/Ulaanbaatar">Ulaanbaatar</option>
+            <option value="Asia/Urumqi">Urumqi</option>
+            <option value="Asia/Ust-Nera">Ust-Nera</option>
+            <option value="Asia/Vientiane">Vientiane</option>
+            <option value="Asia/Vladivostok">Vladivostok</option>
+            <option value="Asia/Yakutsk">Yakutsk</option>
+            <option value="Asia/Yangon">Yangon</option>
+            <option value="Asia/Yekaterinburg">Yekaterinburg</option>
+            <option value="Asia/Yerevan">Yerevan</option>
+            </optgroup>
+            <optgroup label="Atlantic">
+            <option value="Atlantic/Azores">Azores</option>
+            <option value="Atlantic/Bermuda">Bermuda</option>
+            <option value="Atlantic/Canary">Canary</option>
+            <option value="Atlantic/Cape_Verde">Cape Verde</option>
+            <option value="Atlantic/Faroe">Faroe</option>
+            <option value="Atlantic/Madeira">Madeira</option>
+            <option value="Atlantic/Reykjavik">Reykjavik</option>
+            <option value="Atlantic/South_Georgia">South Georgia</option>
+            <option value="Atlantic/Stanley">Stanley</option>
+            <option value="Atlantic/St_Helena">St Helena</option>
+            </optgroup>
+            <optgroup label="Australia">
+            <option value="Australia/Adelaide">Adelaide</option>
+            <option value="Australia/Brisbane">Brisbane</option>
+            <option value="Australia/Broken_Hill">Broken Hill</option>
+            <option value="Australia/Darwin">Darwin</option>
+            <option value="Australia/Eucla">Eucla</option>
+            <option value="Australia/Hobart">Hobart</option>
+            <option value="Australia/Lindeman">Lindeman</option>
+            <option value="Australia/Lord_Howe">Lord Howe</option>
+            <option value="Australia/Melbourne">Melbourne</option>
+            <option value="Australia/Perth">Perth</option>
+            <option value="Australia/Sydney">Sydney</option>
+            </optgroup>
+            <optgroup label="Europe">
+            <option value="Europe/Amsterdam">Amsterdam</option>
+            <option value="Europe/Andorra">Andorra</option>
+            <option value="Europe/Astrakhan">Astrakhan</option>
+            <option value="Europe/Athens">Athens</option>
+            <option value="Europe/Belgrade">Belgrade</option>
+            <option value="Europe/Berlin">Berlin</option>
+            <option value="Europe/Bratislava">Bratislava</option>
+            <option value="Europe/Brussels">Brussels</option>
+            <option value="Europe/Bucharest">Bucharest</option>
+            <option value="Europe/Budapest">Budapest</option>
+            <option value="Europe/Busingen">Busingen</option>
+            <option value="Europe/Chisinau">Chisinau</option>
+            <option value="Europe/Copenhagen">Copenhagen</option>
+            <option value="Europe/Dublin">Dublin</option>
+            <option value="Europe/Gibraltar">Gibraltar</option>
+            <option value="Europe/Guernsey">Guernsey</option>
+            <option value="Europe/Helsinki">Helsinki</option>
+            <option value="Europe/Isle_of_Man">Isle of Man</option>
+            <option value="Europe/Istanbul">Istanbul</option>
+            <option value="Europe/Jersey">Jersey</option>
+            <option value="Europe/Kaliningrad">Kaliningrad</option>
+            <option value="Europe/Kirov">Kirov</option>
+            <option value="Europe/Kyiv">Kyiv</option>
+            <option value="Europe/Lisbon">Lisbon</option>
+            <option value="Europe/Ljubljana">Ljubljana</option>
+            <option value="Europe/London">London</option>
+            <option value="Europe/Luxembourg">Luxembourg</option>
+            <option value="Europe/Madrid">Madrid</option>
+            <option value="Europe/Malta">Malta</option>
+            <option value="Europe/Mariehamn">Mariehamn</option>
+            <option value="Europe/Minsk">Minsk</option>
+            <option value="Europe/Monaco">Monaco</option>
+            <option value="Europe/Moscow">Moscow</option>
+            <option value="Europe/Oslo">Oslo</option>
+            <option value="Europe/Paris">Paris</option>
+            <option value="Europe/Podgorica">Podgorica</option>
+            <option value="Europe/Prague">Prague</option>
+            <option value="Europe/Riga">Riga</option>
+            <option value="Europe/Rome">Rome</option>
+            <option value="Europe/Samara">Samara</option>
+            <option value="Europe/San_Marino">San Marino</option>
+            <option value="Europe/Sarajevo">Sarajevo</option>
+            <option value="Europe/Saratov">Saratov</option>
+            <option value="Europe/Simferopol">Simferopol</option>
+            <option value="Europe/Skopje">Skopje</option>
+            <option value="Europe/Sofia">Sofia</option>
+            <option value="Europe/Stockholm">Stockholm</option>
+            <option value="Europe/Tallinn">Tallinn</option>
+            <option value="Europe/Tirane">Tirane</option>
+            <option value="Europe/Ulyanovsk">Ulyanovsk</option>
+            <option value="Europe/Vaduz">Vaduz</option>
+            <option value="Europe/Vatican">Vatican</option>
+            <option value="Europe/Vienna">Vienna</option>
+            <option value="Europe/Vilnius">Vilnius</option>
+            <option value="Europe/Volgograd">Volgograd</option>
+            <option value="Europe/Warsaw">Warsaw</option>
+            <option value="Europe/Zagreb">Zagreb</option>
+            <option value="Europe/Zurich">Zurich</option>
+            </optgroup>
+            <optgroup label="Indian">
+            <option value="Indian/Antananarivo">Antananarivo</option>
+            <option value="Indian/Chagos">Chagos</option>
+            <option value="Indian/Christmas">Christmas</option>
+            <option value="Indian/Cocos">Cocos</option>
+            <option value="Indian/Comoro">Comoro</option>
+            <option value="Indian/Kerguelen">Kerguelen</option>
+            <option value="Indian/Mahe">Mahe</option>
+            <option value="Indian/Maldives">Maldives</option>
+            <option value="Indian/Mauritius">Mauritius</option>
+            <option value="Indian/Mayotte">Mayotte</option>
+            <option value="Indian/Reunion">Reunion</option>
+            </optgroup>
+            <optgroup label="Pacific">
+            <option value="Pacific/Apia">Apia</option>
+            <option value="Pacific/Auckland">Auckland</option>
+            <option value="Pacific/Bougainville">Bougainville</option>
+            <option value="Pacific/Chatham">Chatham</option>
+            <option value="Pacific/Chuuk">Chuuk</option>
+            <option value="Pacific/Easter">Easter</option>
+            <option value="Pacific/Efate">Efate</option>
+            <option value="Pacific/Fakaofo">Fakaofo</option>
+            <option value="Pacific/Fiji">Fiji</option>
+            <option value="Pacific/Funafuti">Funafuti</option>
+            <option value="Pacific/Galapagos">Galapagos</option>
+            <option value="Pacific/Gambier">Gambier</option>
+            <option value="Pacific/Guadalcanal">Guadalcanal</option>
+            <option value="Pacific/Guam">Guam</option>
+            <option value="Pacific/Honolulu">Honolulu</option>
+            <option value="Pacific/Kanton">Kanton</option>
+            <option value="Pacific/Kiritimati">Kiritimati</option>
+            <option value="Pacific/Kosrae">Kosrae</option>
+            <option value="Pacific/Kwajalein">Kwajalein</option>
+            <option value="Pacific/Majuro">Majuro</option>
+            <option value="Pacific/Marquesas">Marquesas</option>
+            <option value="Pacific/Midway">Midway</option>
+            <option value="Pacific/Nauru">Nauru</option>
+            <option value="Pacific/Niue">Niue</option>
+            <option value="Pacific/Norfolk">Norfolk</option>
+            <option value="Pacific/Noumea">Noumea</option>
+            <option value="Pacific/Pago_Pago">Pago Pago</option>
+            <option value="Pacific/Palau">Palau</option>
+            <option value="Pacific/Pitcairn">Pitcairn</option>
+            <option value="Pacific/Pohnpei">Pohnpei</option>
+            <option value="Pacific/Port_Moresby">Port Moresby</option>
+            <option value="Pacific/Rarotonga">Rarotonga</option>
+            <option value="Pacific/Saipan">Saipan</option>
+            <option value="Pacific/Tahiti">Tahiti</option>
+            <option value="Pacific/Tarawa">Tarawa</option>
+            <option value="Pacific/Tongatapu">Tongatapu</option>
+            <option value="Pacific/Wake">Wake</option>
+            <option value="Pacific/Wallis">Wallis</option>
+            </optgroup>
+            <optgroup label="UTC">
+            <option value="UTC">UTC</option>
+            </optgroup>
+            <optgroup label="Manual Offsets">
+            <option value="UTC-12">UTC-12</option>
+            <option value="UTC-11.5">UTC-11:30</option>
+            <option value="UTC-11">UTC-11</option>
+            <option value="UTC-10.5">UTC-10:30</option>
+            <option value="UTC-10">UTC-10</option>
+            <option value="UTC-9.5">UTC-9:30</option>
+            <option value="UTC-9">UTC-9</option>
+            <option value="UTC-8.5">UTC-8:30</option>
+            <option value="UTC-8">UTC-8</option>
+            <option value="UTC-7.5">UTC-7:30</option>
+            <option value="UTC-7">UTC-7</option>
+            <option value="UTC-6.5">UTC-6:30</option>
+            <option value="UTC-6">UTC-6</option>
+            <option value="UTC-5.5">UTC-5:30</option>
+            <option value="UTC-5">UTC-5</option>
+            <option value="UTC-4.5">UTC-4:30</option>
+            <option value="UTC-4">UTC-4</option>
+            <option value="UTC-3.5">UTC-3:30</option>
+            <option value="UTC-3">UTC-3</option>
+            <option value="UTC-2.5">UTC-2:30</option>
+            <option value="UTC-2">UTC-2</option>
+            <option value="UTC-1.5">UTC-1:30</option>
+            <option value="UTC-1">UTC-1</option>
+            <option value="UTC-0.5">UTC-0:30</option>
+            <option value="UTC+0">UTC+0</option>
+            <option value="UTC+0.5">UTC+0:30</option>
+            <option value="UTC+1">UTC+1</option>
+            <option value="UTC+1.5">UTC+1:30</option>
+            <option value="UTC+2">UTC+2</option>
+            <option value="UTC+2.5">UTC+2:30</option>
+            <option value="UTC+3">UTC+3</option>
+            <option value="UTC+3.5">UTC+3:30</option>
+            <option value="UTC+4">UTC+4</option>
+            <option value="UTC+4.5">UTC+4:30</option>
+            <option value="UTC+5">UTC+5</option>
+            <option value="UTC+5.5">UTC+5:30</option>
+            <option value="UTC+5.75">UTC+5:45</option>
+            <option value="UTC+6">UTC+6</option>
+            <option value="UTC+6.5">UTC+6:30</option>
+            <option value="UTC+7">UTC+7</option>
+            <option value="UTC+7.5">UTC+7:30</option>
+            <option value="UTC+8">UTC+8</option>
+            <option value="UTC+8.5">UTC+8:30</option>
+            <option value="UTC+8.75">UTC+8:45</option>
+            <option value="UTC+9">UTC+9</option>
+            <option value="UTC+9.5">UTC+9:30</option>
+            <option value="UTC+10">UTC+10</option>
+            <option value="UTC+10.5">UTC+10:30</option>
+            <option value="UTC+11">UTC+11</option>
+            <option value="UTC+11.5">UTC+11:30</option>
+            <option value="UTC+12">UTC+12</option>
+            <option value="UTC+12.75">UTC+12:45</option>
+            <option value="UTC+13">UTC+13</option>
+            <option value="UTC+13.75">UTC+13:45</option>
+            <option value="UTC+14">UTC+14</option>
+            </optgroup>                         
+            </select>';
+            return $dropdown_timezone;
+        }
         
 	}			
 

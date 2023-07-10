@@ -367,44 +367,17 @@ jQuery(document).ready(function($) {
 function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
-  }
+}
 const pageParam = getQueryParam("page");
 if (pageParam === "notification-settings") {
-    //run all jquery for if page is notification-settings
-    jQuery(document).ready(function() {
-        jQuery(document).on('submit', '#notifyformadd', function(event) {    
-            event.preventDefault();    
-            var form=jQuery('#notifyformadd').serialize();
-            var formData=new FormData();
-            formData.append('action','zfb_save_new_notification');
-            formData.append('notification_data',form);
-            var modalId = jQuery(this).data('target');
-            var modal = jQuery(modalId); 
-
-            jQuery.ajax({
-                type: 'POST',
-                url: ajaxurl,
-                data:formData,
-                processData:false,//off other action only run this event
-                contentType:false,        
-                success: function (response) {
-                    console.log(response);
-                    jQuery('#notifytable').load(location.href + ' #notifytable');
-                    modal.modal('hide');
-                }
-                
-            });
-
-        });
-    });
-  
+    
     jQuery(document).ready(function() {
         jQuery(document).on('submit', '.notifyform', function(event) {   
            
             event.preventDefault();    
             var form= jQuery(this).serialize();
             var index =  jQuery(this).data('id');
-            console.log(index);
+            // console.log(index);
             var formData=new FormData();
             formData.append('action','zfb_save_new_notification');
             formData.append('notification_data',form);
@@ -566,46 +539,32 @@ if (pageParam === "notification-settings") {
             processData:false,//off other action only run this event
             contentType:false,        
             success: function (response) {
-                // console.log(response);
-                // jQuery('#notifytable').load(location.href + ' #notifytable');
+                console.log(response);
+                jQuery('#map_success').html(response.message).fadeIn().delay(2000).fadeOut();              
             }
         });
 
     });
 
-    jQuery(document).ready(function() {
-        var url = window.location.href;
-        var searchParams = new URLSearchParams(url);
-        
-        if (searchParams.has('booking_id') && searchParams.has('status')) {
-            var bookingId = searchParams.get('booking_id');
-            var status = searchParams.get('status');
-            
-            if (status === 'cancel') {
-                if (confirm("Are you sure you want to cancel this booking?")) {
-                    jQuery.ajax({
-                        url: link,
-                        type: "POST",
-                        data: { 
-                            action: "zfb_cancel_booking",
-                            bookingId: bookingId,
-                            status: status,
-                        },
-                        success: function(response) {
-                            console.log(response); // Log the response message
-                            // Display the response message on the page
-                            jQuery('#responseMsg').text(response);
-                        }
-                    });
-                } else {
-                    console.log('Booking cancellation canceled.');
-                }
-            } else {
-                console.log('Invalid status value.');
+    jQuery(document).on('submit', '#confirm_form', function(event) {   
+        event.preventDefault();    
+        var form=jQuery('#confirm_form').serialize();
+        var formData=new FormData();
+        formData.append('action','zfb_save_confirmation');
+        formData.append('confirmation_data',form);
+      
+        jQuery.ajax({
+            type: 'POST',
+            url: ajax_object.ajax_url,
+            data:formData,
+            processData:false,//off other action only run this event
+            contentType:false,        
+            success: function (response) {
+                 console.log(response);
+                jQuery('#confirm_msg').html(response.message).fadeIn().delay(2000).fadeOut();              
             }
-        } else {
-            console.log('Invalid URL.');
-        }
+        });
+
     });
-    
+  
 }
