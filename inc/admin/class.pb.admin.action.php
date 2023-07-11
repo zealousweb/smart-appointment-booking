@@ -53,7 +53,14 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			add_action('wp_ajax_nopriv_zfb_save_confirmation', array( $this, 'zfb_save_confirmation' ) );
 
 			add_action('edit_form_after_title', array( $this, 'disable_title_editing_for_custom_post_type' ) );
-			
+
+			add_action('wp_ajax_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
+			add_action('wp_ajax_nopriv_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
+
+			add_action('wp_ajax_send_notification_ajax_handler', array( $this, 'send_notification_ajax_handler' ) );
+		add_action('wp_ajax_nopriv_send_notification_ajax_handler', array( $this, 'send_notification_ajax_handler' ) );
+
+		
 		}
 
 		/*
@@ -114,7 +121,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			 }
 			
 		}
-
+	
 		/**
 		* WP Enqueue Scripts
 		*/
@@ -247,7 +254,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'name' => 'Booking Form',
 				'singular_name' => 'Booking Form',
 			);
-		
+			
 			$args_form = array(
 				'labels' => $labels_form,
 				'description' => '',
@@ -271,9 +278,12 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'hierarchical' => false,
 				'rewrite' => true,
 				'query_var' => true,
+				'paged' => true,
 				'supports' => array( 'title' ),
 			);
+			
 			register_post_type('bms_forms', $args_form);
+			
 		
 			$labels = array(
 				'name' => 'Booking Entries',
@@ -302,6 +312,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'hierarchical' => false,
 				'rewrite' => true,
 				'query_var' => true,
+				'paged' => true, 
 				'supports' => array( 'title' ),
 			);
 		
@@ -520,15 +531,50 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
                 ?>
             </ul>
 			<h3>Notes</h3>
-
+			<?php 
+			   $notes = get_post_meta($post_id, 'notes', true);
+			   echo esc_textarea($notes);
+			?>
             <?php
         }
-		function edit_booking_entry(){
-			echo "hello";
+		function send_notification_ajax_handler() {
+			if (isset($_POST['status'])) {
+				$status = sanitize_text_field($_POST['status']);
+				$to = 'recipient@example.com';
+				$subject = 'Post Status Updated';
+				$message = 'The post status has been set to: ' . $status;
+		
+				wp_mail($to, $subject, $message);
+		
+				echo 'Notification sent'; // Optional: Send a response back to the JavaScript code
+			}
+		
+			wp_die(); // Always include this line to end the AJAX request
 		}
+		
+		
+		function update_form_entry_data(){
+			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
+				$entry_id = $_POST['entry_id'];
+				$updated_data = $_POST['updated_data'];
+				$get_submitted_data = get_post_meta($entry_id, 'bms_submission_data', true);
+				$updated_data = $_POST['updated_data'];
+				echo "<pre>";
+				print_r($get_submitted_data);
+				foreach ($updated_data as $key => $value) {
+					if (isset($get_submitted_data['data'][$key])) {
+						$get_submitted_data['data'][$key] = $value;
+					}
+				}
+				
+				update_post_meta($entry_id, 'bms_submission_data', $get_submitted_data);
+				
+			}
+            wp_die();
+        }
 		function admin_get_shortcodes_keylabel($post_id){
 			$shortcode_list = array();
-			$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
+			$form_data = get_post_meta( $post_id, '_formschema', true ); 
 			$form_data=json_decode($form_data);
 			foreach ($form_data as $obj) {     
 				$shortcode_list[] = array(
@@ -568,7 +614,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				<div class="tab-content p-4 border" id="myTabContent">
 					<div class="tab-pane fade show active " id="content_fieldmapping" role="tabpanel" aria-labelledby="tab_fieldmapping">
 						<?php
-						$form_data = get_post_meta( $post_id, '_my_meta_value_key', true ); 
+						$form_data = get_post_meta( $post_id, '_formschema', true ); 
 						$form_data=json_decode($form_data);
 						$shortcodes = $this->admin_get_shortcodes_keylabel($post_id);
 						// echo "<pre>";
@@ -929,11 +975,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				echo "Error: Post type and/or post ID not found.";
 			}
 			echo '</div>';
-			// Include your form or other content for extending the notification properties
 		}
 		function admin_get_shortcodes($post_id){
 			$shortcode_list = array();
-			$form_data1 = get_post_meta( $post_id, '_my_meta_value_key', true ); 
+			$form_data1 = get_post_meta( $post_id, '_formschema', true ); 
 			$form_data1=json_decode($form_data1);
 
 			foreach ($form_data1 as $obj) {  				
@@ -1176,7 +1221,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 
 			$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
 			
-			update_post_meta( $post_id, '_my_meta_value_key', $form_data );
+			update_post_meta( $post_id, '_formschema', $form_data );
 
 			wp_send_json_success( 'Form data saved successfully.' );
 			exit;
@@ -1208,17 +1253,43 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$error = 0;
 			$output = '';		
 			if (isset($_POST['post_id'])) {
+					
+					$post_id = $_POST['post_id'];
+					$start_time = get_post_meta($post_id, 'start_time', true);
+					$end_time = get_post_meta($post_id, 'end_time', true);
+					$break_times = get_post_meta($post_id, 'breaktimeslots', true);
+					$duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
+					$gap_minutes = get_post_meta($post_id, 'steps_duration', true);
+			
+					$available_timeslots_list = $this->admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id);
 				
-				$post_id = $_POST['post_id'];
-				$start_time = get_post_meta($post_id, 'start_time', true);
-				$end_time = get_post_meta($post_id, 'end_time', true);
-				$break_times = get_post_meta($post_id, 'breaktimeslots', true);
-				$duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
-				$gap_minutes = get_post_meta($post_id, 'steps_duration', true);
-		
-				$available_timeslots = $this->admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id);
+					$output .= '<label  class="h6">Add/Update Generated Timeslots:</label>';
+					$output .= '<svg class="add-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+						<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+						<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>';
+					$output .= '</svg>';	
+					foreach ($available_timeslots_list as $index => $timeslot) {
+						$start_time = isset($timeslot['start_time_slot']) ? $timeslot['start_time_slot'] : '';
+						$end_time = isset($timeslot['end_time_slot']) ? $timeslot['end_time_slot'] : '';
+						$output .= '<div class="form-row timeslot-row generatetimeslot">';
+						$output .= '<div class="form-group col-md-3">';
+						$output .= '<label>Start Time:</label>';
+						$output .= '<input type="time" class="form-control" name="generatetimeslot[' . $index . '][start_time]" value="' . esc_attr($start_time) . '">';
+						$output .= '</div>';
+						$output .= '<div class="form-group col-md-3">';
+						$output .= '<label>End Time:</label>';
+						$output .= '<input type="time" class="form-control" name="generatetimeslot[' . $index . '][end_time]" value="' . esc_attr($end_time) . '">';
+						$output .= '</div>';
+						$output .= '<div class="form-group col-2 remove-generatetimeslot">';
+						$output .= '<svg class="remove-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">';
+						$output .= '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>';
+						$output .= '</svg>';
+						$output .= '</div>';
+						$output .= '</div>';
+					}
+				
 				// Generate the output string
-				$output = implode('<br>', $available_timeslots);
+				// $output = implode('<br>', $available_timeslots_list);
 				// $output = $available_timeslots;
 			} else {
 				$error = 1;
@@ -1296,11 +1367,15 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				}
 	
 				// Format the start time and end time of the timeslot
-				$start_time_slot = date('h:i A', $current_timestamp);
-				$end_time_slot = date('h:i A', $end_timeslot);
+				$start_time_slot = date('H:i', $current_timestamp);
+				$end_time_slot = date('H:i', $end_timeslot);
 	
 				// Add the timeslot to the available timeslots array
-				$available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
+				//  $available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
+				$available_timeslots[] = array(
+					'start_time_slot' => $start_time_slot,
+					'end_time_slot' => $end_time_slot,
+				);
 	
 				// Move to the next available timeslot (including the gap)
 				$current_timestamp = $end_timeslot + ($gap * 60);

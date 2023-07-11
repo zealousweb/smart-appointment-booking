@@ -268,7 +268,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 
 				}
 				$confirmation = get_post_meta($form_id, 'confirmation', true);
-				$success_message = get_post_meta($form_id, 'your_field_key', true);
+				$success_message = get_post_meta($form_id, 'redirect_text', true);
 				$formatted_message = wpautop($success_message);
 				$redirect_url = '';
 				
@@ -541,7 +541,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 		
 		function front_get_shortcodes($form_id){
 			$shortcode_list = array();
-			$form_data1 = get_post_meta( $form_id, '_my_meta_value_key', true ); 
+			$form_data1 = get_post_meta( $form_id, '_formschema', true ); 
 			$form_data1=json_decode($form_data1);
 			foreach ($form_data1 as $obj) { 
 				$shortcode_list[] = "[".$obj->key."]";
@@ -568,7 +568,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                     if($date < $selected_date || $date < $todays_date){
                         $arrayofdates = array();
                     }else{
-
                        	$recurring_type = get_post_meta($post_id, 'recurring_type', true);
                         $holiday_dates = get_post_meta($post_id, 'holiday_dates', true);
                         $end_repeats_type = get_post_meta($post_id, 'end_repeats', true);
@@ -727,8 +726,63 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			}
 			return $output_timeslot;
 		}
+		
         function front_generate_timeslots($post_id, $todaysDate = null){
+			$output_timeslot = '';
+			$generatetimeslot = get_post_meta($post_id, 'generatetimeslot', true);	
+			// echo "<pre>";
+			// print_r($generatetimeslot);		
+            $no_of_booking = get_post_meta($post_id, 'no_of_booking', true); 
+			if($generatetimeslot){
 
+			
+				foreach ($generatetimeslot as $index => $timeslot) {
+					$start_time = isset($timeslot['start_time']) ? $timeslot['start_time'] : '';
+					$end_time = isset($timeslot['end_time']) ? $timeslot['end_time'] : '';
+
+					$start_timestamp = strtotime($start_time);
+					$end_timestamp = strtotime($end_time);
+					// Format the start time and end time of the timeslot
+					$start_time_slot = date('h:i A', $start_timestamp);
+					$end_time_slot = date('h:i A', $end_timestamp);
+					
+					// Add the timeslot to the available timeslots array
+					$available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
+					$checktimeslot = $start_time_slot."-".$end_time_slot;
+					
+					$iswaiting_alllowed = get_post_meta( $post_id,'waiting_list', true );
+					if(!$iswaiting_alllowed){
+						$iswaiting_alllowed = 0;
+					}
+					// echo $todaysDate;	
+					$checkseats = $this->get_available_seats_per_timeslot($checktimeslot,$todaysDate);
+					$selected_date = get_post_meta( $post_id,'selected_date', true );
+					$check_date = 0;
+					if($todaysDate < $selected_date){
+						$check_date = 1;
+					}
+					// echo "<pre>"; print_r($checkseats);
+					// echo $no_of_booking. ' - '. $checkseats;
+					$available_seats = $no_of_booking - $checkseats;
+					$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+					$output_timeslot .= '<span>'.$start_time_slot.' - ' . $end_time_slot.'</span>';
+					// // $output_timeslot .= '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
+					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots"  type="hidden" value="'.$start_time_slot."-".$end_time_slot.'">';					
+					$output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_seats.'" >Available seats : '.$available_seats.'</span>';
+					$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" >'.$iswaiting_alllowed.'</span>';
+					$output_timeslot .= '</li>';
+					
+				}
+			}else{
+				$output_timeslot .= '<li class="zfb_timeslot">';
+				$output_timeslot .= 'No Timeslot Found';
+				$output_timeslot .= '</li>';
+			}
+			return $output_timeslot;
+		}
+        function front_generate_timeslots_does_not_exist($post_id, $todaysDate = null){
+			$breaktimeslots = get_post_meta($post_id, 'breaktimeslots', true);
+            // if (empty($breaktimeslots)) {
             $output_timeslot = '';
             $start_time = get_post_meta($post_id, 'start_time', true);
             $end_time = get_post_meta($post_id, 'end_time', true);
@@ -790,7 +844,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 	
 				// Add the timeslot to the available timeslots array
 				$available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
-              $checktimeslot = $start_time_slot."-".$end_time_slot;
+              	$checktimeslot = $start_time_slot."-".$end_time_slot;
 				
                 $iswaiting_alllowed = get_post_meta( $post_id,'waiting_list', true );
 				if(!$iswaiting_alllowed){
@@ -803,7 +857,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				if($todaysDate < $selected_date){
 					$check_date = 1;
 				}
-				// echo "<pre>"; print_r($checkseats);
+				echo "<pre>"; print_r($checkseats);
                 // echo $no_of_booking. ' - '. $checkseats;
                 $available_seats = $no_of_booking - $checkseats;
                 $output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
@@ -816,7 +870,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				// Move to the next available timeslot (including the gap)
 				$current_timestamp = $end_timeslot + ($gap * 60);
 			}
-
+			
 			return $output_timeslot;
 		}
         function get_available_seats_per_timeslot($timeslot,$booking_date){
@@ -863,6 +917,10 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			ob_start();	
 			$post_id = $attr['form_id'];	
 			$enable_booking = get_post_meta($post_id, 'enable_booking', true);
+			?>
+			<!-- Preloader element -->
+			
+			<?php
 			if(isset($enable_booking) && !empty($enable_booking)){	
 				$cal_title = get_post_meta($post_id, 'cal_title', true);
 				$cal_description = get_post_meta($post_id, 'cal_description', true);
@@ -1045,7 +1103,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 						$post_status = get_post_status($post_id);
 						if ($post_status === 'publish') {
 
-								$fields = get_post_meta($post_id, '_my_meta_value_key', true);
+								$fields = get_post_meta($post_id, '_formschema', true);
 								if ($fields) {
 								?>
 								<div id="formio"></div>
@@ -1060,12 +1118,23 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
 										}).then(function(form) {
+											var isSubmitting = false; // Flag variable to track form submission
+											console.log(isSubmitting);
 											form.on('submit', function(submission) {
 												event.preventDefault();
+												var msgloader = jQuery('#zfbform-message'); 
+												jQuery('#backButton').hide();
+												if (isSubmitting) {	
+													jQuery('#zfbform-message').html("Already Submitted!").fadeIn().delay(1000).fadeOut();																								
+													return;
+												}												
+												isSubmitting = true;
+												
 												var formid = <?php echo json_encode($post_id); ?>;
 												var booking_date = jQuery('input[name="booking_date"]').val();
 												var timeslot = "";
 												var slotcapacity = "";
+
 												jQuery('.zfb_timeslot').each(function() {
 													if (jQuery(this).hasClass('selected')) {
 														timeslot = jQuery(this).find('input[name="booking_slots"]').val();	
@@ -1073,8 +1142,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 													} 
 												});
 												bookedseats = jQuery('input[name="zfbslotcapacity"]').val();
-												bookedseats = jQuery('input[name="zfbslotcapacity"]').val();
-												
+											
 												jQuery.ajax({
 													url: '<?php echo admin_url('admin-ajax.php'); ?>',
 													type : 'post',
@@ -1088,7 +1156,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 													slotcapacity:slotcapacity,
 													},
 													success: function (response) {
-														if (response.success) {
+														if (response.success) {															
+          													msgloader.hide();
 															var confirmationType = response.data.confirmation;
 															var message = response.data.message;
 															var redirectPage = response.data.redirect_page;
@@ -1102,18 +1171,20 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 																jQuery('#calender_reload').html('<p>' + message + '</p>');
 																setTimeout(function() {
 																	window.location.href = redirectUrl;
-																}, 2000); // Redirect after 3 seconds (adjust as needed)
+																}, 1000); 
 															} else if (confirmationType === 'redirect_page') {
 																jQuery('#calender_reload').html('<p>' + message + '</p>');
 																setTimeout(function() {
 																	window.location.href = redirectUrl;
-																}, 2000); // Redirect after 3 seconds (adjust as needed)
+																}, 1000);
 															}
 															jQuery('#nextButton').css('display', 'none');
 															jQuery('#backButton').css('display', 'none');
 															
 														} else {
 															var errorMessage = response.data.error;
+															submitButton.disabled = false;
+               												isSubmitting = false; 
 														}
 													}
 													
@@ -1135,10 +1206,15 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
 										}).then(function(form) {
+											var isSubmitting = false; // Flag variable to track form submission
 											form.on('submit', function(submission) {
 												event.preventDefault();
 												var formid = <?php echo json_encode($post_id); ?>;
-											
+												if (isSubmitting) {
+													jQuery('#zfbform-message').html("Already Submitted!").fadeIn().delay(1000).fadeOut();		
+													return; 
+												}
+												isSubmitting = true; 												
 												jQuery.ajax({
 													url: '<?php echo admin_url('admin-ajax.php'); ?>',
 													type : 'post',
@@ -1174,9 +1250,10 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 															
 														} else {
 															var errorMessage = response.data.error;
+															submitButton.disabled = false;
+               												isSubmitting = false; 
 														}
-													}
-													
+													},
 												});
 												return false;
 											});
@@ -1209,10 +1286,11 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				<button id="nextButton">Next</button>
 			</div>
 
-			
+			<div id="zfbform-message"></div>
 			<?php
 				
 			}
+
 			return ob_get_clean();
 		  }
 		  function action_reload_calender(){

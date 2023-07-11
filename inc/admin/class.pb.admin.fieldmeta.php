@@ -22,6 +22,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 		function __construct() {
             add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );	
             add_action( 'save_post', array( $this, 'bms_save_post_function' ) );
+            add_action('save_post', array( $this, 'save_notes_data' ) );
 
           
 		}
@@ -84,68 +85,99 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
          * Display BMS submission Entries
          */ 
         function zfb_entries_render_meta_box_content( $post ){
-            
             $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );	
             $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
-
             $timeslot = get_post_meta( $post->ID, 'timeslot', true );
-            // echo "<br>".	
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
            
-            
-            $array_of_date = explode('_',$booking_date);
-            if(isset($array_of_date) && !empty( $array_of_date[2]) && !empty( $array_of_date[3]) && !empty( $array_of_date[4])){
+            $array_of_date = explode('_', $booking_date);
+            if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
-                $bookedday =$array_of_date[3];
-                $bookedyear =$array_of_date[4];
-                $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
-                // $totalbookings = get_post_meta( $post->ID, 'totalbookings', true );	
+                $bookedday = $array_of_date[3];
+                $bookedyear = $array_of_date[4];
+                $booked_date = $bookedday . "-" . $bookedmonth . "-" . $bookedyear;
                 $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
             }
-            // echo $checkseats = $this->get_available_seats_per_timeslot($timeslot,$booked_date);
-
+           
             if(!empty($form_id)){ 
-               $booking_form_title = get_the_title($form_id);               
+                $booking_form_title = get_the_title($form_id);               
             }
+           
             $date_generated = get_the_date($post->ID);
             $status = get_post_meta( $post->ID, 'entry_status', true );
+           
             if(empty($status)){
                 $status = "Approval Pending";
-            }elseif($status == 'completed'){
+            } elseif($status == 'completed'){
                 $status = "Completed";
-            }elseif($status == 'approval_pending'){
+            } elseif($status == 'approval_pending'){
                 $status = "Approval Pending";
-            }elseif($status == 'cancelled'){
+            } elseif($status == 'cancelled'){
                 $status = "Cancelled";
-            }elseif($status == 'manual'){
+            } elseif($status == 'manual'){
                 $status = "Manual";
-            }elseif($status == 'expired'){
+            } elseif($status == 'expired'){
                 $status = "Expired";
             }
-           
-            ?>
+        ?>
+        
+        <div class="zfb-entry-details">
+            <h2>Booking Details</h2>
             <ul>
-                <li><?php echo __('Form Title', 'textdomain')." : ".$booking_form_title; ?></li>
-                <?php  if(isset($date_generated) ){ ?>
-                <li><?php echo __('Date Generated', 'textdomain')." : ".$date_generated; ?></li>
+                <li><span class="label"><?php echo __('Form Title:', 'textdomain'); ?></span> <?php echo $booking_form_title; ?></li>
+                <?php if(isset($date_generated)){ ?>
+                    <li><span class="label"><?php echo __('Date Generated:', 'textdomain'); ?></span> <?php echo $date_generated; ?></li>
                 <?php } ?>
-                <?php  if(isset($status) ){ ?>
-                <li><?php echo __('Status', 'textdomain')." : ".$status; ?></li>
+                <?php if(isset($status)){ ?>
+                    <li><span class="label"><?php echo __('Status:', 'textdomain'); ?></span> <?php echo $status; ?></li>
                 <?php } ?>
-                <li><?php echo __('Customer', 'textdomain'); ?> : <?php echo __('Guest', 'textdomain'); ?></li>
-                <?php  if( isset($booked_date)){ ?>
-                <li><?php echo __('Booking Date', 'textdomain'); ?> : <?php echo __($booked_date, 'textdomain');; ?></li>
+                <li><span class="label"><?php echo __('Customer:', 'textdomain'); ?></span> Guest</li>
+                <?php if(isset($booked_date)){ ?>
+                    <li><span class="label"><?php echo __('Booking Date:', 'textdomain'); ?></span> <?php echo $booked_date; ?></li>
                 <?php } ?>
-                <?php  if( isset($timeslot) && !empty($timeslot)){ ?>
-                <li><?php echo __('Timeslot', 'textdomain'); ?> : <?php echo __($timeslot, 'textdomain'); ?></li>
+                <?php if(isset($timeslot) && !empty($timeslot)){ ?>
+                    <li><span class="label"><?php echo __('Timeslot:', 'textdomain'); ?></span> <?php echo $timeslot; ?></li>
                 <?php } ?>
-                <?php  if(isset($slotcapacity)){ ?>
-                <li><?php echo __('No of Slots Booked', 'textdomain'); ?> : <?php echo __($slotcapacity, 'textdomain'); ?></li>
+                <?php if(isset($slotcapacity)){ ?>
+                    <li><span class="label"><?php echo __('No of Slots Booked:', 'textdomain'); ?></span> <?php echo $slotcapacity; ?></li>
                 <?php } ?>
             </ul>  
-            <?php
-           
+        </div>
+        
+        
+        <!-- <div class="container">
+            <div class="row"> -->
+                <div class="col-md-6">
+                    <h2>Booking Details</h2>
+                    <div class="form-group">
+                        <label for="booking_form_title">Form Title</label>
+                        <input type="text" class="form-control" id="booking_form_title" value="<?php echo $booking_form_title; ?>" readonly>
+                    </div>
+                    <?php if(isset($date_generated)){ ?>
+                        <div class="form-group">
+                            <label for="date_generated">Date Generated</label>
+                            <input type="text" class="form-control" id="date_generated" value="<?php echo $date_generated; ?>" readonly>
+                        </div>
+                    <?php } ?>
+                    <?php if(isset($status)){ ?>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <input type="text" class="form-control" id="status" value="<?php echo $status; ?>" readonly>
+                        </div>
+                    <?php } ?>
+                    <div class="form-group">
+                        <label for="customer">Customer</label>
+                        <input type="text" class="form-control" id="customer" value="Guest" readonly>
+                    </div>
+                </div>
+<!--               
+            </div>
+        </div> -->
+        
+        <?php
         }
+        
+        
 
         /**
          * Display Form Io form builder
@@ -153,7 +185,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         function formio_render_meta_box_content( $post ) {
             
             wp_nonce_field( 'myplugin_inner_custom_box', 'myplugin_inner_custom_box_nonce' );
-            $fields = get_post_meta( $post->ID, '_my_meta_value_key', true );	
+            $fields = get_post_meta( $post->ID, '_formschema', true );	
             $get_type = gettype($fields);
             
             if(!empty($fields) && $get_type === 'string') {
@@ -264,6 +296,8 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 ),
                 );
             }
+            $generatetimeslots = get_post_meta($post->ID, 'generatetimeslot', true);
+          
             //section 2 
             $enable_recurring_apt = get_post_meta($post->ID, 'enable_recurring_apt', true);
             $recurring_type = get_post_meta($post->ID, 'recurring_type', true);
@@ -301,7 +335,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <li class="nav-link"><a href="#tab2">Timeslots</a></li>
                     <li class="nav-link"><a href="#tab3">Recurring Appointment</a></li>
                   
-                    <li class="nav-link"><a href="#tab5">Preview</a></li>
+                    <!-- <li class="nav-link"><a href="#tab5">Preview</a></li> -->
                 </ul>
                 <!-- Tabination 1 content  -->            
                 
@@ -467,8 +501,9 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
                             <input class="form-control col-md-8" type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>">
                         </div>
-                        <div class="breaktimeslot-repeater">
-                            <label  class="h6">Add Break Timeslots:</label>
+                       
+                        <div class="breaktimeslot-repeater border m-0 mb-2 p-3">                            
+                            <label class="h6">Add Break Timeslots:</label>
                             <svg class="add-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -491,6 +526,49 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <?php endforeach; ?>
                            
                         </div>
+                        <label  class="h5">Generate & Preview Timeslots</label> <button  pid="<?php echo get_the_ID(); ?>" id="preview_timeslot" type="button" class="remove-row btn btn-secondary m-1"> Generate </button>
+                        
+                        <div class="generatetimeslot-repeater  border m-0 mb-2 p-3">
+                            <?php 
+                             $post_id = get_the_ID();
+                             $start_time = get_post_meta($post_id, 'start_time', true);
+                             $end_time = get_post_meta($post_id, 'end_time', true);
+                             $duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
+                            if($start_time && $end_time && $duration_minutes && $generatetimeslots && !empty($generatetimeslots)){
+                            ?>
+                            <label  class="h6">Add/Update Generated Timeslots:</label>
+                            <svg class="add-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                            <?php 
+                            // echo "<pre>";print_r($generatetimeslots);
+                                foreach ($generatetimeslots as $index => $timeslot) : ?>                                 
+                                    <div class="form-row timeslot-row generatetimeslot">
+                                        <div class="form-group col-md-3">
+                                            <label>Start Time:</label>
+                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                                        </div>
+                                        <div class="form-group col-md-3"> 
+                                            <label>End Time:</label>
+                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
+                                        </div>
+                                        <div class="form-group col-2 remove-generatetimeslot">
+                                        <svg class="remove-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" 
+                                            height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                <?php
+                                endforeach; 
+                                
+                            }else{
+                                echo "<p class='note_previewddd' > To Preview Timeslots, Set General Setting : start time, end time , Duration, steps , breaks </p>";
+                            }  
+                            ?>
+                        </div>
+                        
                     </div>
                 </div>
                 <!-- Tabination 2 content  -->
@@ -632,26 +710,24 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <!-- </div> -->
                 </div>
                 
-                <div id="tab5" class="tab-content">
+                <!-- <div id="tab5" class="tab-content">
                     <div class="preview_main">
-                        <p id="preview_timeslot" pid="<?php echo get_the_ID(); ?>">Click Here to Preview Timeslots</p>
+                        <p id="preview_timeslot" pid="<?php // echo get_the_ID(); ?>">Click Here to Preview Timeslots</p>
                         <?php 
-                               $post_id = get_the_ID();
-                               $start_time = get_post_meta($post_id, 'start_time', true);
-                               $end_time = get_post_meta($post_id, 'end_time', true);
-                               $duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
-                               if($start_time && $end_time && $duration_minutes){
-                                 echo '<div id="preview_output"></div>';
-                               }else{
-                                echo "<p class='note_preview' > To Preview Timeslots, Set General Setting : start time, end time , Duration, steps , breaks </p>";
-                               }
-                                // $break_times = get_post_meta($post_id, 'breaktimeslots', true);
-                           
-                                //$gap_minutes = get_post_meta($post_id, 'steps_duration', true);
+                            //    $post_id = get_the_ID();
+                            //    $start_time = get_post_meta($post_id, 'start_time', true);
+                            //    $end_time = get_post_meta($post_id, 'end_time', true);
+                            //    $duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
+                            //    if($start_time && $end_time && $duration_minutes){
+                            //      echo '<div id="preview_output"></div>';
+                            //    }else{
+                            //     echo "<p class='note_preview' > To Preview Timeslots, Set General Setting : start time, end time , Duration, steps , breaks </p>";
+                            //    }
+                              
                         ?>
                        
                     </div>  
-                </div>
+                </div> -->
                
             </div>
             <?php
@@ -659,204 +735,255 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
        
         function bms_save_post_function( $post_id ) {
             $get_type =  get_post_type($post_id);
-            if($get_type !== 'bms_forms'){
+            if($get_type !== 'bms_forms' || $get_type !== 'bms_entries'){
                 return;
             }
-            if (isset($_POST['cal_title'])) {
-                update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
-            } 
-            if (isset($_POST['cal_description'])) {
-                update_post_meta($post_id, 'cal_description', $_POST['cal_description']);
-            } 
-            // Section Tab 1 
-            // Check if the enable_booking field is set and save the value
-            if (isset($_POST['enable_booking'])) {
-                update_post_meta($post_id, 'enable_booking', 1);
-            } else {
-                delete_post_meta($post_id, 'enable_booking');
-            }
-            //Weekdays
-            if (isset($_POST['weekdays'])) {
-                update_post_meta($post_id, 'weekdays', $_POST['weekdays']);
-            } else {
-                update_post_meta($post_id, 'weekdays', array());
-            }
-            // Save the radio button value for appointment Type
-            if (isset($_POST['appointment_type'])) {
-                $selected_option = sanitize_text_field($_POST['appointment_type']);
-                update_post_meta($post_id, 'appointment_type', $selected_option);
-            }
-
-            // Save the  link value if Appointment Type "Virtual" is selected
-            if (isset($_POST['virtual_link'])) {
-                $link_value = sanitize_text_field($_POST['virtual_link']);
-                update_post_meta($post_id, 'virtual_link', $link_value);
-            }
-           
-             //Symbol
-             if ( isset( $_POST['label_symbol'] ) ) {
-                $label_symbol = $_POST['label_symbol'];
-                update_post_meta( $post_id, 'label_symbol', $label_symbol );
-            }
-             //Cost
-            if ( isset( $_POST['cost'] ) ) {
-                $selected_date = $_POST['cost'];
-                update_post_meta( $post_id, 'cost', $selected_date );
-            }
-              //selected_date
-            if ( isset( $_POST['selected_date'] ) ) {
-                $selected_date = $_POST['selected_date'];
-                update_post_meta( $post_id, 'selected_date', $selected_date );
-            }
-            //Start Time
-            if ( isset( $_POST['start_time'] ) ) {
-              $time_slot = $_POST['start_time'];
-                // $sanitized_start_time = array(
-                //     'hours' => sanitize_text_field( $time_slot['hours'] ),
-                //     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
-                //     'seconds' => sanitize_text_field( $time_slot['seconds'] ),
-                //     'ampm' => sanitize_text_field( $time_slot['ampm'] ),
-                // );
+            if($get_type == 'bms_forms'){
+                if (isset($_POST['cal_title'])) {
+                    update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
+                } 
+                if (isset($_POST['cal_description'])) {
+                    update_post_meta($post_id, 'cal_description', $_POST['cal_description']);
+                } 
+                // Section Tab 1 
+                // Check if the enable_booking field is set and save the value
+                if (isset($_POST['enable_booking'])) {
+                    update_post_meta($post_id, 'enable_booking', 1);
+                } else {
+                    delete_post_meta($post_id, 'enable_booking');
+                }
+                //Weekdays
+                if (isset($_POST['weekdays'])) {
+                    update_post_meta($post_id, 'weekdays', $_POST['weekdays']);
+                } else {
+                    update_post_meta($post_id, 'weekdays', array());
+                }
+                // Save the radio button value for appointment Type
+                if (isset($_POST['appointment_type'])) {
+                    $selected_option = sanitize_text_field($_POST['appointment_type']);
+                    update_post_meta($post_id, 'appointment_type', $selected_option);
+                }
     
-                // Update the post meta data with the field value
-                update_post_meta( $post_id, 'start_time', $time_slot );
-            }
-             //End Time
-             if ( isset( $_POST['end_time'] ) ) {
-                $time_slot = $_POST['end_time'];
-                // $sanitized_end_time = array(
-                //     'hours' => sanitize_text_field( $time_slot['hours'] ),
-                //     'minutes' => sanitize_text_field( $time_slot['minutes'] ),
-                //     'seconds' => sanitize_text_field( $time_slot['seconds'] ),
-                //     'ampm' => sanitize_text_field( $time_slot['ampm'] ),
-                // );
-        
-                // Update the post meta data with the field value
-                update_post_meta( $post_id, 'end_time', $time_slot );
-            }
-             //Steps Duration
-             if ( isset( $_POST['steps_duration'] ) ) {
-                $steps_duration = $_POST['steps_duration'];
-                $sanitized_steps_duration = array(
-                    'hours' => sanitize_text_field( $steps_duration['hours'] ),
-                    'minutes' => sanitize_text_field( $steps_duration['minutes'] )
-                    // 'seconds' => sanitize_text_field( $steps_duration['seconds'] ),                   
-                );
-        
-                // Update the post meta data with the field value
-                update_post_meta( $post_id, 'steps_duration', $sanitized_steps_duration );
-            }
-             //timeslot_duration
-             if ( isset( $_POST['timeslot_duration'] ) ) {
-                $timeslot_duration = $_POST['timeslot_duration'];
-                $sanitized_timeslot_duration = array(
-                    'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
-                    'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
-                );
-        
-                // Update the post meta data with the field value
-                update_post_meta( $post_id, 'timeslot_duration', $sanitized_timeslot_duration );
-            }
-          
-            //no_of_booking
-            if ( isset( $_POST['no_of_booking'] ) ) {
-                $selected_date = $_POST['no_of_booking'];
-                update_post_meta( $post_id, 'no_of_booking', $selected_date );
-            }
-            //waiting List
-            if (isset($_POST['waiting_list'])) {
-                update_post_meta($post_id, 'waiting_list', 1);
-            } else {
-                delete_post_meta($post_id, 'waiting_list');
-            }
-            //enable_auto_approve
-            if (isset($_POST['enable_auto_approve'])) {
-                update_post_meta($post_id, 'enable_auto_approve', 1);
-            } else {
-                delete_post_meta($post_id, 'enable_auto_approve');
-            }
-            //multiple breaks
-            if (isset($_POST['breaktimeslots'])) {
-                $breaktimeslots = $_POST['breaktimeslots'];
+                // Save the  link value if Appointment Type "Virtual" is selected
+                if (isset($_POST['virtual_link'])) {
+                    $link_value = sanitize_text_field($_POST['virtual_link']);
+                    update_post_meta($post_id, 'virtual_link', $link_value);
+                }
+               
+                 //Symbol
+                 if ( isset( $_POST['label_symbol'] ) ) {
+                    $label_symbol = $_POST['label_symbol'];
+                    update_post_meta( $post_id, 'label_symbol', $label_symbol );
+                }
+                 //Cost
+                if ( isset( $_POST['cost'] ) ) {
+                    $selected_date = $_POST['cost'];
+                    update_post_meta( $post_id, 'cost', $selected_date );
+                }
+                  //selected_date
+                if ( isset( $_POST['selected_date'] ) ) {
+                    $selected_date = $_POST['selected_date'];
+                    update_post_meta( $post_id, 'selected_date', $selected_date );
+                }
+                //Start Time
+                if ( isset( $_POST['start_time'] ) ) {
+                  $time_slot = $_POST['start_time'];
+                    
+                    // Update the post meta data with the field value
+                    update_post_meta( $post_id, 'start_time', $time_slot );
+                }
+                 //End Time
+                 if ( isset( $_POST['end_time'] ) ) {
+                    $time_slot = $_POST['end_time'];
+                  
+                    // Update the post meta data with the field value
+                    update_post_meta( $post_id, 'end_time', $time_slot );
+                }
+                 //Steps Duration
+                 if ( isset( $_POST['steps_duration'] ) ) {
+                    $steps_duration = $_POST['steps_duration'];
+                    $sanitized_steps_duration = array(
+                        'hours' => sanitize_text_field( $steps_duration['hours'] ),
+                        'minutes' => sanitize_text_field( $steps_duration['minutes'] )
+                        // 'seconds' => sanitize_text_field( $steps_duration['seconds'] ),                   
+                    );
             
-                // Sanitize and save the values
-                $sanitized_breaktimeslots = array();
-                foreach ($breaktimeslots as $breaktimeslot) {
-                  $breakstart_time = sanitize_text_field($breaktimeslot['start_time']);
-                  $breakend_time = sanitize_text_field($breaktimeslot['end_time']);
-                  $sanitized_breaktimeslots[] = array(
-                    'start_time' => $breakstart_time,
-                    'end_time' => $breakend_time,
-                  );
-                }            
-                update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
-              }else{
-                    $breaktimeslots = get_post_meta($post_id, 'timeslots', true);
-                    if (empty($timeslots)) {
-                        $sanitized_breaktimeslots = array(
-                            array(
-                            'start_time' => '',
-                            'end_time' => '',
-                            ),
-                        );
-                    }
+                    // Update the post meta data with the field value
+                    update_post_meta( $post_id, 'steps_duration', $sanitized_steps_duration );
+                }
+                 //timeslot_duration
+                 if ( isset( $_POST['timeslot_duration'] ) ) {
+                    $timeslot_duration = $_POST['timeslot_duration'];
+                    $sanitized_timeslot_duration = array(
+                        'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
+                        'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
+                    );
+            
+                    // Update the post meta data with the field value
+                    update_post_meta( $post_id, 'timeslot_duration', $sanitized_timeslot_duration );
+                }
+              
+                //no_of_booking
+                if ( isset( $_POST['no_of_booking'] ) ) {
+                    $selected_date = $_POST['no_of_booking'];
+                    update_post_meta( $post_id, 'no_of_booking', $selected_date );
+                }
+                //waiting List
+                if (isset($_POST['waiting_list'])) {
+                    update_post_meta($post_id, 'waiting_list', 1);
+                } else {
+                    delete_post_meta($post_id, 'waiting_list');
+                }
+                //enable_auto_approve
+                if (isset($_POST['enable_auto_approve'])) {
+                    update_post_meta($post_id, 'enable_auto_approve', 1);
+                } else {
+                    delete_post_meta($post_id, 'enable_auto_approve');
+                }
+                //multiple breaks
+                if (isset($_POST['breaktimeslots'])) {
+                    $breaktimeslots = $_POST['breaktimeslots'];
+                
+                    // Sanitize and save the values
+                    $sanitized_breaktimeslots = array();
+                    foreach ($breaktimeslots as $breaktimeslot) {
+                      $breakstart_time = sanitize_text_field($breaktimeslot['start_time']);
+                      $breakend_time = sanitize_text_field($breaktimeslot['end_time']);
+                      $sanitized_breaktimeslots[] = array(
+                        'start_time' => $breakstart_time,
+                        'end_time' => $breakend_time,
+                      );
+                    }            
                     update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
-              }
-            
-           
-             //Enable Recurring Events
-            if (isset($_POST['enable_recurring_apt'])) {
-                // echo $_POST['enable_recurring_apt'];
-                update_post_meta($post_id, 'enable_recurring_apt', 1);
-            } else {
-                delete_post_meta($post_id, 'enable_recurring_apt');
-            }
-             // Check if the meta values are set
-            if (isset($_POST['recurring_type'])) {
-                $recurring_type = sanitize_text_field($_POST['recurring_type']);
-                update_post_meta($post_id, 'recurring_type', $recurring_type);
-            }
-           
-            // Check if the 'recur_weekdays' field is present in the $_POST data
-            if (isset($_POST['recur_weekdays'])) {
-                // Sanitize the array of weekdays
-                $sanitized_recur_weekdays = array_map('sanitize_text_field', $_POST['recur_weekdays']);
-
-                // Save the selected weekdays as post meta data
-                update_post_meta($post_id, 'recur_weekdays', $sanitized_recur_weekdays);               
-
-            }
-            if (isset($_POST['advancedata'])) {
+                  }else{
+                        $breaktimeslots = get_post_meta($post_id, 'breaktimeslots', true);
+                        if (empty($timeslots)) {
+                            $sanitized_breaktimeslots = array(
+                                array(
+                                'start_time' => '',
+                                'end_time' => '',
+                                ),
+                            );
+                        }
+                        update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
+                  }
                 
-                $advancedata = $_POST['advancedata'];
-             
-                update_post_meta($post_id, 'advancedata', $advancedata);
+                  if (isset($_POST['generatetimeslot'])) {
+                    $generatetimeslots = $_POST['generatetimeslot'];
+                    
                 
+                    // Sanitize and save the values
+                    $sanitized_generatetimeslots = array();
+                    foreach ($generatetimeslots as $generatetimeslot) {
+                      $generatestart_time = sanitize_text_field($generatetimeslot['start_time']);
+                      $generateend_time = sanitize_text_field($generatetimeslot['end_time']);
+                      $sanitized_generatetimeslots[] = array(
+                        'start_time' => $generatestart_time,
+                        'end_time' => $generateend_time,
+                      );
+                    }            
+                    update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
+                  }else{
+                        $generatetimeslots = get_post_meta($post_id, 'generatetimeslot', true);
+                        if (empty($timeslots)) {
+                            $sanitized_generatetimeslots = array(
+                                array(
+                                'start_time' => '',
+                                'end_time' => '',
+                                ),
+                            );
+                        }
+                        update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
+                  }
+               
+                 //Enable Recurring Events
+                if (isset($_POST['enable_recurring_apt'])) {
+                    // echo $_POST['enable_recurring_apt'];
+                    update_post_meta($post_id, 'enable_recurring_apt', 1);
+                } else {
+                    delete_post_meta($post_id, 'enable_recurring_apt');
+                }
+                 // Check if the meta values are set
+                if (isset($_POST['recurring_type'])) {
+                    $recurring_type = sanitize_text_field($_POST['recurring_type']);
+                    update_post_meta($post_id, 'recurring_type', $recurring_type);
+                }
+               
+                // Check if the 'recur_weekdays' field is present in the $_POST data
+                if (isset($_POST['recur_weekdays'])) {
+                    // Sanitize the array of weekdays
+                    $sanitized_recur_weekdays = array_map('sanitize_text_field', $_POST['recur_weekdays']);
+    
+                    // Save the selected weekdays as post meta data
+                    update_post_meta($post_id, 'recur_weekdays', $sanitized_recur_weekdays);               
+    
+                }
+                if (isset($_POST['advancedata'])) {
+                    
+                    $advancedata = $_POST['advancedata'];
+                 
+                    update_post_meta($post_id, 'advancedata', $advancedata);
+                    
+                }
+                   // Holidays
+                if (isset($_POST['holidays'])) {
+                    $holidays = array_map('sanitize_text_field', $_POST['holidays']);
+                    update_post_meta($post_id, 'holiday_dates', $holidays);
+                }
+    
+                // Save the "End Repeats" option
+                if (isset($_POST['end_repeats'])) {
+                    $end_repeats = sanitize_text_field($_POST['end_repeats']);
+                    update_post_meta($post_id, 'end_repeats', $end_repeats);
+                }
+    
+                // Save the corresponding input field values based on the "End Repeats" option
+                if (isset($_POST['end_repeats_on'])) {
+                    $end_repeats_on = sanitize_text_field($_POST['end_repeats_on']);
+                    update_post_meta($post_id, 'end_repeats_on', $end_repeats_on);
+                }
+    
+                if (isset($_POST['end_repeats_after'])) {
+                    $end_repeats_after = sanitize_text_field($_POST['end_repeats_after']);
+                    update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
+                }
+              
             }
-               // Holidays
-            if (isset($_POST['holidays'])) {
-                $holidays = array_map('sanitize_text_field', $_POST['holidays']);
-                update_post_meta($post_id, 'holiday_dates', $holidays);
-            }
+            // if($get_type == 'bms_entries'){
+            //     Echo "test";
+            //     exit;
+            //     // if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
+            //     //     return;
+            //     // }
 
-            // Save the "End Repeats" option
-            if (isset($_POST['end_repeats'])) {
-                $end_repeats = sanitize_text_field($_POST['end_repeats']);
-                update_post_meta($post_id, 'end_repeats', $end_repeats);
-            }
-
-            // Save the corresponding input field values based on the "End Repeats" option
-            if (isset($_POST['end_repeats_on'])) {
-                $end_repeats_on = sanitize_text_field($_POST['end_repeats_on']);
-                update_post_meta($post_id, 'end_repeats_on', $end_repeats_on);
-            }
-
-            if (isset($_POST['end_repeats_after'])) {
-                $end_repeats_after = sanitize_text_field($_POST['end_repeats_after']);
-                update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
-            }
+            //     if (isset($_POST['notes'])) {
+            //         $notes = sanitize_textarea_field($_POST['notes']);
+            //         update_post_meta($post_id, 'notes', $notes);
+            //     }
+            // }
           
          }
+         // Save the notes data
+        function save_notes_data($post_id) {
+            if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
+                return;
+            }
+
+            if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+                return;
+            }
+
+            if (!current_user_can('edit_post', $post_id)) {
+                return;
+            }
+
+            if (isset($_POST['notes'])) {
+                $notes = sanitize_textarea_field($_POST['notes']);
+                update_post_meta($post_id, 'notes', $notes);
+            }
+        }
+       
+
         /**
 	 	* Adds the meta box container.
 		*/
@@ -867,11 +994,11 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 			if ( in_array( $post_type, $post_types ) ) {
 				add_meta_box(
 					'form_submission_data',
-					__( 'General Details', 'textdomain' ),
+					' ',
 					array( $this, 'zfb_entries_render_meta_box_content' ),
 					$post_type,
-					'advanced',
-					'high'
+					'normal',
+                    'high'
 				);
 
                 add_meta_box(
@@ -879,9 +1006,25 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 					__( 'Edit Forms Details', 'textdomain' ),
 					array( $this, 'zfb_edit_form_details' ),
 					$post_type,
-					'advanced',
-					'high'
+					'normal',
+                    'high'
 				);
+                add_meta_box(
+                    'manual_notification', 
+                    'Actions', 
+                    array( $this, 'Send_manual_notification' ),
+                    $post_type,
+                    'side', 
+                    'default'
+                );
+                add_meta_box(
+                    'notes-meta-box',
+                    'Notes',
+                    array( $this, 'zfb_render_notes_meta_box' ),
+                    $post_type,
+                    'normal',
+                    'high'
+                );
 			}
 
 			$post_types = array( 'bms_forms');
@@ -905,78 +1048,113 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 					'normal',
                     'high'
 				);
+             
 			}
 		}
+       // Render the meta box content
+       
+        function Send_manual_notification($post) {
+            $status = get_post_meta($post->ID, 'custom_status', true);
+            ?>
+            <!-- <label for="custom_status">Status:</label> -->
+            <select name="custom_status" id="custom_status">
+            <option value="any">Choose an action ...</option>
+                <option value="confirmation" >Confirmation</option>
+                <option value="approved" >Approved</option>
+                <option value="cancelled" >Cancelled</option>
+                <option value="updated" >Updated</option>
+            </select>
+            <button type="button" id="send_notification_button"> Send </button>
+            <?php
+        }
+        
         function zfb_edit_form_details($post){
             // echo $post_id;
             $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
-            $form_schema = get_post_meta($form_id, '_my_meta_value_key', true);
+            $form_schema = get_post_meta($form_id, '_formschema', true);
             $form_data = get_post_meta($post->ID, 'bms_submission_data', true );
-            //  echo "<pre>";print_r( $form_data );
+            //   echo "<pre>";print_r( $form_data );
 			if ($form_schema) {
                 ?>
                <div id="formio"></div>
 
                 <script>
-                var myScriptData = <?php echo $form_schema; ?>;                                                          
-                var value = myScriptData;
-                var entryData = <?php echo json_encode($form_data['data']); ?>; // Extract the form data from the entry data
+                    var myScriptData = <?php echo $form_schema; ?>;                                                          
+                    var value = myScriptData;
+                    var entryData = <?php echo json_encode($form_data['data']); ?>; // Extract the form data from the entry data
 
-                Formio.createForm(document.getElementById('formio'), {
-                    components: value,
-                    readOnly: false, // Enable editing
-                    noAlerts: true, // Disable default Form.io alerts
-                    options: {
-                    noSubmit: true // Disable form submission
+                    Formio.createForm(document.getElementById('formio'), {
+                        components: value,
+                        readOnly: false, 
+                        noAlerts: true, 
+                        buttonSettings: {
+                        showSubmit: true,
+                        submitCopy: 'Update'
                     }
-                }).then(function(form) {
-                    form.setSubmission({
-                    data: entryData // Set the pre-filled entry data
-                    });
-                    form.redraw();
-                    form.on('submit', function(submission) {
-                    event.preventDefault();
+                    }).then(function(form) {
+                        form.setSubmission({
+                        data: entryData 
+                        });
+                        form.redraw();
+                        var submitButton = form.getComponent('submit');
+                        if (submitButton) {
+                            submitButton.setValue('Update'); 
+                        }
+                        form.on('submit', function(submission) {
+                        event.preventDefault();
 
-                    // Retrieve the entry ID
-                    var entryId = <?php echo $post->ID; ?>;
+                        if (!submitButton.disabled) { 
+                            submitButton.disabled = true;
+                            submitButton.loading = true;
+                            submitButton.updateValue();
+                        }
 
-                    // Retrieve the form field values from the submission
-                    var updatedData = submission.data;
+                        var entryId = <?php echo $post->ID; ?>;
+                        var updatedData = submission.data;
 
-                    // Perform AJAX request to update the entry data in the post meta
-                    jQuery.ajax({
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        type: 'post',
-                        data: {
-                        action: 'update_form_entry_data', // AJAX action to handle the update
-                        entry_id: entryId,
-                        updated_data: updatedData
-                        },
-                        success: function(response) {
-                        if (response.success) {
-                            // Handle success message or redirect after update
-                            console.log('Form data updated successfully');
-                        } else {
-                            // Handle error response
+                        jQuery.ajax({
+                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                            type: 'post',
+                            data: {
+                            action: 'update_form_entry_data', 
+                            entry_id: entryId,
+                            updated_data: updatedData
+                            },
+                            success: function(response) {
+                            if (response.success) {
+                                console.log('Form data updated successfully');
+                            } else {
+                                console.log('Failed to update form data');
+                            }
+                            },
+                            error: function() {
                             console.log('Failed to update form data');
-                        }
-                        },
-                        error: function() {
-                        // Handle AJAX error
-                        console.log('Failed to update form data');
-                        }
-                    });
+                            },
+                            complete: function() {
+                                submitButton.disabled = false;
+                                submitButton.loading = false;
+                                submitButton.updateValue();
+                            }
+                        });
 
-                    return false;
-                    });
+                        return false;
+                        });
 
-                });
+                    });
                 </script>
 
              <?php
 
             }
         }
+        function zfb_render_notes_meta_box($post) {
+            $notes = get_post_meta($post->ID, 'notes', true);
+            wp_nonce_field('save_notes', 'notes_nonce');
+            ?>
+            <textarea name="notes" id="notes" rows="5" style="width: 100%;"><?php echo esc_textarea($notes); ?></textarea>
+            <?php
+        }
+
         function timezone_dropdown($post_id){
             $get_timezone_value = get_post_meta( $post_id,'timezone',true);
             $dropdown_timezone = '<select name="timezone" id="zfb-timezone">

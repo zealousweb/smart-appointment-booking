@@ -379,3 +379,6 @@ table.dataTable thead .sorting:nth-child(4){
 #recurring_result > div{
   margin-bottom: 20px;
 }
+#form_submission_data .postbox-header {
+  display: none;
+}
