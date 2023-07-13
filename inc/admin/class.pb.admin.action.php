@@ -22,7 +22,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		function __construct()  {
 
 			add_action( 'admin_init', array( $this, 'action__admin_init' ) );
-
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
 			add_action('admin_menu',array( $this, 'add_main_custom_post_type_menu' ));
@@ -57,12 +56,18 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			add_action('wp_ajax_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
 			add_action('wp_ajax_nopriv_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
 
-			add_action('wp_ajax_send_notification_ajax_handler', array( $this, 'send_notification_ajax_handler' ) );
-		add_action('wp_ajax_nopriv_send_notification_ajax_handler', array( $this, 'send_notification_ajax_handler' ) );
+			add_action('wp_ajax_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
+			add_action('wp_ajax_nopriv_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
 
-		
+			add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
+			// add_action( 'restrict_manage_posts', array( $this, 'add_custom_form_filter_dropdown' ) );
+			add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
+			// add_action( 'pre_get_posts', array( $this, 'filter_custom_form' ) );
+			
+			add_action('post_submitbox_misc_actions', array( $this, 'modify_submitdiv_content' ) );
+			
 		}
-
+	
 		/*
 		   ###     ######  ######## ####  #######  ##    ##  ######
 		  ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##
@@ -165,8 +170,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$role = get_role('administrator'); 
 			$role->add_cap('edit_notifications'); 
 		}
-		
-
 		/**
 		 * save new notification
 		 */
@@ -372,8 +375,8 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$args_form = array(
 				'labels' => $labels_form,
 				'description' => '',
-				'public' => false,
-				'publicly_queryable' => false,
+				'public' => true,
+				'publicly_queryable' => true,
 				'show_ui' => true,
 				'delete_with_user' => false,
 				'show_in_rest' => false,
@@ -404,7 +407,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$args = array(
 				'labels' => $labels,
 				'description' => '',
-				'public' => false,
+				'public' => true,
 				'publicly_queryable' => false,
 				'show_ui' => true,
 				'delete_with_user' => false,
@@ -451,8 +454,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'Booking Entries',
 				'Booking Entries',
 				'manage_options',
-				'edit.php?post_type=bms_entries'
+				admin_url('edit.php?post_type=bms_entries')
+				
 			);
+			
 			add_submenu_page(
 				$menu_hook_suffix, // Use the menu hook suffix as the parent slug
 				'Notification Settings', // Page title
@@ -485,6 +490,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
             $bookedday =$array_of_date[3];
             $bookedyear =$array_of_date[4];
             $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
+			$booked_date = date('F j, Y', strtotime($booked_date));
             // $totalbookings = get_post_meta( $post_id, 'totalbookings', true );	
             $slotcapacity = get_post_meta( $post_id, 'slotcapacity', true );	
 
@@ -493,7 +499,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
             if(!empty($form_id)){ 
                $booking_form_title = get_the_title($form_id);               
             }
-            $date_generated = get_the_date($post_id);
+            $date_generated = get_the_date('d/m/Y',$post_id);
             $status = get_post_meta( $post_id, 'entry_status', true );
             if(empty($status)){
                 $status = "Approval Pending";
@@ -507,48 +513,126 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
                 $status = "Manual";
             }elseif($status == 'expired'){
                 $status = "Expired";
+            }elseif($status == 'waiting'){
+                $status = "Waiting";
             }
             ?>
-            <h3>Booking Details</h3>
 			
-            <ul>
-                <li><?php echo __('Form Title', 'textdomain')." : ".$booking_form_title; ?></li>
-                <li><?php echo __('Date Generated', 'textdomain')." : ".$date_generated; ?></li>
-                <li><?php echo __('Status', 'textdomain')." : ".$status; ?></li>
-                <li><?php echo __('Customer', 'textdomain'); ?> : <?php echo __('Guest', 'textdomain');; ?></li>
-                <li><?php echo __('Booking Date', 'textdomain'); ?> : <?php echo __($booked_date, 'textdomain');; ?></li>
-                <li><?php echo __('Timeslot', 'textdomain'); ?> : <?php echo __($timeslot, 'textdomain'); ?></li>
-                <li><?php echo __('No of Slots Booked', 'textdomain'); ?> : <?php echo __($slotcapacity, 'textdomain'); ?></li>
-            </ul>   
-            <h3>Details</h3>
-            <ul>
-                <?php
-                foreach($form_data['data'] as $form_key => $form_value){
-                    if($form_key !== 'submit'){
-                        echo "<li>".$form_key." : ".$form_value."</li>";
-                    }
-                }
-                ?>
-            </ul>
-			<h3>Notes</h3>
-			<?php 
-			   $notes = get_post_meta($post_id, 'notes', true);
-			   echo esc_textarea($notes);
-			?>
+		<div class="entry_title">
+			<div class="entries_title_main">
+				<?php
+				if (isset($_GET['post_id'])) {
+					$post_id = absint($_GET['post_id']); 
+					$title = get_the_title($post_id);
+					echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
+
+					if (current_user_can('edit_post', $post_id)) {
+						$edit_post_link = get_edit_post_link($post_id);
+						if ($edit_post_link) {
+							?>
+							<a href="<?php echo esc_url($edit_post_link); ?>" class="edit-link">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+								</svg>
+								Edit
+							</a>
+							<?php
+						}
+					} else {
+						error_log('You do not have permission to edit this post.');
+					}
+					
+					$published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
+					echo '<p class="published_on">Published on ' . $published_date. '</p>';
+				} else {
+					error_log('Invalid post ID.');
+				}
+				?>
+			</div>
+		</div>
+
+			<div class="main-entries-section" id="main_entries_section1">
+				<table id="main_entries_table1">
+					<tr>
+						<th class="h6"><?php echo __('Form Title', 'textdomain'); ?></th>
+						<td><?php echo $booking_form_title; ?></td>
+					</tr>
+					
+					<tr>
+						<th class="h6"><?php echo __('Status', 'textdomain'); ?></th>
+						<td><?php echo $status; ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo __('Customer', 'textdomain'); ?></th>
+						<td><?php echo __('Guest', 'textdomain'); ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo __('Booked Date', 'textdomain'); ?></th>
+						<td><?php echo $booked_date; ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo __('Timeslot', 'textdomain'); ?></th>
+						<td><?php echo $timeslot; ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo __('No of Slots Booked', 'textdomain'); ?></th>
+						<td><?php echo $slotcapacity; ?></td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="main-entries-section" id="main_entries_section2">
+				<!-- <h3>Details</h3> -->
+				<table id="main_entries_table2">
+					<?php
+					foreach($form_data['data'] as $form_key => $form_value){
+						if($form_key !== 'submit'){
+							echo "<tr><th class='h6'>".ucfirst($form_key)."</th><td>".$form_value."</td></tr>";
+						}
+					}
+					?>
+				</table>
+			</div>
+
+			<div class="main-entries-section" id="main_entries_section3">
+				<h6>Notes</h6>
+				<?php 
+				$notes = get_post_meta($post_id, 'notes', true);
+				echo esc_textarea($notes);
+				?>
+			</div>
+
+
             <?php
         }
-		function send_notification_ajax_handler() {
-			if (isset($_POST['status'])) {
-				$status = sanitize_text_field($_POST['status']);
-				$to = 'recipient@example.com';
-				$subject = 'Post Status Updated';
-				$message = 'The post status has been set to: ' . $status;
-		
-				wp_mail($to, $subject, $message);
-		
-				echo 'Notification sent'; // Optional: Send a response back to the JavaScript code
+		function send_manual_notification_handler() {
+			$response = array(					
+				'message' => '',
+				'mail_message' => '',
+				
+			);
+			if (isset($_POST['status']) && isset($_POST['form_id']) && isset($_POST['post_id'])) {
+
+				$get_bookingId = sanitize_text_field($_POST['bookingId']);
+				$bookingId = $_POST['post_id'];
+				$status = $_POST['status'];
+				$formdata = get_post_meta($bookingId,'bms_submission_data',true);
+				$form_id = get_post_meta($bookingId,'bms_form_id',true);
+				update_post_meta($bookingId, 'entry_status', $status);
+			
+				$listform_label_val = $this->create_key_value_formshortcodes($bookingId,$formdata);
+				$listform_label_val['Status'] = $status;
+				
+				$message = do_action('notification_send', $status, $form_id, $bookingId, $listform_label_val);
+			
+				$response = array(					
+					'message' => __('Your booking has been cancelled succesfully','textdomain'),
+					'mail_message' => $message,
+				);
 			}
-		
+			
+			wp_send_json($response);
 			wp_die(); // Always include this line to end the AJAX request
 		}
 		
@@ -741,12 +825,23 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 								<p class="smal head-shortcode">Here is a list of available shortcodes to use in email notification mail body</p>
 																
 								<?php
-								
 								$form_data = $this->admin_get_shortcodes($post_id);
-								foreach ($form_data as $obj) {
-									echo '<span>['.$obj.']</span>';
-									echo ' ';
+								echo '<div class=""><label style="font-weight: bold;">' . __('Form shortcodes', 'textdomain') . '</label></div>';
+								foreach ($form_data['form'] as $objform) {
+									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objform . ']</span>';
 								}
+								$enable_booking = get_post_meta($post_id, 'enable_booking', true);
+								if( $enable_booking ){
+									echo '<div class=""><label style="font-weight: bold;">' . __('Booking shortcodes', 'textdomain') . '</label></div>';
+									foreach ($form_data['booking'] as $objbooking) {
+										echo '<span class="copy-text" style="margin-right: 5px;margin-bottom: 5px; font-family: Arial; font-size: 14px;">[' . $objbooking . ']</span>';
+									}
+								}
+								echo '<div class=""><label style="font-weight: bold;">' . __('Post shortcodes', 'textdomain') . '</label></div>';
+								foreach ($form_data['post'] as $objpost) {
+									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objpost . ']</span>';
+								}
+								
 								?>
 							</div>
 						</div>
@@ -754,221 +849,228 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 					</div>
 					<div class="tab-pane fade" id="content_notification" role="tabpanel" aria-labelledby="tab_notification">
 						<div id="notify-main-content" class="notify-main-container">
-						<!-- <h3>Notifcation</h3> -->
-						<?php
-					
-						// Get the post status
-						$status = get_post_status($post_id);
-						
-						// Check if the post is published
-						if ($status === 'publish') {
-
-							$get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
-							$index='add';
-							?>
-							<div class="main-container-notification border border-light" >
-								
-								<div class="form-group">
-								<!-- Button to trigger the modal -->
-								<button type="button" class="btn btn-secondary" id="add_notify_btn" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Add New notification </button>
-								</div>
-								<!-- Modal -->
-								<?php  $this->generateModal($index,$post_id); ?>
-								<!-- Modal -->
-								<?php
-								$notification_metadata = get_post_meta($post_id, 'notification_data', true);
-								// echo "<pre>";
-								// print_r($notification_metadata);
-								if (!empty($notification_metadata) && is_array($notification_metadata)) {
-									$post_id = $_GET['post_id'];
-									?>	
-										<!-- <div class="dataTables_filter">
-											<label>
-												Search:
-												<input type="search" class="form-control" id="notification-search" placeholder="Search by notification title">
-											</label>
-										</div> -->
-										<!-- <input type="search" class="form-control" id="searchbox" placeholder="Search by notification title"> -->
-										<div id="tab5" class="tab-content">
-										<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
-										<table class="table notificationtable datatable table-striped" id="notifytable" >
-											<thead>
-												<tr>
-													<th scope="col" ><input type="checkbox" id="main-check-all" class="maincheckall" value="1" ></th>
-													<!-- <th scope="col"></th> -->
-													<th scope="col">
-													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
-																<path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
-																<path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
-															</svg>	
-													Notification</th>
-													<th scope="col">State</th>
-													<th scope="col">Actions</th>
-													
-												</tr>
-											</thead>
-											<tbody>
-												<?php
-												$ni=1;
-												foreach ($notification_metadata as $index => $notification) {
-													$notification_name = $notification['notification_name'];
-													$state = $notification['state'];
-													$notification_id = 'notify_' . $index;
-													?>
-													<tr>
-														<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
-														<td>
-															<?php 
-															echo $ni."."; 
-															$ni++;
-															echo " ".$notification_name; 
-															?>
-														</td>
-														<!-- <td><span><?php //echo $state; ?></span> <span>(Enabled)</span></td> -->
-														<td>
-														<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
-														<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
-														<td> 
-															<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">
-															<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-																<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-																<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-															</svg>
-																Edit
-															</button>
-															<!-- Modal -->
-															<?php  $this->generateModal($index,$post_id); ?>
-														</td>
-														</tr>
-													<?php
-												}
-												?>
-											</tbody>
-										</table>
-										<button type="button" class="btn btn-danger" id="deletenotify">Delete</button>
-									<?php
-								}else{
-									echo 'No notification data found for the post.';
-								}
-							echo '</div>';
-						} else {
-							echo 'Publish Post to Create Notification';
-						}
-						echo '</div>';
-						?>
-					</div>
-				</div>
-				<div class="tab-pane fade" id="content_documentation" role="tabpanel" aria-labelledby="tab_documentation">
-					<div class="shortcodes_list col-md-6 m-4">
-						<ul>
-							<li class="h6">Create Email Alerts for admin and as well for user with on following Status: Booked, Pending, Approved, Cancelled.</li>
-							<li>Map this required Fields with Form's field : Email Field helps to send email alert to user who submitted form</li>
-							<li class="h6">New Booking Created: (When auto approve mode is enabled)</li>
-							<li>When any user or admin makes a new booking, create an email notification containing the relevant details of the booking. This notification will indicate that the booking is booked and confirmed
-							</li>
-							<li class="h6">Booking Pending: (When auto approve mode is disabled)</li>
-							<li>Create an email notification for user when a booking is approved by admin. This notification will indicate that the booking has been "Approved" and is confirmed.
-							</li>
-							<li class="h6">Booking Approved: (When auto approve mode is disabled)</li>
-							<li>Create an email notification for user when a booking is approved by admin. This notification will indicate that the booking has been "Approved" and is confirmed.
-							</li>
-							<li class="h6">Booking Cancelled:</li>
-							<li>In case a booking is cancelled either by an admin or a user, create an email alert providing you with the pertinent information. This notification will indicate that the booking has been "Cancelled" and will no longer be valid.
-							</li>
-						</ul>
-
-						<ul>
-							<li class="h6">Submitted : (Send Email on submitting Form) </li>
-							<li>If the booking feature is not set up or disabled, you have the option to configure email notifications specifically for the "submitted" status. You can generate admin and user email alert.</li>
-						</ul>
-					</div>
-				</div>
-				<div class="tab-pane fade" id="content_confirmation" role="tabpanel" aria-labelledby="tab_confirmation">
-					<?php
-					   $confirmation = get_post_meta($post_id, 'confirmation', true);  
-					   $redirect_text = get_post_meta($post_id, 'redirect_text', true);
-					   $redirect_to= get_post_meta($post_id, 'redirect_to', true);
-					   $hiddenredirect_text = '';
-					   	if ($confirmation == 'redirect_text'){
-							$hiddenredirect_to = 'hidden';
-							$hiddenredirect_page = 'hidden';
-							
-						}elseif($confirmation == 'redirect_page'){
-							$hiddenredirect_text = 'hidden';
-							$hiddenredirect_to = 'hidden';
-						
-						}elseif($confirmation == 'redirect_to'){
-							$hiddenredirect_text = 'hidden';
-							$hiddenredirect_page = 'hidden';
-						
-						}
-						if(empty($confirmation) || !isset($confirmation)){
-							$hiddenredirect_text = "hidden";
-							$hiddenredirect_page = "hidden";
-							$hiddenredirect_to = "hidden";
-						}
-					?>
-					<form id="confirm_form" method="post" >
-					<!-- <form method="post" class="confirmation_form" id="confirm_form"> -->
-						<div class="form-check form-check-inline ">
-							<input  type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
-							<label class="form-check-label" for="radioText">
-								Text
-							</label>
-						</div>
-						<div class="form-check form-check-inline">
-							<input  type="radio" name="confirmation" id="radioPage" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>>
-							<label class="form-check-label" for="radioPage">
-								Page
-							</label>
-						</div>
-						<div class="form-check form-check-inline">
-							<input type="radio" name="confirmation" id="radioRedirect" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>>
-							<label class="form-check-label" for="radioRedirect">
-								Redirect to
-							</label>
-						</div>
-						<!-- Class is used for on change event display div: redirectto_main redirect_page , redirectto_main redirect_text, redirectto_main redirect_to -->
-						<div class="form-group redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?> ">
+							<!-- <h3>Notifcation</h3> -->
 							<?php
-								wp_editor($redirect_text, 'redirect_text', array(
-									'textarea_name' => 'redirect_text',
-								));
-							?>
-						</div>
-						<div class="form-group redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?>  ">
-							<label  class="h6">Select a page:</label>
-							<input type="text" id="redirectpage-search" placeholder="Search...">
-							<select name="redirect_page" id="redirectpage-dropdown">
-								<option value="">Select a page</option>
-								<?php
-								$args = array(
-									'post_type' => 'page',
-									'posts_per_page' => -1,
-									'orderby' => 'title',
-									'order' => 'ASC'
-								);
-								$pages = get_posts($args);
-								foreach ($pages as $page) {
-									$selected = '';
-									$selected_page_id = get_post_meta(get_the_ID(), 'selected_page', true);
-									if ($selected_page_id == $page->ID) {
-										$selected = 'selected="selected"';
-									}
-									echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
-								}
+							// Get the post status
+							$status = get_post_status($post_id);
+							
+							// Check if the post is published
+							if ($status === 'publish') {
+
+								$get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
+								$index='add';
 								?>
-							</select>
+								<div class="main-container-notification border border-light" >
+									
+									<div class="form-group">
+										<!-- Button to trigger the modal -->
+										<button type="button" class="btn btn-secondary" id="add_notify_btn" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Add New notification </button>
+									</div>
+									<!-- Modal -->
+									<?php  $this->generateModal($index,$post_id); ?>
+									
+									<?php
+									$notification_metadata = get_post_meta($post_id, 'notification_data', true);
+									// echo "<pre>";
+									// print_r($notification_metadata);
+									if (!empty($notification_metadata) && is_array($notification_metadata)) {
+										$post_id = $_GET['post_id'];
+										?>
+										
+										<div id="tab5" class="tab-content">
+											<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
+											<table class="table notificationtable datatable table-striped" id="notifytable" >
+												<thead>
+													<tr>
+														<th scope="col" ><input type="checkbox" id="main-check-all" class="maincheckall" value="1" ></th>
+														<!-- <th scope="col"></th> -->
+														<th scope="col">
+														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+																	<path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
+																	<path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
+																</svg>	
+														Notification</th>
+														<th scope="col">Status</th>
+														<th scope="col">State</th>
+														<th scope="col">Actions</th>
+														
+													</tr>
+												</thead>
+												<tbody>
+													<?php
+													$ni=1;
+													foreach ($notification_metadata as $index => $notification) {
+														$notification_name = $notification['notification_name'];
+														$state = $notification['state'];
+														$notification_id = 'notify_' . $index;
+														?>
+														<tr>
+															<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
+															<td>
+																<?php 
+																echo $ni."."; 
+																$ni++;
+																echo " ".$notification_name; 
+																?>
+															</td>
+															<td>
+																<span>
+																	<?php 
+																		
+																		$booking_status = isset($notification['type']) ? $notification['type'] : '';
+																	
+																		echo $booking_status;
+																	?>
+																</span>
+															</td>
+															<td>
+															<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
+															<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
+															<td> 
+																<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">
+																<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+																	<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+																	<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+																</svg>
+																	Edit
+																</button>
+																<!-- Modal -->
+																<?php  $this->generateModal($index,$post_id); ?>
+															</td>
+															</tr>
+														<?php
+													}
+													?>
+												</tbody>
+											</table>
+											<button type="button" class="btn btn-danger" id="deletenotify">Delete</button>
+										</div>
+										<?php
+									}else{
+										echo 'No notification data found for the post.';
+									}
+									?>
+								</div>
+								<?php
+							}else {
+								echo 'Publish Post to Create Notification';
+							}
+								?>
 						</div>
-						<div class="form-group redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?> ">
-							<label class="h6"><?php echo __('Enter Url: ', 'textdomain'); ?></label>
-							<input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
-							<small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
-						</div> 
-						<input type="hidden" name="post_id" value="<?php echo $post_id;?>">
-						<input type="submit" value="Save" class="btn btn-primary" name="Save">
-					</form>
-					<p id="confirm_msg" class="h6 m-2"></p>
+					</div>
+				
+					<div class="tab-pane fade" id="content_documentation" role="tabpanel" aria-labelledby="tab_documentation">
+						<div class="shortcodes_list col-md-6 m-4">
+							<ul>
+								<li class="h6">Create Email Alerts for admin and as well for user with on following Status: Booked, Pending, Approved, Cancelled, Waiting.</li>
+								<li>Map this required Fields with Form's field : Email Field helps to send email alert to user who submitted form</li>
+								<li class="h6">New Booking Created: (When auto approve mode is enabled)</li>
+								<li>When any user or admin makes a new booking, create an email notification containing the relevant details of the booking. This notification will indicate that the booking is booked and confirmed
+								</li>
+								<li class="h6">Booking Pending: (When auto approve mode is disabled)</li>
+								<li>Create an email notification for user when a booking is approved by admin. This notification will indicate that the booking has been "Approved" and is confirmed.
+								</li>
+								<li class="h6">Booking Approved: (When auto approve mode is disabled)</li>
+								<li>Create an email notification for user when a booking is approved by admin. This notification will indicate that the booking has been "Approved" and is confirmed.
+								</li>
+								<li class="h6">Booking Cancelled:</li>
+								<li>In case a booking is cancelled either by an admin or a user, create an email alert providing you with the pertinent information. This notification will indicate that the booking has been "Cancelled" and will no longer be valid.
+								</li>
+							</ul>
+
+							<ul>
+								<li class="h6">Submitted : (Send Email on submitting Form) </li>
+								<li>If the booking feature is not set up or disabled, you have the option to configure email notifications specifically for the "submitted" status. You can generate admin and user email alert.</li>
+							</ul>
+						</div>
+					</div>
+					<div class="tab-pane fade" id="content_confirmation" role="tabpanel" aria-labelledby="tab_confirmation">
+						<?php
+						$confirmation = get_post_meta($post_id, 'confirmation', true);  
+						$redirect_text = get_post_meta($post_id, 'redirect_text', true);
+						$redirect_to= get_post_meta($post_id, 'redirect_to', true);
+						$hiddenredirect_text = '';
+							if ($confirmation == 'redirect_text'){
+								$hiddenredirect_to = 'hidden';
+								$hiddenredirect_page = 'hidden';
+								
+							}elseif($confirmation == 'redirect_page'){
+								$hiddenredirect_text = 'hidden';
+								$hiddenredirect_to = 'hidden';
+							
+							}elseif($confirmation == 'redirect_to'){
+								$hiddenredirect_text = 'hidden';
+								$hiddenredirect_page = 'hidden';
+							
+							}
+							if(empty($confirmation) || !isset($confirmation)){
+								$hiddenredirect_text = "hidden";
+								$hiddenredirect_page = "hidden";
+								$hiddenredirect_to = "hidden";
+							}
+						?>
+						<form id="confirm_form" method="post" >
+						<!-- <form method="post" class="confirmation_form" id="confirm_form"> -->
+							<div class="form-check form-check-inline ">
+								<input  type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
+								<label class="form-check-label" for="radioText">
+									Text
+								</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input  type="radio" name="confirmation" id="radioPage" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>>
+								<label class="form-check-label" for="radioPage">
+									Page
+								</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input type="radio" name="confirmation" id="radioRedirect" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>>
+								<label class="form-check-label" for="radioRedirect">
+									Redirect to
+								</label>
+							</div>
+							<!-- Class is used for on change event display div: redirectto_main redirect_page , redirectto_main redirect_text, redirectto_main redirect_to -->
+							<div class="form-group redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?> ">
+								<?php
+									wp_editor($redirect_text, 'redirect_text', array(
+										'textarea_name' => 'redirect_text',
+									));
+								?>
+							</div>
+							<div class="form-group redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?>  ">
+								<label  class="h6">Select a page:</label>
+								<input type="text" id="redirectpage-search" placeholder="Search...">
+								<select name="redirect_page" id="redirectpage-dropdown">
+									<option value="">Select a page</option>
+									<?php
+									$args = array(
+										'post_type' => 'page',
+										'posts_per_page' => -1,
+										'orderby' => 'title',
+										'order' => 'ASC'
+									);
+									$pages = get_posts($args);
+									foreach ($pages as $page) {
+										$selected = '';
+										$selected_page_id = get_post_meta(get_the_ID(), 'selected_page', true);
+										if ($selected_page_id == $page->ID) {
+											$selected = 'selected="selected"';
+										}
+										echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div class="form-group redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?> ">
+								<label class="h6"><?php echo __('Enter Url: ', 'textdomain'); ?></label>
+								<input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
+								<small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
+							</div> 
+							<input type="hidden" name="post_id" value="<?php echo $post_id;?>">
+							<input type="submit" value="Save" class="btn btn-primary" name="Save">
+						</form>
+						<p id="confirm_msg" class="h6 m-2"></p>
+					</div>
 				</div>
 				<?php
 			} else {
@@ -977,15 +1079,23 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			echo '</div>';
 		}
 		function admin_get_shortcodes($post_id){
+			$form_list = array();
 			$shortcode_list = array();
 			$form_data1 = get_post_meta( $post_id, '_formschema', true ); 
 			$form_data1=json_decode($form_data1);
 
-			foreach ($form_data1 as $obj) {  				
-				$shortcode_list[] = $obj->key;
+			foreach ($form_data1 as $obj) {  
+				// if($obj !== 'submit'){				
+				$form_list[] = $obj->key;
+				// }
 			}
-			$tobe_merged = array('FormId','BookingId','Status','FormTitle','To','FirstName','LastName','Timeslot','BookedSeats','BookingDate','BookedDate','Service','prefixlabel','cost','StartTime','EndTime','CancelBooking');
-			$shortcode_list = array_merge($tobe_merged,$shortcode_list);
+			$booking_shortcodes = array('BookingId','Status','To','FirstName','LastName','Timeslot','BookedSeats','BookingDate','BookedDate','Service','prefixlabel','cost','StartTime','EndTime','CancelBooking');
+			$post_shortcodes = array('FormId','FormTitle');
+			$shortcode_list = array(
+					'form' => $form_list,
+					'booking' => $booking_shortcodes,
+					'post' => $post_shortcodes,
+			);
 			
 			return $shortcode_list;
 		}
@@ -1120,7 +1230,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 											<label for="type-dropdown">Type</label>
 											<select class="form-select form-control" id="type-dropdown" name="type">
 												<?php
-												$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','submitted');
+												$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','waiting','submitted');
 												foreach ($available_types as $avail_type) {
 													$selected = ($avail_type === $type) ? 'selected' : '';
 													echo '<option value="' . $avail_type . '" ' . $selected . '>' . ucfirst($avail_type) . '</option>';
@@ -1234,17 +1344,50 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			if ($column === 'form') {	
 				$form_id = get_post_meta($post_id,'bms_form_id',true);	
 				$form_title = get_the_title($form_id);	
-				echo __($form_title,'textdomain');
+				
+				if (isset($form_title)) {	
+					echo __($form_title,'textdomain');
+				}else{
+					echo '-';
+				}
 			}
 			if ($column === 'booking_status') {		
 				$booking_status = get_post_meta($post_id,'entry_status',true);
-				echo __($booking_status,'textdomain');
+			
+				if (isset($booking_status) && !empty($booking_status)) {	
+					echo __($booking_status,'textdomain');
+				}else{
+					echo '-';
+				}
 				
 			}
-			if ($column === 'event_status') {
-				$form_id = get_post_meta($post_id,'bms_form_id',true);	
-				$form_title = get_the_title($form_id);					
-				echo __($form_title,'textdomain');
+			if ($column === 'booking_date') {
+				$booking_date = get_post_meta($post_id,'booking_date',true);
+				if (isset($booking_date) && !empty($booking_date)) {
+				
+				$array_of_date = explode('_',$booking_date);
+				// echo "<pre>";
+				// print_r($array_of_date);
+				$bookedmonth = $array_of_date[2];
+				$bookedday =$array_of_date[3];
+				$bookedyear =$array_of_date[4];
+				$booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
+				$booked_date = date('d F, Y', strtotime($booked_date));	
+					if (isset($booking_date) && !empty($booking_date)) {	
+						echo __($booked_date,'textdomain');
+					}
+				}else{
+					echo '-';
+				}	
+			}
+			if ($column === 'timeslot') {
+				$timeslot = get_post_meta( $post_id, 'timeslot', true );						
+			
+				if (isset($timeslot) && !empty($timeslot)) {	
+					echo __($timeslot,'textdomain');
+				}else{
+					echo '-';
+				}
 			}
 			
 
@@ -1287,10 +1430,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 						$output .= '</div>';
 						$output .= '</div>';
 					}
-				
-				// Generate the output string
-				// $output = implode('<br>', $available_timeslots_list);
-				// $output = $available_timeslots;
+			
 			} else {
 				$error = 1;
 				$error_mess = "Something went wrong";
@@ -1450,7 +1590,146 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				<?php
 			}
 		}
+		function add_custom_filters() {
+			global $typenow;
+		
+			if ( 'bms_entries' === $typenow ) {
+				add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
+				// add_action( 'restrict_manage_posts', array( $this, 'add_custom_form_filter_dropdown' ) );
+				add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
+				// add_action( 'pre_get_posts', array( $this, 'filter_custom_form' ) );
+			}
+		}
+		
+		function add_custom_booking_status_filter($post_type) {
+			
+			if ( 'bms_entries' != $post_type ) {
+				return;
+			}
+			$status = isset( $_GET['booking_status'] ) ? $_GET['booking_status'] : '';
+		
+			$options = array(
+				'any' => 'Status',
+				'booked' => 'Booked',
+				'approved' => 'Approved',
+				'cancelled' => 'Cancelled',
+				'pending' => 'Pending',
+				'waiting' => 'Waiting',
+				'submitted' => 'Submitted'
+			);
+		
+			echo '<select name="booking_status" class="form-control">';
+			foreach ( $options as $value => $label ) {
+				$selected = selected( $status, $value, false );
+				echo '<option value="' . esc_attr( $value ) . '" ' . $selected . '>' . esc_html( $label ) . '</option>';
+			}
+			echo '</select>';
 
+				$selected_form_id = isset( $_GET['form_filter'] ) ? $_GET['form_filter'] : '';
+		
+				$args = array(
+					'post_type' => 'bms_forms',
+					'posts_per_page' => -1
+				);
+				$forms_query = new WP_Query( $args );
+			
+				echo '<select name="form_filter">';
+				echo '<option value="">All Forms</option>';
+				while ( $forms_query->have_posts() ) {
+					$forms_query->the_post();
+					$selected = selected( $selected_form_id, get_the_ID(), false );
+					echo '<option value="' . esc_attr( get_the_ID() ) . '" ' . $selected . '>' . esc_html( get_the_title() ) . '</option>';
+				}
+				echo '</select>';
+		}
+		function filter_custom_booking_status($query) {
+			global $pagenow, $typenow;
+			if (!is_admin() || !in_array($query->get('post_type'), array('bms_entries'))) {
+				return;
+			}
+
+			if ('edit.php' === $pagenow && 'bms_entries' === $typenow) {
+				$booking_status = isset($_GET['booking_status']) ? sanitize_text_field($_GET['booking_status']) : '';
+				$form_filter = isset($_GET['form_filter']) ? intval($_GET['form_filter']) : 0;
+
+				if (!empty($booking_status) || !empty($form_filter)) {
+					$meta_query = array('relation' => 'and');
+
+					if (!empty($booking_status) && in_array($booking_status, array('booked', 'approved', 'cancelled', 'pending', 'waiting', 'submitted'))) {
+						$meta_query[] = array(
+							'key' => 'entry_status',
+							'value' => $booking_status,
+							'compare' => '='
+						);
+					}
+
+					if (!empty($form_filter)) {
+						$meta_query[] = array(
+							'key' => 'bms_form_id',
+							'value' => $form_filter,
+							'compare' => '='
+						);
+					}
+
+					$query->set('meta_query', $meta_query);
+				}
+			}
+		}
+		
+		function modify_submitdiv_meta_box() {
+			remove_meta_box('submitdiv', 'post', 'side');
+			add_meta_box('submitdiv', 'Modified Publish', array($this,'custom_submitdiv_content'), 'post', 'side', 'core');
+		}
+		
+		// Custom meta box content
+		function custom_submitdiv_content($post) {
+			// Output the default submitdiv content
+			submit_button(__('Publish'), 'primary', 'publish', false, array('id' => 'publish'));
+
+			// Output custom dropdown
+			echo '<div class="misc-pub-section">';
+			echo '<label for="custom_dropdown">Custom Dropdown:</label>';
+			echo '<select name="custom_dropdown" id="custom_dropdown">';
+			echo '<option value="option1">Option 1</option>';
+			echo '<option value="option2">Option 2</option>';
+			echo '<option value="option3">Option 3</option>';
+			echo '</select>';
+			echo '</div>';
+
+			// Output the "Move to Trash" link
+			echo '<div class="misc-pub-section">';
+			echo '<a href="' . esc_url(get_delete_post_link($post->ID)) . '">Move to Trash</a>';
+			echo '</div>';
+		}
+
+		function modify_submitdiv_content() {
+			global $post;
+			$post_id = $post->ID;
+			$post_type = get_post_type( $post_id );
+			if($post_type === 'bms_forms'){
+				$form_id = get_post_meta($post_id,'bms_form_id',true);
+				$page_slug = 'notification-settings';
+				$post_type = 'bms_forms';
+				// $post_id = 5508;
+
+				$admin_url = admin_url('admin.php');
+				$view_entry_url = add_query_arg(
+					array(
+						'page' => $page_slug,
+						'post_type' => $post_type,
+						'post_id' => $post_id
+					),
+					$admin_url
+				);
+
+				echo '<div class="misc-pub-section misc-pub-post-status" id="misc-notification"> <a href="' . esc_url($view_entry_url) . '" style="color:black;" target="_blank"><b>Configure Email Notifications</a> </b></div>';
+				?>
+			
+				<?php
+			}
+          
+			
+		}
 		
 	}
 

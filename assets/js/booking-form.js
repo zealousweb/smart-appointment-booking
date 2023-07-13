@@ -375,6 +375,40 @@ jQuery(document).ready(function($) {
       $(this).closest('.breaktimeslot').remove();
     });
   });
+//   jQuery(document).ready(function($) {
+//     $('#send_notification_button').on('click', function() {
+       
+//         var status = $('#manual_notification').val();
+//         var form_id = $('#manual_notification').data('formid');
+//         var post_id = $('#manual_notification').data('postid');
+//         console.log(status);
+//         console.log(form_id);
+//         console.log(post_id);
+//         sendNotification(status,form_id,post_id);
+//     });
+
+//     function sendNotification(status,form_id,post_id) {
+//         var data = {
+//             action: 'send_manual_notification_handler',
+//             status: status,
+//             form_id: form_id,
+//             post_id: post_id,
+//         };
+
+//         $.post(ajaxurl, data, function(response) {
+//             console.log(response); // Optional: Log the response
+//             alert('Notification sent successfully.'); // Optional: Display a success message
+//         });
+//     }
+//   });
+jQuery(document).ready(function() {
+    $('#send_notification_button').on('click', function() {
+      var status = $('#manual_notification').attr('data-formid');
+      $('#publish').click();
+     
+    });
+});
+  
 // Function to retrieve the value of a query parameter from the URL
 function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -383,6 +417,7 @@ function getQueryParam(name) {
 const pageParam = getQueryParam("page");
 if (pageParam === "notification-settings") {
     
+     
     jQuery(document).ready(function() {
         jQuery(document).on('submit', '.notifyform', function(event) {   
            
@@ -579,24 +614,7 @@ if (pageParam === "notification-settings") {
 
     });
 
-    jQuery(document).ready(function($) {
-        $('#send_notification_button').on('click', function() {
-            var status = $('#custom_status').val();
-            sendNotification(status);
-        });
     
-        function sendNotification(status) {
-            var data = {
-                action: 'send_notification',
-                status: status
-            };
-    
-            $.post(ajaxurl, data, function(response) {
-                console.log(response); // Optional: Log the response
-                alert('Notification sent successfully.'); // Optional: Display a success message
-            });
-        }
-    });
     
   
 }

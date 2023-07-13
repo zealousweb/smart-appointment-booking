@@ -117,6 +117,8 @@ function getMonthName(month) {
 }
 function selectTimeslot(element) {
   const selectedElements = $('.zfb_timeslot.selected');
+  var message = $('#no-timeslots-message');
+  message.hide();
   selectedElements.removeClass('selected');
   $(element).addClass('selected');
   var isEnabled = true; 
@@ -129,9 +131,11 @@ function selectTimeslot(element) {
       $('.zfb-selected-capacity').hide();
       var isEnabled = true; 
       $('.zfb-selected-capacity').prop('disabled', isEnabled);
+      message.show();
     }else{
       var isEnabled = true; 
-      $('.zfb-selected-capacity').prop('disabled', !isEnabled);     
+      $('.zfb-selected-capacity').prop('disabled', !isEnabled); 
+      
     }   
   }else{    
     var isEnabled = false;

@@ -382,3 +382,100 @@ table.dataTable thead .sorting:nth-child(4){
 #form_submission_data .postbox-header {
   display: none;
 }
+/* Style for the card */
+.entry_title {
+  background-color: #ffffff;
+  padding-top: 30px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+  width: 90%;
+  margin-top: 31px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+
+.entry-title {
+  display: inline-block;
+  margin: 0;
+  /* font-weight: bold; */
+}
+
+
+.edit-link {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  text-decoration: none;
+  color: #007bff;
+  border: none;
+}
+
+.edit-link:hover {
+  text-decoration: none;
+  border: none;
+}
+
+.edit-link:active {
+  outline: none;
+}
+
+.edit-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  vertical-align: middle;
+}
+/* Style for the main entries sections */
+.main-entries-section {
+  background-color: #5050500f;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 90%;
+}
+
+/* Style for the table view booking entries */
+#main_entries_table1{
+  width: 40%;
+}
+
+.main-entries-section th, .main-entries-section td {
+  padding: 8px;
+}
+#main_entries_table2{
+  width: 70%;
+}
+/* #main-entries-section1 table {
+  width: 40%;
+} */
+
+.main-entries-section th {
+  /* font-weight: bold; */
+  text-align: left;
+}
+/*Booking entries edit booking details */
+.zfb-entry-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.zfb-entry-details .row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.zfb-entry-details .row .col-6 {
+  flex-basis: 50%;
+}
+
+.zfb-entry-details .group-pair {
+  margin-bottom: 10px;
+}
+
+.zfb-entry-details .group-pair label {
+  display: inline-block;
+  margin-bottom: 8px;
+}

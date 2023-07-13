@@ -88,14 +88,19 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );	
             $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
             $timeslot = get_post_meta( $post->ID, 'timeslot', true );
+            $times = explode("-", $timeslot);
+            $start_time = trim(date("h:i", strtotime($times[0])));
+            $end_time = trim(date("h:i", strtotime($times[1])));
+
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
-           
+            // print_r($booking_date);
             $array_of_date = explode('_', $booking_date);
             if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
                 $bookedday = $array_of_date[3];
                 $bookedyear = $array_of_date[4];
                 $booked_date = $bookedday . "-" . $bookedmonth . "-" . $bookedyear;
+                $booked_date = date('Y-m-d', strtotime($booked_date));
                 $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
             }
            
@@ -106,77 +111,85 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $date_generated = get_the_date($post->ID);
             $status = get_post_meta( $post->ID, 'entry_status', true );
            
-            if(empty($status)){
-                $status = "Approval Pending";
-            } elseif($status == 'completed'){
-                $status = "Completed";
-            } elseif($status == 'approval_pending'){
-                $status = "Approval Pending";
-            } elseif($status == 'cancelled'){
-                $status = "Cancelled";
-            } elseif($status == 'manual'){
-                $status = "Manual";
-            } elseif($status == 'expired'){
-                $status = "Expired";
-            }
-        ?>
-        
-        <div class="zfb-entry-details">
-            <h2>Booking Details</h2>
-            <ul>
-                <li><span class="label"><?php echo __('Form Title:', 'textdomain'); ?></span> <?php echo $booking_form_title; ?></li>
-                <?php if(isset($date_generated)){ ?>
-                    <li><span class="label"><?php echo __('Date Generated:', 'textdomain'); ?></span> <?php echo $date_generated; ?></li>
-                <?php } ?>
-                <?php if(isset($status)){ ?>
-                    <li><span class="label"><?php echo __('Status:', 'textdomain'); ?></span> <?php echo $status; ?></li>
-                <?php } ?>
-                <li><span class="label"><?php echo __('Customer:', 'textdomain'); ?></span> Guest</li>
-                <?php if(isset($booked_date)){ ?>
-                    <li><span class="label"><?php echo __('Booking Date:', 'textdomain'); ?></span> <?php echo $booked_date; ?></li>
-                <?php } ?>
-                <?php if(isset($timeslot) && !empty($timeslot)){ ?>
-                    <li><span class="label"><?php echo __('Timeslot:', 'textdomain'); ?></span> <?php echo $timeslot; ?></li>
-                <?php } ?>
-                <?php if(isset($slotcapacity)){ ?>
-                    <li><span class="label"><?php echo __('No of Slots Booked:', 'textdomain'); ?></span> <?php echo $slotcapacity; ?></li>
-                <?php } ?>
-            </ul>  
-        </div>
-        
-        
-        <!-- <div class="container">
-            <div class="row"> -->
-                <div class="col-md-6">
-                    <h2>Booking Details</h2>
-                    <div class="form-group">
-                        <label for="booking_form_title">Form Title</label>
-                        <input type="text" class="form-control" id="booking_form_title" value="<?php echo $booking_form_title; ?>" readonly>
-                    </div>
-                    <?php if(isset($date_generated)){ ?>
-                        <div class="form-group">
-                            <label for="date_generated">Date Generated</label>
-                            <input type="text" class="form-control" id="date_generated" value="<?php echo $date_generated; ?>" readonly>
+          
+                $post_id = $post->ID; 
+                $title = get_the_title($post_id);
+                echo '<div class="form-pair" style="margin-top:30px;">';
+                echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
+                $published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
+                echo '<p class="published_on" style="font-size:18px;">Published on ' . $published_date. '</p>';
+                echo '</div>';
+            ?>
+            <div class="form-pair">
+                <span style="font-size:20px;"  class="h6" style="font-weight: 800;">Form  </span> 
+                <div class="value" style="font-size:18px;"><?php echo $booking_form_title; ?></div>
+            </div>
+            <?php
+            $enable_booking = get_post_meta($form_id, 'enable_booking', true);
+            if( $enable_booking ){
+                ?>
+                <div class="zfb-entry-details">
+                
+                    <div class="row">
+                        <div class="col-4">                       
+                            <div class="group-pair">
+                                <p  class="h6">Status</p>
+                                <div class="value">
+                                
+                                    <select name="booking_status" class="form-control" id="custom_status">
+                                        <?php 
+                                            if($status === "confirmation"|| $status === "completed" || $status === "booked"){
+                                            echo $selected = 'selected';
+                                            }else{ $selected = ''; }
+                                        ?>
+                                        <option value="any">Status</option>
+                                        <option value="booked" <?php echo $selected; ?>>Booked</option>
+                                        <option value="approved" <?php echo ($status === "approved") ? 'selected' : ''; ?>>Approved</option>
+                                        <option value="cancelled" <?php echo ($status === "cancelled") ? 'selected' : ''; ?>>Cancelled</option>
+                                        <option value="pending" <?php echo ($status === "pending") ? 'selected' : ''; ?>>Pending</option>
+                                        <option value="waiting" <?php echo ($status === "waiting") ? 'selected' : ''; ?>>Waiting</option>
+                                        <option value="submitted" <?php echo ($status === "submitted") ? 'selected' : ''; ?>>Submitted</option>
+                                    </select>
+                                    <input type="hidden" name="form_id" value="<?php echo $form_id; ?>">
+                                </div>
+                            </div>
+                            <div class="group-pair">
+                                <p  class="h6">No of Bookings</p>
+                                <div class="value">
+                                <input type="number" class="form-control" name="no_of_bookings" id="no_of_bookings" value="<?php echo $slotcapacity; ?>">
+                                </div>
+                            </div>
                         </div>
-                    <?php } ?>
-                    <?php if(isset($status)){ ?>
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <input type="text" class="form-control" id="status" value="<?php echo $status; ?>" readonly>
+                        <div class="col-4">
+                            <div class="group-pair">
+                                <p class="h6">Booking Date</p>
+                                <div class="value">
+                                <input type="date" class="form-control" name="booking_date" id="no_of_bookings" value="<?php echo $booked_date; ?>">
+                                </div>
+
+                            </div>
+                            <div class="group-pair">
+                                <p class="h6">Booked Timeslot</p>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <p  for="start_time" class="h6"><?php echo __('From: ', 'textdomain'); ?></p>
+                                        <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
+                                        
+                                    </div>
+                                    
+                                    <div class="form-group col-md-4">
+                                        <p for="end_time" class="h6"><?php echo __('To: ', 'textdomain'); ?></p>
+                                        <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
+                                    </div>
+                                    <span class="validation-message" style="color: red;"></span>
+                                </div>
+                            </div>
                         </div>
-                    <?php } ?>
-                    <div class="form-group">
-                        <label for="customer">Customer</label>
-                        <input type="text" class="form-control" id="customer" value="Guest" readonly>
                     </div>
                 </div>
-<!--               
-            </div>
-        </div> -->
-        
-        <?php
+                <?php
+            }
         }
-        
         
 
         /**
@@ -204,16 +217,6 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         });
                                                     
                         formioBuilder.then(function(builder) {
-                            // var fieldSlugs = []; // Array to store field slugs
-                            // // Iterate through the form components and extract field slugs
-                            // builder.instance.form.components.forEach(function(component) {
-                            //     if (component.key) {
-                            //         fieldSlugs.push(component.key);
-                            //     }
-                            // });
-
-                            // console.log(fieldSlugs); // Output the field slugs
-
                             // Handle form submission
                             builder.on('change', function(submission) {
                                 formdata = JSON.stringify(submission.components);
@@ -243,11 +246,11 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             builder.on('change', function(submission) {
                                 formdata = JSON.stringify(submission.components);
                                 jQuery.post(ajaxurl, {
-                                    action: 'bms_save_form_data',  // Ajax action to handle saving the form data
-                                    post_id: <?php echo $post->ID; ?>,  // Current post ID
-                                    form_data: formdata // Submitted form data									
+                                    action: 'bms_save_form_data', 
+                                    post_id: <?php echo $post->ID; ?>, 
+                                    form_data: formdata 									
                                 }, function(response) {
-                                    // console.log(submission.components);
+                                  
                                     console.log(response);
                                 });
                             });
@@ -427,7 +430,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                     if ($appointment_type == 'virtual') : ?>
                                     <div class="vlink-container form-group form-general-group">
                                         <label for="virtual_link"  class="h6">Link</label>
-                                        <input type="text" class="form-control" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>" pattern="https?://.+" required>
+                                        <input type="text" class="form-control" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>" pattern="https?://.+" >
                                         <small class="validation-error form-text text-muted" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
                                     </div>
                                     <?php else : ?>
@@ -456,11 +459,11 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label  class="h6"><?php echo __('Start Time: ', 'textdomain'); ?></label>
-                                <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" required>
+                                <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
                             </div>
                             <div class="form-group col-md-4">
                                 <label  class="h6"><?php echo __('End Time: ', 'textdomain'); ?></label>
-                                <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" required>
+                                <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
                                </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
@@ -478,9 +481,9 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         </div>
                         <div class="form-group form-general-group">
                             <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
-                            <input type="number" class="hours" name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" required>
+                            <input type="number" class="hours" name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" >
                             <span>:</span>
-                            <input type="number" class="minutes" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" required>
+                            <input type="number" class="minutes" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" >
                             <span class="timeslot-validation-message" style="color: red;"></span>
                         </div>
                         <label for="steps_duration"  class="h6"><?php echo __("Step Duration","textdomain"); ?></label>
@@ -488,11 +491,11 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             
                             <div class="form-group col-md-4">
                                 <input type="number" class="hours form-control" name="steps_duration[hours]" min="0" max="23" placeholder="HH" 
-                                        value="<?php echo isset($steps_duration['hours']) ? esc_attr($steps_duration['hours']) : ''; ?>" required>
+                                        value="<?php echo isset($steps_duration['hours']) ? esc_attr($steps_duration['hours']) : ''; ?>" >
                             </div>
                             <div class="form-group col-md-4">
                                 <input type="number" class="minutes form-control" name="steps_duration[minutes]" min="0" max="59" placeholder="MM" 
-                                        value="<?php echo isset($steps_duration['minutes']) ? esc_attr($steps_duration['minutes']) : ''; ?>" required>
+                                        value="<?php echo isset($steps_duration['minutes']) ? esc_attr($steps_duration['minutes']) : ''; ?>" >
                             </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
@@ -735,10 +738,10 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
        
         function bms_save_post_function( $post_id ) {
             $get_type =  get_post_type($post_id);
-            if($get_type !== 'bms_forms' || $get_type !== 'bms_entries'){
+            if($get_type !== 'bms_forms' ){
                 return;
             }
-            if($get_type == 'bms_forms'){
+            // if($get_type == 'bms_forms'){
                 if (isset($_POST['cal_title'])) {
                     update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
                 } 
@@ -948,7 +951,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
                 }
               
-            }
+            // }
             // if($get_type == 'bms_entries'){
             //     Echo "test";
             //     exit;
@@ -981,8 +984,56 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $notes = sanitize_textarea_field($_POST['notes']);
                 update_post_meta($post_id, 'notes', $notes);
             }
+            
+            if (isset($_POST['form_id'])) {
+                $form_id = $_POST['form_id'];
+                // update_post_meta($post_id, 'notes', $form_id);
+            }
+            if (isset($_POST['no_of_bookings'])) {
+                $no_of_bookings = $_POST['no_of_bookings'];
+                update_post_meta($post_id, 'slotcapacity', $no_of_bookings);
+            }
+            if (isset($_POST['booking_date'])) {
+                $booking_date = $_POST['booking_date'];
+                $currentMonth = date('n',strtotime($booking_date));
+				$currentYear = date('Y',strtotime($booking_date));
+                $currentday = date('j', strtotime($booking_date));
+                $booking_date = 'calid_'.$form_id.'_'.$currentMonth.'_'.$currentday.'_'.$currentYear;
+                update_post_meta($post_id, 'booking_date', $booking_date);
+            }
+            if (isset($_POST['start_time']) && isset($_POST['end_time'])) {
+                $start_time = trim(date("h:i A", strtotime($_POST['start_time'])));
+                $end_time = trim(date("h:i A", strtotime($_POST['end_time'])));
+                $timeslot = $start_time.'-'.$end_time;
+                update_post_meta($post_id, 'timeslot', $timeslot);
+            }
+            if (isset($_POST['booking_status'])) {
+                $booking_status = $_POST['booking_status'];
+                update_post_meta($post_id, 'entry_status', $booking_status);
+            //    if( !isset($_POST['manual_notification'])){
+                    $formdata = get_post_meta($post_id,'bms_submission_data',true);
+                    $listform_label_val =  do_action('create_key_value_formshortcodes',$post_id,$formdata);               
+                    $listform_label_val['Status'] = $booking_status;				
+                    echo do_action('notification_send',$booking_status,$form_id, $post_id, $listform_label_val );
+                // }
+            }
+           
+            if (isset($_POST['manual_notification']) && isset($_POST['form_id']) && isset($_POST['post_id'])) {
+                $selected_action = sanitize_text_field($_POST['manual_notification']);
+				$bookingId = $_POST['post_id'];
+				$status = $_POST['status'];
+				$formdata = get_post_meta($bookingId,'bms_submission_data',true);
+				$form_id = get_post_meta($bookingId,'bms_form_id',true);
+			
+				$listform_label_val = do_action('create_key_value_formshortcodes',$post_id,$formdata);       
+				$listform_label_val['Status'] = $status;
+				
+				$message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
+                update_post_meta($bookingId, 'manual_notification', $listform_label_val);
+			}
+
         }
-       
+    
 
         /**
 	 	* Adds the meta box container.
@@ -1011,8 +1062,8 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 				);
                 add_meta_box(
                     'manual_notification', 
-                    'Actions', 
-                    array( $this, 'Send_manual_notification' ),
+                    __('Send Manual Notification','textdomain'), 
+                    array( $this, 'notification_logs' ),
                     $post_type,
                     'side', 
                     'default'
@@ -1022,8 +1073,8 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     'Notes',
                     array( $this, 'zfb_render_notes_meta_box' ),
                     $post_type,
-                    'normal',
-                    'high'
+                    'side',
+                    'default'
                 );
 			}
 
@@ -1048,23 +1099,71 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 					'normal',
                     'high'
 				);
+
+                add_meta_box(
+                    'configure_notifications',
+                    'Other Form Settings',
+                    array( $this, 'zfb_render_configure_notifications' ),
+                    $post_type,
+                    'side',
+                    'default'
+                );
              
 			}
 		}
+        function zfb_render_configure_notifications($post){
+            $post_id = $post->ID;
+			$post_type = get_post_type( $post_id );
+			if($post_type === 'bms_forms'){
+				$form_id = get_post_meta($post_id,'bms_form_id',true);
+				$page_slug = 'notification-settings';
+				$post_type = 'bms_forms';
+				// $post_id = 5508;
+
+				$admin_url = admin_url('admin.php');
+				$view_entry_url = add_query_arg(
+					array(
+						'page' => $page_slug,
+						'post_type' => $post_type,
+						'post_id' => $post_id
+					),
+					$admin_url
+				);
+
+				echo '<div class="" id="misc-notification"> 
+                        <a href="' . esc_url($view_entry_url) . '" style="color:black;" target="_blank"><b>Click here to configure <br>Email Notifications & Confirmations</a> </b>
+                        </div>';
+				?>
+			
+				<?php
+			}
+        }
        // Render the meta box content
        
-        function Send_manual_notification($post) {
-            $status = get_post_meta($post->ID, 'custom_status', true);
+        function notification_logs($post) {
+            $post_id = $post->ID;
+            $form_id = get_post_meta($post_id,'bms_form_id',true);
+            $message = get_post_meta($post_id,'manual_notification',true);
+            $enable_booking = get_post_meta($form_id, 'enable_booking', true);
+            
             ?>
-            <!-- <label for="custom_status">Status:</label> -->
-            <select name="custom_status" id="custom_status">
-            <option value="any">Choose an action ...</option>
-                <option value="confirmation" >Confirmation</option>
+            <select name="manual_notification" id="manual_notification" data-formid="<?php echo $form_id; ?>" data-postid="<?php echo $post_id; ?>" >
+            <option value="any">Choose an action</option>
+                <?php 
+                if($enable_booking){
+                ?>
+                <option value="booked" >Booked</option>
                 <option value="approved" >Approved</option>
                 <option value="cancelled" >Cancelled</option>
-                <option value="updated" >Updated</option>
+                <option value="waiting" >Waiting</option>
+                <option value="pending" >Pending</option>
+                <?php 
+                }
+                ?>
+                 <option value="submitted" >Submitted</option>
             </select>
-            <button type="button" id="send_notification_button"> Send </button>
+            <button type="button" id="send_notification_button" style="height: 33px; color: grey;border-color: grey;"> > </button>
+            
             <?php
         }
         
@@ -1087,19 +1186,19 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                         components: value,
                         readOnly: false, 
                         noAlerts: true, 
-                        buttonSettings: {
-                        showSubmit: true,
-                        submitCopy: 'Update'
-                    }
+                       
                     }).then(function(form) {
                         form.setSubmission({
                         data: entryData 
                         });
                         form.redraw();
+                       
                         var submitButton = form.getComponent('submit');
                         if (submitButton) {
-                            submitButton.setValue('Update'); 
+                            submitButton.component.label = 'Update';
+                            submitButton.redraw();
                         }
+                      
                         form.on('submit', function(submission) {
                         event.preventDefault();
 
