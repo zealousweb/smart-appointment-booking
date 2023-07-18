@@ -60,9 +60,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			add_action('wp_ajax_nopriv_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
 
 			add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
-			// add_action( 'restrict_manage_posts', array( $this, 'add_custom_form_filter_dropdown' ) );
 			add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
-			// add_action( 'pre_get_posts', array( $this, 'filter_custom_form' ) );
 			
 			add_action('post_submitbox_misc_actions', array( $this, 'modify_submitdiv_content' ) );
 			
@@ -1257,15 +1255,15 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 										</div>
 										<div class="form-group">
 											<label for="email-from">Reply To</label>
-											<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" required>
+											<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" >
 										</div>
 										<div class="form-group">
 											<label for="email-from">Bcc</label>
-											<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" required>
+											<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" >
 										</div>
 										<div class="form-group">
 											<label for="email-from">Cc</label>
-											<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" required>
+											<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" >
 										</div>
 										<div class="form-group">
 											<label for="email-subject">Subject</label>
@@ -1406,11 +1404,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			
 					$available_timeslots_list = $this->admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id);
 				
-					$output .= '<label  class="h6">Add/Update Generated Timeslots:</label>';
-					$output .= '<svg class="add-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-						<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-						<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>';
-					$output .= '</svg>';	
 					foreach ($available_timeslots_list as $index => $timeslot) {
 						$start_time = isset($timeslot['start_time_slot']) ? $timeslot['start_time_slot'] : '';
 						$end_time = isset($timeslot['end_time_slot']) ? $timeslot['end_time_slot'] : '';

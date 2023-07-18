@@ -143,6 +143,7 @@ function selectTimeslot(element) {
     $(element).find('.zfb-selected-capacity').show();
   }
   $('.zfb-selected-capacity').attr('max', seats);
+  // $('.zfb-selected-capacity').attr('min');
 }
 
 jQuery(document).ready(function($) {
@@ -223,9 +224,32 @@ jQuery(document).ready(function($) {
   });
 });
 jQuery(document).ready(function($) {
-  jQuery('#nextButton').prop('disabled', true); 
+  // Function to check the condition and enable/disable the "Next" button
+  function checkNextButtonState() {
+    var inputValue = parseInt($('.zfb-selected-capacity').val());
+    var maxValue = parseInt($('.zfb-selected-capacity').attr('max'));
+    var minValue = parseInt($('.zfb-selected-capacity').attr('min'));
+    var isInputValid = inputValue >= minValue && inputValue <= maxValue;
+
+    var isSelected = $('#zfb-slot-list li').hasClass('selected');
+    var isButtonDisabled = !isInputValid || !isSelected;
+
+    $('#nextButton').prop('disabled', isButtonDisabled);
+  }
+  // Initial state when the page loads
+  checkNextButtonState();
+
+  $(window).on('load', function() {
+    checkNextButtonState();
+  });
+  
+  // Call the function whenever the input value changes
+  $('.zfb-selected-capacity').change(function() {
+    checkNextButtonState();
+  });
+
   $('#zfb-slot-list li').click(function() {      
-      var isSelected = $(this).hasClass('selected');     
-      $('#nextButton').prop('disabled', !isSelected);
+    var isSelected = $(this).hasClass('selected');     
+    $('#nextButton').prop('disabled', !isSelected);
   }); 
 });

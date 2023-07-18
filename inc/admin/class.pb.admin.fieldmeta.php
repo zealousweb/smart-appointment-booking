@@ -278,7 +278,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             
             $selected_date = get_post_meta($post->ID, 'selected_date', true);
 
-            $start_time = get_post_meta( $post->ID, 'start_time', true );
+         
             $end_time = get_post_meta( $post->ID, 'end_time', true );
             $timeslot_duration = get_post_meta($post->ID, 'timeslot_duration', true);
             $steps_duration = get_post_meta( $post->ID, 'steps_duration', true );
@@ -287,6 +287,9 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             $no_of_booking = get_post_meta($post->ID, 'no_of_booking', true);  
             $holiday_dates = get_post_meta($post->ID, 'holiday_dates', true);
             $enable_waiting = get_post_meta($post->ID, 'waiting_list', true);
+            $start_time = get_post_meta( $post->ID, 'start_time', true );
+            $timeslot_BookAllow = get_post_meta($post->ID, 'timeslot_BookAllow', true);
+            $booking_stops_after = get_post_meta( $post->ID, 'booking_stops_after', true );
             $enable_auto_approve = get_post_meta($post->ID, 'enable_auto_approve', true);
             // $breaktimeslots = get_post_meta($post->ID, 'breaktimeslots', true);
 
@@ -454,57 +457,67 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     <div class="">
                         <div class="form-group form-general-group ">
                             <label  class="h6"><?php echo __('Select Date : ', 'textdomain'); ?></label>
-                            <input type="date" class="form-control col-md-8" name="selected_date" value="<?php echo esc_attr($selected_date); ?>">
+                            <input type="date" class="form-control col-md-4" name="selected_date" value="<?php echo esc_attr($selected_date); ?>">
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-2">
                                 <label  class="h6"><?php echo __('Start Time: ', 'textdomain'); ?></label>
                                 <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
                             </div>
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-2">
                                 <label  class="h6"><?php echo __('End Time: ', 'textdomain'); ?></label>
                                 <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
                                </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
-                        
-                        <!-- waiting List -->
-                        <div class="form-check form-check-inline">
-                            <input type="checkbox" name="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
-                            <label class="form-check-label h6" for="waiting_list">Allow Waiting List</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <!-- Allow Auto Approve -->
-                            <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
-                            <label class="form-check-label h6" for="waiting_list">Allow Auto Approve</label>
-                            
-                        </div>
-                        <div class="form-group form-general-group">
+                       
+                        <div class="form-group">
                             <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
-                            <input type="number" class="hours" name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" >
+                            <input type="number" class="hours col-md-2 " name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" >
                             <span>:</span>
-                            <input type="number" class="minutes" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" >
+                            <input type="number" class="minutes col-md-2" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" >
                             <span class="timeslot-validation-message" style="color: red;"></span>
                         </div>
-                        <label for="steps_duration"  class="h6"><?php echo __("Step Duration","textdomain"); ?></label>
+                        <label for="steps_duration"  class="h6"><?php echo __("Step/Interval Duration between each Timeslot","textdomain"); ?></label>
                         <div class="form-row">
                             
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-2">
                                 <input type="number" class="hours form-control" name="steps_duration[hours]" min="0" max="23" placeholder="HH" 
                                         value="<?php echo isset($steps_duration['hours']) ? esc_attr($steps_duration['hours']) : ''; ?>" >
                             </div>
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-2">
                                 <input type="number" class="minutes form-control" name="steps_duration[minutes]" min="0" max="59" placeholder="MM" 
                                         value="<?php echo isset($steps_duration['minutes']) ? esc_attr($steps_duration['minutes']) : ''; ?>" >
                             </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
-                        <div class="form-group form-general-group">                
+                        <div class="form-group">                
                             <!-- Booking per Timeslots -->
                             <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
-                            <input class="form-control col-md-8" type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>">
+                            <input class="form-control col-md-2" type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>">
                         </div>
-                       
+                        <div class="form-check form-check-inline">
+                            <!-- Allow Auto Approve -->
+                            <input type="checkbox" name="enable_auto_approve" value="1" <?php echo checked(1, $enable_auto_approve, false); ?>>
+                            <label class="form-check-label h6" for="enable_auto_approve">Allow Auto Approve</label>
+                            
+                        </div>
+                        <!-- waiting List -->
+                        <div class="form-check ">
+                            <input type="checkbox" name="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
+                            <label class="form-check-label h6" for="waiting_list">Allow Waiting List</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="timeslot_BookAllow" value="1" <?php echo checked(1, $timeslot_BookAllow, false); ?>>
+                            <label class="form-check-label h6" for="timeslot_BookAllow">Allow bookings during running timeslot</label>
+                        </div>
+                        <div class="form-group ">
+                            <label  class="h6">Bookings stops after minutes of start time</label>
+                            <input type="number" class="hours col-md-2 " name="booking_stops_after[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($booking_stops_after['hours']) : ''; ?>" >
+                            <span>:</span>
+                            <input type="number" class="minutes col-md-2" name="booking_stops_after[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($booking_stops_after['minutes']) : ''; ?>" >
+                            <span class="timeslot-validation-message" style="color: red;"></span>
+                        </div>
                         <div class="breaktimeslot-repeater border m-0 mb-2 p-3">                            
                             <label class="h6">Add Break Timeslots:</label>
                             <svg class="add-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -778,6 +791,10 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     $label_symbol = $_POST['label_symbol'];
                     update_post_meta( $post_id, 'label_symbol', $label_symbol );
                 }
+                if ( isset( $_POST['timezone'] ) ) {
+                    $timezone = $_POST['timezone'];
+                    update_post_meta( $post_id, 'timezone', $timezone );
+                }
                  //Cost
                 if ( isset( $_POST['cost'] ) ) {
                     $selected_date = $_POST['cost'];
@@ -814,6 +831,19 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     // Update the post meta data with the field value
                     update_post_meta( $post_id, 'steps_duration', $sanitized_steps_duration );
                 }
+               
+               
+                //timeslot_duration
+                if ( isset( $_POST['booking_stops_after'] ) ) {
+                    $booking_stops_after_duration = $_POST['booking_stops_after'];
+                    $sanitized_booking_stops_after_duration = array(
+                        'hours' => sanitize_text_field( $booking_stops_after_duration['hours'] ),
+                        'minutes' => sanitize_text_field( $booking_stops_after_duration['minutes'] )
+                    );
+            
+                    // Update the post meta data with the field value
+                    update_post_meta( $post_id, 'booking_stops_after', $sanitized_booking_stops_after_duration );
+                }
                  //timeslot_duration
                  if ( isset( $_POST['timeslot_duration'] ) ) {
                     $timeslot_duration = $_POST['timeslot_duration'];
@@ -836,6 +866,12 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     update_post_meta($post_id, 'waiting_list', 1);
                 } else {
                     delete_post_meta($post_id, 'waiting_list');
+                }
+                //timeslotBookingAllowed
+                if (isset($_POST['timeslot_BookAllow'])) {
+                    update_post_meta($post_id, 'timeslot_BookAllow', 1);
+                } else {
+                    delete_post_meta($post_id, 'timeslot_BookAllow');
                 }
                 //enable_auto_approve
                 if (isset($_POST['enable_auto_approve'])) {
@@ -1018,7 +1054,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 // }
             }
            
-            if (isset($_POST['manual_notification']) && isset($_POST['form_id']) && isset($_POST['post_id'])) {
+            if (isset($_POST['manual_notification']) ) {
                 $selected_action = sanitize_text_field($_POST['manual_notification']);
 				$bookingId = $_POST['post_id'];
 				$status = $_POST['status'];
@@ -1029,7 +1065,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 				$listform_label_val['Status'] = $status;
 				
 				$message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
-                update_post_meta($bookingId, 'manual_notification', $listform_label_val);
+                update_post_meta($post_id, 'manual_notification', $selected_action);
 			}
 
         }
@@ -1143,7 +1179,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         function notification_logs($post) {
             $post_id = $post->ID;
             $form_id = get_post_meta($post_id,'bms_form_id',true);
-            $message = get_post_meta($post_id,'manual_notification',true);
+            echo $message = get_post_meta($post_id,'manual_notification',true);
             $enable_booking = get_post_meta($form_id, 'enable_booking', true);
             
             ?>
@@ -1256,506 +1292,583 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
 
         function timezone_dropdown($post_id){
             $get_timezone_value = get_post_meta( $post_id,'timezone',true);
-            $dropdown_timezone = '<select name="timezone" id="zfb-timezone">
-            <optgroup label="Africa">
-            <option value="Africa/Abidjan">Abidjan</option>
-            <option value="Africa/Accra">Accra</option>
-            <option value="Africa/Addis_Ababa">Addis Ababa</option>
-            <option value="Africa/Algiers">Algiers</option>
-            <option value="Africa/Asmara">Asmara</option>
-            <option value="Africa/Bamako">Bamako</option>
-            <option value="Africa/Bangui">Bangui</option>
-            <option value="Africa/Banjul">Banjul</option>
-            <option value="Africa/Bissau">Bissau</option>
-            <option value="Africa/Blantyre">Blantyre</option>
-            <option value="Africa/Brazzaville">Brazzaville</option>
-            <option value="Africa/Bujumbura">Bujumbura</option>
-            <option value="Africa/Cairo">Cairo</option>
-            <option value="Africa/Casablanca">Casablanca</option>
-            <option value="Africa/Ceuta">Ceuta</option>
-            <option value="Africa/Conakry">Conakry</option>
-            <option value="Africa/Dakar">Dakar</option>
-            <option value="Africa/Dar_es_Salaam">Dar es Salaam</option>
-            <option value="Africa/Djibouti">Djibouti</option>
-            <option value="Africa/Douala">Douala</option>
-            <option value="Africa/El_Aaiun">El Aaiun</option>
-            <option value="Africa/Freetown">Freetown</option>
-            <option value="Africa/Gaborone">Gaborone</option>
-            <option value="Africa/Harare">Harare</option>
-            <option value="Africa/Johannesburg">Johannesburg</option>
-            <option value="Africa/Juba">Juba</option>
-            <option value="Africa/Kampala">Kampala</option>
-            <option value="Africa/Khartoum">Khartoum</option>
-            <option value="Africa/Kigali">Kigali</option>
-            <option value="Africa/Kinshasa">Kinshasa</option>
-            <option value="Africa/Lagos">Lagos</option>
-            <option value="Africa/Libreville">Libreville</option>
-            <option value="Africa/Lome">Lome</option>
-            <option value="Africa/Luanda">Luanda</option>
-            <option value="Africa/Lubumbashi">Lubumbashi</option>
-            <option value="Africa/Lusaka">Lusaka</option>
-            <option value="Africa/Malabo">Malabo</option>
-            <option value="Africa/Maputo">Maputo</option>
-            <option value="Africa/Maseru">Maseru</option>
-            <option value="Africa/Mbabane">Mbabane</option>
-            <option value="Africa/Mogadishu">Mogadishu</option>
-            <option value="Africa/Monrovia">Monrovia</option>
-            <option value="Africa/Nairobi">Nairobi</option>
-            <option value="Africa/Ndjamena">Ndjamena</option>
-            <option value="Africa/Niamey">Niamey</option>
-            <option value="Africa/Nouakchott">Nouakchott</option>
-            <option value="Africa/Ouagadougou">Ouagadougou</option>
-            <option value="Africa/Porto-Novo">Porto-Novo</option>
-            <option value="Africa/Sao_Tome">Sao Tome</option>
-            <option value="Africa/Tripoli">Tripoli</option>
-            <option value="Africa/Tunis">Tunis</option>
-            <option value="Africa/Windhoek">Windhoek</option>
-            </optgroup>
-            <optgroup label="America">
-            <option value="America/Adak">Adak</option>
-            <option value="America/Anchorage">Anchorage</option>
-            <option value="America/Anguilla">Anguilla</option>
-            <option value="America/Antigua">Antigua</option>
-            <option value="America/Araguaina">Araguaina</option>
-            <option value="America/Argentina/Buenos_Aires">Argentina - Buenos Aires</option>
-            <option value="America/Argentina/Catamarca">Argentina - Catamarca</option>
-            <option value="America/Argentina/Cordoba">Argentina - Cordoba</option>
-            <option value="America/Argentina/Jujuy">Argentina - Jujuy</option>
-            <option value="America/Argentina/La_Rioja">Argentina - La Rioja</option>
-            <option value="America/Argentina/Mendoza">Argentina - Mendoza</option>
-            <option value="America/Argentina/Rio_Gallegos">Argentina - Rio Gallegos</option>
-            <option value="America/Argentina/Salta">Argentina - Salta</option>
-            <option value="America/Argentina/San_Juan">Argentina - San Juan</option>
-            <option value="America/Argentina/San_Luis">Argentina - San Luis</option>
-            <option value="America/Argentina/Tucuman">Argentina - Tucuman</option>
-            <option value="America/Argentina/Ushuaia">Argentina - Ushuaia</option>
-            <option value="America/Aruba">Aruba</option>
-            <option value="America/Asuncion">Asuncion</option>
-            <option value="America/Atikokan">Atikokan</option>
-            <option value="America/Bahia">Bahia</option>
-            <option value="America/Bahia_Banderas">Bahia Banderas</option>
-            <option value="America/Barbados">Barbados</option>
-            <option value="America/Belem">Belem</option>
-            <option value="America/Belize">Belize</option>
-            <option value="America/Blanc-Sablon">Blanc-Sablon</option>
-            <option value="America/Boa_Vista">Boa Vista</option>
-            <option value="America/Bogota">Bogota</option>
-            <option value="America/Boise">Boise</option>
-            <option value="America/Cambridge_Bay">Cambridge Bay</option>
-            <option value="America/Campo_Grande">Campo Grande</option>
-            <option value="America/Cancun">Cancun</option>
-            <option value="America/Caracas">Caracas</option>
-            <option value="America/Cayenne">Cayenne</option>
-            <option value="America/Cayman">Cayman</option>
-            <option value="America/Chicago">Chicago</option>
-            <option value="America/Chihuahua">Chihuahua</option>
-            <option value="America/Ciudad_Juarez">Ciudad Juarez</option>
-            <option value="America/Costa_Rica">Costa Rica</option>
-            <option value="America/Creston">Creston</option>
-            <option value="America/Cuiaba">Cuiaba</option>
-            <option value="America/Curacao">Curacao</option>
-            <option value="America/Danmarkshavn">Danmarkshavn</option>
-            <option value="America/Dawson">Dawson</option>
-            <option value="America/Dawson_Creek">Dawson Creek</option>
-            <option value="America/Denver">Denver</option>
-            <option value="America/Detroit">Detroit</option>
-            <option value="America/Dominica">Dominica</option>
-            <option value="America/Edmonton">Edmonton</option>
-            <option value="America/Eirunepe">Eirunepe</option>
-            <option value="America/El_Salvador">El Salvador</option>
-            <option value="America/Fortaleza">Fortaleza</option>
-            <option value="America/Fort_Nelson">Fort Nelson</option>
-            <option value="America/Glace_Bay">Glace Bay</option>
-            <option value="America/Goose_Bay">Goose Bay</option>
-            <option value="America/Grand_Turk">Grand Turk</option>
-            <option value="America/Grenada">Grenada</option>
-            <option value="America/Guadeloupe">Guadeloupe</option>
-            <option value="America/Guatemala">Guatemala</option>
-            <option value="America/Guayaquil">Guayaquil</option>
-            <option value="America/Guyana">Guyana</option>
-            <option value="America/Halifax">Halifax</option>
-            <option value="America/Havana">Havana</option>
-            <option value="America/Hermosillo">Hermosillo</option>
-            <option value="America/Indiana/Indianapolis">Indiana - Indianapolis</option>
-            <option value="America/Indiana/Knox">Indiana - Knox</option>
-            <option value="America/Indiana/Marengo">Indiana - Marengo</option>
-            <option value="America/Indiana/Petersburg">Indiana - Petersburg</option>
-            <option value="America/Indiana/Tell_City">Indiana - Tell City</option>
-            <option value="America/Indiana/Vevay">Indiana - Vevay</option>
-            <option value="America/Indiana/Vincennes">Indiana - Vincennes</option>
-            <option value="America/Indiana/Winamac">Indiana - Winamac</option>
-            <option value="America/Inuvik">Inuvik</option>
-            <option value="America/Iqaluit">Iqaluit</option>
-            <option value="America/Jamaica">Jamaica</option>
-            <option value="America/Juneau">Juneau</option>
-            <option value="America/Kentucky/Louisville">Kentucky - Louisville</option>
-            <option value="America/Kentucky/Monticello">Kentucky - Monticello</option>
-            <option value="America/Kralendijk">Kralendijk</option>
-            <option value="America/La_Paz">La Paz</option>
-            <option value="America/Lima">Lima</option>
-            <option value="America/Los_Angeles">Los Angeles</option>
-            <option value="America/Lower_Princes">Lower Princes</option>
-            <option value="America/Maceio">Maceio</option>
-            <option value="America/Managua">Managua</option>
-            <option value="America/Manaus">Manaus</option>
-            <option value="America/Marigot">Marigot</option>
-            <option value="America/Martinique">Martinique</option>
-            <option value="America/Matamoros">Matamoros</option>
-            <option value="America/Mazatlan">Mazatlan</option>
-            <option value="America/Menominee">Menominee</option>
-            <option value="America/Merida">Merida</option>
-            <option value="America/Metlakatla">Metlakatla</option>
-            <option value="America/Mexico_City">Mexico City</option>
-            <option value="America/Miquelon">Miquelon</option>
-            <option value="America/Moncton">Moncton</option>
-            <option value="America/Monterrey">Monterrey</option>
-            <option value="America/Montevideo">Montevideo</option>
-            <option value="America/Montserrat">Montserrat</option>
-            <option value="America/Nassau">Nassau</option>
-            <option value="America/New_York">New York</option>
-            <option value="America/Nome">Nome</option>
-            <option value="America/Noronha">Noronha</option>
-            <option value="America/North_Dakota/Beulah">North Dakota - Beulah</option>
-            <option value="America/North_Dakota/Center">North Dakota - Center</option>
-            <option value="America/North_Dakota/New_Salem">North Dakota - New Salem</option>
-            <option value="America/Nuuk">Nuuk</option>
-            <option value="America/Ojinaga">Ojinaga</option>
-            <option value="America/Panama">Panama</option>
-            <option value="America/Paramaribo">Paramaribo</option>
-            <option value="America/Phoenix">Phoenix</option>
-            <option value="America/Port-au-Prince">Port-au-Prince</option>
-            <option value="America/Port_of_Spain">Port of Spain</option>
-            <option value="America/Porto_Velho">Porto Velho</option>
-            <option value="America/Puerto_Rico">Puerto Rico</option>
-            <option value="America/Punta_Arenas">Punta Arenas</option>
-            <option value="America/Rankin_Inlet">Rankin Inlet</option>
-            <option value="America/Recife">Recife</option>
-            <option value="America/Regina">Regina</option>
-            <option value="America/Resolute">Resolute</option>
-            <option value="America/Rio_Branco">Rio Branco</option>
-            <option value="America/Santarem">Santarem</option>
-            <option value="America/Santiago">Santiago</option>
-            <option value="America/Santo_Domingo">Santo Domingo</option>
-            <option value="America/Sao_Paulo">Sao Paulo</option>
-            <option value="America/Scoresbysund">Scoresbysund</option>
-            <option value="America/Sitka">Sitka</option>
-            <option value="America/St_Barthelemy">St Barthelemy</option>
-            <option value="America/St_Johns">St Johns</option>
-            <option value="America/St_Kitts">St Kitts</option>
-            <option value="America/St_Lucia">St Lucia</option>
-            <option value="America/St_Thomas">St Thomas</option>
-            <option value="America/St_Vincent">St Vincent</option>
-            <option value="America/Swift_Current">Swift Current</option>
-            <option value="America/Tegucigalpa">Tegucigalpa</option>
-            <option value="America/Thule">Thule</option>
-            <option value="America/Tijuana">Tijuana</option>
-            <option value="America/Toronto">Toronto</option>
-            <option value="America/Tortola">Tortola</option>
-            <option value="America/Vancouver">Vancouver</option>
-            <option value="America/Whitehorse">Whitehorse</option>
-            <option value="America/Winnipeg">Winnipeg</option>
-            <option value="America/Yakutat">Yakutat</option>
-            </optgroup>
-            <optgroup label="Antarctica">
-            <option value="Antarctica/Casey">Casey</option>
-            <option value="Antarctica/Davis">Davis</option>
-            <option value="Antarctica/DumontDUrville">DumontDUrville</option>
-            <option value="Antarctica/Macquarie">Macquarie</option>
-            <option value="Antarctica/Mawson">Mawson</option>
-            <option value="Antarctica/McMurdo">McMurdo</option>
-            <option value="Antarctica/Palmer">Palmer</option>
-            <option value="Antarctica/Rothera">Rothera</option>
-            <option value="Antarctica/Syowa">Syowa</option>
-            <option value="Antarctica/Troll">Troll</option>
-            <option value="Antarctica/Vostok">Vostok</option>
-            </optgroup>
-            <optgroup label="Arctic">
-            <option value="Arctic/Longyearbyen">Longyearbyen</option>
-            </optgroup>
-            <optgroup label="Asia">
-            <option value="Asia/Aden">Aden</option>
-            <option value="Asia/Almaty">Almaty</option>
-            <option value="Asia/Amman">Amman</option>
-            <option value="Asia/Anadyr">Anadyr</option>
-            <option value="Asia/Aqtau">Aqtau</option>
-            <option value="Asia/Aqtobe">Aqtobe</option>
-            <option value="Asia/Ashgabat">Ashgabat</option>
-            <option value="Asia/Atyrau">Atyrau</option>
-            <option value="Asia/Baghdad">Baghdad</option>
-            <option value="Asia/Bahrain">Bahrain</option>
-            <option value="Asia/Baku">Baku</option>
-            <option value="Asia/Bangkok">Bangkok</option>
-            <option value="Asia/Barnaul">Barnaul</option>
-            <option value="Asia/Beirut">Beirut</option>
-            <option value="Asia/Bishkek">Bishkek</option>
-            <option value="Asia/Brunei">Brunei</option>
-            <option value="Asia/Chita">Chita</option>
-            <option value="Asia/Choibalsan">Choibalsan</option>
-            <option value="Asia/Colombo">Colombo</option>
-            <option value="Asia/Damascus">Damascus</option>
-            <option value="Asia/Dhaka">Dhaka</option>
-            <option value="Asia/Dili">Dili</option>
-            <option value="Asia/Dubai">Dubai</option>
-            <option value="Asia/Dushanbe">Dushanbe</option>
-            <option value="Asia/Famagusta">Famagusta</option>
-            <option value="Asia/Gaza">Gaza</option>
-            <option value="Asia/Hebron">Hebron</option>
-            <option value="Asia/Ho_Chi_Minh">Ho Chi Minh</option>
-            <option value="Asia/Hong_Kong">Hong Kong</option>
-            <option value="Asia/Hovd">Hovd</option>
-            <option value="Asia/Irkutsk">Irkutsk</option>
-            <option value="Asia/Jakarta">Jakarta</option>
-            <option value="Asia/Jayapura">Jayapura</option>
-            <option value="Asia/Jerusalem">Jerusalem</option>
-            <option value="Asia/Kabul">Kabul</option>
-            <option value="Asia/Kamchatka">Kamchatka</option>
-            <option value="Asia/Karachi">Karachi</option>
-            <option value="Asia/Kathmandu">Kathmandu</option>
-            <option value="Asia/Khandyga">Khandyga</option>
-            <option selected="selected" value="Asia/Kolkata">Kolkata</option>
-            <option value="Asia/Krasnoyarsk">Krasnoyarsk</option>
-            <option value="Asia/Kuala_Lumpur">Kuala Lumpur</option>
-            <option value="Asia/Kuching">Kuching</option>
-            <option value="Asia/Kuwait">Kuwait</option>
-            <option value="Asia/Macau">Macau</option>
-            <option value="Asia/Magadan">Magadan</option>
-            <option value="Asia/Makassar">Makassar</option>
-            <option value="Asia/Manila">Manila</option>
-            <option value="Asia/Muscat">Muscat</option>
-            <option value="Asia/Nicosia">Nicosia</option>
-            <option value="Asia/Novokuznetsk">Novokuznetsk</option>
-            <option value="Asia/Novosibirsk">Novosibirsk</option>
-            <option value="Asia/Omsk">Omsk</option>
-            <option value="Asia/Oral">Oral</option>
-            <option value="Asia/Phnom_Penh">Phnom Penh</option>
-            <option value="Asia/Pontianak">Pontianak</option>
-            <option value="Asia/Pyongyang">Pyongyang</option>
-            <option value="Asia/Qatar">Qatar</option>
-            <option value="Asia/Qostanay">Qostanay</option>
-            <option value="Asia/Qyzylorda">Qyzylorda</option>
-            <option value="Asia/Riyadh">Riyadh</option>
-            <option value="Asia/Sakhalin">Sakhalin</option>
-            <option value="Asia/Samarkand">Samarkand</option>
-            <option value="Asia/Seoul">Seoul</option>
-            <option value="Asia/Shanghai">Shanghai</option>
-            <option value="Asia/Singapore">Singapore</option>
-            <option value="Asia/Srednekolymsk">Srednekolymsk</option>
-            <option value="Asia/Taipei">Taipei</option>
-            <option value="Asia/Tashkent">Tashkent</option>
-            <option value="Asia/Tbilisi">Tbilisi</option>
-            <option value="Asia/Tehran">Tehran</option>
-            <option value="Asia/Thimphu">Thimphu</option>
-            <option value="Asia/Tokyo">Tokyo</option>
-            <option value="Asia/Tomsk">Tomsk</option>
-            <option value="Asia/Ulaanbaatar">Ulaanbaatar</option>
-            <option value="Asia/Urumqi">Urumqi</option>
-            <option value="Asia/Ust-Nera">Ust-Nera</option>
-            <option value="Asia/Vientiane">Vientiane</option>
-            <option value="Asia/Vladivostok">Vladivostok</option>
-            <option value="Asia/Yakutsk">Yakutsk</option>
-            <option value="Asia/Yangon">Yangon</option>
-            <option value="Asia/Yekaterinburg">Yekaterinburg</option>
-            <option value="Asia/Yerevan">Yerevan</option>
-            </optgroup>
-            <optgroup label="Atlantic">
-            <option value="Atlantic/Azores">Azores</option>
-            <option value="Atlantic/Bermuda">Bermuda</option>
-            <option value="Atlantic/Canary">Canary</option>
-            <option value="Atlantic/Cape_Verde">Cape Verde</option>
-            <option value="Atlantic/Faroe">Faroe</option>
-            <option value="Atlantic/Madeira">Madeira</option>
-            <option value="Atlantic/Reykjavik">Reykjavik</option>
-            <option value="Atlantic/South_Georgia">South Georgia</option>
-            <option value="Atlantic/Stanley">Stanley</option>
-            <option value="Atlantic/St_Helena">St Helena</option>
-            </optgroup>
-            <optgroup label="Australia">
-            <option value="Australia/Adelaide">Adelaide</option>
-            <option value="Australia/Brisbane">Brisbane</option>
-            <option value="Australia/Broken_Hill">Broken Hill</option>
-            <option value="Australia/Darwin">Darwin</option>
-            <option value="Australia/Eucla">Eucla</option>
-            <option value="Australia/Hobart">Hobart</option>
-            <option value="Australia/Lindeman">Lindeman</option>
-            <option value="Australia/Lord_Howe">Lord Howe</option>
-            <option value="Australia/Melbourne">Melbourne</option>
-            <option value="Australia/Perth">Perth</option>
-            <option value="Australia/Sydney">Sydney</option>
-            </optgroup>
-            <optgroup label="Europe">
-            <option value="Europe/Amsterdam">Amsterdam</option>
-            <option value="Europe/Andorra">Andorra</option>
-            <option value="Europe/Astrakhan">Astrakhan</option>
-            <option value="Europe/Athens">Athens</option>
-            <option value="Europe/Belgrade">Belgrade</option>
-            <option value="Europe/Berlin">Berlin</option>
-            <option value="Europe/Bratislava">Bratislava</option>
-            <option value="Europe/Brussels">Brussels</option>
-            <option value="Europe/Bucharest">Bucharest</option>
-            <option value="Europe/Budapest">Budapest</option>
-            <option value="Europe/Busingen">Busingen</option>
-            <option value="Europe/Chisinau">Chisinau</option>
-            <option value="Europe/Copenhagen">Copenhagen</option>
-            <option value="Europe/Dublin">Dublin</option>
-            <option value="Europe/Gibraltar">Gibraltar</option>
-            <option value="Europe/Guernsey">Guernsey</option>
-            <option value="Europe/Helsinki">Helsinki</option>
-            <option value="Europe/Isle_of_Man">Isle of Man</option>
-            <option value="Europe/Istanbul">Istanbul</option>
-            <option value="Europe/Jersey">Jersey</option>
-            <option value="Europe/Kaliningrad">Kaliningrad</option>
-            <option value="Europe/Kirov">Kirov</option>
-            <option value="Europe/Kyiv">Kyiv</option>
-            <option value="Europe/Lisbon">Lisbon</option>
-            <option value="Europe/Ljubljana">Ljubljana</option>
-            <option value="Europe/London">London</option>
-            <option value="Europe/Luxembourg">Luxembourg</option>
-            <option value="Europe/Madrid">Madrid</option>
-            <option value="Europe/Malta">Malta</option>
-            <option value="Europe/Mariehamn">Mariehamn</option>
-            <option value="Europe/Minsk">Minsk</option>
-            <option value="Europe/Monaco">Monaco</option>
-            <option value="Europe/Moscow">Moscow</option>
-            <option value="Europe/Oslo">Oslo</option>
-            <option value="Europe/Paris">Paris</option>
-            <option value="Europe/Podgorica">Podgorica</option>
-            <option value="Europe/Prague">Prague</option>
-            <option value="Europe/Riga">Riga</option>
-            <option value="Europe/Rome">Rome</option>
-            <option value="Europe/Samara">Samara</option>
-            <option value="Europe/San_Marino">San Marino</option>
-            <option value="Europe/Sarajevo">Sarajevo</option>
-            <option value="Europe/Saratov">Saratov</option>
-            <option value="Europe/Simferopol">Simferopol</option>
-            <option value="Europe/Skopje">Skopje</option>
-            <option value="Europe/Sofia">Sofia</option>
-            <option value="Europe/Stockholm">Stockholm</option>
-            <option value="Europe/Tallinn">Tallinn</option>
-            <option value="Europe/Tirane">Tirane</option>
-            <option value="Europe/Ulyanovsk">Ulyanovsk</option>
-            <option value="Europe/Vaduz">Vaduz</option>
-            <option value="Europe/Vatican">Vatican</option>
-            <option value="Europe/Vienna">Vienna</option>
-            <option value="Europe/Vilnius">Vilnius</option>
-            <option value="Europe/Volgograd">Volgograd</option>
-            <option value="Europe/Warsaw">Warsaw</option>
-            <option value="Europe/Zagreb">Zagreb</option>
-            <option value="Europe/Zurich">Zurich</option>
-            </optgroup>
-            <optgroup label="Indian">
-            <option value="Indian/Antananarivo">Antananarivo</option>
-            <option value="Indian/Chagos">Chagos</option>
-            <option value="Indian/Christmas">Christmas</option>
-            <option value="Indian/Cocos">Cocos</option>
-            <option value="Indian/Comoro">Comoro</option>
-            <option value="Indian/Kerguelen">Kerguelen</option>
-            <option value="Indian/Mahe">Mahe</option>
-            <option value="Indian/Maldives">Maldives</option>
-            <option value="Indian/Mauritius">Mauritius</option>
-            <option value="Indian/Mayotte">Mayotte</option>
-            <option value="Indian/Reunion">Reunion</option>
-            </optgroup>
-            <optgroup label="Pacific">
-            <option value="Pacific/Apia">Apia</option>
-            <option value="Pacific/Auckland">Auckland</option>
-            <option value="Pacific/Bougainville">Bougainville</option>
-            <option value="Pacific/Chatham">Chatham</option>
-            <option value="Pacific/Chuuk">Chuuk</option>
-            <option value="Pacific/Easter">Easter</option>
-            <option value="Pacific/Efate">Efate</option>
-            <option value="Pacific/Fakaofo">Fakaofo</option>
-            <option value="Pacific/Fiji">Fiji</option>
-            <option value="Pacific/Funafuti">Funafuti</option>
-            <option value="Pacific/Galapagos">Galapagos</option>
-            <option value="Pacific/Gambier">Gambier</option>
-            <option value="Pacific/Guadalcanal">Guadalcanal</option>
-            <option value="Pacific/Guam">Guam</option>
-            <option value="Pacific/Honolulu">Honolulu</option>
-            <option value="Pacific/Kanton">Kanton</option>
-            <option value="Pacific/Kiritimati">Kiritimati</option>
-            <option value="Pacific/Kosrae">Kosrae</option>
-            <option value="Pacific/Kwajalein">Kwajalein</option>
-            <option value="Pacific/Majuro">Majuro</option>
-            <option value="Pacific/Marquesas">Marquesas</option>
-            <option value="Pacific/Midway">Midway</option>
-            <option value="Pacific/Nauru">Nauru</option>
-            <option value="Pacific/Niue">Niue</option>
-            <option value="Pacific/Norfolk">Norfolk</option>
-            <option value="Pacific/Noumea">Noumea</option>
-            <option value="Pacific/Pago_Pago">Pago Pago</option>
-            <option value="Pacific/Palau">Palau</option>
-            <option value="Pacific/Pitcairn">Pitcairn</option>
-            <option value="Pacific/Pohnpei">Pohnpei</option>
-            <option value="Pacific/Port_Moresby">Port Moresby</option>
-            <option value="Pacific/Rarotonga">Rarotonga</option>
-            <option value="Pacific/Saipan">Saipan</option>
-            <option value="Pacific/Tahiti">Tahiti</option>
-            <option value="Pacific/Tarawa">Tarawa</option>
-            <option value="Pacific/Tongatapu">Tongatapu</option>
-            <option value="Pacific/Wake">Wake</option>
-            <option value="Pacific/Wallis">Wallis</option>
-            </optgroup>
-            <optgroup label="UTC">
-            <option value="UTC">UTC</option>
-            </optgroup>
-            <optgroup label="Manual Offsets">
-            <option value="UTC-12">UTC-12</option>
-            <option value="UTC-11.5">UTC-11:30</option>
-            <option value="UTC-11">UTC-11</option>
-            <option value="UTC-10.5">UTC-10:30</option>
-            <option value="UTC-10">UTC-10</option>
-            <option value="UTC-9.5">UTC-9:30</option>
-            <option value="UTC-9">UTC-9</option>
-            <option value="UTC-8.5">UTC-8:30</option>
-            <option value="UTC-8">UTC-8</option>
-            <option value="UTC-7.5">UTC-7:30</option>
-            <option value="UTC-7">UTC-7</option>
-            <option value="UTC-6.5">UTC-6:30</option>
-            <option value="UTC-6">UTC-6</option>
-            <option value="UTC-5.5">UTC-5:30</option>
-            <option value="UTC-5">UTC-5</option>
-            <option value="UTC-4.5">UTC-4:30</option>
-            <option value="UTC-4">UTC-4</option>
-            <option value="UTC-3.5">UTC-3:30</option>
-            <option value="UTC-3">UTC-3</option>
-            <option value="UTC-2.5">UTC-2:30</option>
-            <option value="UTC-2">UTC-2</option>
-            <option value="UTC-1.5">UTC-1:30</option>
-            <option value="UTC-1">UTC-1</option>
-            <option value="UTC-0.5">UTC-0:30</option>
-            <option value="UTC+0">UTC+0</option>
-            <option value="UTC+0.5">UTC+0:30</option>
-            <option value="UTC+1">UTC+1</option>
-            <option value="UTC+1.5">UTC+1:30</option>
-            <option value="UTC+2">UTC+2</option>
-            <option value="UTC+2.5">UTC+2:30</option>
-            <option value="UTC+3">UTC+3</option>
-            <option value="UTC+3.5">UTC+3:30</option>
-            <option value="UTC+4">UTC+4</option>
-            <option value="UTC+4.5">UTC+4:30</option>
-            <option value="UTC+5">UTC+5</option>
-            <option value="UTC+5.5">UTC+5:30</option>
-            <option value="UTC+5.75">UTC+5:45</option>
-            <option value="UTC+6">UTC+6</option>
-            <option value="UTC+6.5">UTC+6:30</option>
-            <option value="UTC+7">UTC+7</option>
-            <option value="UTC+7.5">UTC+7:30</option>
-            <option value="UTC+8">UTC+8</option>
-            <option value="UTC+8.5">UTC+8:30</option>
-            <option value="UTC+8.75">UTC+8:45</option>
-            <option value="UTC+9">UTC+9</option>
-            <option value="UTC+9.5">UTC+9:30</option>
-            <option value="UTC+10">UTC+10</option>
-            <option value="UTC+10.5">UTC+10:30</option>
-            <option value="UTC+11">UTC+11</option>
-            <option value="UTC+11.5">UTC+11:30</option>
-            <option value="UTC+12">UTC+12</option>
-            <option value="UTC+12.75">UTC+12:45</option>
-            <option value="UTC+13">UTC+13</option>
-            <option value="UTC+13.75">UTC+13:45</option>
-            <option value="UTC+14">UTC+14</option>
-            </optgroup>                         
-            </select>';
+            $timezones_Africa = array(
+                "Africa/Abidjan" => "Abidjan",
+                "Africa/Accra" => "Accra",
+                "Africa/Addis_Ababa" => "Addis Ababa",
+                "Africa/Algiers" => "Algiers",
+                "Africa/Asmara" => "Asmara",
+                "Africa/Bamako" => "Bamako",
+                "Africa/Bangui" => "Bangui",
+                "Africa/Banjul" => "Banjul",
+                "Africa/Bissau" => "Bissau",
+                "Africa/Blantyre" => "Blantyre",
+                "Africa/Brazzaville" => "Brazzaville",
+                "Africa/Bujumbura" => "Bujumbura",
+                "Africa/Cairo" => "Cairo",
+                "Africa/Casablanca" => "Casablanca",
+                "Africa/Ceuta" => "Ceuta",
+                "Africa/Conakry" => "Conakry",
+                "Africa/Dakar" => "Dakar",
+                "Africa/Dar_es_Salaam" => "Dar es Salaam",
+                "Africa/Djibouti" => "Djibouti",
+                "Africa/Douala" => "Douala",
+                "Africa/El_Aaiun" => "El Aaiun",
+                "Africa/Freetown" => "Freetown",
+                "Africa/Gaborone" => "Gaborone",
+                "Africa/Harare" => "Harare",
+                "Africa/Johannesburg" => "Johannesburg",
+                "Africa/Juba" => "Juba",
+                "Africa/Kampala" => "Kampala",
+                "Africa/Khartoum" => "Khartoum",
+                "Africa/Kigali" => "Kigali",
+                "Africa/Kinshasa" => "Kinshasa",
+                "Africa/Lagos" => "Lagos",
+                "Africa/Libreville" => "Libreville",
+                "Africa/Lome" => "Lome",
+                "Africa/Luanda" => "Luanda",
+                "Africa/Lubumbashi" => "Lubumbashi",
+                "Africa/Lusaka" => "Lusaka",
+                "Africa/Malabo" => "Malabo",
+                "Africa/Maputo" => "Maputo",
+                "Africa/Maseru" => "Maseru",
+                "Africa/Mbabane" => "Mbabane",
+                "Africa/Mogadishu" => "Mogadishu",
+                "Africa/Monrovia" => "Monrovia",
+                "Africa/Nairobi" => "Nairobi",
+                "Africa/Ndjamena" => "Ndjamena",
+                "Africa/Niamey" => "Niamey",
+                "Africa/Nouakchott" => "Nouakchott",
+                "Africa/Ouagadougou" => "Ouagadougou",
+                "Africa/Porto-Novo" => "Porto-Novo",
+                "Africa/Sao_Tome" => "Sao Tome",
+                "Africa/Tripoli" => "Tripoli",
+                "Africa/Tunis" => "Tunis",
+                "Africa/Windhoek" => "Windhoek"
+            );
+            $timezones_America = array(
+                "America/Adak" => "Adak",
+                "America/Anchorage" => "Anchorage",
+                "America/Anguilla" => "Anguilla",
+                "America/Antigua" => "Antigua",
+                "America/Araguaina" => "Araguaina",
+                "America/Argentina/Buenos_Aires" => "Argentina - Buenos Aires",
+                "America/Argentina/Catamarca" => "Argentina - Catamarca",
+                "America/Argentina/Cordoba" => "Argentina - Cordoba",
+                "America/Argentina/Jujuy" => "Argentina - Jujuy",
+                "America/Argentina/La_Rioja" => "Argentina - La Rioja",
+                "America/Argentina/Mendoza" => "Argentina - Mendoza",
+                "America/Argentina/Rio_Gallegos" => "Argentina - Rio Gallegos",
+                "America/Argentina/Salta" => "Argentina - Salta",
+                "America/Argentina/San_Juan" => "Argentina - San Juan",
+                "America/Argentina/San_Luis" => "Argentina - San Luis",
+                "America/Argentina/Tucuman" => "Argentina - Tucuman",
+                "America/Argentina/Ushuaia" => "Argentina - Ushuaia",
+                "America/Aruba" => "Aruba",
+                "America/Asuncion" => "Asuncion",
+                "America/Atikokan" => "Atikokan",
+                "America/Bahia" => "Bahia",
+                "America/Bahia_Banderas" => "Bahia Banderas",
+                "America/Barbados" => "Barbados",
+                "America/Belem" => "Belem",
+                "America/Belize" => "Belize",
+                "America/Blanc-Sablon" => "Blanc-Sablon",
+                "America/Boa_Vista" => "Boa Vista",
+                "America/Bogota" => "Bogota",
+                "America/Boise" => "Boise",
+                "America/Cambridge_Bay" => "Cambridge Bay",
+                "America/Campo_Grande" => "Campo Grande",
+                "America/Cancun" => "Cancun",
+                "America/Caracas" => "Caracas",
+                "America/Cayenne" => "Cayenne",
+                "America/Cayman" => "Cayman",
+                "America/Chicago" => "Chicago",
+                "America/Chihuahua" => "Chihuahua",
+                "America/Ciudad_Juarez" => "Ciudad Juarez",
+                "America/Costa_Rica" => "Costa Rica",
+                "America/Creston" => "Creston",
+                "America/Cuiaba" => "Cuiaba",
+                "America/Curacao" => "Curacao",
+                "America/Danmarkshavn" => "Danmarkshavn",
+                "America/Dawson" => "Dawson",
+                "America/Dawson_Creek" => "Dawson Creek",
+                "America/Denver" => "Denver",
+                "America/Detroit" => "Detroit",
+                "America/Dominica" => "Dominica",
+                "America/Edmonton" => "Edmonton",
+                "America/Eirunepe" => "Eirunepe",
+                "America/El_Salvador" => "El Salvador",
+                "America/Fortaleza" => "Fortaleza",
+                "America/Fort_Nelson" => "Fort Nelson",
+                "America/Glace_Bay" => "Glace Bay",
+                "America/Goose_Bay" => "Goose Bay",
+                "America/Grand_Turk" => "Grand Turk",
+                "America/Grenada" => "Grenada",
+                "America/Guadeloupe" => "Guadeloupe",
+                "America/Guatemala" => "Guatemala",
+                "America/Guayaquil" => "Guayaquil",
+                "America/Guyana" => "Guyana",
+                "America/Halifax" => "Halifax",
+                "America/Havana" => "Havana",
+                "America/Hermosillo" => "Hermosillo",
+                "America/Indiana/Indianapolis" => "Indiana - Indianapolis",
+                "America/Indiana/Knox" => "Indiana - Knox",
+                "America/Indiana/Marengo" => "Indiana - Marengo",
+                "America/Indiana/Petersburg" => "Indiana - Petersburg",
+                "America/Indiana/Tell_City" => "Indiana - Tell City",
+                "America/Indiana/Vevay" => "Indiana - Vevay",
+                "America/Indiana/Vincennes" => "Indiana - Vincennes",
+                "America/Indiana/Winamac" => "Indiana - Winamac",
+                "America/Inuvik" => "Inuvik",
+                "America/Iqaluit" => "Iqaluit",
+                "America/Jamaica" => "Jamaica",
+                "America/Juneau" => "Juneau",
+                "America/Kentucky/Louisville" => "Kentucky - Louisville",
+                "America/Kentucky/Monticello" => "Kentucky - Monticello",
+                "America/Kralendijk" => "Kralendijk",
+                "America/La_Paz" => "La Paz",
+                "America/Lima" => "Lima",
+                "America/Los_Angeles" => "Los Angeles",
+                "America/Lower_Princes" => "Lower Princes",
+                "America/Maceio" => "Maceio",
+                "America/Managua" => "Managua",
+                "America/Manaus" => "Manaus",
+                "America/Marigot" => "Marigot",
+                "America/Martinique" => "Martinique",
+                "America/Matamoros" => "Matamoros",
+                "America/Mazatlan" => "Mazatlan",
+                "America/Menominee" => "Menominee",
+                "America/Merida" => "Merida",
+                "America/Metlakatla" => "Metlakatla",
+                "America/Mexico_City" => "Mexico City",
+                "America/Miquelon" => "Miquelon",
+                "America/Moncton" => "Moncton",
+                "America/Monterrey" => "Monterrey",
+                "America/Montevideo" => "Montevideo",
+                "America/Montserrat" => "Montserrat",
+                "America/Nassau" => "Nassau",
+                "America/New_York" => "New York",
+                "America/Nome" => "Nome",
+                "America/Noronha" => "Noronha",
+                "America/North_Dakota/Beulah" => "North Dakota - Beulah",
+                "America/North_Dakota/Center" => "North Dakota - Center",
+                "America/North_Dakota/New_Salem" => "North Dakota - New Salem",
+                "America/Nuuk" => "Nuuk",
+                "America/Ojinaga" => "Ojinaga",
+                "America/Panama" => "Panama",
+                "America/Paramaribo" => "Paramaribo",
+                "America/Phoenix" => "Phoenix",
+                "America/Port-au-Prince" => "Port-au-Prince",
+                "America/Port_of_Spain" => "Port of Spain",
+                "America/Porto_Velho" => "Porto Velho",
+                "America/Puerto_Rico" => "Puerto Rico",
+                "America/Punta_Arenas" => "Punta Arenas",
+                "America/Rankin_Inlet" => "Rankin Inlet",
+                "America/Recife" => "Recife",
+                "America/Regina" => "Regina",
+                "America/Resolute" => "Resolute",
+                "America/Rio_Branco" => "Rio Branco",
+                "America/Santarem" => "Santarem",
+                "America/Santiago" => "Santiago",
+                "America/Santo_Domingo" => "Santo Domingo",
+                "America/Sao_Paulo" => "Sao Paulo",
+                "America/Scoresbysund" => "Scoresbysund",
+                "America/Sitka" => "Sitka",
+                "America/St_Barthelemy" => "St Barthelemy",
+                "America/St_Johns" => "St Johns",
+                "America/St_Kitts" => "St Kitts",
+                "America/St_Lucia" => "St Lucia",
+                "America/St_Thomas" => "St Thomas",
+                "America/St_Vincent" => "St Vincent",
+                "America/Swift_Current" => "Swift Current",
+                "America/Tegucigalpa" => "Tegucigalpa",
+                "America/Thule" => "Thule",
+                "America/Tijuana" => "Tijuana",
+                "America/Toronto" => "Toronto",
+                "America/Tortola" => "Tortola",
+                "America/Vancouver" => "Vancouver",
+                "America/Whitehorse" => "Whitehorse",
+                "America/Winnipeg" => "Winnipeg",
+                "America/Yakutat" => "Yakutat"
+            );
+            
+            $timezones_Antarctica = array(
+                "Antarctica/Casey" => "Casey",
+                "Antarctica/Davis" => "Davis",
+                "Antarctica/DumontDUrville" => "DumontDUrville",
+                "Antarctica/Macquarie" => "Macquarie",
+                "Antarctica/Mawson" => "Mawson",
+                "Antarctica/McMurdo" => "McMurdo",
+                "Antarctica/Palmer" => "Palmer",
+                "Antarctica/Rothera" => "Rothera",
+                "Antarctica/Syowa" => "Syowa",
+                "Antarctica/Troll" => "Troll",
+                "Antarctica/Vostok" => "Vostok"
+            );
+            $timezones_Asia = array(
+                "Asia/Aden" => "Aden",
+                "Asia/Almaty" => "Almaty",
+                "Asia/Amman" => "Amman",
+                "Asia/Anadyr" => "Anadyr",
+                "Asia/Aqtau" => "Aqtau",
+                "Asia/Aqtobe" => "Aqtobe",
+                "Asia/Ashgabat" => "Ashgabat",
+                "Asia/Atyrau" => "Atyrau",
+                "Asia/Baghdad" => "Baghdad",
+                "Asia/Bahrain" => "Bahrain",
+                "Asia/Baku" => "Baku",
+                "Asia/Bangkok" => "Bangkok",
+                "Asia/Barnaul" => "Barnaul",
+                "Asia/Beirut" => "Beirut",
+                "Asia/Bishkek" => "Bishkek",
+                "Asia/Brunei" => "Brunei",
+                "Asia/Chita" => "Chita",
+                "Asia/Choibalsan" => "Choibalsan",
+                "Asia/Colombo" => "Colombo",
+                "Asia/Damascus" => "Damascus",
+                "Asia/Dhaka" => "Dhaka",
+                "Asia/Dili" => "Dili",
+                "Asia/Dubai" => "Dubai",
+                "Asia/Dushanbe" => "Dushanbe",
+                "Asia/Famagusta" => "Famagusta",
+                "Asia/Gaza" => "Gaza",
+                "Asia/Hebron" => "Hebron",
+                "Asia/Ho_Chi_Minh" => "Ho Chi Minh",
+                "Asia/Hong_Kong" => "Hong Kong",
+                "Asia/Hovd" => "Hovd",
+                "Asia/Irkutsk" => "Irkutsk",
+                "Asia/Jakarta" => "Jakarta",
+                "Asia/Jayapura" => "Jayapura",
+                "Asia/Jerusalem" => "Jerusalem",
+                "Asia/Kabul" => "Kabul",
+                "Asia/Kamchatka" => "Kamchatka",
+                "Asia/Karachi" => "Karachi",
+                "Asia/Kathmandu" => "Kathmandu",
+                "Asia/Khandyga" => "Khandyga",
+                "Asia/Kolkata" => "Kolkata",
+                "Asia/Krasnoyarsk" => "Krasnoyarsk",
+                "Asia/Kuala_Lumpur" => "Kuala Lumpur",
+                "Asia/Kuching" => "Kuching",
+                "Asia/Kuwait" => "Kuwait",
+                "Asia/Macau" => "Macau",
+                "Asia/Magadan" => "Magadan",
+                "Asia/Makassar" => "Makassar",
+                "Asia/Manila" => "Manila",
+                "Asia/Muscat" => "Muscat",
+                "Asia/Nicosia" => "Nicosia",
+                "Asia/Novokuznetsk" => "Novokuznetsk",
+                "Asia/Novosibirsk" => "Novosibirsk",
+                "Asia/Omsk" => "Omsk",
+                "Asia/Oral" => "Oral",
+                "Asia/Phnom_Penh" => "Phnom Penh",
+                "Asia/Pontianak" => "Pontianak",
+                "Asia/Pyongyang" => "Pyongyang",
+                "Asia/Qatar" => "Qatar",
+                "Asia/Qostanay" => "Qostanay",
+                "Asia/Qyzylorda" => "Qyzylorda",
+                "Asia/Riyadh" => "Riyadh",
+                "Asia/Sakhalin" => "Sakhalin",
+                "Asia/Samarkand" => "Samarkand",
+                "Asia/Seoul" => "Seoul",
+                "Asia/Shanghai" => "Shanghai",
+                "Asia/Singapore" => "Singapore",
+                "Asia/Srednekolymsk" => "Srednekolymsk",
+                "Asia/Taipei" => "Taipei",
+                "Asia/Tashkent" => "Tashkent",
+                "Asia/Tbilisi" => "Tbilisi",
+                "Asia/Tehran" => "Tehran",
+                "Asia/Thimphu" => "Thimphu",
+                "Asia/Tokyo" => "Tokyo",
+                "Asia/Tomsk" => "Tomsk",
+                "Asia/Ulaanbaatar" => "Ulaanbaatar",
+                "Asia/Urumqi" => "Urumqi",
+                "Asia/Ust-Nera" => "Ust-Nera",
+                "Asia/Vientiane" => "Vientiane",
+                "Asia/Vladivostok" => "Vladivostok",
+                "Asia/Yakutsk" => "Yakutsk",
+                "Asia/Yangon" => "Yangon",
+                "Asia/Yekaterinburg" => "Yekaterinburg",
+                "Asia/Yerevan" => "Yerevan"
+            );
+            $timezones_Atlantic = array(
+                "Atlantic/Azores" => "Azores",
+                "Atlantic/Bermuda" => "Bermuda",
+                "Atlantic/Canary" => "Canary",
+                "Atlantic/Cape_Verde" => "Cape Verde",
+                "Atlantic/Faroe" => "Faroe",
+                "Atlantic/Madeira" => "Madeira",
+                "Atlantic/Reykjavik" => "Reykjavik",
+                "Atlantic/South_Georgia" => "South Georgia",
+                "Atlantic/Stanley" => "Stanley",
+                "Atlantic/St_Helena" => "St Helena"
+            );
+            $timezones_Australia = array(
+                "Australia/Adelaide" => "Adelaide",
+                "Australia/Brisbane" => "Brisbane",
+                "Australia/Broken_Hill" => "Broken Hill",
+                "Australia/Darwin" => "Darwin",
+                "Australia/Eucla" => "Eucla",
+                "Australia/Hobart" => "Hobart",
+                "Australia/Lindeman" => "Lindeman",
+                "Australia/Lord_Howe" => "Lord Howe",
+                "Australia/Melbourne" => "Melbourne",
+                "Australia/Perth" => "Perth",
+                "Australia/Sydney" => "Sydney"
+            );
+            $timezones_Europe = array(
+                "Europe/Amsterdam" => "Amsterdam",
+                "Europe/Andorra" => "Andorra",
+                "Europe/Astrakhan" => "Astrakhan",
+                "Europe/Athens" => "Athens",
+                "Europe/Belgrade" => "Belgrade",
+                "Europe/Berlin" => "Berlin",
+                "Europe/Bratislava" => "Bratislava",
+                "Europe/Brussels" => "Brussels",
+                "Europe/Bucharest" => "Bucharest",
+                "Europe/Budapest" => "Budapest",
+                "Europe/Busingen" => "Busingen",
+                "Europe/Chisinau" => "Chisinau",
+                "Europe/Copenhagen" => "Copenhagen",
+                "Europe/Dublin" => "Dublin",
+                "Europe/Gibraltar" => "Gibraltar",
+                "Europe/Guernsey" => "Guernsey",
+                "Europe/Helsinki" => "Helsinki",
+                "Europe/Isle_of_Man" => "Isle of Man",
+                "Europe/Istanbul" => "Istanbul",
+                "Europe/Jersey" => "Jersey",
+                "Europe/Kaliningrad" => "Kaliningrad",
+                "Europe/Kirov" => "Kirov",
+                "Europe/Kyiv" => "Kyiv",
+                "Europe/Lisbon" => "Lisbon",
+                "Europe/Ljubljana" => "Ljubljana",
+                "Europe/London" => "London",
+                "Europe/Luxembourg" => "Luxembourg",
+                "Europe/Madrid" => "Madrid",
+                "Europe/Malta" => "Malta",
+                "Europe/Mariehamn" => "Mariehamn",
+                "Europe/Minsk" => "Minsk",
+                "Europe/Monaco" => "Monaco",
+                "Europe/Moscow" => "Moscow",
+                "Europe/Oslo" => "Oslo",
+                "Europe/Paris" => "Paris",
+                "Europe/Podgorica" => "Podgorica",
+                "Europe/Prague" => "Prague",
+                "Europe/Riga" => "Riga",
+                "Europe/Rome" => "Rome",
+                "Europe/Samara" => "Samara",
+                "Europe/San_Marino" => "San Marino",
+                "Europe/Sarajevo" => "Sarajevo",
+                "Europe/Saratov" => "Saratov",
+                "Europe/Simferopol" => "Simferopol",
+                "Europe/Skopje" => "Skopje",
+                "Europe/Sofia" => "Sofia",
+                "Europe/Stockholm" => "Stockholm",
+                "Europe/Tallinn" => "Tallinn",
+                "Europe/Tirane" => "Tirane",
+                "Europe/Ulyanovsk" => "Ulyanovsk",
+                "Europe/Vaduz" => "Vaduz",
+                "Europe/Vatican" => "Vatican",
+                "Europe/Vienna" => "Vienna",
+                "Europe/Vilnius" => "Vilnius",
+                "Europe/Volgograd" => "Volgograd",
+                "Europe/Warsaw" => "Warsaw",
+                "Europe/Zagreb" => "Zagreb",
+                "Europe/Zurich" => "Zurich"
+            );
+            
+            $timezones_Indian = array(
+                "Indian/Antananarivo" => "Antananarivo",
+                "Indian/Chagos" => "Chagos",
+                "Indian/Christmas" => "Christmas",
+                "Indian/Cocos" => "Cocos",
+                "Indian/Comoro" => "Comoro",
+                "Indian/Kerguelen" => "Kerguelen",
+                "Indian/Mahe" => "Mahe",
+                "Indian/Maldives" => "Maldives",
+                "Indian/Mauritius" => "Mauritius",
+                "Indian/Mayotte" => "Mayotte",
+                "Indian/Reunion" => "Reunion"
+            );
+            $timezones_Pacific = array(
+                "Pacific/Apia" => "Apia",
+                "Pacific/Auckland" => "Auckland",
+                "Pacific/Bougainville" => "Bougainville",
+                "Pacific/Chatham" => "Chatham",
+                "Pacific/Chuuk" => "Chuuk",
+                "Pacific/Easter" => "Easter",
+                "Pacific/Efate" => "Efate",
+                "Pacific/Fakaofo" => "Fakaofo",
+                "Pacific/Fiji" => "Fiji",
+                "Pacific/Funafuti" => "Funafuti",
+                "Pacific/Galapagos" => "Galapagos",
+                "Pacific/Gambier" => "Gambier",
+                "Pacific/Guadalcanal" => "Guadalcanal",
+                "Pacific/Guam" => "Guam",
+                "Pacific/Honolulu" => "Honolulu",
+                "Pacific/Kanton" => "Kanton",
+                "Pacific/Kiritimati" => "Kiritimati",
+                "Pacific/Kosrae" => "Kosrae",
+                "Pacific/Kwajalein" => "Kwajalein",
+                "Pacific/Majuro" => "Majuro",
+                "Pacific/Marquesas" => "Marquesas",
+                "Pacific/Midway" => "Midway",
+                "Pacific/Nauru" => "Nauru",
+                "Pacific/Niue" => "Niue",
+                "Pacific/Norfolk" => "Norfolk",
+                "Pacific/Noumea" => "Noumea",
+                "Pacific/Pago_Pago" => "Pago Pago",
+                "Pacific/Palau" => "Palau",
+                "Pacific/Pitcairn" => "Pitcairn",
+                "Pacific/Pohnpei" => "Pohnpei",
+                "Pacific/Port_Moresby" => "Port Moresby",
+                "Pacific/Rarotonga" => "Rarotonga",
+                "Pacific/Saipan" => "Saipan",
+                "Pacific/Tahiti" => "Tahiti",
+                "Pacific/Tarawa" => "Tarawa",
+                "Pacific/Tongatapu" => "Tongatapu",
+                "Pacific/Wake" => "Wake",
+                "Pacific/Wallis" => "Wallis"
+            );
+            $timezones_UTC = array(
+                "UTC-12" => "UTC-12",
+                "UTC-11.5" => "UTC-11:30",
+                "UTC-11" => "UTC-11",
+                "UTC-10.5" => "UTC-10:30",
+                "UTC-10" => "UTC-10",
+                "UTC-9.5" => "UTC-9:30",
+                "UTC-9" => "UTC-9",
+                "UTC-8.5" => "UTC-8:30",
+                "UTC-8" => "UTC-8",
+                "UTC-7.5" => "UTC-7:30",
+                "UTC-7" => "UTC-7",
+                "UTC-6.5" => "UTC-6:30",
+                "UTC-6" => "UTC-6",
+                "UTC-5.5" => "UTC-5:30",
+                "UTC-5" => "UTC-5",
+                "UTC-4.5" => "UTC-4:30",
+                "UTC-4" => "UTC-4",
+                "UTC-3.5" => "UTC-3:30",
+                "UTC-3" => "UTC-3",
+                "UTC-2.5" => "UTC-2:30",
+                "UTC-2" => "UTC-2",
+                "UTC-1.5" => "UTC-1:30",
+                "UTC-1" => "UTC-1",
+                "UTC-0.5" => "UTC-0:30",
+                "UTC+0" => "UTC+0",
+                "UTC+0.5" => "UTC+0:30",
+                "UTC+1" => "UTC+1",
+                "UTC+1.5" => "UTC+1:30",
+                "UTC+2" => "UTC+2",
+                "UTC+2.5" => "UTC+2:30",
+                "UTC+3" => "UTC+3",
+                "UTC+3.5" => "UTC+3:30",
+                "UTC+4" => "UTC+4",
+                "UTC+4.5" => "UTC+4:30",
+                "UTC+5" => "UTC+5",
+                "UTC+5.5" => "UTC+5:30",
+                "UTC+5.75" => "UTC+5:45",
+                "UTC+6" => "UTC+6",
+                "UTC+6.5" => "UTC+6:30",
+                "UTC+7" => "UTC+7",
+                "UTC+7.5" => "UTC+7:30",
+                "UTC+8" => "UTC+8",
+                "UTC+8.5" => "UTC+8:30",
+                "UTC+8.75" => "UTC+8:45",
+                "UTC+9" => "UTC+9",
+                "UTC+9.5" => "UTC+9:30",
+                "UTC+10" => "UTC+10",
+                "UTC+10.5" => "UTC+10:30",
+                "UTC+11" => "UTC+11",
+                "UTC+11.5" => "UTC+11:30",
+                "UTC+12" => "UTC+12",
+                "UTC+12.75" => "UTC+12:45",
+                "UTC+13" => "UTC+13",
+                "UTC+13.75" => "UTC+13:45",
+                "UTC+14" => "UTC+14"
+            );
+            
+            $dropdown_timezone = '<select name="timezone" id="zfb-timezone" class="form-control">';
+            $dropdown_timezone .= '<optgroup label="Africa">';
+            foreach ($timezones_Africa as $value_Africa => $label_africa) {
+                $selected = ($value_Africa == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Africa . '" ' . $selected . '>' . $label_africa . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+            
+            $dropdown_timezone .= '<optgroup label="America">';
+            foreach ($timezones_America as $value_America => $label_America) {
+                $selected = ($value_America == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_America . '" ' . $selected . '>' . $label_America . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Antarctica">';
+            foreach ($timezones_Antarctica as $value_Antarctica => $label_Antarctica) {
+                $selected = ($value_Antarctica == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Antarctica . '" ' . $selected . '>' . $label_Antarctica . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Arctic">';
+            $selected = ("Arctic" == $get_timezone_value) ? 'selected="selected"' : '';
+            $dropdown_timezone .= '<option value="Arctic/Longyearbyen"' . $selected . '>Longyearbyen</option>';
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Asia">';
+            foreach ($timezones_Asia as $value_Asia => $label_Asia) {
+                $selected = ($value_Asia == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Asia . '" ' . $selected . '>' . $label_Asia . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Atlantic">';
+            foreach ($timezones_Atlantic as $value_Atlantic => $label_Atlantic) {
+                $selected = ($value_Atlantic == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Atlantic . '" ' . $selected . '>' . $label_Atlantic . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Australia">';
+            foreach ($timezones_Australia as $value_Australia => $label_Australia) {
+                $selected = ($value_Australia == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Australia . '" ' . $selected . '>' . $label_Australia . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Europe">';
+            foreach ($timezones_Europe as $value_Europe => $label_Europe) {
+                $selected = ($value_Europe == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Europe . '" ' . $selected . '>' . $label_Europe . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="Indian">';
+            foreach ($timezones_Indian as $value_Indian => $label_Indian) {
+                $selected = ($value_Indian == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Indian . '" ' . $selected . '>' . $label_Indian . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+            $dropdown_timezone .= '<optgroup label="Pacific">';
+            foreach ($timezones_Pacific as $value_Pacific => $label_Pacific) {
+                $selected = ($value_Pacific == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_Pacific . '" ' . $selected . '>' . $label_Pacific . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="UTC">';
+            $selected = ("UTC" == $get_timezone_value) ? 'selected="selected"' : '';
+            $dropdown_timezone .= '<option value="UTC"  ' . $selected . '>UTC</option>';
+            $dropdown_timezone .= '</optgroup>';
+
+            $dropdown_timezone .= '<optgroup label="UTC">';
+            foreach ($timezones_UTC as $value_UTC => $label_UTC) {
+                $selected = ($value_UTC == $get_timezone_value) ? 'selected="selected"' : '';
+                $dropdown_timezone .= '<option value="' . $value_UTC . '" ' . $selected . '>' . $label_UTC . '</option>';
+            }
+            $dropdown_timezone .= '</optgroup>';
+            $dropdown_timezone .= '</select>';
+            
+            
             return $dropdown_timezone;
         }
         
