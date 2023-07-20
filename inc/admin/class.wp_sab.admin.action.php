@@ -1,35 +1,33 @@
 <?php
 /**
- * PB_Admin_Action Class
+ * WP_SAB_Admin_Action Class
  *
  * Handles the admin functionality.
  *
  * @package WordPress
- * @package Plugin name
+ * @package WP Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'PB_Admin_Action' ) ) {
+if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 
 	/**
-	 *  The PB_Admin_Action Class
+	 *  The WP_SAB_Admin_Action Class
 	 */
-	class PB_Admin_Action {
+	class WP_SAB_Admin_Action {
 
 		function __construct()  {
 
-			add_action( 'admin_init', array( $this, 'action__admin_init' ) );
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
-			add_action('admin_menu',array( $this, 'add_main_custom_post_type_menu' ));
-			
-			// add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );		
-			add_action( 'wp_ajax_bms_save_form_data', array( $this, 'bms_save_form_data' ));
-			add_action('manage_bms_forms_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
-			add_action('manage_bms_entries_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
+			add_action('admin_menu',array( $this, 'wp_sab_add_post_type_menu' ));
+				
+			add_action( 'wp_ajax_sab_save_form_data', array( $this, 'sab_save_form_data' ));
+			add_action('manage_sab_form_builder_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
+			add_action('manage_manage_entries_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
 
 			add_action('wp_ajax_zfb_preiveiw_timeslot', array( $this, 'zfb_preiveiw_timeslot' ) );
 			add_action('wp_ajax_nopriv_zfb_preiveiw_timeslot', array( $this, 'zfb_preiveiw_timeslot' ) );
@@ -84,13 +82,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		 * - Register admin min js and admin min css
 		 *
 		 */
-		function action__admin_init() {
-
-			wp_register_script( PB_PREFIX . '_admin_js', PB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), PB_VERSION );
-			wp_register_style( PB_PREFIX . '_admin_min_css', PB_URL . 'assets/css/admin.min.css', array(), PB_VERSION );
-			wp_register_style( PB_PREFIX . '_admin_css', PB_URL . 'assets/css/admin.css', array(), PB_VERSION );
-		}
-
 
 		/*
 		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
@@ -114,16 +105,22 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			}
 
 			
-			if (is_singular('bms_forms') || is_singular('zeal_formbuilder') || (isset($post_type) && ($post_type == 'bms_forms' || $post_type == 'bms_entries')) || (isset($_GET['post_type']) && ($_GET['post_type'] === 'bms_forms' || $_GET['post_type'] === 'bms_entries'))) {
-				wp_enqueue_style( '_admin_css',PB_URL.'assets/css/admin.css', array(), 1.1, 'all' );
-				wp_enqueue_style( 'bms_boostrap_min',PB_URL.'assets/css/bootstrap.min.css', array(), 1.1, 'all' );
-				wp_enqueue_style( 'bms_formio_full_min',PB_URL.'assets/css/formio.full.min.css', array(), 1.1, 'all' );
-				wp_enqueue_style( 'bms_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
-				
+			if (is_singular('sab_form_builder') || is_singular('zeal_formbuilder') || (isset($post_type) && ($post_type == 'sab_form_builder' || $post_type == 'manage_entries')) || (isset($_GET['post_type']) && ($_GET['post_type'] === 'sab_form_builder' || $_GET['post_type'] === 'manage_entries'))) {
+				wp_enqueue_style( '_admin_css',WP_SAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( 'sab_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
+				//formio
+				wp_enqueue_style( 'sab_formio_full_min',WP_SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
+				//boostrap
+				wp_enqueue_style( 'sab_boostrap_min',WP_SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );	
 			 }
 			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
-				wp_enqueue_style( 'dattable_admin_css',PB_URL.'assets/css/jquery.dataTables.min.css', array(), 1.1, 'all' );
+				//boostrap
+				wp_enqueue_style( 'datatable_admin_css',WP_SAB_URL.'assets/css/boostrap/jquery.dataTables.min.css', array(), 1.1, 'all' );
 			 }
+
+			wp_register_style( WP_SAB_PREFIX . '_admin_min_css', WP_SAB_URL . 'assets/css/admin.min.css', array(), WP_SAB_VERSION );
+			wp_register_style( WP_SAB_PREFIX . '_admin_css', WP_SAB_URL . 'assets/css/admin.css', array(), WP_SAB_VERSION );
+	
 			
 		}
 	
@@ -131,9 +128,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		* WP Enqueue Scripts
 		*/
 		function enqueue_scripts() {
-
-			// wp_enqueue_script('custom-script', 'path/to/your/custom-script.js', array('jquery'));
-
 		
 			if(isset($_GET['post'])){
 				$postid = $_GET['post'];
@@ -142,24 +136,33 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$post_type = '';
 			}
 
-			if (is_singular('bms_forms') || is_singular('zeal_formbuilder') || $post_type == 'bms_forms' || isset($_GET['post_type']) && $_GET['post_type'] === 'bms_forms' || isset($_GET['post_type']) && $_GET['post_type'] === 'bms_entries' ||  $post_type == 'bms_entries') {
-				wp_enqueue_script( 'bms_bootstrapbundlemin', PB_URL.'assets/js/bootstrap.bundle.min.js', array( 'jquery' ), 1.1, false );
-			 	wp_enqueue_script( 'bms_formio_full_min', PB_URL.'assets/js/formio.full.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'bms_popper.minjs', PB_URL.'assets/js/popper.min.js', array( 'jquery' ), 1.1, false );
-			 	wp_enqueue_script( 'bms_bootstrap.min', PB_URL.'assets/js/bootstrap.min.js', array( 'jquery' ), 1.1, false );
-			 	wp_enqueue_script( 'bms_jquery-3.7.0.slim.min', PB_URL.'assets/js/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'bms_jquery-3.7.0.min',PB_URL.'assets/js/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'booking-form', PB_URL.'assets/js/booking-form.js', array( 'jquery' ), 1.1, false );
+			if (is_singular('sab_form_builder') || is_singular('zeal_formbuilder') || $post_type == 'sab_form_builder' || isset($_GET['post_type']) && $_GET['post_type'] === 'sab_form_builder' || isset($_GET['post_type']) && $_GET['post_type'] === 'manage_entries' ||  $post_type == 'manage_entries') {
+				//boostrap folder
+				wp_enqueue_script( 'sab_popper.minjs', WP_SAB_URL.'assets/js/boostrap/popper.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_jquery-3.7.0.min',WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_boostrap.min', WP_SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );				
+				wp_enqueue_script( 'sab_boostrap_bundlemin', WP_SAB_URL.'assets/js/boostrap/boostrap.bundle.min.js', array( 'jquery' ), 1.1, false );
+
+				//formio folder
+			 	wp_enqueue_script( 'sab_formio_full_min', WP_SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
+				
+				//booking folder
+				wp_enqueue_script( 'booking-form', WP_SAB_URL.'assets/js/booking/booking-form.js', array( 'jquery' ), 1.1, false );
 				wp_localize_script('booking-form', 'ajax_object', array(
 					'ajax_url' => admin_url('admin-ajax.php')
 				));
 	
-				wp_enqueue_script( 'admin', PB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'admin', WP_SAB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
 			 }
 			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
-				wp_enqueue_script( 'datatble_admin',PB_URL.'assets/js/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'datatbleboostrap',PB_URL.'assets/js/dataTables.bootstrap5.min.js',array( 'jquery' ), 1.1, false );
+				//boostrap folder
+				wp_enqueue_script( 'datatble_admin',WP_SAB_URL.'assets/js/boostrap/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'datatbleboostrap',WP_SAB_URL.'assets/js/boostrap/dataTables.boostrap5.min.js',array( 'jquery' ), 1.1, false );
 			 }
+
+			 wp_register_script( WP_SAB_PREFIX . '_admin_js', WP_SAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), WP_SAB_VERSION );
+
 		}
 
 		function enqueue_admin_scripts() {
@@ -249,128 +252,20 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			echo json_encode($response);
 			exit;
 		}
-		/*
-		* Add the main custom post type as the admin menu item
-		*/
-		function add_main_custom_post_type_menu_old() {
+
+		/**
+		 * Add custom post types and admin menu items for WP Smart Appointment & Booking plugin.
+		 *
+		 * This function registers two custom post types: 'sab_form_builder' for generating appointment and booking forms,
+		 * and 'manage_entries' for managing entries submitted through the forms.
+		 *
+		 * It also adds menu items to the admin dashboard for easy access to the plugin's functionality.
+		 */
+		function wp_sab_add_post_type_menu() {
+
 			$labels_form = array(
-				'name' => 'Booking Form',
-				'singular_name' => 'Booking Form',
-			);
-			
-			$args_form = array(
-				'labels' => $labels_form,
-				'description' => '',
-				'public' => false,
-				'publicly_queryable' => false,
-				'show_ui' => true,
-				'delete_with_user' => false,
-				'show_in_rest' => false,
-				'rest_base' => '',
-				'has_archive' => false,
-				'show_in_menu' => 'bms_forms',
-				'show_in_nav_menus' => false,
-				'exclude_from_search' => true,
-				'capability_type' => 'post',
-				'capabilities' => array(
-					'read' => true,
-					'create_posts'  => true,
-					'publish_posts' => true,
-				),
-				'map_meta_cap' => true,
-				'hierarchical' => false,
-				'rewrite' => true,
-				'query_var' => true,
-				'paged' => true,
-				'supports' => array( 'title' ),
-			);
-			
-			register_post_type('bms_forms', $args_form);
-			
-		
-			$labels = array(
-				'name' => 'Bms Entries',
-				'singular_name' => 'Bms Entry',
-			);
-		
-			$args = array(
-				'label' => __('Bms Entries', 'text_domain'),
-				'labels' => $labels,
-				'description' => '',
-				'public' => false,
-				'publicly_queryable' => false,
-				'show_ui' => true,
-				'delete_with_user' => false,
-				'show_in_rest' => true,
-				'rest_base' => '',
-				'has_archive' => false,
-				'show_in_nav_menus' => false,
-				'exclude_from_search' => true,
-				'capability_type' => 'post',
-				'capabilities' => array(
-					'read' => true,
-					'create_posts'  => false,
-					'publish_posts' => true,
-				),
-				'map_meta_cap' => true,
-				'hierarchical' => false,
-				'rewrite' => true,
-				'query_var' => true,
-				'paged' => true, 
-				'supports' => array( 'title' ),
-			);
-		
-			register_post_type('bms_entries', $args);
-		
-			$menu_hook_suffix = add_menu_page(
-				'Booking Forms',
-				'Booking Form',
-				'manage_options',
-				'edit.php?post_type=bms_forms',
-				'',
-				'',
-				20
-			);
-		
-			add_submenu_page(
-				'edit.php?post_type=bms_forms', 
-				'Add New Form', 
-				'Add New Form', 
-				'manage_options', 
-				admin_url('post-new.php?post_type=bms_forms')
-			);
-		
-			add_submenu_page(
-				'edit.php?post_type=bms_forms',
-				'Booking Entries',
-				'Booking Entries',
-				'manage_options',
-				admin_url('edit.php?post_type=bms_entries')
-			);
-		
-			add_submenu_page(
-				'edit.php?post_type=bms_form',
-				'Email Templates',
-				'Email Templates',
-				'manage_options',
-				'bms_email_template',
-				'bms_email_template_page_callback'
-			);
-		
-			add_submenu_page(
-				$menu_hook_suffix, // Use the menu hook suffix as the parent slug
-				'Notification Settings', // Page title
-				'Notification Settings', // Menu title
-				'manage_options', // Required capability to access the page
-				'notification-settings', // Page slug
-				array($this, 'render_notification_settings_page')
-			);
-		}
-		
-		function add_main_custom_post_type_menu() {
-			$labels_form = array(
-				'name' => 'Booking Form',
-				'singular_name' => 'Booking Form',
+				'name' => 'Generate Appointment and Booking Forms',
+				'singular_name' => 'Generate Appointment and Booking Form',
 			);
 		
 			$args_form = array(
@@ -383,7 +278,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'show_in_rest' => false,
 				'rest_base' => '',
 				'has_archive' => false,
-				'show_in_menu' => true, // Set to true
+				'show_in_menu' => true, 
 				'show_in_nav_menus' => false,
 				'exclude_from_search' => true,
 				'capability_type' => 'post',
@@ -398,11 +293,11 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'query_var' => true,
 				'supports' => array( 'title' ),
 			);
-			register_post_type('bms_forms', $args_form);
+			register_post_type('sab_form_builder', $args_form);
 		
 			$labels = array(
-				'name' => 'Booking Entries',
-				'singular_name' => 'Booking Entry',
+				'name' => 'Manage Entries',
+				'singular_name' => 'Manage Entry',
 			);
 		
 			$args = array(
@@ -430,57 +325,50 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				'supports' => array( 'title' ),
 			);
 		
-			register_post_type('bms_entries', $args);
+			register_post_type('manage_entries', $args);
 		
 			$menu_hook_suffix = add_menu_page(
-				'Booking Forms',
-				'Booking Form',
+				'Booking FormBuilder',
+				'Booking FormBuilder',
 				'manage_options',
-				'edit.php?post_type=bms_forms',
+				'edit.php?post_type=sab_form_builder',
 				'',
-				'',
+				 'dashicons-calendar-alt',
+				// 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="m960 95.888l-256.224.001V32.113c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76h-256v-63.76c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76H64c-35.344 0-64 28.656-64 64v800c0 35.343 28.656 64 64 64h896c35.344 0 64-28.657 64-64v-800c0-35.329-28.656-63.985-64-63.985zm0 863.985H64v-800h255.776v32.24c0 17.679 14.32 32 32 32s32-14.321 32-32v-32.224h256v32.24c0 17.68 14.32 32 32 32s32-14.32 32-32v-32.24H960v799.984zM736 511.888h64c17.664 0 32-14.336 32-32v-64c0-17.664-14.336-32-32-32h-64c-17.664 0-32 14.336-32 32v64c0 17.664 14.336 32 32 32zm0 255.984h64c17.664 0 32-14.32 32-32v-64c0-17.664-14.336-32-32-32h-64c-17.664 0-32 14.336-32 32v64c0 17.696 14.336 32 32 32zm-192-128h-64c-17.664 0-32 14.336-32 32v64c0 17.68 14.336 32 32 32h64c17.664 0 32-14.32 32-32v-64c0-17.648-14.336-32-32-32zm0-255.984h-64c-17.664 0-32 14.336-32 32v64c0 17.664 14.336 32 32 32h64c17.664 0 32-14.336 32-32v-64c0-17.68-14.336-32-32-32zm-256 0h-64c-17.664 0-32 14.336-32 32v64c0 17.664 14.336 32 32 32h64c17.664 0 32-14.336 32-32v-64c0-17.68-14.336-32-32-32zm0 255.984h-64c-17.664 0-32 14.336-32 32v64c0 17.68 14.336 32 32 32h64c17.664 0 32-14.32 32-32v-64c0-17.648-14.336-32-32-32z"/></svg>' ), // Replace this with your actual SVG code
 				20
-			);
-		
-			add_submenu_page(
-				'edit.php?post_type=bms_forms', 
-				'Add New Form', 
-				'Add New Form', 
-				'manage_options', 
-				admin_url('post-new.php?post_type=bms_forms')
-			);
-		
-			add_submenu_page(
-				'edit.php?post_type=bms_forms', // Set parent slug to null
-				'Booking Entries',
-				'Booking Entries',
-				'manage_options',
-				admin_url('edit.php?post_type=bms_entries')
-				
 			);
 			
 			add_submenu_page(
-				$menu_hook_suffix, // Use the menu hook suffix as the parent slug
-				'Notification Settings', // Page title
-				'Notification Settings', // Menu title
-				'manage_options', // Required capability to access the page
-				'notification-settings', // Page slug
+				'edit.php?post_type=sab_form_builder', 
+				'Add New Form', 
+				'Add New Form', 
+				'manage_options', 
+				admin_url('post-new.php?post_type=sab_form_builder')
+			);
+		
+			add_submenu_page(
+				'edit.php?post_type=sab_form_builder',
+				'Manage Entries',
+				'Manage Entries',
+				'manage_options',
+				'edit.php?post_type=manage_entries'
+			);
+			
+			add_submenu_page(
+				$menu_hook_suffix, 
+				'Notification Settings',
+				'Notification Settings', 
+				'manage_options', 
+				'notification-settings', 
 				array($this, 'render_notification_settings_page')
 			);
-			add_submenu_page(
-				$menu_hook_suffix, // Use the menu hook suffix as the parent slug
-				'View Booking Entry', // Page title
-				'View Booking Entry', // Menu title
-				'manage_options', // Required capability to access the page
-				'view-booking-entry', // Page slug
-				array($this, 'view_booking_entry')
-			);
+			
 		}
 		function view_booking_entry( $post ){
             $post_id = $_GET['post_id'] ;
             // $post_id = $post_id;
-            $form_data = get_post_meta( $post_id, 'bms_submission_data', true );	
-            $form_id = get_post_meta( $post_id, 'bms_form_id', true );	
+            $form_data = get_post_meta( $post_id, 'sab_submission_data', true );	
+            $form_id = get_post_meta( $post_id, 'sab_form_id', true );	
             $timeslot = get_post_meta( $post_id, 'timeslot', true );
             // echo "<br>".	
             $booking_date = get_post_meta( $post_id, 'booking_date', true );
@@ -603,8 +491,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				echo esc_textarea($notes);
 				?>
 			</div>
-
-
             <?php
         }
 		function send_manual_notification_handler() {
@@ -618,8 +504,8 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$get_bookingId = sanitize_text_field($_POST['bookingId']);
 				$bookingId = $_POST['post_id'];
 				$status = $_POST['status'];
-				$formdata = get_post_meta($bookingId,'bms_submission_data',true);
-				$form_id = get_post_meta($bookingId,'bms_form_id',true);
+				$formdata = get_post_meta($bookingId,'sab_submission_data',true);
+				$form_id = get_post_meta($bookingId,'sab_form_id',true);
 				update_post_meta($bookingId, 'entry_status', $status);
 			
 				$listform_label_val = $this->create_key_value_formshortcodes($bookingId,$formdata);
@@ -642,7 +528,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
 				$entry_id = $_POST['entry_id'];
 				$updated_data = $_POST['updated_data'];
-				$get_submitted_data = get_post_meta($entry_id, 'bms_submission_data', true);
+				$get_submitted_data = get_post_meta($entry_id, 'sab_submission_data', true);
 				$updated_data = $_POST['updated_data'];
 				echo "<pre>";
 				print_r($get_submitted_data);
@@ -651,21 +537,24 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 						$get_submitted_data['data'][$key] = $value;
 					}
 				}
-				update_post_meta($entry_id, 'bms_submission_data', $get_submitted_data);
+				update_post_meta($entry_id, 'sab_submission_data', $get_submitted_data);
 			}
             wp_die();
         }
 		function admin_get_shortcodes_keylabel($post_id){
 			$shortcode_list = array();
 			$form_data = get_post_meta( $post_id, '_formschema', true ); 
-			$form_data=json_decode($form_data);
-			foreach ($form_data as $obj) {     
-				$shortcode_list[] = array(
-					'fieldkey'=>esc_attr($obj->key),
-					'fieldlabel'=>esc_html($obj->label),
-				);
-			   
+			if(isset($form_data) && !empty($form_data)){
+				$form_data=json_decode($form_data);
+				foreach ($form_data as $obj) {     
+					$shortcode_list[] = array(
+						'fieldkey'=>esc_attr($obj->key),
+						'fieldlabel'=>esc_html($obj->label),
+					);
+				   
+				}
 			}
+			
 			return $shortcode_list;
 		}
 		function render_notification_settings_page() {
@@ -1081,12 +970,13 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			$form_list = array();
 			$shortcode_list = array();
 			$form_data1 = get_post_meta( $post_id, '_formschema', true ); 
-			$form_data1=json_decode($form_data1);
-
-			foreach ($form_data1 as $obj) {  
-				// if($obj !== 'submit'){				
-				$form_list[] = $obj->key;
-				// }
+			if(isset($form_data1) && !empty($form_data1)){
+				$form_data1=json_decode($form_data1);
+				foreach ($form_data1 as $obj) {  
+					// if($obj !== 'submit'){				
+					$form_list[] = $obj->key;
+					// }
+				}
 			}
 			$booking_shortcodes = array('BookingId','Status','To','FirstName','LastName','Timeslot','BookedSeats','BookingDate','BookedDate','Service','prefixlabel','cost','StartTime','EndTime','CancelBooking');
 			$post_shortcodes = array('FormId','FormTitle');
@@ -1320,11 +1210,11 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			//  return $modalContent;
 		}
 
-		function bms_email_template_page_callback(){
-			echo __('Email Template','bms');
+		function sab_email_template_page_callback(){
+			echo __('Email Template','sab');
 		}
 				
-		function bms_save_form_data() {
+		function sab_save_form_data() {
 			
 			$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
@@ -1341,7 +1231,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				echo "[booking_form form_id='".$post_id."']";
 			}
 			if ($column === 'form') {	
-				$form_id = get_post_meta($post_id,'bms_form_id',true);	
+				$form_id = get_post_meta($post_id,'sab_form_id',true);	
 				$form_title = get_the_title($form_id);	
 				
 				if (isset($form_title)) {	
@@ -1574,7 +1464,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		function disable_title_editing_for_custom_post_type() {
 			global $post_type;
 		
-			if ($post_type === 'bms_entries') {
+			if ($post_type === 'manage_entries') {
 				?>
 				<script>
 					jQuery(document).ready(function($) {
@@ -1587,7 +1477,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		function add_custom_filters() {
 			global $typenow;
 		
-			if ( 'bms_entries' === $typenow ) {
+			if ( 'manage_entries' === $typenow ) {
 				add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
 				// add_action( 'restrict_manage_posts', array( $this, 'add_custom_form_filter_dropdown' ) );
 				add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
@@ -1597,7 +1487,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		
 		function add_custom_booking_status_filter($post_type) {
 			
-			if ( 'bms_entries' != $post_type ) {
+			if ( 'manage_entries' != $post_type ) {
 				return;
 			}
 			$status = isset( $_GET['booking_status'] ) ? $_GET['booking_status'] : '';
@@ -1622,7 +1512,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$selected_form_id = isset( $_GET['form_filter'] ) ? $_GET['form_filter'] : '';
 		
 				$args = array(
-					'post_type' => 'bms_forms',
+					'post_type' => 'sab_form_builder',
 					'posts_per_page' => -1
 				);
 				$forms_query = new WP_Query( $args );
@@ -1638,11 +1528,11 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 		}
 		function filter_custom_booking_status($query) {
 			global $pagenow, $typenow;
-			if (!is_admin() || !in_array($query->get('post_type'), array('bms_entries'))) {
+			if (!is_admin() || !in_array($query->get('post_type'), array('manage_entries'))) {
 				return;
 			}
 
-			if ('edit.php' === $pagenow && 'bms_entries' === $typenow) {
+			if ('edit.php' === $pagenow && 'manage_entries' === $typenow) {
 				$booking_status = isset($_GET['booking_status']) ? sanitize_text_field($_GET['booking_status']) : '';
 				$form_filter = isset($_GET['form_filter']) ? intval($_GET['form_filter']) : 0;
 
@@ -1659,7 +1549,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 
 					if (!empty($form_filter)) {
 						$meta_query[] = array(
-							'key' => 'bms_form_id',
+							'key' => 'sab_form_id',
 							'value' => $form_filter,
 							'compare' => '='
 						);
@@ -1700,10 +1590,10 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			global $post;
 			$post_id = $post->ID;
 			$post_type = get_post_type( $post_id );
-			if($post_type === 'bms_forms'){
-				$form_id = get_post_meta($post_id,'bms_form_id',true);
+			if($post_type === 'sab_form_builder'){
+				$form_id = get_post_meta($post_id,'sab_form_id',true);
 				$page_slug = 'notification-settings';
-				$post_type = 'bms_forms';
+				$post_type = 'sab_form_builder';
 				// $post_id = 5508;
 
 				$admin_url = admin_url('admin.php');
@@ -1737,6 +1627,6 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 	}
 
 	add_action( 'plugins_loaded', function() {
-		PB()->admin->action = new PB_Admin_Action;
+		WP_SAB()->admin->action = new WP_SAB_Admin_Action;
 	} );
 }

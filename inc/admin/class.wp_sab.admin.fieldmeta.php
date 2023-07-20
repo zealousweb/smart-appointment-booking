@@ -1,57 +1,59 @@
 <?php
 /**
- * PB_Admin_Fieldmeta Class
+ * WP_SAB_Admin_Fieldmeta Class
  *
  * Handles the admin functionality.
  *
  * @package WordPress
- * @subpackage Plugin name
+ * @subpackage WP Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
+if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
 
-	/**
-	 * The PB_Admin Class
-	 */
-	class PB_Admin_Fieldmeta {
+    /**
+     * The WP_SAB_Admin Class
+     */
+    class WP_SAB_Admin_Fieldmeta {
 
-		function __construct() {
-            add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) );	
+
+        function __construct() {
+            
+            add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) ); 
             add_action( 'save_post', array( $this, 'bms_save_post_function' ) );
             add_action('save_post', array( $this, 'save_notes_data' ) );
 
           
-		}
+        }
 
-		/*
-		   ###     ######  ######## ####  #######  ##    ##  ######
-		  ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		 ##   ##  ##          ##     ##  ##     ## ####  ## ##
-		##     ## ##          ##     ##  ##     ## ## ## ##  ######
-		######### ##          ##     ##  ##     ## ##  ####       ##
-		##     ## ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##     ##  ######     ##    ####  #######  ##    ##  ######
-		*/
-		/*
-		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
-		##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
-		######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
-		##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
-		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
-		*/
+        /*
+           ###     ######  ######## ####  #######  ##    ##  ######
+          ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##
+         ##   ##  ##          ##     ##  ##     ## ####  ## ##
+        ##     ## ##          ##     ##  ##     ## ## ## ##  ######
+        ######### ##          ##     ##  ##     ## ##  ####       ##
+        ##     ## ##    ##    ##     ##  ##     ## ##   ### ##    ##
+        ##     ##  ######     ##    ####  #######  ##    ##  ######
+        */
+        /*
+        ######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
+        ##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
+        ##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
+        ######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
+        ##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
+        ##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
+        ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
+        */
         function get_available_seats_per_timeslot($checktimeslot,$date){
             
             // $timeslot = '09:30 AM-10:30 AM';
             // $booking_date = 'calid_5085_6_20_2023';
             
             $args = array(
-                'post_type' => 'bms_entries',
+                'post_type' => 'manage_entries',
                 'posts_per_page' => -1,
                 'meta_query' => array(
                     'relation' => 'AND',
@@ -79,14 +81,14 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             
             return $post_count;
         }
-	
+    
 
         /**
          * Display BMS submission Entries
          */ 
         function zfb_entries_render_meta_box_content( $post ){
-            $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );	
-            $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
+            $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );   
+            $form_id = get_post_meta( $post->ID, 'bms_form_id', true ); 
             $timeslot = get_post_meta( $post->ID, 'timeslot', true );
             $times = explode("-", $timeslot);
             $start_time = trim(date("h:i", strtotime($times[0])));
@@ -101,7 +103,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 $bookedyear = $array_of_date[4];
                 $booked_date = $bookedday . "-" . $bookedmonth . "-" . $bookedyear;
                 $booked_date = date('Y-m-d', strtotime($booked_date));
-                $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );	
+                $slotcapacity = get_post_meta( $post->ID, 'slotcapacity', true );   
             }
            
             if(!empty($form_id)){ 
@@ -218,7 +220,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         function formio_render_meta_box_content( $post ) {
             
             wp_nonce_field( 'myplugin_inner_custom_box', 'myplugin_inner_custom_box_nonce' );
-            $fields = get_post_meta( $post->ID, '_formschema', true );	
+            $fields = get_post_meta( $post->ID, '_formschema', true );  
             $get_type = gettype($fields);
             
             if(!empty($fields) && $get_type === 'string') {
@@ -243,7 +245,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                 jQuery.post(ajaxurl, {
                                     action: 'bms_save_form_data',  // Ajax action to handle saving the form data
                                     post_id: <?php echo $post->ID; ?>,  // Current post ID
-                                    form_data: formdata // Submitted form data									
+                                    form_data: formdata // Submitted form data                                  
                                 }, function(response) {
                                     // console.log(submission.components);
                                     console.log(response);
@@ -268,7 +270,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                 jQuery.post(ajaxurl, {
                                     action: 'bms_save_form_data', 
                                     post_id: <?php echo $post->ID; ?>, 
-                                    form_data: formdata 									
+                                    form_data: formdata                                     
                                 }, function(response) {
                                   
                                     console.log(response);
@@ -532,12 +534,15 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                             <label class="form-check-label h6" for="timeslot_BookAllow">Allow bookings during running timeslot</label>
                         </div>
                         <div class="form-group ">
-                            <label  class="h6">Bookings stops after minutes of start time</label>
-                            <input type="number" class="hours col-md-2 " name="booking_stops_after[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($booking_stops_after['hours']) : ''; ?>" >
+                            <label class="h6">Bookings stops after minutes of start time</label>
+                            <input type="number" class="hours col-md-2" name="booking_stops_after[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) && is_array($timeslot_duration) && !empty($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>">
+
                             <span>:</span>
-                            <input type="number" class="minutes col-md-2" name="booking_stops_after[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($booking_stops_after['minutes']) : ''; ?>" >
+                            <input type="number" class="minutes col-md-2" name="booking_stops_after[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) && is_array($timeslot_duration) && !empty($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>">
+
                             <span class="timeslot-validation-message" style="color: red;"></span>
                         </div>
+
                         <div class="breaktimeslot-repeater border m-0 mb-2 p-3">                            
                             <label class="h6">Add Break Timeslots:</label>
                             <svg class="add-breaktimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -771,10 +776,10 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
        
         function bms_save_post_function( $post_id ) {
             $get_type =  get_post_type($post_id);
-            if($get_type !== 'bms_forms' ){
+            if($get_type !== 'sab_form_builder' ){
                 return;
             }
-            // if($get_type == 'bms_forms'){
+            // if($get_type == 'sab_form_builder'){
                 if (isset($_POST['cal_title'])) {
                     update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
                 } 
@@ -1008,7 +1013,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 }
               
             // }
-            // if($get_type == 'bms_entries'){
+            // if($get_type == 'manage_entries'){
             //     Echo "test";
             //     exit;
             //     // if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
@@ -1052,7 +1057,7 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             if (isset($_POST['booking_date'])) {
                 $booking_date = $_POST['booking_date'];
                 $currentMonth = date('n',strtotime($booking_date));
-				$currentYear = date('Y',strtotime($booking_date));
+                $currentYear = date('Y',strtotime($booking_date));
                 $currentday = date('j', strtotime($booking_date));
                 $booking_date = 'calid_'.$form_id.'_'.$currentMonth.'_'.$currentday.'_'.$currentYear;
                 update_post_meta($post_id, 'booking_date', $booking_date);
@@ -1068,24 +1073,24 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'entry_status', $booking_status);
                 $formdata = get_post_meta($post_id,'bms_submission_data',true);
                 $listform_label_val =  do_action('create_key_value_formshortcodes',$post_id,$formdata);               
-                $listform_label_val['Status'] = $booking_status;				
+                $listform_label_val['Status'] = $booking_status;                
                 echo do_action('notification_send',$booking_status,$form_id, $post_id, $listform_label_val );
              
             }
             
             // if (isset($_POST['manual_notification']) ) {
             //     $selected_action = sanitize_text_field($_POST['manual_notification']);
-			// 	$bookingId = $_POST['post_id'];
-			// 	$status = $_POST['status'];
-			// 	$formdata = get_post_meta($bookingId,'bms_submission_data',true);
-			// 	$form_id = get_post_meta($bookingId,'bms_form_id',true);
-			
-			// 	$listform_label_val = do_action('create_key_value_formshortcodes',$post_id,$formdata);       
-			// 	$listform_label_val['Status'] = $status;
-				
-			// 	$message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
+            //  $bookingId = $_POST['post_id'];
+            //  $status = $_POST['status'];
+            //  $formdata = get_post_meta($bookingId,'bms_submission_data',true);
+            //  $form_id = get_post_meta($bookingId,'bms_form_id',true);
+            
+            //  $listform_label_val = do_action('create_key_value_formshortcodes',$post_id,$formdata);       
+            //  $listform_label_val['Status'] = $status;
+                
+            //  $message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
             //     update_post_meta($post_id, 'manual_notification', $selected_action);
-			// }
+            // }
 
             $checkseats = do_action('get_available_seats_per_timeslot', $timeslot, $booking_date );
             error_log('hello'.$checkseats);
@@ -1093,30 +1098,30 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
     
 
         /**
-	 	* Adds the meta box container.
-		*/
-		function bms_add_meta_box( $post_type ) {
-			// Limit meta box to certain post types.
-			$post_types = array( 'bms_entries');
+        * Adds the meta box container.
+        */
+        function bms_add_meta_box( $post_type ) {
+            // Limit meta box to certain post types.
+            $post_types = array( 'manage_entries');
 
-			if ( in_array( $post_type, $post_types ) ) {
-				add_meta_box(
-					'form_submission_data',
-					' ',
-					array( $this, 'zfb_entries_render_meta_box_content' ),
-					$post_type,
-					'normal',
+            if ( in_array( $post_type, $post_types ) ) {
+                add_meta_box(
+                    'form_submission_data',
+                    ' ',
+                    array( $this, 'zfb_entries_render_meta_box_content' ),
+                    $post_type,
+                    'normal',
                     'high'
-				);
+                );
 
                 add_meta_box(
-					'edit_form_data',
-					__( 'Edit Forms Details', 'textdomain' ),
-					array( $this, 'zfb_edit_form_details' ),
-					$post_type,
-					'normal',
+                    'edit_form_data',
+                    __( 'Edit Forms Details', 'textdomain' ),
+                    array( $this, 'zfb_edit_form_details' ),
+                    $post_type,
+                    'normal',
                     'high'
-				);
+                );
                 add_meta_box(
                     'manual_notification', 
                     __('Send Manual Notification','textdomain'), 
@@ -1133,29 +1138,29 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     'side',
                     'default'
                 );
-			}
+            }
 
-			$post_types = array( 'bms_forms');
+            $post_types = array( 'sab_form_builder');
 
-			if ( in_array( $post_type, $post_types ) ) {
+            if ( in_array( $post_type, $post_types ) ) {
 
-				add_meta_box(
-					'create_bms_form',
-					__( 'Form Configuration', 'textdomain' ),
-					array( $this, 'formio_render_meta_box_content' ),
-					$post_type,
-					'normal',
+                add_meta_box(
+                    'create_bms_form',
+                    __( 'Form Configuration', 'textdomain' ),
+                    array( $this, 'formio_render_meta_box_content' ),
+                    $post_type,
+                    'normal',
                     'high'
-				);
+                );
 
-				add_meta_box(
-					'appointment_setting', // Unique ID
-					__( 'Booking Configuration', 'textdomain' ),
-					array( $this, 'bms_repeat_appointment' ),
-					$post_type,
-					'normal',
+                add_meta_box(
+                    'appointment_setting', // Unique ID
+                    __( 'Booking Configuration', 'textdomain' ),
+                    array( $this, 'bms_repeat_appointment' ),
+                    $post_type,
+                    'normal',
                     'high'
-				);
+                );
 
                 add_meta_box(
                     'configure_notifications',
@@ -1166,34 +1171,34 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                     'default'
                 );
              
-			}
-		}
+            }
+        }
         function zfb_render_configure_notifications($post){
             $post_id = $post->ID;
-			$post_type = get_post_type( $post_id );
-			if($post_type === 'bms_forms'){
-				$form_id = get_post_meta($post_id,'bms_form_id',true);
-				$page_slug = 'notification-settings';
-				$post_type = 'bms_forms';
-				// $post_id = 5508;
+            $post_type = get_post_type( $post_id );
+            if($post_type === 'sab_form_builder'){
+                $form_id = get_post_meta($post_id,'bms_form_id',true);
+                $page_slug = 'notification-settings';
+                $post_type = 'sab_form_builder';
+                // $post_id = 5508;
 
-				$admin_url = admin_url('admin.php');
-				$view_entry_url = add_query_arg(
-					array(
-						'page' => $page_slug,
-						'post_type' => $post_type,
-						'post_id' => $post_id
-					),
-					$admin_url
-				);
+                $admin_url = admin_url('admin.php');
+                $view_entry_url = add_query_arg(
+                    array(
+                        'page' => $page_slug,
+                        'post_type' => $post_type,
+                        'post_id' => $post_id
+                    ),
+                    $admin_url
+                );
 
-				echo '<div class="" id="misc-notification"> 
+                echo '<div class="" id="misc-notification"> 
                         <a href="' . esc_url($view_entry_url) . '" style="color:black;" target="_blank"><b>Click here to configure <br>Email Notifications & Confirmations</a> </b>
                         </div>';
-				?>
-			
-				<?php
-			}
+                ?>
+            
+                <?php
+            }
         }
        // Render the meta box content
        
@@ -1226,11 +1231,11 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
         
         function zfb_edit_form_details($post){
             // echo $post_id;
-            $form_id = get_post_meta( $post->ID, 'bms_form_id', true );	
+            $form_id = get_post_meta( $post->ID, 'bms_form_id', true ); 
             $form_schema = get_post_meta($form_id, '_formschema', true);
             $form_data = get_post_meta($post->ID, 'bms_submission_data', true );
             //   echo "<pre>";print_r( $form_data );
-			if ($form_schema) {
+            if ($form_schema) {
                 ?>
                <div id="formio"></div>
 
@@ -1893,10 +1898,10 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             return $dropdown_timezone;
         }
         
-	}			
+    }           
 
-	add_action( 'plugins_loaded', function() {
-		PB()->admin = new PB_Admin_Fieldmeta;
-	} );
+    add_action( 'plugins_loaded', function() {
+        WP_SAB()->admin = new WP_SAB_Admin_Fieldmeta;
+    } );
 }
 ?>

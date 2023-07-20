@@ -1,6 +1,6 @@
 <?php
 /**
- * PB_Admin Class
+ * WP_SAB_Admin Class
  *
  * Handles the admin functionality.
  *
@@ -12,12 +12,12 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'PB_Admin' ) ) {
+if ( !class_exists( 'WP_SAB_Admin' ) ) {
 
 	/**
-	 * The PB_Admin Class
+	 * The WP_SAB_Admin Class
 	 */
-	class PB_Admin {
+	class WP_SAB_Admin {
 
 		var $action = null,
 		    $filter = null;
@@ -62,6 +62,6 @@ if ( !class_exists( 'PB_Admin' ) ) {
 	}
 
 	add_action( 'plugins_loaded', function() {
-		PB()->admin = new PB_Admin;
+		WP_SAB()->admin = new WP_SAB_Admin;
 	} );
 }

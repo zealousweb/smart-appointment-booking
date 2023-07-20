@@ -1,6 +1,6 @@
 <?php
 /**
- * PB_Front Class
+ * WP_SAB_Front Class
  *
  * Handles the Frontend functionality.
  *
@@ -12,12 +12,12 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'PB_Front' ) ) {
+if ( !class_exists( 'WP_SAB_Front' ) ) {
 
 	/**
-	 * The PB_Front Class
+	 * The WP_SAB_Front Class
 	 */
-	class PB_Front {
+	class WP_SAB_Front {
 
 		var $action = null,
 		    $filter = null;
@@ -63,6 +63,6 @@ if ( !class_exists( 'PB_Front' ) ) {
 	}
 
 	add_action( 'plugins_loaded', function() {
-		PB()->front = new PB_Front;
+		WP_SAB()->front = new WP_SAB_Front;
 	} );
 }

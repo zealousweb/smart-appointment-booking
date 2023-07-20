@@ -1,6 +1,6 @@
 <?php
 /**
- * PB_Front_Filter Class
+ * WP_SAB_Front_Filter Class
  *
  * Handles the Frontend Filters.
  *
@@ -12,12 +12,12 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'PB_Front_Filter' ) ) {
+if ( !class_exists( 'WP_SAB_Front_Filter' ) ) {
 
 	/**
-	 *  The PB_Front_Filter Class
+	 *  The WP_SAB_Front_Filter Class
 	 */
-	class PB_Front_Filter {
+	class WP_SAB_Front_Filter {
 
 		function __construct() {
 
@@ -47,6 +47,6 @@ if ( !class_exists( 'PB_Front_Filter' ) ) {
 	}
 
 	add_action( 'plugins_loaded', function() {
-		PB()->front->filter = new PB_Front_Filter;
+		WP_SAB()->front->filter = new WP_SAB_Front_Filter;
 	} );
 }

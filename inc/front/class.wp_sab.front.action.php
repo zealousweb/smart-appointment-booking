@@ -1,6 +1,6 @@
 <?php
 /**
- * PB_Front_Action Class
+ * WP_SAB_Front_Action Class
  *
  * Handles the Frontend Actions.
  *
@@ -12,12 +12,12 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'PB_Front_Action' ) ){
+if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 
 	/**
-	 *  The PB_Front_Action Class
+	 *  The WP_SAB_Front_Action Class
 	 */
-	class PB_Front_Action {
+	class WP_SAB_Front_Action {
 
 		function __construct()  {
 
@@ -38,7 +38,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			add_action( 'wp_enqueue_scripts',  array( $this, 'action__enqueue_styles' ));
 			add_action( 'wp_enqueue_scripts', array( $this, 'action__wp_enqueue_scripts' ));
 
-			add_shortcode('booking_form',array( $this, 'zealbms_get_booking_form' ));
+			add_shortcode('booking_form',array( $this, 'zealsab_get_booking_form' ));
 
 			add_action('wp_ajax_zfb_cancel_booking', array( $this, 'zfb_cancel_booking' ) );
 			add_action('wp_ajax_nopriv_zfb_cancel_booking', array( $this, 'zfb_cancel_booking' ) );
@@ -71,24 +71,24 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 		 */
 		function action__wp_enqueue_scripts() {
 			if(is_admin()){
-				wp_enqueue_script( PB_PREFIX . '_bookingform', PB_URL . 'assets/js/booking-form.js', array( 'jquery-core' ), PB_VERSION );
+				wp_enqueue_script( WP_SAB_PREFIX . '_bookingform', WP_SAB_URL . 'assets/js/booking/booking-form.js', array( 'jquery-core' ), WP_SAB_VERSION );
 			}
 			
-			wp_enqueue_script( PB_PREFIX . '_front', PB_URL . 'assets/js/front.js', array( 'jquery-core' ), PB_VERSION );
-			wp_enqueue_script( 'bms_formio_full_min', PB_URL.'assets/js/formio.full.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( WP_SAB_PREFIX . '_front', WP_SAB_URL . 'assets/js/front.js', array( 'jquery-core' ), WP_SAB_VERSION );
+			wp_enqueue_script( 'sab_formio_full_min', WP_SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
 			//function to pass any necessary data from PHP to your JavaScript code.
-			wp_localize_script('bms_formio_full_min', 'myAjax', array(
+			wp_localize_script('sab_formio_full_min', 'myAjax', array(
 				'ajaxurl' => admin_url('admin-ajax.php')
 			));
-			wp_enqueue_script( 'bms_bootstrap.min', PB_URL.'assets/js/bootstrap.min.js', array( 'jquery' ), 1.1, false );
-			wp_enqueue_script( 'bms_jquery-3.7.0.slim.min', PB_URL.'assets/js/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
-			wp_enqueue_script( 'bms_jquery-3.7.0.min',PB_URL.'assets/js/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( 'sab_boostrap.min', WP_SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( 'sab_jquery-3.7.0.min',WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
 
 			//cancel booking 
 
 			if (is_front_page()) {
 
-				wp_enqueue_script('cancel-booking', PB_URL . 'assets/js/cancelbooking.js', array('jquery'), '1.0', true);
+				wp_enqueue_script('cancel-booking', WP_SAB_URL . 'assets/js/booking/cancelbooking.js', array('jquery'), '1.0', true);
 				//function to pass any necessary data from PHP to your JavaScript code.
 				wp_localize_script('cancelbooking', 'myAjax', array(
 					'ajaxurl' => admin_url('admin-ajax.php'),
@@ -97,10 +97,10 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 		}
 		function action__enqueue_styles() {
 
-			wp_enqueue_style( 'bms_front',PB_URL.'assets/css/front.css', array(), 1.1, 'all' );
-			wp_enqueue_style( 'bms_boostrap_min',PB_URL.'assets/css/bootstrap.min.css', array(), 1.1, 'all' );
-			wp_enqueue_style( 'bms_formio_full_min',PB_URL.'assets/css/formio.full.min.css', array(), 1.1, 'all' );
-			wp_enqueue_style( 'bms_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_front',WP_SAB_URL.'assets/css/front.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_boostrap_min',WP_SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_formio_full_min',WP_SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
 				
 	   }
 
@@ -185,8 +185,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$converted_bookingdate = date('Y-m-d', strtotime($format_bookingdate));
 			
 			$timeslot = $_POST['timeslot'];
-			
-			
 			$slotcapacity = $_POST['slotcapacity'];
 			$bookedseats = $_POST['bookedseats'];
 			
@@ -217,13 +215,13 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					$register_booking = 'false';
 					$error = __('No available seats','textdomain');
 				}
-			} else {
+			}else{
 				$register_booking = 'true';
 			}
 		
 			if ($register_booking === 'true') {
 				
-				$pid = get_option('tot_bms_entries');
+				$pid = get_option('tot_manage_entries');
 				if (empty($pid)) {
 					$pid = 1;
 				} else {
@@ -231,15 +229,15 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				}
 				$new_post = array(
 					'post_title'   => 'entry#' . $pid,
-					'post_type'    => 'bms_entries',
+					'post_type'    => 'manage_entries',
 					'post_status'  => 'publish'
 				);
 		
 				$created_post_id = wp_insert_post($new_post);
 			
-				update_option('tot_bms_entries', $pid);
-				update_post_meta($created_post_id, 'bms_submission_data', $form_data);
-				update_post_meta($created_post_id, 'bms_form_id', $form_id);
+				update_option('tot_manage_entries', $pid);
+				update_post_meta($created_post_id, 'sab_submission_data', $form_data);
+				update_post_meta($created_post_id, 'sab_form_id', $form_id);
 		
 				update_post_meta($created_post_id, 'timeslot', $timeslot);
 				update_post_meta($created_post_id, 'booking_date', $booking_date);
@@ -373,7 +371,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$form_id = $_POST['fid'];
 			$form_data = $_POST['form_data'];
 			// $error = '';		
-			$pid = get_option('tot_bms_entries');
+			$pid = get_option('tot_manage_entries');
 			if (empty($pid)) {
 				$pid = 1;
 			} else {
@@ -381,15 +379,15 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			}
 			$new_post = array(
 				'post_title'   => 'booking_#' . $pid,
-				'post_type'    => 'bms_entries',
+				'post_type'    => 'manage_entries',
 				'post_status'  => 'publish'
 			);
 		
 			$created_post_id = wp_insert_post($new_post);
 			
-			update_option('tot_bms_entries', $pid);
-			update_post_meta($created_post_id, 'bms_submission_data', $form_data);
-			update_post_meta($created_post_id, 'bms_form_id', $form_id);
+			update_option('tot_manage_entries', $pid);
+			update_post_meta($created_post_id, 'sab_submission_data', $form_data);
+			update_post_meta($created_post_id, 'sab_form_id', $form_id);
 			
 			$prefixlabel = get_post_meta( $form_id, 'label_symbol', true );
 			$cost = get_post_meta( $form_id, 'cost', true );
@@ -939,7 +937,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 						
 					}
 					
-					// echo $todaysDate;	
+					 echo "<br>".$todaysDate;	
 					$checkseats = $this->get_available_seats_per_timeslot($checktimeslot,$todaysDate);
 					$selected_date = get_post_meta( $post_id,'selected_date', true );
 					$check_date = 0;
@@ -1027,7 +1025,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
         function get_available_seats_per_timeslot($timeslot,$booking_date){
            
             $args = array(
-                'post_type' => 'bms_entries',
+                'post_type' => 'manage_entries',
                 'posts_per_page' => -1,
                 'meta_query' => array(
                     'relation' => 'AND',
@@ -1068,7 +1066,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
             return $no_of_booking;
         }
 		
-		function zealbms_get_booking_form($attr) {
+		function zealsab_get_booking_form($attr) {
 			ob_start();	
 			// echo "edbcdcn";
 			$post_id = $attr['form_id'];	
@@ -1121,7 +1119,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 								
 								<span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
 								<!-- months -->
-								<select name='bms_month_n' id='bms_month'>
+								<select name='sab_month_n' id='sab_month'>
 									<?php
 									for ($i = 1; $i <= 12; $i++) {
 										echo "<option value='$i'";
@@ -1133,7 +1131,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 									?>
 								</select>
 								<!-- Year -->
-								<select name="bms_year_n" id="bms_year">
+								<select name="sab_year_n" id="sab_year">
 									<?php
 									$startYear = $currentYear + 5;
 									$endYear = 2023;
@@ -1183,7 +1181,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 												$lastmonth = $currentMonth;
 												$lastyear = $currentYear;
 											}
-											echo "<td id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='bms_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='bms_cal_day $isToday' onclick='getClickedId(this)'>$date</td>";
+											echo "<td id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='sab_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='sab_cal_day $isToday' onclick='getClickedId(this)'>$date</td>";
 											$date++;
 										} elseif ($dayCounter < $firstDayOfWeek) {
 											$prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter) + 1;
@@ -1477,7 +1475,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			<div class="header-calender">
 				<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>" >
                 <span class="arrow" id="prev-month" onclick="getClicked_prev(this)">&larr;</span>
-                <select name='bms_month_n' id='bms_month'>
+                <select name='sab_month_n' id='sab_month'>
                     <?php
                     for ($i = 1; $i <= 12; $i++) {
                         echo "<option value='$i'";
@@ -1488,7 +1486,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                     }
                     ?>
                 </select>
-                <select name="bms_year_n" id="bms_year">
+                <select name="sab_year_n" id="sab_year">
                     <?php
 					//here
 					$futureYear = date("Y", strtotime("+10 years"));
@@ -1538,7 +1536,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
                         //    $calselected_date = "calselected_date";
                         // }
                         if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
-                             echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='bms_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='bms_cal_day' onclick='getClickedId(this)'>$date</td>";
+                             echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='sab_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='sab_cal_day' onclick='getClickedId(this)'>$date</td>";
                             $date++;
                         } elseif ($dayCounter < $firstDayOfWeek) {
                             $prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);
@@ -1808,8 +1806,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				$get_bookingId = sanitize_text_field($_POST['bookingId']);
 				$bookingId = base64_decode($get_bookingId);
 				$status = 'cancelled';
-				$formdata = get_post_meta($bookingId,'bms_submission_data',true);
-				$form_id = get_post_meta($bookingId,'bms_form_id',true);
+				$formdata = get_post_meta($bookingId,'sab_submission_data',true);
+				$form_id = get_post_meta($bookingId,'sab_form_id',true);
 				update_post_meta($bookingId, 'entry_status', $status);
 			
 				$listform_label_val = $this->create_key_value_formshortcodes($bookingId,$formdata);
@@ -1830,7 +1828,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 
 		function create_key_value_formshortcodes($bookingId,$form_data){
 			
-			$form_id = get_post_meta($bookingId,'bms_form_id',true);
+			$form_id = get_post_meta($bookingId,'sab_form_id',true);
 			$FormTitle = get_the_title( $form_id );
 			
 			$get_user_mapping = get_post_meta($form_id, 'user_mapping', true);
@@ -1917,11 +1915,11 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 	}
 
 	add_action( 'plugins_loaded', function() {
-		// PB()->front->action = new PB_Front_Action;
-		$PB_Front_Action = new PB_Front_Action();
+		// WP_SAB()->front->action = new WP_SAB_Front_Action;
+		$WP_SAB_Front_Action = new WP_SAB_Front_Action();
 	} );
 }
-function PB_Front_Action() {
-	return new PB_Front_Action();	
+function WP_SAB_Front_Action() {
+	return new WP_SAB_Front_Action();	
 }
-PB_Front_Action();
+WP_SAB_Front_Action();

@@ -57,22 +57,22 @@ if ( ! defined( 'WP_SAB_PREFIX' ) ) {
 /**
  * Initialize the main class
  */
-// if ( ! function_exists( 'WP_SAB' ) ) {
-// 	if ( is_admin() ) {
-// 		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.php' );
-// 		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.action.php' );
-// 		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.fieldmeta.php' );
-// 		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.filter.php' );
-// 	} else {
-// 		require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.php' );
-// 		require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.filter.php' );
-// 	}
-// 	require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.action.php' );
-// 	require_once( WP_SAB_DIR . '/inc/lib/class.' . WP_SAB_PREFIX . '.lib.php' );
+if ( ! function_exists( 'WP_SAB' ) ) {
+	if ( is_admin() ) {
+		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.php' );
+		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.action.php' );
+		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.fieldmeta.php' );
+		require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.filter.php' );
+	} else {
+		require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.php' );
+		require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.filter.php' );
+	}
+	require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.action.php' );
+	// require_once( WP_SAB_DIR . '/inc/lib/class.' . WP_SAB_PREFIX . '.lib.php' );
 
-// 	// Initialize all the things.
-// 	require_once( WP_SAB_DIR . '/inc/class.' . WP_SAB_PREFIX . '.php' );
-// }
+	// Initialize all the things.
+	require_once( WP_SAB_DIR . '/inc/class.' . WP_SAB_PREFIX . '.php' );
+}
 // if ( !defined( 'PB_VERSION' ) ) {
 // 	define( 'PB_VERSION', '1.0' ); // Version of plugin
 // }
@@ -104,21 +104,21 @@ if ( ! defined( 'WP_SAB_PREFIX' ) ) {
 /**
  * Initialize the main class
  */
-if ( !function_exists( 'PB' ) ) {
+// if ( !function_exists( 'PB' ) ) {
 
-	if( is_admin()) {
-		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.php' );
-		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.action.php' );
-		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.fieldmeta.php' );
-		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.filter.php' );
-	}else{
-		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.php' );
+// 	if( is_admin()) {
+// 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.php' );
+// 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.action.php' );
+// 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.fieldmeta.php' );
+// 		require_once( PB_DIR . '/inc/admin/class.' . PB_PREFIX . '.admin.filter.php' );
+// 	}else{
+// 		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.php' );
 		
-		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.filter.php' );
-	}
-	require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.action.php' );
-	require_once( PB_DIR . '/inc/lib/class.' . PB_PREFIX . '.lib.php' );
+// 		require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.filter.php' );
+// 	}
+// 	require_once( PB_DIR . '/inc/front/class.' . PB_PREFIX . '.front.action.php' );
+// 	require_once( PB_DIR . '/inc/lib/class.' . PB_PREFIX . '.lib.php' );
 
-	//Initialize all the things.
-	require_once( PB_DIR . '/inc/class.' . PB_PREFIX . '.php' );
-}
+// 	//Initialize all the things.
+// 	require_once( PB_DIR . '/inc/class.' . PB_PREFIX . '.php' );
+// }
