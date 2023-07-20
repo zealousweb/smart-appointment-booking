@@ -104,7 +104,7 @@ if ( !class_exists( 'PB_Admin_Filter' ) ) {
 			$new_columns['cb'] = '';
 			$new_columns['title'] = 'Title';
 			$new_columns['form'] = 'Form';
-			$new_columns['booking_status'] = 'Booking Status';
+			$new_columns['booking_status'] = 'Status';
 			$new_columns['booking_date'] = 'Booked Date';
 			$new_columns['timeslot'] = 'Timeslot';		
 			$columns['date'] = 'Entry Date';

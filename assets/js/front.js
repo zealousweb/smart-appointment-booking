@@ -125,6 +125,7 @@ function selectTimeslot(element) {
   $('.zfb-selected-capacity').prop('disabled', isEnabled);
   $('.zfb-selected-capacity').show();
   var seats = $(element).find('.zfb-tooltip-text').attr('data-seats');
+  var waitingseats = $(element).find('.zfb-waiting').attr('data-seats');
   var datawaiting = $(element).find('.zfb-waiting').attr('data-waiting');
   if(seats == 0 || seats === 'not_available' ){
     if(datawaiting == 0){
@@ -132,18 +133,20 @@ function selectTimeslot(element) {
       var isEnabled = true; 
       $('.zfb-selected-capacity').prop('disabled', isEnabled);
       message.show();
+      $('.zfb-selected-capacity').attr('max', seats);
     }else{
       var isEnabled = true; 
       $('.zfb-selected-capacity').prop('disabled', !isEnabled); 
+      $('.zfb-selected-capacity').attr('max', waitingseats);
       
     }   
   }else{    
     var isEnabled = false;
     $('.zfb-selected-capacity').prop('disabled', isEnabled);
     $(element).find('.zfb-selected-capacity').show();
+    $('.zfb-selected-capacity').attr('max', seats);
   }
-  $('.zfb-selected-capacity').attr('max', seats);
-  // $('.zfb-selected-capacity').attr('min');
+  
 }
 
 jQuery(document).ready(function($) {
@@ -245,6 +248,9 @@ jQuery(document).ready(function($) {
   
   // Call the function whenever the input value changes
   $('.zfb-selected-capacity').change(function() {
+    checkNextButtonState();
+  });
+  $('.zfb-selected-capacity').on('input', function() {
     checkNextButtonState();
   });
 

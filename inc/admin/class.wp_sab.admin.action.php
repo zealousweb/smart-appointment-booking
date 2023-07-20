@@ -63,6 +63,8 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
 			
 			add_action('post_submitbox_misc_actions', array( $this, 'modify_submitdiv_content' ) );
+			add_action('delete_post', array( $this, 'check_waiting_list_on_trashed_delete' ) );
+
 			
 		}
 	
@@ -287,11 +289,12 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			
 		
 			$labels = array(
-				'name' => 'Booking Entries',
-				'singular_name' => 'Booking Entry',
+				'name' => 'Bms Entries',
+				'singular_name' => 'Bms Entry',
 			);
 		
 			$args = array(
+				'label' => __('Bms Entries', 'text_domain'),
 				'labels' => $labels,
 				'description' => '',
 				'public' => false,
@@ -648,9 +651,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 						$get_submitted_data['data'][$key] = $value;
 					}
 				}
-				
 				update_post_meta($entry_id, 'bms_submission_data', $get_submitted_data);
-				
 			}
             wp_die();
         }
@@ -1353,7 +1354,7 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 				$booking_status = get_post_meta($post_id,'entry_status',true);
 			
 				if (isset($booking_status) && !empty($booking_status)) {	
-					echo __($booking_status,'textdomain');
+					echo ucfirst(__($booking_status,'textdomain'));
 				}else{
 					echo '-';
 				}
@@ -1722,6 +1723,15 @@ if ( !class_exists( 'PB_Admin_Action' ) ) {
 			}
           
 			
+		}
+		
+		function check_waiting_list_on_trashed_delete($post_id) {
+			if (!wp_is_post_revision($post_id) && !wp_is_post_autosave($post_id)) {
+				// Your custom logic here for when a post is permanently deleted
+				// This will not run when a post is just moved to the trash
+			} else {
+				// Your custom logic here for when a post is moved to the trash
+			}
 		}
 		
 	}

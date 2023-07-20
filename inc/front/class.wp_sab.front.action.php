@@ -48,6 +48,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			add_action('wp_ajax_nopriv_cancel_booking_shortcode', array( $this, 'cancel_booking_shortcode' ) );
 
 			add_action('notification_send', array( $this, 'zfb_send_notification' ) , 10, 4);
+			add_action('get_available_seats_per_timeslot', array( $this, 'get_available_seats_per_timeslot' ) , 10, 4);
 			add_action('create_key_value_formshortcodes', array( $this, 'create_key_value_formshortcodes' ) , 10, 4);
 
 		}
@@ -114,15 +115,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
 		*/
 		
-		function zealbms_get_booking_form_test() {
-			ob_start();
-			?>
-			<p id="clickajax">click</p>
-			<?php
-			
-			
-			return ob_get_clean();
-		}
+		
 		function isbooking_open($post_id,$timeslot){
 			
 			$booking_stops_after = get_post_meta( $post_id, 'booking_stops_after', true );
@@ -184,7 +177,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 		}
 		function zfb_booking_form_submission() {
 			$form_id = $_POST['fid'];
-			$error = '';
+			$error = $mail_message = '';
 		
 			$booking_date = $_POST['booking_date'];
 			$explode_booking_date = explode('-',$booking_date);
@@ -254,7 +247,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				update_post_meta($created_post_id, 'slotcapacity', $bookedseats);
 				update_post_meta($created_post_id, 'cost', $cost);
 				update_post_meta($created_post_id, 'label_symbol', $label_symbol);
-				update_post_meta($created_post_id, 'type_of_booking', $appointment_type);
+				update_post_meta($created_post_id, 'appointment_type', $appointment_type);
 				$submission_key_val = array();				
 				foreach($form_data['data'] as $form_key => $form_value){
                     if($form_key !== 'submit'){
@@ -284,6 +277,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			
 				$encrypted_booking_id = base64_encode($created_post_id);
 				$user_mapping = get_post_meta($form_id, 'user_mapping', true);
+
 				if($user_mapping){
 					$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
 					$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel';
@@ -323,22 +317,22 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 						$mail_message = '';
 						$status = 'waiting';
 						$listform_label_val['Status'] = $status;
+						echo $mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
 						update_post_meta($created_post_id, 'entry_status', 'waiting');
-						$mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
 
 					} else {
 						$mail_message = '';
 						$status = 'booked';
 						$listform_label_val['Status'] = $status;
-						update_post_meta($created_post_id, 'entry_status', 'booked');
 						$mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
+						update_post_meta($created_post_id, 'entry_status', 'booked');
 					}
 				} else {
 					$mail_message = '';
 					$status = 'pending';
 					$listform_label_val['Status'] = $status;
-					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
 					$mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
+					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
 
 				}
 				$confirmation = get_post_meta($form_id, 'confirmation', true);
@@ -465,6 +459,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 				'CancelBooking' => '',
 			);
 				$status = 'submitted';
+				update_post_meta($created_post_id, 'entry_status', $status);
 				$listform_label_val = array_merge($submission_key_val, $other_label_val);
 				$mail_response = $this->zfb_send_notification($status,$form_id, $created_post_id, $listform_label_val );
 				
@@ -492,8 +487,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					'mail_response' =>$mail_response,
 					'confirmation' => $confirmation
 				));
-
-			
 			wp_die();
 		}
 		function zfb_send_notification($status,$form_id, $post_id, $form_data	) {
@@ -522,8 +515,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					$bcc = $this->check_shortcode_exist($check_bcc,$form_id, $form_data ,$shortcodesArray );
 					$cc = $this->check_shortcode_exist($check_cc,$form_id, $form_data,$shortcodesArray );
 					$check_body = $this->check_shortcodes_exist_in_editor($check_body,$form_id, $form_data,$shortcodesArray );
-					
-					
+					$subject = $this->check_shortcodes_exist_in_editor($check_body,$form_id, $form_data,$shortcodesArray );
+
 					$notification['use_html'];
 					$headers = array(						
 						'From: ' . $from,
@@ -543,12 +536,14 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 						$message = __('Email sent successfully','textdomain');
 					} else {
 						$message = __('Failed to send email','textdomain');
+						error_log('Failed to send email');
 					}
 				}
 			
 			}
-			if (!$notificationFound) {
+			if ($notificationFound === false) {
 				$message = __('Notification not found for the given status', 'textdomain');
+				error_log('Notification not found for the given status');
 			}
 			return $message;
 		}
@@ -569,7 +564,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 								if (is_email($to_email)) {
 									$Value_exploded = str_replace('[To]', $to_email, $Value_exploded);
 								} else {
-									$Value_exploded = null; // This avoids the need for duplicate unset() statements 
+									$Value_exploded = null; 
 									break;
 								}
 							} else {
@@ -596,7 +591,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			$to = implode(',', $processed_fieldValue);
 			return $to; 
 		}
-
 		function check_shortcodes_exist_in_editor($fieldValue, $form_id, $form_data, $shortcodes) {
 			foreach ($shortcodes as $shortcode) {
 				$shcodeWithoutBrackets = str_replace(['[', ']'], '', $shortcode);
@@ -826,7 +820,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							if(!in_array($inputdate,$advanceDates)){
 								$check_date = 1;
 							}
-
+							$waiting_seats = 0;
 							$waiting_text= '';
 							if ($current_time >= $start_timestamp) {
 								
@@ -844,6 +838,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 											if ($iswaiting_alllowed == 1) {
 												$waiting_text = "Waiting: Allowed";
 												$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+												$waiting_seats =  $timeslot['bookings'];
 											} else {
 												$output_timeslot .= '<li class="zfb_timeslot" >';
 											}
@@ -870,6 +865,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 									if ($iswaiting_alllowed == 1) {
 										$waiting_text = "Waiting: Allowed";
 										$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+										$waiting_seats =  $timeslot['bookings'];
 									} else {
 										$output_timeslot .= '<li class="zfb_timeslot" >';
 									}
@@ -881,7 +877,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							$output_timeslot .= '<span>'.$start_timeslot.' - ' . $end_timeslot.'</span>';
 							$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots"  type="hidden" value="'.$start_timeslot."-".$end_timeslot.'">';					
 							$output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_input_seats.'" >'.$available_text.'<br>'.$waiting_text.'</span>';
-							$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" >'.$iswaiting_alllowed.'</span>';
+							$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" data-seats="'.$waiting_seats.'">'.$iswaiting_alllowed.'</span>';
 							$output_timeslot .= '</li>';
 						
 						}
@@ -894,7 +890,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
         function front_generate_timeslots($post_id, $todaysDate = null){
 			$output_timeslot = '';
 			$generatetimeslot = get_post_meta($post_id, 'generatetimeslot', true);	
-		
+			$waiting_seats = 0;
 			if($generatetimeslot){
 				//set timezone
 				$get_timezone = get_post_meta($post_id,'timezone',true);
@@ -976,6 +972,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 									if ($iswaiting_alllowed == 1) {
 										$waiting_text = "Waiting: Allowed";
 										$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+										$waiting_seats  = $no_of_booking;
 									} else {
 										$output_timeslot .= '<li class="zfb_timeslot" >';
 									}
@@ -1002,6 +999,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 							if ($iswaiting_alllowed == 1) {
 								$waiting_text = "Waiting: Allowed";
 								$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+								$waiting_seats  = $no_of_booking;
 							} else {
 								$output_timeslot .= '<li class="zfb_timeslot" >';
 							}
@@ -1014,7 +1012,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					$output_timeslot .= '<span>'.$start_time_slot.' - ' . $end_time_slot.'</span>';
 					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots" data-startime="'.$this_start_time.'"  type="hidden" value="'.$start_time_slot."-".$end_time_slot.'">';					
 					$output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_input_seats.'" > '.$available_text.'<br>'.$waiting_text.'</span>';
-					$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" >'.$iswaiting_alllowed.'</span>';
+					$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" data-seats="'.$waiting_seats.'" >'.$iswaiting_alllowed.'</span>';
 					$output_timeslot .= '</li>';
 					
 				}
@@ -1060,7 +1058,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 					if($booking_status === 'booked' || $booking_status === 'approved'){
 						$no_of_booking += $slotcapacity;
 					}
-					
+					error_log('test',$no_of_booking);
 				}
 				wp_reset_postdata();				
 			
@@ -1072,13 +1070,13 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 		
 		function zealbms_get_booking_form($attr) {
 			ob_start();	
+			// echo "edbcdcn";
 			$post_id = $attr['form_id'];	
 			$enable_booking = get_post_meta($post_id, 'enable_booking', true);
 			$prefix_label = get_post_meta($post_id, 'label_symbol', true);
 			$cost = get_post_meta($post_id, 'cost', true);
 			?>
 			<!-- Preloader element -->
-			
 			<?php
 			if(isset($enable_booking) && !empty($enable_booking)){	
 				$cal_title = get_post_meta($post_id, 'cal_title', true);
@@ -1387,7 +1385,7 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 													},
 													success: function (response) {
 														if (response.success) {
-															form.reset();
+															jQuery("i.fa.fa-refresh.fa-spin.button-icon-right").hide();
 															var confirmationType = response.data.confirmation;
 															console.log(confirmationType);
 															var message = response.data.message;
@@ -1409,12 +1407,8 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 																	window.location.href = redirectUrl;
 																}, 3000);
 															} else {
-																jQuery('#formio_res_msg').html(response.data.message);
-																jQuery('#formio_res_msg').show();
-															
+																jQuery('#formio_res_msg').html(response.data.message).fadeIn().delay(3000).fadeOut();
 															}
-														
-															
 														} else {
 															var errorMessage = response.data.error;
 															submitButton.disabled = false;
@@ -1838,21 +1832,22 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			
 			$form_id = get_post_meta($bookingId,'bms_form_id',true);
 			$FormTitle = get_the_title( $form_id );
-		
+			
 			$get_user_mapping = get_post_meta($form_id, 'user_mapping', true);
-			$getemail = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
-			if ($getemail) {
+			$getemail = isset($get_user_mapping['email']) && isset($form_data['data'][$get_user_mapping['email']]) ? sanitize_text_field($get_user_mapping['email']) : '';
+   			if ($getemail) {
 				$emailTo =  $form_data['data'][$getemail];					
 			}
-			$getfirst_name = isset($get_user_mapping['first_name']) ? sanitize_text_field($get_user_mapping['first_name']) : '';
+			$getfirst_name = isset($get_user_mapping['first_name']) && isset($form_data['data'][$get_user_mapping['first_name']])  ? sanitize_text_field($get_user_mapping['first_name']) : '';
 			if ($getfirst_name) {
 				$first_name = $form_data['data'][$getfirst_name];					
 			}
-			$getlast_name = isset($get_user_mapping['last_name']) ? sanitize_text_field($get_user_mapping['last_name']) : '';
+			$getlast_name = isset($get_user_mapping['last_name']) && isset($form_data['data'][$get_user_mapping['last_name']]) ? sanitize_text_field($get_user_mapping['last_name']) : '';
 			if ($getlast_name) {
 				$last_name =  $form_data['data'][$getlast_name];					
 			}
-			$getservice = isset($get_user_mapping['service']) ? sanitize_text_field($get_user_mapping['service']) : '';
+			$getservice = isset($get_user_mapping['service']) && isset($form_data['data'][$get_user_mapping['service']]) ? sanitize_text_field($get_user_mapping['service']) : '';
+			
 			if ($getservice) {
 				$service =  ucfirst($form_data['data'][$getservice]);					
 			}
@@ -1890,8 +1885,6 @@ if ( !class_exists( 'PB_Front_Action' ) ){
 			
 
 			$bookedseats = get_post_meta($bookingId,'slotcapacity',true);
-			
-			
 			
 			$other_label_val = array(
 				'FormId' => $form_id,

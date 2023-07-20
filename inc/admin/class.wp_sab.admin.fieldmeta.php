@@ -159,6 +159,26 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
                                 <input type="number" class="form-control" name="no_of_bookings" id="no_of_bookings" value="<?php echo $slotcapacity; ?>">
                                 </div>
                             </div>
+                            <?php 
+                             $symbol = get_post_meta($post->ID, 'label_symbol', true);
+                             $cost = get_post_meta($post->ID, 'cost', true);
+                             
+                            if ($cost || $symbol) {                               
+                            ?>
+                            <div class="group-pair">
+                                <p  class="h6">Cost: <?php echo $symbol.''.$cost;?> </p>
+                               
+                            </div>
+                            <?php  } ?>
+                            <?php 
+                            $appointment_type = get_post_meta($post->ID, 'appointment_type', true);                            
+                            if ($appointment_type) {                               
+                            ?>
+                            <div class="group-pair">
+                                <p  class="h6">Appointment Type: <?php echo $appointment_type;?> </p>
+                               
+                            </div>
+                            <?php  } ?>
                         </div>
                         <div class="col-4">
                             <div class="group-pair">
@@ -1046,28 +1066,29 @@ if ( !class_exists( 'PB_Admin_Fieldmeta' ) ) {
             if (isset($_POST['booking_status'])) {
                 $booking_status = $_POST['booking_status'];
                 update_post_meta($post_id, 'entry_status', $booking_status);
-            //    if( !isset($_POST['manual_notification'])){
-                    $formdata = get_post_meta($post_id,'bms_submission_data',true);
-                    $listform_label_val =  do_action('create_key_value_formshortcodes',$post_id,$formdata);               
-                    $listform_label_val['Status'] = $booking_status;				
-                    echo do_action('notification_send',$booking_status,$form_id, $post_id, $listform_label_val );
-                // }
+                $formdata = get_post_meta($post_id,'bms_submission_data',true);
+                $listform_label_val =  do_action('create_key_value_formshortcodes',$post_id,$formdata);               
+                $listform_label_val['Status'] = $booking_status;				
+                echo do_action('notification_send',$booking_status,$form_id, $post_id, $listform_label_val );
+             
             }
-           
-            if (isset($_POST['manual_notification']) ) {
-                $selected_action = sanitize_text_field($_POST['manual_notification']);
-				$bookingId = $_POST['post_id'];
-				$status = $_POST['status'];
-				$formdata = get_post_meta($bookingId,'bms_submission_data',true);
-				$form_id = get_post_meta($bookingId,'bms_form_id',true);
+            
+            // if (isset($_POST['manual_notification']) ) {
+            //     $selected_action = sanitize_text_field($_POST['manual_notification']);
+			// 	$bookingId = $_POST['post_id'];
+			// 	$status = $_POST['status'];
+			// 	$formdata = get_post_meta($bookingId,'bms_submission_data',true);
+			// 	$form_id = get_post_meta($bookingId,'bms_form_id',true);
 			
-				$listform_label_val = do_action('create_key_value_formshortcodes',$post_id,$formdata);       
-				$listform_label_val['Status'] = $status;
+			// 	$listform_label_val = do_action('create_key_value_formshortcodes',$post_id,$formdata);       
+			// 	$listform_label_val['Status'] = $status;
 				
-				$message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
-                update_post_meta($post_id, 'manual_notification', $selected_action);
-			}
+			// 	$message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
+            //     update_post_meta($post_id, 'manual_notification', $selected_action);
+			// }
 
+            $checkseats = do_action('get_available_seats_per_timeslot', $timeslot, $booking_date );
+            error_log('hello'.$checkseats);
         }
     
 
