@@ -1,0 +1,360 @@
+.selected-timeslot {
+	background-color: #f2f2f2;
+	font-weight: bold;
+}
+
+.previous-month {
+	color: #999;
+}
+
+.next-month {
+	color: #999;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+th,
+td {
+	padding: 5px;
+	border: 1px solid #ccc;
+}
+
+.calselected_date {
+	background-color: #96c5ac;
+	font-weight: bold;
+}
+
+/* .zfb-selected-capacity {
+   display: none;
+}  
+.zfb-tooltip-text {
+    display: none;
+}
+.zfb-tooltip:hover .zfb-tooltip-text {
+    display: block;
+  } */
+
+/* .zfb-selected-capacity {
+  display: none;
+} */
+
+.zfb-smart-calender input[type="number"],
+.zfb-smart-calender input[type="text"],
+.zfb-smart-calender input[type="email"]{
+  font-size: 14px;
+  border: 1px solid gray;
+  padding: 4px 10px;
+  width: 100%;
+  outline: none;
+}
+.zfb-smart-calender input[type="number"]:focus,
+.zfb-smart-calender input[type="text"]:focus,
+.zfb-smart-calender input[type="email"]:focus{
+  outline: none;
+}
+.zfb-smart-calender input[type="number"].zfb-selected-capacity{
+  max-width: 50%;
+}
+ul#zfb-slot-list {
+	padding: 20px 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.zfb_timeslot {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	padding: 10px;
+	margin: 0;
+	background-color: #f0f0f0;
+	border-radius: 8px;
+	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	max-width: calc(33.33% - 10px);
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 calc(33.33% - 10px);
+	flex: 0 0 calc(33.33% - 10px);
+	font-size: 16px;
+}
+
+.zfb_timeslot:hover {
+	background-color: #e0e0e0;
+}
+
+.zfb_timeslot.selected {
+	background-color: #96c5ac;
+}
+
+.zfb_timeslot .zfb-selected-capacity {
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-top: 5px;
+	border: 1px solid #333
+}
+
+.zfb-tooltip-text {
+	display: none;
+	position: absolute;
+	background-color: #f0f0f0;
+	color: #000;
+	padding: 6px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	z-index: 1;
+	pointer-events: none;
+	font-size: 14px;
+	line-height: 1;
+	top: calc(100% - 7px);
+}
+
+.zfb_timeslot:hover .zfb-tooltip-text {
+	display: block;
+}
+
+.zfb-timeslot {
+	position: relative;
+}
+
+.zfb-timeslot::after {
+	content: "";
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	transform: translateX(-50%);
+	border-style: solid;
+	border-width: 8px;
+	border-color: transparent transparent #f0f0f0 transparent;
+}
+
+.zfb-timeslot::before {
+	content: "";
+	position: absolute;
+	bottom: -16px;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	transform: translateX(-50%);
+	border-style: solid;
+	border-width: 8px;
+	border-color: #f0f0f0 transparent transparent transparent;
+}
+
+.zfb-smart-calender .step {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	margin-left: -15px;
+	margin-right: -15px;
+}
+
+.step.step1>div:first-child {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 100%;
+	flex: 0 0 100%;
+	margin-bottom: 40px;
+	padding: 0 15px;
+}
+
+.step.step1 .month-navigation,
+.step.step1 .timeslot_result_c {
+	max-width: 50%;
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 50%;
+	flex: 0 0 50%;
+	padding: 0 15px;
+}
+.step.step2 #formio{
+  max-width: 100%;
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 100%;
+	flex: 0 0 100%;
+	padding: 0 15px;
+}
+#formio label{
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.zfb-cost-label{
+  max-width: 100%;
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 100%;
+	flex: 0 0 100%;
+	padding: 0 15px;
+  font-weight: 700;
+  margin-top: 20px;
+}
+.month-navigation select {
+	padding-top: 0;
+	padding-bottom: 0;
+	border: 0;
+	background-color: transparent;
+}
+
+.month-navigation select:focus {
+	outline: none;
+}
+
+.month-navigation .header-calender {
+	margin-bottom: 10px;
+	border: 1px solid gray;
+	padding: 5px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: justify;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	/* background-color: #ffffff; */
+}
+
+.header-calender .arrow {
+	height: 40px;
+	width: 40px;
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	cursor: pointer;
+	-webkit-box-shadow: inset 0 0 0 0 #c7c7c7;
+	box-shadow: inset 0 0 0 0 #c7c7c7;
+	-webkit-transition: 0.5s;
+	-o-transition: 0.5s;
+	transition: 0.5s;
+	border-radius: 4px;
+}
+
+.header-calender .arrow:hover {
+	-webkit-box-shadow: inset 0 0 10px 0 rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 0 10px 0 rgba(0, 0, 0, 0.2);
+	-webkit-transition: 0.5s;
+	-o-transition: 0.5s;
+	transition: 0.5s;
+}
+
+.header-calender .arrow#prev-month {
+	margin-right: auto;
+}
+
+.header-calender .arrow#next-month {
+	margin-left: auto;
+}
+
+#head_avail_time {
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+#headtodays_date {
+	font-size: 18px;
+	line-height: 1.4;
+}
+.zfb-cal-table {
+  margin-bottom: 25px;
+}
+.dc_backButton{
+  padding: 0 15px;
+}
+.dc_backButton button{
+  padding: 10px 20px;
+  font-size: 16px;
+  min-width: 180px;
+}
+
+@media (max-width: 1024px){
+  .step.step1 .month-navigation,
+  .step.step1 .timeslot_result_c {
+    max-width: 100%;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    padding: 0 15px;
+  }
+}
+/** cancel booking **/
+.booking-cancellation-card {
+	background: #ffffff;
+	padding: 20px;
+	border-radius: 5px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.booking-cancellation-card label {
+	font-size: 18px;
+	margin-bottom: 10px;
+}
+.booking-cancellation-buttons button {
+	padding: 8px 12px;
+	font-size: 16px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.booking-cancellation-buttons button.btn-yes {
+	background: #4caf50;
+	color: #ffffff;
+}
+
+.booking-cancellation-buttons button.btn-no {
+	background: #ff0000;
+	color: #ffffff;
+}
+/*form response */
+#formio_res_msg {
+	background-color: #f8f9fa;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	padding: 10px;
+	margin-top: 10px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  #formio_res_msg > * {
+	margin-top: 10px;
+  }  
+  /* Preloader styles */
+#preloader {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+  }
+  
+ .preloader-message {
+	margin-top: 10px;
+	color: #fff;
+  }
+  
+  
