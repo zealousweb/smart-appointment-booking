@@ -40,10 +40,7 @@ jQuery(document).ready(function($) {
 jQuery(document).ready(function($) {
     // Add date functionality
     $(document).on('click', '.add-holidate', function() {
-        // var dateFieldHTML = '<div class="holidate-field">' +
-        //     '<input type="date" name="holidays[]" value="">' +
-        //     '<button type="button" class="remove-holidate">Remove Holiday</button>' +
-        //     '</div>';
+    
         var dateFieldHTML = `
             <div class="form-row holidate-field">
                 <div class="form-group col-md-2">
@@ -76,7 +73,6 @@ jQuery(document).ready(function($) {
         $('.repeater-container').hide();
       }
     });
-    
   });
   
 jQuery(document).ready(function($) {
@@ -167,7 +163,8 @@ jQuery(document).ready(function($) {
     // Add row
     $('#add-row').click(function() {
         var intial_index = $('.repeater-row').length;
-        var index = intial_index + 1 ;
+        var index = intial_index ;
+        console.log(index);
         var row = '<div class="repeater-row border m-0 mb-2 p-3 row">' +
             '<div class="form-group col-md-3">' +
             '<label class="h6" for="advance_date_' + index + '">Advance Date:</label>' +
@@ -210,32 +207,34 @@ jQuery(document).ready(function($) {
 
     // Add timeslot
     $(document).on('click', '.add-timeslot', function() {
-        var $repeaterRow = $(this).closest('.repeater-row');
-        var $timeslotContainer = $repeaterRow.find('.timeslot-container');
-        var repeaterIndex = $repeaterRow.index();
-
-        var timeslotRow = '<div class="form-row timeslot-row ">'+
-            '<div class="form-group col-md-3">'+
+        var repeaterRow = $(this).closest('.repeater-row');
+       
+        var timeslotContainer = repeaterRow.find('.timeslot-container');
+        var repeaterIndex = repeaterRow.index() - 1;
+        var timeslotRows = timeslotContainer.find('.timeslot-row');
+        var newTimeslotIndex = timeslotRows.length;
+    
+        var timeslotRow = '<div class="form-row timeslot-row">' +
+            '<div class="form-group col-md-3">' +
             '<label>Start Time:</label>' +
-            '<input type="time"  class="form-control"  name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][start_time]" value="">' +
-            '</div>'+
-            '<div class="form-group col-md-3">'+
+            '<input type="time" class="form-control" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + newTimeslotIndex + '][start_time]" value="">' +
+            '</div>' +
+            '<div class="form-group col-md-3">' +
             '<label>End Time:</label>' +
-            '<input type="time"  class="form-control"  name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][end_time]" value="">' +
-            '</div>'+
-            '<div class="form-group col-md-3"> '+
+            '<input type="time" class="form-control" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + newTimeslotIndex + '][end_time]" value="">' +
+            '</div>' +
+            '<div class="form-group col-md-3">' +
             '<label>Bookings:</label>' +
-            '<input type="number"  class="form-control" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + $timeslotContainer.find('.timeslot-row').length + '][bookings]" value="">' +
-            '</div>'+
-            '<div class="form-group col-2 remove-timeslot-wrapper">'+
-            '<svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" '+
-            'height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">'+
-            '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>'+
+            '<input type="number" class="form-control" name="advancedata[' + repeaterIndex + '][advance_timeslot][' + newTimeslotIndex + '][bookings]" value="">' +
+            '</div>' +
+            '<div class="form-group col-2 remove-timeslot-wrapper">' +
+            '<svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">' +
+            '<path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>' +
             '</svg>' +
-            '</div>'+
+            '</div>' +
             '</div>';
 
-        $timeslotContainer.append(timeslotRow);
+        timeslotContainer.append(timeslotRow);
     });
 
     // Remove row
@@ -250,9 +249,9 @@ jQuery(document).ready(function($) {
 });
 jQuery(document).ready(function($) {
     $('input[name="confirmation"]').change(function() {
-        // alert("test");
+       
         var selectedOption = $(this).val();
-        // alert(selectedOption);
+       
         $('.redirectto_main').addClass('hidden');
         $('.redirectto_main.' + selectedOption).removeClass('hidden');
     });
@@ -273,26 +272,7 @@ jQuery(document).ready(function($) {
         });
     });
 });
-// show error if url is entered wrong
-// jQuery(document).ready(function($) {
-//     // URL validation
-//     $('#redirect-url').on('blur', function() {
-//         var url = $(this).val();
 
-//         if (url !== '') {
-//             var pattern = /^(https?:\/\/)?[\w.-]+\.[a-zA-Z]{2,7}\/?$/;
-//             var isValidUrl = pattern.test(url);
-
-//             if (!isValidUrl) {
-//                 $(this).addClass('error');
-//                 $(this).next('.redirecturl-error').show();
-//             } else {
-//                 $(this).removeClass('error');
-//                 $(this).next('.redirecturl-error').hide();
-//             }
-//         }
-//     });
-// });
 jQuery(document).ready(function($) {
     jQuery(document).on('click', '#preview_timeslot', function() {        
         var post = $(this).attr("pid");
@@ -374,32 +354,7 @@ jQuery(document).ready(function($) {
       $(this).closest('.breaktimeslot').remove();
     });
   });
-//   jQuery(document).ready(function($) {
-//     $('#send_notification_button').on('click', function() {
-       
-//         var status = $('#manual_notification').val();
-//         var form_id = $('#manual_notification').data('formid');
-//         var post_id = $('#manual_notification').data('postid');
-//         console.log(status);
-//         console.log(form_id);
-//         console.log(post_id);
-//         sendNotification(status,form_id,post_id);
-//     });
 
-//     function sendNotification(status,form_id,post_id) {
-//         var data = {
-//             action: 'send_manual_notification_handler',
-//             status: status,
-//             form_id: form_id,
-//             post_id: post_id,
-//         };
-
-//         $.post(ajaxurl, data, function(response) {
-//             console.log(response); // Optional: Log the response
-//             alert('Notification sent successfully.'); // Optional: Display a success message
-//         });
-//     }
-//   });
 jQuery(document).ready(function() {
     $('#send_notification_button').on('click', function() {
       var status = $('#manual_notification').attr('data-formid');
@@ -423,7 +378,6 @@ if (pageParam === "notification-settings") {
             event.preventDefault();    
             var form= jQuery(this).serialize();
             var index =  jQuery(this).data('id');
-            // console.log(index);
             var formData=new FormData();
             formData.append('action','zfb_save_new_notification');
             formData.append('notification_data',form);
@@ -432,13 +386,10 @@ if (pageParam === "notification-settings") {
                 type: 'POST',
                 url: ajaxurl,
                 data:formData,
-                processData:false,//off other action only run this event
+                processData:false,
                 contentType:false,        
                 success: function (response) {
-                    jQuery('#notifytable').load(location.href + ' #notifytable');
-                    console.log(response);
-                    // jQuery('#closemodal').click();
-                    
+                    jQuery('.close').trigger('click');                   
                 }
                 
             });
@@ -483,11 +434,8 @@ if (pageParam === "notification-settings") {
     jQuery(document).ready(function($) {
         // Check all checkbox click event
         $('#main-check-all').on('click', function() {
-            // alert("test");
             // Get the checked status of the main checkbox
             var isChecked = $(this).prop('checked');
-            
-            // Set the checked status of all child checkboxes accordingly
             $('.child-checkall').prop('checked', isChecked);
         });
     });
@@ -498,8 +446,6 @@ if (pageParam === "notification-settings") {
             var notificationId = $(this).data('notification-id');
             var notificationState = $(this).data('notification-state');
             var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
-
-            // AJAX request to update the notification status
             $.ajax({
                 url: ajaxurl,
                 type: 'POST',
@@ -509,34 +455,18 @@ if (pageParam === "notification-settings") {
                     new_state: newState,
                     post_id: post_id
                 },
-                // success: function(response) {
-                //     if (response.success) {                  
-                //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').text(newState === 'enabled' ? 'Enabled' : 'Disabled');
-                //         // $('.enable-btn[data-notification-id="' + notificationId + '"]').data('notification-state', newState);
-                //     } else {
-                //         // Display an error message
-                //         console.log('Failed to update notification status. Message: ' + response.message);
-                //     }
-                //     //refresh ajax content after 
-                //     $('#notifytable').load(location.href + ' #notifytable');
-                // },
+               
                 success: function(response) {
                     if (response.success) {
-                    // Update the button text and data attribute
                     var enableBtn = $('.enable-btn[data-notification-id="' + notificationId + '"]');
                     enableBtn.text(newState === 'enabled' ? 'Enable' : 'Disable');
                     enableBtn.data('notification-state', newState);
-                
-                    // Reload the table content
-                    $('.datatable').DataTable().ajax.reload();
                     } else {
-                    // Display an error message
                     console.log('Failed to update notification status. Message: ' + response.message);
                     }
                 },
                 
                 error: function(xhr, textStatus, errorThrown) {
-                    // Display an error message
                     console.log('AJAX request failed: ' + errorThrown);
                 }
             });
@@ -546,27 +476,15 @@ if (pageParam === "notification-settings") {
     jQuery(document).ready(function() {
         var notifytable = jQuery('#notifytable').DataTable();({
         dom: 'Bfrtip',
-        paging: true, // Enable pagination
+        paging: true, 
         pageLength: 1,
         searching: true,
-        ordering: true, // Enable column sorting
-        aaSorting: [[0, 'asc'] , [ 1, "asc" ]],
-        columnDefs: [
-            {
-                // targets: [4], // Column index for which sorting should be disabled
-                // orderable: false
-            },
-            {
-                // targets: [1,2, 3, 4], // Column indexes for which width should be set
-                // width: '200px'
-            }
-            // Add more columnDefs to set widths for other columns if needed
-        ],
+        ordering: true, 
+        aaSorting: [[0, 'asc'] , [ 1, "asc" ]],       
         responsive: true
         
         });
         jQuery("#searchbox").keyup(function() {
-            //table.fnFilter();
             notifytable.search(this.value).draw();
         }); 
     });
@@ -582,7 +500,7 @@ if (pageParam === "notification-settings") {
             type: 'POST',
             url: ajaxurl,
             data:formData,
-            processData:false,//off other action only run this event
+            processData:false,
             contentType:false,        
             success: function (response) {
                 console.log(response);
@@ -603,7 +521,7 @@ if (pageParam === "notification-settings") {
             type: 'POST',
             url: ajax_object.ajax_url,
             data:formData,
-            processData:false,//off other action only run this event
+            processData:false,
             contentType:false,        
             success: function (response) {
                  console.log(response);

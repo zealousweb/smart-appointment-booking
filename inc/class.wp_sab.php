@@ -5,7 +5,7 @@
  * Handles the plugin functionality.
  *
  * @package WordPress
- * @package Plugin name
+ * @package WP Smart Appointment & Booking
  * @since 1.0
  */
 
@@ -96,77 +96,15 @@ if ( !class_exists( 'WP_SAB' ) ) {
 		function action__init() {
 
 			flush_rewrite_rules();
-
 			# Post Type: Here you add your post type
 
 		}
-		function includes() {
-
-			require_once plugin_dir_path(__FILE__) . 'front/class.wp_sab.front.action.php';
-			$WP_SAB_Front_Action = new WP_SAB_Front_Action();
-
-			// $WP_SAB_Front_Action  = new WP_SAB_Front_Action();
-		}
-	
-		function register_hooks() {
-
-			// Register activation hook.
-			// register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
-			
-			// Initialize the front-end class.
-				// if( is_admin()) {
-
-			// 	// require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.php' );
-			// 	// require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.action.php' );
-			// 	// require_once( WP_SAB_DIR . '/inc/admin/class.' . WP_SAB_PREFIX . '.admin.filter.php' );
-
-			// }else{
-
-			// 	// require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.php' );
-			// 	// require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.action.php' );
-			// 	// require_once( WP_SAB_DIR . '/inc/front/class.' . WP_SAB_PREFIX . '.front.filter.php' );
-
-				// $this->front = new WP_SAB_Front_Action();
-				$WP_SAB_Front_Action  = new WP_SAB_Front_Action();
-			// }
-
-		}
-
-		/**
-		 * register_activation_hook
-		 *
-		 * - When active plugin
-		 *
-		 */
-		function action__plugin_activation() {
-		
-		}
-		function action__setup_theme() {
-
-			if ( is_admin() ) {
-				WP_SAB()->admin = new WP_SAB_Admin;
-				WP_SAB()->admin->action = new WP_SAB_Admin_Action;
-				WP_SAB()->admin->filter = new WP_SAB_Admin_Filter;
-			} else {
-				WP_SAB()->front = new WP_SAB_Front;
-				WP_SAB()->front->action = new WP_SAB_Front_Action;
-				WP_SAB()->front->filter = new WP_SAB_Front_Filter;
-			}
-
-			// WP_SAB()->front() = new WP_SAB_Front_ActionV;
-			
-
-		}
-
 	}
 }
 
 function WP_SAB() {
 	return WP_SAB::instance();
-	// $WP_SAB_Front_Action = new WP_SAB_Front_Action();
 }
 
 WP_SAB();
-// require_once plugin_dir_path(__FILE__) . 'front/class.WP_SAB.front.action.php';
-// $WP_SAB_Front_Action = new WP_SAB_Front_Action();
 

@@ -1,16 +1,15 @@
 jQuery(document).ready(function($) {
-    jQuery(document).on('change', '#bms_year', function() {        
-        var currentMonth = document.getElementById('bms_month').value;
-        var currentYear = document.getElementById('bms_year').value;
+    jQuery(document).on('change', '#sab_year', function() {        
+        var currentMonth = document.getElementById('sab_month').value;
+        var currentYear = document.getElementById('sab_year').value;
         reloadCalendar(currentMonth, currentYear);
     });
 });
 jQuery(document).ready(function($) {
-    jQuery(document).on('change', '#bms_month', function() {        
-        var currentMonth = document.getElementById('bms_month').value;
-        var currentYear = document.getElementById('bms_year').value;       
+    jQuery(document).on('change', '#sab_month', function() {        
+        var currentMonth = document.getElementById('sab_month').value;
+        var currentYear = document.getElementById('sab_year').value;       
         reloadCalendar(currentMonth, currentYear);
-        // reload_timeslot_value(currentMonth, currentYear);
     });
 });
 
@@ -39,8 +38,8 @@ function getClickedId(element) {
 }
 function getClicked_next(element) {
   
-    var currentMonth = document.getElementById('bms_month').value;
-    var currentYear = document.getElementById('bms_year').value;
+    var currentMonth = document.getElementById('sab_month').value;
+    var currentYear = document.getElementById('sab_year').value;
 
     if (parseInt(currentMonth) === 12) {
         currentMonth = 1;
@@ -52,8 +51,8 @@ function getClicked_next(element) {
 }
 function getClicked_prev(element) {
   
-    var currentMonth = document.getElementById('bms_month').value;
-    var currentYear = document.getElementById('bms_year').value;
+    var currentMonth = document.getElementById('sab_month').value;
+    var currentYear = document.getElementById('sab_year').value;
     if (parseInt(currentMonth) === 1) {
         currentMonth = 12;
         currentYear--;
@@ -64,8 +63,6 @@ function getClicked_prev(element) {
 }
 function reloadCalendar(currentMonth, currentYear) {
     var form_id = document.getElementById('zealform_id').value;
-    var lastdateid = jQuery('#zeallastdate').val();
-    console.log(lastdateid);
     jQuery.ajax({
       url: myAjax.ajaxurl,
       type: 'post',
@@ -73,27 +70,13 @@ function reloadCalendar(currentMonth, currentYear) {
         action: "action_reload_calender",
         currentMonth: currentMonth,
         currentYear: currentYear,
-        lastdateid:lastdateid,
+        // lastdateid:lastdateid,
         form_id: form_id,
       },
       success: function(data) {
         jQuery('#month-navigationid').html(data);
         jQuery('#zfb-timeslots-table-container').html('');
-        if (lastdateid) { 
-          var element = jQuery('#' + lastdateid);
-          if (element.length > 0) {
-            element.click();
-          } else {
-            var currentMonth = document.getElementById('bms_month').value;
-            var currentYear = document.getElementById('bms_year').value;
-            var monthName = getMonthName(parseInt(currentMonth));
-           
-          }
-        }
-        calid_5085_6_1_2023
-        '#'
-        jQuery('#zfb-timeslots-table-container').load(location.href + ' #zfb-timeslots-table-container');
-                 
+       
       }
     });
   }
@@ -233,7 +216,7 @@ jQuery(document).ready(function($) {
     var maxValue = parseInt($('.zfb-selected-capacity').attr('max'));
     var minValue = parseInt($('.zfb-selected-capacity').attr('min'));
     var isInputValid = inputValue >= minValue && inputValue <= maxValue;
-
+     // console.log(isInputValid);
     var isSelected = $('#zfb-slot-list li').hasClass('selected');
     var isButtonDisabled = !isInputValid || !isSelected;
 
@@ -251,10 +234,11 @@ jQuery(document).ready(function($) {
     checkNextButtonState();
   });
   $('.zfb-selected-capacity').on('input', function() {
+    console.log("test");
     checkNextButtonState();
   });
 
-  $('#zfb-slot-list li').click(function() {      
+  $(document).on('click', '#zfb-slot-list li', function() {  
     var isSelected = $(this).hasClass('selected');     
     $('#nextButton').prop('disabled', !isSelected);
   }); 

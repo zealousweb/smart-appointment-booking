@@ -18,15 +18,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
      * The WP_SAB_Admin Class
      */
     class WP_SAB_Admin_Fieldmeta {
-
-
         function __construct() {
             
-            add_action( 'add_meta_boxes', array( $this, 'bms_add_meta_box' ) ); 
-            add_action( 'save_post', array( $this, 'bms_save_post_function' ) );
+            add_action( 'add_meta_boxes', array( $this, 'sab_add_meta_box' ) ); 
+            add_action( 'save_post', array( $this, 'sab_save_post_function' ) );
             add_action('save_post', array( $this, 'save_notes_data' ) );
-
-          
         }
 
         /*
@@ -48,9 +44,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
         ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
         */
         function get_available_seats_per_timeslot($checktimeslot,$date){
-            
-            // $timeslot = '09:30 AM-10:30 AM';
-            // $booking_date = 'calid_5085_6_20_2023';
             
             $args = array(
                 'post_type' => 'manage_entries',
@@ -74,9 +67,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             
             if ($query->have_posts()) {
                 $post_count = $query->found_posts;
-                // echo "Number of posts with timeslot '{$timeslot}' and booking date '{$booking_date}': {$post_count}";
-            } else {
-                // echo "No posts found with timeslot '{$timeslot}' and booking date '{$booking_date}'.";
             }
             
             return $post_count;
@@ -84,18 +74,18 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
     
 
         /**
-         * Display BMS submission Entries
+         * Display sab submission Entries
          */ 
         function zfb_entries_render_meta_box_content( $post ){
-            $form_data = get_post_meta( $post->ID, 'bms_submission_data', true );   
-            $form_id = get_post_meta( $post->ID, 'bms_form_id', true ); 
+            $form_data = get_post_meta( $post->ID, 'sab_submission_data', true );   
+            $form_id = get_post_meta( $post->ID, 'sab_form_id', true ); 
             $timeslot = get_post_meta( $post->ID, 'timeslot', true );
             $times = explode("-", $timeslot);
             $start_time = trim(date("h:i", strtotime($times[0])));
             $end_time = trim(date("h:i", strtotime($times[1])));
 
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
-            // print_r($booking_date);
+           
             $array_of_date = explode('_', $booking_date);
             if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
@@ -194,13 +184,13 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 <p class="h6">Booked Timeslot</p>
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <p  for="start_time" class="h6"><?php echo __('From: ', 'textdomain'); ?></p>
+                                        <p  for="start_time" class="h6"><?php echo __('From: ', 'wp-smart-appointment-booking'); ?></p>
                                         <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
                                         
                                     </div>
                                     
                                     <div class="form-group col-md-4">
-                                        <p for="end_time" class="h6"><?php echo __('To: ', 'textdomain'); ?></p>
+                                        <p for="end_time" class="h6"><?php echo __('To: ', 'wp-smart-appointment-booking'); ?></p>
                                         <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
                                     </div>
                                     <span class="validation-message" style="color: red;"></span>
@@ -212,10 +202,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 <?php
             }
         }
-        
 
         /**
-         * Display Form Io form builder
+         * 
+         * Form Configuration add metabox callback
+         * 
         */ 
         function formio_render_meta_box_content( $post ) {
             
@@ -235,20 +226,19 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                     window.onload = function() {
                         
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
-                            components: myScriptData // Use the stored meta value to populate the form
+                            components: myScriptData 
                         });
                                                     
                         formioBuilder.then(function(builder) {
-                            // Handle form submission
+                          
                             builder.on('change', function(submission) {
                                 formdata = JSON.stringify(submission.components);
                                 jQuery.post(ajaxurl, {
-                                    action: 'bms_save_form_data',  // Ajax action to handle saving the form data
-                                    post_id: <?php echo $post->ID; ?>,  // Current post ID
-                                    form_data: formdata // Submitted form data                                  
-                                }, function(response) {
-                                    // console.log(submission.components);
-                                    console.log(response);
+                                    action: 'sab_save_form_data', 
+                                    post_id: <?php echo $post->ID; ?>, 
+                                    form_data: formdata                                   
+                                }, function(response) {                                   
+                                    console.log('success');
                                 });
                             });
                         });
@@ -268,12 +258,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                             builder.on('change', function(submission) {
                                 formdata = JSON.stringify(submission.components);
                                 jQuery.post(ajaxurl, {
-                                    action: 'bms_save_form_data', 
+                                    action: 'sab_save_form_data', 
                                     post_id: <?php echo $post->ID; ?>, 
                                     form_data: formdata                                     
                                 }, function(response) {
-                                  
-                                    console.log(response);
+                                    console.log('success');
                                 });
                             });
                         });
@@ -283,29 +272,25 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             }
             
         }
-
-        function bms_repeat_appointment($post) {
+        /**
+         * Booking Configuration - add meta box callback
+         */
+        function sab_repeat_appointment($post) {
 
             // Retrieve saved meta box values
             $title = get_post_meta($post->ID, 'cal_title', true);
             $description = get_post_meta($post->ID, 'cal_description', true);
             $enable_booking = get_post_meta($post->ID, 'enable_booking', true);
             $weekdays = get_post_meta($post->ID, 'weekdays', true);
-            // $weekend = get_post_meta($post->ID, 'weekend', true);
-                        
             $appointment_type = get_post_meta($post->ID, 'appointment_type', true);
             $virtual_link = get_post_meta($post->ID, 'virtual_link', true);
             $symbol = get_post_meta($post->ID, 'label_symbol', true);
             $cost = get_post_meta($post->ID, 'cost', true);
-            
             $selected_date = get_post_meta($post->ID, 'selected_date', true);
-
-         
             $end_time = get_post_meta( $post->ID, 'end_time', true );
             $timeslot_duration = get_post_meta($post->ID, 'timeslot_duration', true);
             $steps_duration = get_post_meta( $post->ID, 'steps_duration', true );
             $timezone = get_post_meta($post->ID,'timezone',true);
-            // $btimes = get_post_meta( $post->ID, 'break_repeater_field', true );
             $no_of_booking = get_post_meta($post->ID, 'no_of_booking', true);  
             $holiday_dates = get_post_meta($post->ID, 'holiday_dates', true);
             $enable_waiting = get_post_meta($post->ID, 'waiting_list', true);
@@ -313,7 +298,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             $timeslot_BookAllow = get_post_meta($post->ID, 'timeslot_BookAllow', true);
             $booking_stops_after = get_post_meta( $post->ID, 'booking_stops_after', true );
             $enable_auto_approve = get_post_meta($post->ID, 'enable_auto_approve', true);
-            // $breaktimeslots = get_post_meta($post->ID, 'breaktimeslots', true);
 
             $breaktimeslots = get_post_meta($post->ID, 'breaktimeslots', true);
             if (empty($breaktimeslots)) {
@@ -330,7 +314,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             $enable_recurring_apt = get_post_meta($post->ID, 'enable_recurring_apt', true);
             $recurring_type = get_post_meta($post->ID, 'recurring_type', true);
             //advanced field
-            // $advancedates = get_post_meta($post->ID, 'advancedates', true);
             $advancedata = get_post_meta($post->ID, 'advancedata', true);
             if (empty($advancedata)) {
                 $advancedata = array(
@@ -346,14 +329,9 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                     )
                 );
             }
-            // $advanced_date_value = get_post_meta($post->ID, 'advanced_date_value', true);
-            // $advance_timeslots = get_post_meta($post->ID, 'advance_timeslots', true);
             $end_repeats = get_post_meta($post->ID, 'end_repeats', true);
             $end_repeats_on = get_post_meta($post->ID, 'end_repeats_on',true);
-            // $end_repeats_after = get_post_meta($post->ID, 'end_repeats_after',true);
             $recur_weekdays = get_post_meta($post->ID, 'recur_weekdays', true);
-            
-           
             ?>
             <div id="custom-meta-box-tabs">
                 <!-- Tab navigations -->
@@ -362,8 +340,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                     <li class="nav-link"><a href="#tab1">General</a></li>
                     <li class="nav-link"><a href="#tab2">Timeslots</a></li>
                     <li class="nav-link"><a href="#tab3">Recurring Appointment</a></li>
-                  
-                    <!-- <li class="nav-link"><a href="#tab5">Preview</a></li> -->
                 </ul>
                 <!-- Tabination 1 content  -->            
                 
@@ -387,11 +363,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label  class="h6"><?php echo __('Prefix Symbol : ', 'textdomain'); ?></label>
+                                        <label  class="h6"><?php echo __('Prefix Symbol : ', 'wp-smart-appointment-booking'); ?></label>
                                         <input type="text" class="form-control" name="label_symbol" value="<?php echo esc_attr($symbol); ?>">
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label  class="h6"> <?php echo __('Cost : ', 'textdomain'); ?></label>
+                                        <label  class="h6"> <?php echo __('Cost : ', 'wp-smart-appointment-booking'); ?></label>
                                         <input type="number" class="form-control" name="cost" value="<?php echo esc_attr($cost); ?>">
                                     </div>
                                 </div>
@@ -399,7 +375,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                         </div>
                         <div class="col-6">
                                  <!-- <div class="card"> -->
-                                <label class="h6"><?php echo __('Select Weekdays: ', 'textdomain'); ?></label>
+                                <label class="h6"><?php echo __('Select Weekdays: ', 'wp-smart-appointment-booking'); ?></label>
                                 <div class="form-group">
                                     <div class="form-check form-check-inline">
                                         <input type="checkbox" name="weekdays[]" value="monday" <?php echo (is_array($weekdays) && in_array('monday', $weekdays)) ? 'checked' : ''; ?> id="weekday_monday">
@@ -433,12 +409,9 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                     <div class="form-check form-check-inline">
                                         <input type="checkbox" name="weekdays[]" value="sunday" <?php echo (is_array($weekdays) && in_array('sunday', $weekdays)) ? 'checked' : ''; ?> id="weekday_sunday">
                                         <label class="form-check-label" for="weekday_sunday">Sunday</label>
-                                     
-                                    </div>
-                                    
+                                     </div>
                                 </div>
-                               
-                                <div class="form-group form-general-group"><label  class="h6"><?php echo __('Appointment Type: ', 'textdomain'); ?></label>
+                                <div class="form-group form-general-group"><label  class="h6"><?php echo __('Appointment Type: ', 'wp-smart-appointment-booking'); ?></label>
 
                                     <div class="form-check form-check-inline">
                                     <input type="radio" name="appointment_type" id="appointment_type_virtual" value="virtual" <?php if ($appointment_type == 'virtual') echo 'checked="checked"'; ?>>
@@ -450,7 +423,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                     <label class="form-check-label h6" for="appointment_type_physical">Physical</label>
                                     </div>
                                 </div>
-                            
                                 <?php 
                                     if ($appointment_type == 'virtual') : ?>
                                     <div class="vlink-container form-group form-general-group">
@@ -460,7 +432,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                     </div>
                                     <?php else : ?>
                                         <div class="vlink-container hidden form-group form-general-group">
-                                            <label for="virtual_link"  class="h6"><?php echo __('Link: ', 'textdomain'); ?></label>
+                                            <label for="virtual_link"  class="h6"><?php echo __('Link: ', 'wp-smart-appointment-booking'); ?></label>
                                             <input type="text" class="form-control" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>">
                                         </div>
                                     <?php endif; 
@@ -470,37 +442,35 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                     <label  for="timezone" class="h6">Timezone</label>
                                     <?php echo $this->timezone_dropdown($post->ID); ?>
                                 </div> 
-                                
-                            <!-- </div> -->
                         </div>
                     </div>
                 </div>
                 <div id="tab2" class="tab-content">
                     <div class="">
                         <div class="form-group form-general-group ">
-                            <label  class="h6"><?php echo __('Select Date : ', 'textdomain'); ?></label>
+                            <label  class="h6"><?php echo __('Select Date : ', 'wp-smart-appointment-booking'); ?></label>
                             <input type="date" class="form-control col-md-4" name="selected_date" value="<?php echo esc_attr($selected_date); ?>">
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-2">
-                                <label  class="h6"><?php echo __('Start Time: ', 'textdomain'); ?></label>
+                                <label  class="h6"><?php echo __('Start Time: ', 'wp-smart-appointment-booking'); ?></label>
                                 <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
                             </div>
                             <div class="form-group col-md-2">
-                                <label  class="h6"><?php echo __('End Time: ', 'textdomain'); ?></label>
+                                <label  class="h6"><?php echo __('End Time: ', 'wp-smart-appointment-booking'); ?></label>
                                 <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
                                </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
                        
                         <div class="form-group">
-                            <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'textdomain'); ?></label>
+                            <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'wp-smart-appointment-booking'); ?></label>
                             <input type="number" class="hours col-md-2 " name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" >
                             <span>:</span>
                             <input type="number" class="minutes col-md-2" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" >
                             <span class="timeslot-validation-message" style="color: red;"></span>
                         </div>
-                        <label for="steps_duration"  class="h6"><?php echo __("Step/Interval Duration between each Timeslot","textdomain"); ?></label>
+                        <label for="steps_duration"  class="h6"><?php echo __("Step/Interval Duration between each Timeslot","wp-smart-appointment-booking"); ?></label>
                         <div class="form-row">
                             
                             <div class="form-group col-md-2">
@@ -515,7 +485,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                         </div>
                         <div class="form-group">                
                             <!-- Booking per Timeslots -->
-                            <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'textdomain'); ?></label>
+                            <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'wp-smart-appointment-booking'); ?></label>
                             <input class="form-control col-md-2" type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>">
                         </div>
                         <div class="form-check form-check-inline">
@@ -583,7 +553,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
                             <?php 
-                            // echo "<pre>";print_r($generatetimeslots);
                                 foreach ($generatetimeslots as $index => $timeslot) : ?>                                 
                                     <div class="form-row timeslot-row generatetimeslot">
                                         <div class="form-group col-md-3">
@@ -614,7 +583,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 </div>
                 <!-- Tabination 2 content  -->
                 <div id="tab3" class="tab-content">               
-                    <!-- <div class="p-4 m-1"> -->
+                 
                        
                         <div class="form-check form-check-inline">
                             <input type="checkbox" id="enable_recurring_apt_i" name="enable_recurring_apt" value="1" <?php echo checked(1, $enable_recurring_apt, false); ?>>
@@ -638,7 +607,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 </select>
                             </div>
                             <div id="certain_weekdays_fields" class="form-group form-general-group" style="display: none;" >
-                            <label for="recurring_type"><?php echo __('Select Weekdays: ', 'textdomain'); ?></label>
+                            <label for="recurring_type"><?php echo __('Select Weekdays: ', 'wp-smart-appointment-booking'); ?></label>
                                 <div class="form-check">
                                     
                                     <input type="checkbox" name="recur_weekdays[]" value="monday" <?php echo (is_array($recur_weekdays) && in_array('monday', $recur_weekdays)) ? 'checked' : ''; ?> >
@@ -658,7 +627,6 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 </div>
                             </div>
                             <div id="advance-meta-box">
-                                <!-- <button type="button" id="add-row" class="btn btn-info">Add Date Group</button> -->
                                 <div id="add-row" class="adddatefieldgroup">
                                     <label class="h6">Add Date Field Group</label>
                                     <svg  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -702,7 +670,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                                     </div>
                                                 </div>
                                             <?php } ?>
-                                            <!-- <button type="btn button" class="add-timeslot btn btn-secondary">Add Timeslot</button> -->
+                                            
                                         </div>
                                         <button type="button" class="remove-row btn btn-danger">Remove Date</button>
                                     </div>
@@ -729,10 +697,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                             </svg>
                                             </div>
                                         </div>
-                                        <!-- <div class="holidate-field form-group col-md-3">
-                                            <input type="date" class="form-control" name="holidays[]" value="<?php// echo esc_attr($holydate); ?>">
-                                            <button type="btn button" class="remove-holidate">Remove Holiday</button>
-                                        </div> -->
+                                      
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
@@ -748,286 +713,256 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 </div>
                             </div>
                         </div>
-                    <!-- </div> -->
                 </div>
-                
-                <!-- <div id="tab5" class="tab-content">
-                    <div class="preview_main">
-                        <p id="preview_timeslot" pid="<?php // echo get_the_ID(); ?>">Click Here to Preview Timeslots</p>
-                        <?php 
-                            //    $post_id = get_the_ID();
-                            //    $start_time = get_post_meta($post_id, 'start_time', true);
-                            //    $end_time = get_post_meta($post_id, 'end_time', true);
-                            //    $duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
-                            //    if($start_time && $end_time && $duration_minutes){
-                            //      echo '<div id="preview_output"></div>';
-                            //    }else{
-                            //     echo "<p class='note_preview' > To Preview Timeslots, Set General Setting : start time, end time , Duration, steps , breaks </p>";
-                            //    }
-                              
-                        ?>
-                       
-                    </div>  
-                </div> -->
-               
             </div>
             <?php
         }
-       
-        function bms_save_post_function( $post_id ) {
+
+        /**
+        * Save Form and Booking Configuration
+        */
+        function sab_save_post_function( $post_id ) {
             $get_type =  get_post_type($post_id);
             if($get_type !== 'sab_form_builder' ){
                 return;
             }
-            // if($get_type == 'sab_form_builder'){
-                if (isset($_POST['cal_title'])) {
-                    update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
-                } 
-                if (isset($_POST['cal_description'])) {
-                    update_post_meta($post_id, 'cal_description', $_POST['cal_description']);
-                } 
-                // Section Tab 1 
-                // Check if the enable_booking field is set and save the value
-                if (isset($_POST['enable_booking'])) {
-                    update_post_meta($post_id, 'enable_booking', 1);
-                } else {
-                    delete_post_meta($post_id, 'enable_booking');
-                }
-                //Weekdays
-                if (isset($_POST['weekdays'])) {
-                    update_post_meta($post_id, 'weekdays', $_POST['weekdays']);
-                } else {
-                    update_post_meta($post_id, 'weekdays', array());
-                }
-                // Save the radio button value for appointment Type
-                if (isset($_POST['appointment_type'])) {
-                    $selected_option = sanitize_text_field($_POST['appointment_type']);
-                    update_post_meta($post_id, 'appointment_type', $selected_option);
-                }
-    
-                // Save the  link value if Appointment Type "Virtual" is selected
-                if (isset($_POST['virtual_link'])) {
-                    $link_value = sanitize_text_field($_POST['virtual_link']);
-                    update_post_meta($post_id, 'virtual_link', $link_value);
-                }
-               
-                 //Symbol
-                 if ( isset( $_POST['label_symbol'] ) ) {
-                    $label_symbol = $_POST['label_symbol'];
-                    update_post_meta( $post_id, 'label_symbol', $label_symbol );
-                }
-                if ( isset( $_POST['timezone'] ) ) {
-                    $timezone = $_POST['timezone'];
-                    update_post_meta( $post_id, 'timezone', $timezone );
-                }
-                 //Cost
-                if ( isset( $_POST['cost'] ) ) {
-                    $selected_date = $_POST['cost'];
-                    update_post_meta( $post_id, 'cost', $selected_date );
-                }
-                  //selected_date
-                if ( isset( $_POST['selected_date'] ) ) {
-                    $selected_date = $_POST['selected_date'];
-                    update_post_meta( $post_id, 'selected_date', $selected_date );
-                }
-                //Start Time
-                if ( isset( $_POST['start_time'] ) ) {
-                  $time_slot = $_POST['start_time'];
-                    
-                    // Update the post meta data with the field value
-                    update_post_meta( $post_id, 'start_time', $time_slot );
-                }
-                 //End Time
-                 if ( isset( $_POST['end_time'] ) ) {
-                    $time_slot = $_POST['end_time'];
-                  
-                    // Update the post meta data with the field value
-                    update_post_meta( $post_id, 'end_time', $time_slot );
-                }
-                 //Steps Duration
-                 if ( isset( $_POST['steps_duration'] ) ) {
-                    $steps_duration = $_POST['steps_duration'];
-                    $sanitized_steps_duration = array(
-                        'hours' => sanitize_text_field( $steps_duration['hours'] ),
-                        'minutes' => sanitize_text_field( $steps_duration['minutes'] )
-                        // 'seconds' => sanitize_text_field( $steps_duration['seconds'] ),                   
-                    );
-            
-                    // Update the post meta data with the field value
-                    update_post_meta( $post_id, 'steps_duration', $sanitized_steps_duration );
-                }
-               
-               
-                //timeslot_duration
-                if ( isset( $_POST['booking_stops_after'] ) ) {
-                    $booking_stops_after_duration = $_POST['booking_stops_after'];
-                    $sanitized_booking_stops_after_duration = array(
-                        'hours' => sanitize_text_field( $booking_stops_after_duration['hours'] ),
-                        'minutes' => sanitize_text_field( $booking_stops_after_duration['minutes'] )
-                    );
-            
-                    // Update the post meta data with the field value
-                    update_post_meta( $post_id, 'booking_stops_after', $sanitized_booking_stops_after_duration );
-                }
-                 //timeslot_duration
-                 if ( isset( $_POST['timeslot_duration'] ) ) {
-                    $timeslot_duration = $_POST['timeslot_duration'];
-                    $sanitized_timeslot_duration = array(
-                        'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
-                        'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
-                    );
-            
-                    // Update the post meta data with the field value
-                    update_post_meta( $post_id, 'timeslot_duration', $sanitized_timeslot_duration );
-                }
-              
-                //no_of_booking
-                if ( isset( $_POST['no_of_booking'] ) ) {
-                    $selected_date = $_POST['no_of_booking'];
-                    update_post_meta( $post_id, 'no_of_booking', $selected_date );
-                }
-                //waiting List
-                if (isset($_POST['waiting_list'])) {
-                    update_post_meta($post_id, 'waiting_list', 1);
-                } else {
-                    delete_post_meta($post_id, 'waiting_list');
-                }
-                //timeslotBookingAllowed
-                if (isset($_POST['timeslot_BookAllow'])) {
-                    update_post_meta($post_id, 'timeslot_BookAllow', 1);
-                } else {
-                    delete_post_meta($post_id, 'timeslot_BookAllow');
-                }
-                //enable_auto_approve
-                if (isset($_POST['enable_auto_approve'])) {
-                    update_post_meta($post_id, 'enable_auto_approve', 1);
-                } else {
-                    delete_post_meta($post_id, 'enable_auto_approve');
-                }
-                //multiple breaks
-                if (isset($_POST['breaktimeslots'])) {
-                    $breaktimeslots = $_POST['breaktimeslots'];
-                
-                    // Sanitize and save the values
-                    $sanitized_breaktimeslots = array();
-                    foreach ($breaktimeslots as $breaktimeslot) {
-                      $breakstart_time = sanitize_text_field($breaktimeslot['start_time']);
-                      $breakend_time = sanitize_text_field($breaktimeslot['end_time']);
-                      $sanitized_breaktimeslots[] = array(
-                        'start_time' => $breakstart_time,
-                        'end_time' => $breakend_time,
-                      );
-                    }            
-                    update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
-                  }else{
-                        $breaktimeslots = get_post_meta($post_id, 'breaktimeslots', true);
-                        if (empty($timeslots)) {
-                            $sanitized_breaktimeslots = array(
-                                array(
-                                'start_time' => '',
-                                'end_time' => '',
-                                ),
-                            );
-                        }
-                        update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
-                  }
-                
-                  if (isset($_POST['generatetimeslot'])) {
-                    $generatetimeslots = $_POST['generatetimeslot'];
-                    
-                
-                    // Sanitize and save the values
-                    $sanitized_generatetimeslots = array();
-                    foreach ($generatetimeslots as $generatetimeslot) {
-                      $generatestart_time = sanitize_text_field($generatetimeslot['start_time']);
-                      $generateend_time = sanitize_text_field($generatetimeslot['end_time']);
-                      $sanitized_generatetimeslots[] = array(
-                        'start_time' => $generatestart_time,
-                        'end_time' => $generateend_time,
-                      );
-                    }            
-                    update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
-                  }else{
-                        $generatetimeslots = get_post_meta($post_id, 'generatetimeslot', true);
-                        if (empty($timeslots)) {
-                            $sanitized_generatetimeslots = array(
-                                array(
-                                'start_time' => '',
-                                'end_time' => '',
-                                ),
-                            );
-                        }
-                        update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
-                  }
-               
-                 //Enable Recurring Events
-                if (isset($_POST['enable_recurring_apt'])) {
-                    // echo $_POST['enable_recurring_apt'];
-                    update_post_meta($post_id, 'enable_recurring_apt', 1);
-                } else {
-                    delete_post_meta($post_id, 'enable_recurring_apt');
-                }
-                 // Check if the meta values are set
-                if (isset($_POST['recurring_type'])) {
-                    $recurring_type = sanitize_text_field($_POST['recurring_type']);
-                    update_post_meta($post_id, 'recurring_type', $recurring_type);
-                }
-               
-                // Check if the 'recur_weekdays' field is present in the $_POST data
-                if (isset($_POST['recur_weekdays'])) {
-                    // Sanitize the array of weekdays
-                    $sanitized_recur_weekdays = array_map('sanitize_text_field', $_POST['recur_weekdays']);
-    
-                    // Save the selected weekdays as post meta data
-                    update_post_meta($post_id, 'recur_weekdays', $sanitized_recur_weekdays);               
-    
-                }
-                if (isset($_POST['advancedata'])) {
-                    
-                    $advancedata = $_POST['advancedata'];
-                 
-                    update_post_meta($post_id, 'advancedata', $advancedata);
-                    
-                }
-                   // Holidays
-                if (isset($_POST['holidays'])) {
-                    $holidays = array_map('sanitize_text_field', $_POST['holidays']);
-                    update_post_meta($post_id, 'holiday_dates', $holidays);
-                }
-    
-                // Save the "End Repeats" option
-                if (isset($_POST['end_repeats'])) {
-                    $end_repeats = sanitize_text_field($_POST['end_repeats']);
-                    update_post_meta($post_id, 'end_repeats', $end_repeats);
-                }
-    
-                // Save the corresponding input field values based on the "End Repeats" option
-                if (isset($_POST['end_repeats_on'])) {
-                    $end_repeats_on = sanitize_text_field($_POST['end_repeats_on']);
-                    update_post_meta($post_id, 'end_repeats_on', $end_repeats_on);
-                }
-    
-                if (isset($_POST['end_repeats_after'])) {
-                    $end_repeats_after = sanitize_text_field($_POST['end_repeats_after']);
-                    update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
-                }
-              
-            // }
-            // if($get_type == 'manage_entries'){
-            //     Echo "test";
-            //     exit;
-            //     // if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
-            //     //     return;
-            //     // }
-
-            //     if (isset($_POST['notes'])) {
-            //         $notes = sanitize_textarea_field($_POST['notes']);
-            //         update_post_meta($post_id, 'notes', $notes);
-            //     }
-            // }
           
+            if (isset($_POST['cal_title'])) {
+                update_post_meta($post_id, 'cal_title', $_POST['cal_title']);
+            } 
+            if (isset($_POST['cal_description'])) {
+                update_post_meta($post_id, 'cal_description', $_POST['cal_description']);
+            } 
+            // Section Tab 1 
+            // Check if the enable_booking field is set and save the value
+            if (isset($_POST['enable_booking'])) {
+                update_post_meta($post_id, 'enable_booking', 1);
+            } else {
+                delete_post_meta($post_id, 'enable_booking');
+            }
+            //Weekdays
+            if (isset($_POST['weekdays'])) {
+                update_post_meta($post_id, 'weekdays', $_POST['weekdays']);
+            } else {
+                update_post_meta($post_id, 'weekdays', array());
+            }
+            // Save the radio button value for appointment Type
+            if (isset($_POST['appointment_type'])) {
+                $selected_option = sanitize_text_field($_POST['appointment_type']);
+                update_post_meta($post_id, 'appointment_type', $selected_option);
+            }
+
+            // Save the  link value if Appointment Type "Virtual" is selected
+            if (isset($_POST['virtual_link'])) {
+                $link_value = sanitize_text_field($_POST['virtual_link']);
+                update_post_meta($post_id, 'virtual_link', $link_value);
+            }
+            
+                //Symbol
+                if ( isset( $_POST['label_symbol'] ) ) {
+                $label_symbol = $_POST['label_symbol'];
+                update_post_meta( $post_id, 'label_symbol', $label_symbol );
+            }
+            if ( isset( $_POST['timezone'] ) ) {
+                $timezone = $_POST['timezone'];
+                update_post_meta( $post_id, 'timezone', $timezone );
+            }
+                //Cost
+            if ( isset( $_POST['cost'] ) ) {
+                $selected_date = $_POST['cost'];
+                update_post_meta( $post_id, 'cost', $selected_date );
+            }
+                //selected_date
+            if ( isset( $_POST['selected_date'] ) ) {
+                $selected_date = $_POST['selected_date'];
+                update_post_meta( $post_id, 'selected_date', $selected_date );
+            }
+            //Start Time
+            if ( isset( $_POST['start_time'] ) ) {
+                $time_slot = $_POST['start_time'];
+                
+                // Update the post meta data with the field value
+                update_post_meta( $post_id, 'start_time', $time_slot );
+            }
+                //End Time
+                if ( isset( $_POST['end_time'] ) ) {
+                $time_slot = $_POST['end_time'];
+                
+                // Update the post meta data with the field value
+                update_post_meta( $post_id, 'end_time', $time_slot );
+            }
+                //Steps Duration
+                if ( isset( $_POST['steps_duration'] ) ) {
+                $steps_duration = $_POST['steps_duration'];
+                $sanitized_steps_duration = array(
+                    'hours' => sanitize_text_field( $steps_duration['hours'] ),
+                    'minutes' => sanitize_text_field( $steps_duration['minutes'] )
+                );
+        
+                // Update the post meta data with the field value
+                update_post_meta( $post_id, 'steps_duration', $sanitized_steps_duration );
+            }
+            
+            
+            //timeslot_duration
+            if ( isset( $_POST['booking_stops_after'] ) ) {
+                $booking_stops_after_duration = $_POST['booking_stops_after'];
+                $sanitized_booking_stops_after_duration = array(
+                    'hours' => sanitize_text_field( $booking_stops_after_duration['hours'] ),
+                    'minutes' => sanitize_text_field( $booking_stops_after_duration['minutes'] )
+                );
+        
+                // Update the post meta data with the field value
+                update_post_meta( $post_id, 'booking_stops_after', $sanitized_booking_stops_after_duration );
+            }
+                //timeslot_duration
+                if ( isset( $_POST['timeslot_duration'] ) ) {
+                $timeslot_duration = $_POST['timeslot_duration'];
+                $sanitized_timeslot_duration = array(
+                    'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
+                    'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
+                );
+        
+                // Update the post meta data with the field value
+                update_post_meta( $post_id, 'timeslot_duration', $sanitized_timeslot_duration );
+            }
+            
+            //no_of_booking
+            if ( isset( $_POST['no_of_booking'] ) ) {
+                $selected_date = $_POST['no_of_booking'];
+                update_post_meta( $post_id, 'no_of_booking', $selected_date );
+            }
+            //waiting List
+            if (isset($_POST['waiting_list'])) {
+                update_post_meta($post_id, 'waiting_list', 1);
+            } else {
+                delete_post_meta($post_id, 'waiting_list');
+            }
+            //timeslotBookingAllowed
+            if (isset($_POST['timeslot_BookAllow'])) {
+                update_post_meta($post_id, 'timeslot_BookAllow', 1);
+            } else {
+                delete_post_meta($post_id, 'timeslot_BookAllow');
+            }
+            //enable_auto_approve
+            if (isset($_POST['enable_auto_approve'])) {
+                update_post_meta($post_id, 'enable_auto_approve', 1);
+            } else {
+                delete_post_meta($post_id, 'enable_auto_approve');
+            }
+            //multiple breaks
+            if (isset($_POST['breaktimeslots'])) {
+                $breaktimeslots = $_POST['breaktimeslots'];
+            
+                // Sanitize and save the values
+                $sanitized_breaktimeslots = array();
+                foreach ($breaktimeslots as $breaktimeslot) {
+                    $breakstart_time = sanitize_text_field($breaktimeslot['start_time']);
+                    $breakend_time = sanitize_text_field($breaktimeslot['end_time']);
+                    $sanitized_breaktimeslots[] = array(
+                    'start_time' => $breakstart_time,
+                    'end_time' => $breakend_time,
+                    );
+                }            
+                update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
+                }else{
+                    $breaktimeslots = get_post_meta($post_id, 'breaktimeslots', true);
+                    if (empty($timeslots)) {
+                        $sanitized_breaktimeslots = array(
+                            array(
+                            'start_time' => '',
+                            'end_time' => '',
+                            ),
+                        );
+                    }
+                    update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
+                }
+            
+                if (isset($_POST['generatetimeslot'])) {
+                $generatetimeslots = $_POST['generatetimeslot'];
+                
+            
+                // Sanitize and save the values
+                $sanitized_generatetimeslots = array();
+                foreach ($generatetimeslots as $generatetimeslot) {
+                    $generatestart_time = sanitize_text_field($generatetimeslot['start_time']);
+                    $generateend_time = sanitize_text_field($generatetimeslot['end_time']);
+                    $sanitized_generatetimeslots[] = array(
+                    'start_time' => $generatestart_time,
+                    'end_time' => $generateend_time,
+                    );
+                }            
+                update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
+                }else{
+                    $generatetimeslots = get_post_meta($post_id, 'generatetimeslot', true);
+                    if (empty($timeslots)) {
+                        $sanitized_generatetimeslots = array(
+                            array(
+                            'start_time' => '',
+                            'end_time' => '',
+                            ),
+                        );
+                    }
+                    update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
+                }
+            
+                //Enable Recurring Events
+            if (isset($_POST['enable_recurring_apt'])) {
+                // echo $_POST['enable_recurring_apt'];
+                update_post_meta($post_id, 'enable_recurring_apt', 1);
+            } else {
+                delete_post_meta($post_id, 'enable_recurring_apt');
+            }
+                // Check if the meta values are set
+            if (isset($_POST['recurring_type'])) {
+                $recurring_type = sanitize_text_field($_POST['recurring_type']);
+                update_post_meta($post_id, 'recurring_type', $recurring_type);
+            }
+            
+            // Check if the 'recur_weekdays' field is present in the $_POST data
+            if (isset($_POST['recur_weekdays'])) {
+                // Sanitize the array of weekdays
+                $sanitized_recur_weekdays = array_map('sanitize_text_field', $_POST['recur_weekdays']);
+
+                // Save the selected weekdays as post meta data
+                update_post_meta($post_id, 'recur_weekdays', $sanitized_recur_weekdays);               
+
+            }
+            if (isset($_POST['advancedata'])) {
+                
+                $advancedata = $_POST['advancedata'];
+                
+                update_post_meta($post_id, 'advancedata', $advancedata);
+                
+            }
+                // Holidays
+            if (isset($_POST['holidays'])) {
+                $holidays = array_map('sanitize_text_field', $_POST['holidays']);
+                update_post_meta($post_id, 'holiday_dates', $holidays);
+            }
+
+            // Save the "End Repeats" option
+            if (isset($_POST['end_repeats'])) {
+                $end_repeats = sanitize_text_field($_POST['end_repeats']);
+                update_post_meta($post_id, 'end_repeats', $end_repeats);
+            }
+
+            // Save the corresponding input field values based on the "End Repeats" option
+            if (isset($_POST['end_repeats_on'])) {
+                $end_repeats_on = sanitize_text_field($_POST['end_repeats_on']);
+                update_post_meta($post_id, 'end_repeats_on', $end_repeats_on);
+            }
+
+            if (isset($_POST['end_repeats_after'])) {
+                $end_repeats_after = sanitize_text_field($_POST['end_repeats_after']);
+                update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
+            }
          }
-         // Save the notes data
+        /**
+         * 
+         *  Save Booking Entries post type data
+         * 
+         */
         function save_notes_data($post_id) {
             if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
                 return;
@@ -1059,7 +994,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 $currentMonth = date('n',strtotime($booking_date));
                 $currentYear = date('Y',strtotime($booking_date));
                 $currentday = date('j', strtotime($booking_date));
-                $booking_date = 'calid_'.$form_id.'_'.$currentMonth.'_'.$currentday.'_'.$currentYear;
+                $booking_date = 'sabid_'.$form_id.'_'.$currentMonth.'_'.$currentday.'_'.$currentYear;
                 update_post_meta($post_id, 'booking_date', $booking_date);
             }
             if (isset($_POST['start_time']) && isset($_POST['end_time'])) {
@@ -1068,39 +1003,250 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 $timeslot = $start_time.'-'.$end_time;
                 update_post_meta($post_id, 'timeslot', $timeslot);
             }
-            if (isset($_POST['booking_status'])) {
+          
+            if (isset($_POST['manual_notification']) ) {
+                 $selected_action = $_POST['manual_notification'];
+                $booking_status = $_POST['booking_status'];
+                $bookingId = $_POST['post_id'];
+                $status = $_POST['status'];
+                $formdata = get_post_meta($bookingId,'sab_submission_data',true);                
+                $listform_label_val =$this->admin_getkey_value_formshortcodes($post_id,$formdata);
+                $listform_label_val['Status'] = $booking_status;
+                    
+                $send_notification =$this->zfb_admin_send_notification($selected_action,$form_id, $post_id, $listform_label_val);
+                update_post_meta($post_id, 'manual_notification', $selected_action);
+                
+            }else{
                 $booking_status = $_POST['booking_status'];
                 update_post_meta($post_id, 'entry_status', $booking_status);
-                $formdata = get_post_meta($post_id,'bms_submission_data',true);
-                $listform_label_val =  do_action('create_key_value_formshortcodes',$post_id,$formdata);               
-                $listform_label_val['Status'] = $booking_status;                
-                echo do_action('notification_send',$booking_status,$form_id, $post_id, $listform_label_val );
-             
+                $formdata = get_post_meta($post_id,'sab_submission_data',true);
+                $listform_label_val =$this->admin_getkey_value_formshortcodes($post_id,$formdata);
+                $listform_label_val['Status'] = $booking_status;     
+                $send_notification =$this->zfb_admin_send_notification($booking_status,$form_id, $post_id, $listform_label_val);
             }
-            
-            // if (isset($_POST['manual_notification']) ) {
-            //     $selected_action = sanitize_text_field($_POST['manual_notification']);
-            //  $bookingId = $_POST['post_id'];
-            //  $status = $_POST['status'];
-            //  $formdata = get_post_meta($bookingId,'bms_submission_data',true);
-            //  $form_id = get_post_meta($bookingId,'bms_form_id',true);
-            
-            //  $listform_label_val = do_action('create_key_value_formshortcodes',$post_id,$formdata);       
-            //  $listform_label_val['Status'] = $status;
-                
-            //  $message = do_action('notification_send',$selected_action,$form_id, $post_id, $listform_label_val );
-            //     update_post_meta($post_id, 'manual_notification', $selected_action);
-            // }
-
-            $checkseats = do_action('get_available_seats_per_timeslot', $timeslot, $booking_date );
-            error_log('hello'.$checkseats);
+          
         }
     
+        function admin_getkey_value_formshortcodes($bookingId,$form_data){
+			
+			$form_id = get_post_meta($bookingId,'sab_form_id',true);
+			$FormTitle = get_the_title( $form_id );
+			
+			$get_user_mapping = get_post_meta($form_id, 'user_mapping', true);
+			$getemail = isset($get_user_mapping['email']) && isset($form_data['data'][$get_user_mapping['email']]) ? sanitize_text_field($get_user_mapping['email']) : '';
+   			if ($getemail) {
+				$emailTo =  $form_data['data'][$getemail];					
+			}
+			$getfirst_name = isset($get_user_mapping['first_name']) && isset($form_data['data'][$get_user_mapping['first_name']])  ? sanitize_text_field($get_user_mapping['first_name']) : '';
+			if ($getfirst_name) {
+				$first_name = $form_data['data'][$getfirst_name];					
+			}
+			$getlast_name = isset($get_user_mapping['last_name']) && isset($form_data['data'][$get_user_mapping['last_name']]) ? sanitize_text_field($get_user_mapping['last_name']) : '';
+			if ($getlast_name) {
+				$last_name =  $form_data['data'][$getlast_name];					
+			}
+			$getservice = isset($get_user_mapping['service']) && isset($form_data['data'][$get_user_mapping['service']]) ? sanitize_text_field($get_user_mapping['service']) : '';
+			
+			if ($getservice) {
+				$service =  ucfirst($form_data['data'][$getservice]);					
+			}
+			$timeslot = get_post_meta($bookingId,'timeslot',true);
+			$BookingDate = get_the_date( 'M d,Y', $form_id );
+			
+			$booking_date = get_post_meta($bookingId,'booking_date',true);
+			$no_of_seats = $this->get_available_seats_per_timeslot($timeslot, $booking_date);
+			
+			$explode_booking_date = explode('_',$booking_date);
+			$explode_timeslot = explode('-',$timeslot);
 
+			$format_bookingdate = $explode_booking_date[4] . "-" . $explode_booking_date[2] . "-" . $explode_booking_date[3];
+			$converted_bookingdate = date('Y-m-d', strtotime($format_bookingdate));
+			
+			$encrypted_booking_id = base64_encode($bookingId);
+			$user_mapping = get_post_meta($form_id, 'user_mapping', true);
+			if ($user_mapping) {
+				$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
+				$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel';
+			} else {
+				$cancelbooking_url = home_url('/?booking_id=' . $encrypted_booking_id . '&status=cancel');
+			}
+			$no_of_booking = get_post_meta($form_id, 'no_of_booking', true);
+			
+			$checkseats = $this->get_available_seats_per_timeslot($timeslot,$converted_bookingdate);
+			if($checkseats >  $no_of_booking ){
+				$available_seats = 0;
+			}else{
+				$available_seats = $no_of_booking - $checkseats;
+			}
+
+			$prefixlabel = get_post_meta( $form_id, 'label_symbol', true );
+			$cost = get_post_meta( $form_id, 'cost', true );
+			
+
+			$bookedseats = get_post_meta($bookingId,'slotcapacity',true);
+			
+			$other_label_val = array(
+				'FormId' => $form_id,
+				'BookingId' => $bookingId,
+				'FormTitle' => $FormTitle,
+				'To' => $emailTo,
+				'FirstName' => $first_name,
+				'LastName' => $last_name,
+				'Service' => $service,
+				'Timeslot' => $timeslot,
+				'BookingDate' => $BookingDate,
+				'BookingSeats' => $no_of_seats,
+				'BookedDate' =>$converted_bookingdate,	
+				'prefixlabel' => $prefixlabel,
+				'cost' => $cost,					
+				'slotcapacity' => $available_seats,
+				'bookedseats' => $bookedseats,	
+				'form_data' => $form_data,
+				'no_of_seats' => $no_of_seats,
+				'tot_no_of_seats' => $available_seats,
+				'StartTime' => $explode_timeslot[0],
+				'EndTime' => $explode_timeslot[1],
+				'CancelBooking' => $cancelbooking_url,
+			);
+			return $other_label_val;
+
+		}
+        function zfb_admin_send_notification($status,$form_id, $post_id, $form_data	) {
+           
+			$message = '';
+			$get_notification_array = get_post_meta($form_id, 'notification_data', true);	
+			$notificationFound = false;
+			foreach ($get_notification_array as $notification) {
+				
+				if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
+                   
+					$notificationFound = true;
+					$check_to = $notification['to'];
+					$check_replyto = $notification['replyto'];
+					$check_bcc = $notification['bcc'];
+					$check_cc = $notification['cc'];
+					$check_from = $notification['from'];
+					$subject = $notification['subject'];
+					$check_body = $notification['mail_body'];
+					
+					$shortcodesArray = $this->admin_get_shortcodes($form_id);
+
+					$to = $this->admin_check_shortcode_exist($check_to,$form_id, $form_data,$shortcodesArray );
+					$from = $this->admin_check_shortcode_exist($check_from,$form_id, $form_data,$shortcodesArray );
+					$replyto = $this->admin_check_shortcode_exist($check_replyto,$form_id, $form_data,$shortcodesArray );
+					$bcc = $this->admin_check_shortcode_exist($check_bcc,$form_id, $form_data ,$shortcodesArray );
+					$cc = $this->admin_check_shortcode_exist($check_cc,$form_id, $form_data,$shortcodesArray );
+					$check_body = $this->admin_check_shortcodes_exist_in_editor($check_body,$form_id, $form_data,$shortcodesArray );
+					$subject = $this->admin_check_shortcodes_exist_in_editor($subject,$form_id, $form_data,$shortcodesArray );
+
+					$notification['use_html'];
+					$headers = array(						
+						'From: ' . $from,
+						'Reply-To: ' . $replyto,
+						'Bcc: ' . $bcc,
+						'Cc: ' . $cc
+					);
+
+					if($notification['use_html'] == 1){
+						$headers[] = 'Content-Type: text/html; charset=UTF-8';
+					}else{                      
+						$headers[] = 'Content-Type: text/plain; charset=UTF-8';
+					}
+					$loop = 1;                  
+					$result = wp_mail($to, $subject, $check_body, $headers);		
+					if ($result === true) {
+						$message = __('Email sent successfully','wp-smart-appointment-booking');
+					} else {
+						$message = __('Failed to send email','wp-smart-appointment-booking');
+						error_log('Failed to send email');
+					}
+				}
+               			
+			}
+			if ($notificationFound === false) {
+				$message = __('Notification not found for the given status', 'wp-smart-appointment-booking');
+				error_log('Notification not found for the given status');
+			}
+			return $message;
+		}
+        function admin_check_shortcodes_exist_in_editor($fieldValue, $form_id, $form_data, $shortcodes) {
+			foreach ($shortcodes as $shortcode) {
+				$shcodeWithoutBrackets = str_replace(['[', ']'], '', $shortcode);
+				$shortcodePattern = '/\[' . preg_quote($shcodeWithoutBrackets, '/') . '\]/';
+		
+				if (preg_match($shortcodePattern, $fieldValue)) {
+
+					$keyExists = isset($form_data[$shcodeWithoutBrackets]);
+					if ($keyExists) {
+						$fieldValue = str_replace('[' . $shcodeWithoutBrackets . ']', $form_data[$shcodeWithoutBrackets], $fieldValue);
+					} else {
+						$fieldValue = str_replace('[' . $shcodeWithoutBrackets . ']', '', $fieldValue);
+					}
+				}
+			}
+			return $fieldValue;
+		}
+		
+        function admin_check_shortcode_exist($fieldValue, $form_id, $form_data,$dataArray) {
+			
+			$fieldValue_exploded = explode(',', $fieldValue);
+			$processed_fieldValue = [];
+		
+			foreach ($fieldValue_exploded as $index => $Value_exploded) {
+				$Value_exploded = trim($Value_exploded);
+				foreach ($dataArray as $shortcode) {
+					if (strpos($Value_exploded, $shortcode) !== false) {
+						if ($shortcode === '[To]') {
+							$get_user_mapping = get_post_meta($form_id, 'user_mapping', true);
+							$email = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
+							if ($email) {
+								$to_email = $form_data[$email];
+								if (is_email($to_email)) {
+									$Value_exploded = str_replace('[To]', $to_email, $Value_exploded);
+								} else {
+									$Value_exploded = null; 
+									break;
+								}
+							} else {
+								$Value_exploded = null;
+								break;
+							}
+						} else {
+							$shcodeWithoutBrackets = str_replace(['[', ']'], '', $shortcode);
+							$othershval = $form_data[$shcodeWithoutBrackets];
+							if ($othershval && is_email($othershval)) {
+								$Value_exploded = str_replace($shortcode, $othershval, $Value_exploded);
+							} else {
+								$Value_exploded = null;
+								break;
+							}
+						}
+					}
+				}
+				if ($Value_exploded !== null) {
+					$processed_fieldValue[] = $Value_exploded;
+				}
+			}
+		
+			$to = implode(',', $processed_fieldValue);
+			return $to; 
+		}
+        function admin_get_shortcodes($form_id){
+			$shortcode_list = array();
+			$form_data1 = get_post_meta( $form_id, '_formschema', true ); 
+			$form_data1=json_decode($form_data1);
+			foreach ($form_data1 as $obj) { 
+				$shortcode_list[] = "[".$obj->key."]";
+			}
+			$tobe_merged = array('[FormId]', '[BookingId]', '[Status]', '[FormTitle]', '[To]', '[FirstName]', '[LastName]', '[Timeslot]', '[BookedSeats]', '[BookingDate]', '[BookedDate]', '[Service]', '[prefixlabel]', '[cost]', '[StartTime]', '[EndTime]', '[CancelBooking]');
+			$shortcode_list = array_merge($tobe_merged,$shortcode_list);
+
+			return $shortcode_list;
+		}
         /**
         * Adds the meta box container.
         */
-        function bms_add_meta_box( $post_type ) {
+        function sab_add_meta_box( $post_type ) {
             // Limit meta box to certain post types.
             $post_types = array( 'manage_entries');
 
@@ -1116,7 +1262,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
 
                 add_meta_box(
                     'edit_form_data',
-                    __( 'Edit Forms Details', 'textdomain' ),
+                    __( 'Edit Forms Details', 'wp-smart-appointment-booking' ),
                     array( $this, 'zfb_edit_form_details' ),
                     $post_type,
                     'normal',
@@ -1124,7 +1270,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 );
                 add_meta_box(
                     'manual_notification', 
-                    __('Send Manual Notification','textdomain'), 
+                    __('Send Manual Notification','wp-smart-appointment-booking'), 
                     array( $this, 'notification_logs' ),
                     $post_type,
                     'side', 
@@ -1132,7 +1278,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 );
                 add_meta_box(
                     'notes-meta-box',
-                    'Notes',
+                    __('Notes','wp-smart-appointment-booking'), 
                     array( $this, 'zfb_render_notes_meta_box' ),
                     $post_type,
                     'side',
@@ -1145,8 +1291,8 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             if ( in_array( $post_type, $post_types ) ) {
 
                 add_meta_box(
-                    'create_bms_form',
-                    __( 'Form Configuration', 'textdomain' ),
+                    'create_sab_form',
+                    __( 'Form Configuration', 'wp-smart-appointment-booking' ),
                     array( $this, 'formio_render_meta_box_content' ),
                     $post_type,
                     'normal',
@@ -1154,9 +1300,9 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 );
 
                 add_meta_box(
-                    'appointment_setting', // Unique ID
-                    __( 'Booking Configuration', 'textdomain' ),
-                    array( $this, 'bms_repeat_appointment' ),
+                    'appointment_setting',
+                    __( 'Booking Configuration', 'wp-smart-appointment-booking' ),
+                    array( $this, 'sab_repeat_appointment' ),
                     $post_type,
                     'normal',
                     'high'
@@ -1173,11 +1319,14 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
              
             }
         }
+        /**
+         * configure_notifications - add meta box callback
+         */
         function zfb_render_configure_notifications($post){
             $post_id = $post->ID;
             $post_type = get_post_type( $post_id );
             if($post_type === 'sab_form_builder'){
-                $form_id = get_post_meta($post_id,'bms_form_id',true);
+                $form_id = get_post_meta($post_id,'sab_form_id',true);
                 $page_slug = 'notification-settings';
                 $post_type = 'sab_form_builder';
                 // $post_id = 5508;
@@ -1204,8 +1353,8 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
        
         function notification_logs($post) {
             $post_id = $post->ID;
-            $form_id = get_post_meta($post_id,'bms_form_id',true);
-            echo $message = get_post_meta($post_id,'manual_notification',true);
+            $form_id = get_post_meta($post_id,'sab_form_id',true);
+            $message = get_post_meta($post_id,'manual_notification',true);
             $enable_booking = get_post_meta($form_id, 'enable_booking', true);
             
             ?>
@@ -1214,11 +1363,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 <?php 
                 if($enable_booking){
                 ?>
-                <option value="booked" >Booked</option>
-                <option value="approved" >Approved</option>
-                <option value="cancelled" >Cancelled</option>
-                <option value="waiting" >Waiting</option>
-                <option value="pending" >Pending</option>
+                <option value="booked" ><?php echo __('Booked','wp-smart-appointment-booking'); ?></option>
+                <option value="approved" ><?php echo __('Approved','wp-smart-appointment-booking'); ?></option>
+                <option value="cancelled" ><?php echo __('Cancelled','wp-smart-appointment-booking'); ?></option>
+                <option value="waiting" ><?php echo __('Waiting','wp-smart-appointment-booking'); ?></option>
+                <option value="pending" ><?php echo __('Pending','wp-smart-appointment-booking'); ?></option>
                 <?php 
                 }
                 ?>
@@ -1231,10 +1380,9 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
         
         function zfb_edit_form_details($post){
             // echo $post_id;
-            $form_id = get_post_meta( $post->ID, 'bms_form_id', true ); 
+            $form_id = get_post_meta( $post->ID, 'sab_form_id', true ); 
             $form_schema = get_post_meta($form_id, '_formschema', true);
-            $form_data = get_post_meta($post->ID, 'bms_submission_data', true );
-            //   echo "<pre>";print_r( $form_data );
+            $form_data = get_post_meta($post->ID, 'sab_submission_data', true );
             if ($form_schema) {
                 ?>
                <div id="formio"></div>
@@ -1242,7 +1390,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 <script>
                     var myScriptData = <?php echo $form_schema; ?>;                                                          
                     var value = myScriptData;
-                    var entryData = <?php echo json_encode($form_data['data']); ?>; // Extract the form data from the entry data
+                    var entryData = <?php echo json_encode($form_data['data']); ?>;
 
                     Formio.createForm(document.getElementById('formio'), {
                         components: value,

@@ -31,7 +31,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			add_action('wp_ajax_action_reload_calender', array( $this, 'action_reload_calender' ) );
 			add_action('wp_ajax_nopriv_action_reload_calender', array( $this, 'action_reload_calender' ) );
 
-			//on click of any date
 			add_action('wp_ajax_action_display_available_timeslots', array( $this, 'action_display_available_timeslots' ) );
 			add_action('wp_ajax_nopriv_action_display_available_timeslots', array( $this, 'action_display_available_timeslots' ) );
 
@@ -49,7 +48,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 
 			add_action('notification_send', array( $this, 'zfb_send_notification' ) , 10, 4);
 			add_action('get_available_seats_per_timeslot', array( $this, 'get_available_seats_per_timeslot' ) , 10, 4);
-			add_action('create_key_value_formshortcodes', array( $this, 'create_key_value_formshortcodes' ) , 10, 4);
+			add_action('_key_value_formshortcodes', array( $this, 'create_key_value_formshortcodes' ) , 10, 4);
 
 		}
 
@@ -73,10 +72,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			if(is_admin()){
 				wp_enqueue_script( WP_SAB_PREFIX . '_bookingform', WP_SAB_URL . 'assets/js/booking/booking-form.js', array( 'jquery-core' ), WP_SAB_VERSION );
 			}
-			
 			wp_enqueue_script( WP_SAB_PREFIX . '_front', WP_SAB_URL . 'assets/js/front.js', array( 'jquery-core' ), WP_SAB_VERSION );
 			wp_enqueue_script( 'sab_formio_full_min', WP_SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
-			//function to pass any necessary data from PHP to your JavaScript code.
+			
 			wp_localize_script('sab_formio_full_min', 'myAjax', array(
 				'ajaxurl' => admin_url('admin-ajax.php')
 			));
@@ -89,7 +87,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			if (is_front_page()) {
 
 				wp_enqueue_script('cancel-booking', WP_SAB_URL . 'assets/js/booking/cancelbooking.js', array('jquery'), '1.0', true);
-				//function to pass any necessary data from PHP to your JavaScript code.
+				
 				wp_localize_script('cancelbooking', 'myAjax', array(
 					'ajaxurl' => admin_url('admin-ajax.php'),
 				));
@@ -116,65 +114,60 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		*/
 		
 		
-		function isbooking_open($post_id,$timeslot){
-			
-			$booking_stops_after = get_post_meta( $post_id, 'booking_stops_after', true );
+		function isbooking_open($post_id, $timeslot, $booked_date) {
+			$explodedArray = explode("_", $booked_date);
+			// Extracting month, day, and year components
+			$month = sprintf("%02d", $explodedArray[2]);
+			$day = $explodedArray[3];
+			$year = $explodedArray[4];
+			// Convert the given date to a Unix timestamp
+			$givenTimestamp = strtotime("$year-$month-$day");
+		
+			// Get today's Unix timestamp
+			$todayTimestamp = strtotime('today');
+		
+			$booking_stops_after = get_post_meta($post_id, 'booking_stops_after', true);
 			if (!empty($booking_stops_after)) {
-				
-				$booking_stops_after_array = array(
-					'hours' => sanitize_text_field($booking_stops_after['hours']),
-					'minutes' => sanitize_text_field($booking_stops_after['minutes'])
-				);
-				$booking_stops_after_hours = $booking_stops_after_array['hours'];
-				$booking_stops_after_minutes = $booking_stops_after_array['minutes'];
-			
-				$booking_stops_after_sec = $booking_stops_after_hours . ':' . $booking_stops_after_minutes . ':00';
-				if (!empty($booking_stops_after_sec)) {
-					$booking_stops_after_duration_seconds = ($booking_stops_after_array['hours'] * 3600) + ($booking_stops_after_array['minutes'] * 60);
-					//echo "<br>".
-				}
-				
+				$booking_stops_after_duration_seconds = ($booking_stops_after['hours'] * 3600) + ($booking_stops_after['minutes'] * 60);
 			}
-			$current_time  = time();
-			$waiting_text= '';
-			
+		
+			$current_time = time();
+			$waiting_text = '';
+		
 			// Explode the time range into start and end times
 			$time_parts = explode("-", $timeslot);
 			$start_time = $time_parts[0]; // "05:30 PM"
 			$end_time = $time_parts[1];   // "08:00 PM"
-			//  echo $start_time ;
-			$get_timezone = get_post_meta($post_id,'timezone',true);                
+		
+			$get_timezone = get_post_meta($post_id, 'timezone', true);
 			date_default_timezone_set($get_timezone);
-			$start_timestamp = strtotime($start_time);
-			// echo date('h:i',$start_timestamp);
+			$start_timestamp = strtotime($start_time);			
 			$end_timestamp = strtotime($end_time);
-			//current time is greater than start time
-			if ($current_time >= $start_timestamp) {
-				// echo "test1";
-				$start_datetime = new DateTime($start_time);
-				$end_datetime = new DateTime($end_time);
-				$time_difference = $start_datetime->diff($end_datetime);	
-
-				$time_diff_total_seconds = ($time_difference->h * 3600) + ($time_difference->i * 60) + $time_difference->s;
-				//time difference between start time and end time must be greater than booking duration
-				if ($time_diff_total_seconds >= $booking_stops_after_duration_seconds) {
-					$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
-					if ($current_time < $this_start_time) {
-						
-						//current time is smaller than start time + extended booking time
-						$isbooking_open = true;
-					}else{
-						$isbooking_open = false;
-					}
-				}else{
+		
+			if ($givenTimestamp > $todayTimestamp) {
+				// Given date is greater than today's date
+				$isbooking_open = true;
+			} elseif ($current_time >= $start_timestamp) {
+			
+				// The current time is greater than or equal to the start time
+				// Calculate the end time with booking stops after duration
+				$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
+				if ($current_time < $this_start_time) {
+					// The current time is less than the extended booking time
+					$isbooking_open = true;
+				} else {
 					$isbooking_open = false;
 				}
-			}else{
+			} else {
+				
+				// None of the above conditions met, booking is closed
 				$isbooking_open = true;
 			}
-
+		
 			return $isbooking_open;
 		}
+		
+		
 		function zfb_booking_form_submission() {
 			$form_id = $_POST['fid'];
 			$error = $mail_message = '';
@@ -197,11 +190,12 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			$label_symbol = get_post_meta($form_id, 'label_symbol', true);
 			$seats_per_timeslot =  get_post_meta($form_id, 'slotcapacity',true);
 
-			$check_isbooking_open = $this->isbooking_open($form_id,$timeslot);
+
+			$check_isbooking_open = $this->isbooking_open($form_id,$timeslot,$booking_date);
 			if($check_isbooking_open === false){
 				$error = true;
 				wp_send_json_error(array(
-					'message' => __('The booking window has closed.','textdomain'),
+					'message' => __('The booking window has closed.','wp-smart-appointment-booking'),
 					'error' => $error,
 				));
 				wp_die();
@@ -213,7 +207,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$waiting_list = 'true';
 				} else {
 					$register_booking = 'false';
-					$error = __('No available seats','textdomain');
+					$error = __('No available seats','wp-smart-appointment-booking');
 				}
 			}else{
 				$register_booking = 'true';
@@ -241,7 +235,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		
 				update_post_meta($created_post_id, 'timeslot', $timeslot);
 				update_post_meta($created_post_id, 'booking_date', $booking_date);
-				// update_post_meta($created_post_id, 'totalbookings', $totalbookings);
 				update_post_meta($created_post_id, 'slotcapacity', $bookedseats);
 				update_post_meta($created_post_id, 'cost', $cost);
 				update_post_meta($created_post_id, 'label_symbol', $label_symbol);
@@ -360,7 +353,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$error = true;
 				
 				wp_send_json_error(array(
-					'message' => __('Something went wrong, Please try again later','textdomain'),
+					'message' => __('Something went wrong, Please try again later','wp-smart-appointment-booking'),
 					'error' => $error,
 				));
 			}
@@ -370,7 +363,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		function zfb_save_form_submission() {
 			$form_id = $_POST['fid'];
 			$form_data = $_POST['form_data'];
-			// $error = '';		
+		
 			$pid = get_option('tot_manage_entries');
 			if (empty($pid)) {
 				$pid = 1;
@@ -378,7 +371,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$pid++;
 			}
 			$new_post = array(
-				'post_title'   => 'booking_#' . $pid,
+				'post_title'   => 'entry_#' . $pid,
 				'post_type'    => 'manage_entries',
 				'post_status'  => 'publish'
 			);
@@ -462,8 +455,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$mail_response = $this->zfb_send_notification($status,$form_id, $created_post_id, $listform_label_val );
 				
 				$confirmation = get_post_meta($form_id, 'confirmation', true);
-				$success_message = get_post_meta($form_id, 'your_field_key', true);
-				$formatted_message = wpautop($success_message);
 				$redirect_url = '';
 				
 				if ($confirmation == 'redirect_text') {
@@ -490,8 +481,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		function zfb_send_notification($status,$form_id, $post_id, $form_data	) {
 			$message = '';
 			$get_notification_array = get_post_meta($form_id, 'notification_data', true);	
-			//  print_r($get_notification_array);
-			//  exit;
+			
 			$notificationFound = false;
 			foreach ($get_notification_array as $notification) {
 				
@@ -531,16 +521,16 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$loop = 1;
 					$result = wp_mail($to, $subject, $check_body, $headers);		
 					if ($result === true) {
-						$message = __('Email sent successfully','textdomain');
+						$message = __('Email sent successfully','wp-smart-appointment-booking');
 					} else {
-						$message = __('Failed to send email','textdomain');
+						$message = __('Failed to send email','wp-smart-appointment-booking');
 						error_log('Failed to send email');
 					}
 				}
 			
 			}
 			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status', 'textdomain');
+				$message = __('Notification not found for the given status', 'wp-smart-appointment-booking');
 				error_log('Notification not found for the given status');
 			}
 			return $message;
@@ -604,7 +594,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					}
 				}
 			}
-			// echo $fieldValue;
 			return $fieldValue;
 		}
 		
@@ -651,7 +640,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							foreach ($remaining_days as $wdays) {
 								$weekdays_num[] = date('N', strtotime($wdays));
 							}
-							// print_r($weekdays);	
+							
 							$startDate = strtotime($date);
 							$endDate = strtotime($end_repeats_on_date);
 
@@ -672,7 +661,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
                             foreach ($weekdays as $wdays) {
                                 $weekdays_num[] = date('N', strtotime($wdays));
                             }
-							// print_r($weekdays_num);
+							
 							$startDate = strtotime($date);
 							$endDate = strtotime($end_repeats_on_date);
 
@@ -688,13 +677,13 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							}
                             
                         }elseif ($recurring_type == 'certain_weekdays') {
-							// $remaining_days = array_intersect($all_days, $weekdays);
+							
                             $certain_weekdays_array = get_post_meta($post_id, 'recur_weekdays', true);
-							// $certain_weekdays_array = array_diff($all_days, $recur_weekdays);
+							
                             foreach ($certain_weekdays_array as $wdays) {
                                 $weekdays_num[] = date('N', strtotime($wdays));
                             }
-							// print_r($weekdays_num);
+							
 							$startDate = strtotime($date);
 							$endDate = strtotime($end_repeats_on_date);
 
@@ -747,8 +736,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$get_timezone = get_post_meta($post_id,'timezone',true);                
                 date_default_timezone_set($get_timezone);
 				$current_time = time();
-				// Echo "<pre>";
-				// print_r($advancedata);
+				
 				foreach ($advancedata as $item) {
 					$advanceDates[] = $item['advance_date'];
 				}
@@ -791,7 +779,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							$end_timeslot = date('h:i A',strtotime($timeslot['end_time']));
 							
 							$checktimeslot = $start_timeslot."-".$end_timeslot;
-							// echo $inputdate;
+							
 							$checkseats = $this->get_available_seats_per_timeslot($checktimeslot,$booking_date);
 
 							$waiting_text = '';
@@ -808,7 +796,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		
 								}
 							}else{
-								//echo $timeslot['bookings'];
+								
 								$available_seats = $timeslot['bookings'] - $checkseats;
 								$available_input_seats = $timeslot['bookings'] - $checkseats;
 							}
@@ -818,47 +806,19 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							if(!in_array($inputdate,$advanceDates)){
 								$check_date = 1;
 							}
+
+							
+							$explodedArray = explode("_", $booking_date);
+							
+							// Extracting month, day, and year components
+							$month = str_pad($explodedArray[2], 2, "0", STR_PAD_LEFT);
+							$day = $explodedArray[3];
+							$year = $explodedArray[4];
+							$givenTimestamp = strtotime("$year-$month-$day");
+							$todayTimestamp = strtotime('today');
 							$waiting_seats = 0;
 							$waiting_text= '';
-							if ($current_time >= $start_timestamp) {
-								
-								$start_datetime = new DateTime($start_time);
-								$end_datetime = new DateTime($end_time);
-								$time_difference = $start_datetime->diff($end_datetime);	
-							
-								$time_diff_total_seconds = ($time_difference->h * 3600) + ($time_difference->i * 60) + $time_difference->s;
-								if ($time_diff_total_seconds >= $booking_stops_after_duration_seconds) {
-								
-									$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
-									if ($current_time < $this_start_time) {
-										
-										if ($available_seats <= 0) {
-											if ($iswaiting_alllowed == 1) {
-												$waiting_text = "Waiting: Allowed";
-												$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
-												$waiting_seats =  $timeslot['bookings'];
-											} else {
-												$output_timeslot .= '<li class="zfb_timeslot" >';
-											}
-										} else {
-											$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
-										}
-										$available_text = __('Available seats : ','textdomain').$available_seats;
-									}else{
-										$output_timeslot .= '<li class="zfb_timeslot" >';
-										$available_seats = 0;
-										$available_text = __('Timeslot Not available','textdomain');
-										$waiting_text = '';
-									}
-								}else{
-									$output_timeslot .= '<li class="zfb_timeslot" >';
-									$available_seats = 0;
-									$available_text = __('Timeslot Not available','textdomain');
-									$waiting_text = '';
-								}
-								
-							} else {
-							
+							if($givenTimestamp > $todayTimestamp){
 								if ($available_seats <= 0) {
 									if ($iswaiting_alllowed == 1) {
 										$waiting_text = "Waiting: Allowed";
@@ -870,8 +830,64 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 								} else {
 									$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 								}
-								$available_text = __('Available seats : ','textdomain').$available_seats;
+								$available_text = __('Available seats : ','wp-smart-appointment-booking').$available_seats;
+							}else{
+								if ($current_time >= $start_timestamp) {
+								
+									$start_datetime = new DateTime($start_time);
+									$end_datetime = new DateTime($end_time);
+									$time_difference = $start_datetime->diff($end_datetime);	
+								
+									$time_diff_total_seconds = ($time_difference->h * 3600) + ($time_difference->i * 60) + $time_difference->s;
+									if ($time_diff_total_seconds >= $booking_stops_after_duration_seconds) {
+									
+										$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
+										if ($current_time < $this_start_time) {
+											
+											if ($available_seats <= 0) {
+												if ($iswaiting_alllowed == 1) {
+													$waiting_text = "Waiting: Allowed";
+													$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+													$waiting_seats =  $timeslot['bookings'];
+												} else {
+													$output_timeslot .= '<li class="zfb_timeslot" >';
+												}
+											} else {
+												$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+											}
+											$available_text = __('Available seats : ','wp-smart-appointment-booking').$available_seats;
+										}else{
+											$output_timeslot .= '<li class="zfb_timeslot" >';
+											$available_seats = 0;
+											$available_text = __('Timeslot Not available','wp-smart-appointment-booking');
+											$waiting_text = '';
+										}
+									}else{
+										$output_timeslot .= '<li class="zfb_timeslot" >';
+										$available_seats = 0;
+										$available_text = __('Timeslot Not available','wp-smart-appointment-booking');
+										$waiting_text = '';
+									}
+									
+								} else {
+								
+									if ($available_seats <= 0) {
+										if ($iswaiting_alllowed == 1) {
+											$waiting_text = "Waiting: Allowed";
+											$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+											$waiting_seats =  $timeslot['bookings'];
+										} else {
+											$output_timeslot .= '<li class="zfb_timeslot" >';
+										}
+									} else {
+										$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+									}
+									$available_text = __('Available seats : ','wp-smart-appointment-booking').$available_seats;
+								}
 							}
+
+						
+							
 							$output_timeslot .= '<span>'.$start_timeslot.' - ' . $end_timeslot.'</span>';
 							$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots"  type="hidden" value="'.$start_timeslot."-".$end_timeslot.'">';					
 							$output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_input_seats.'" >'.$available_text.'<br>'.$waiting_text.'</span>';
@@ -884,8 +900,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			}
 			return $output_timeslot;
 		}
-		
-        function front_generate_timeslots($post_id, $todaysDate = null){
+		function front_generate_timeslots($post_id, $todaysDate = null){
 			$output_timeslot = '';
 			$generatetimeslot = get_post_meta($post_id, 'generatetimeslot', true);	
 			$waiting_seats = 0;
@@ -909,7 +924,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$booking_stops_after_sec = $booking_stops_after_hours . ':' . $booking_stops_after_minutes . ':00';
 					if (!empty($booking_stops_after_sec)) {
 						$booking_stops_after_duration_seconds = ($booking_stops_after_array['hours'] * 3600) + ($booking_stops_after_array['minutes'] * 60);
-						//echo "<br>".
+						
 					}
 					
 				}
@@ -920,11 +935,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$end_time = isset($timeslot['end_time']) ? $timeslot['end_time'] : '';
 					$start_timestamp = strtotime($start_time);
 					$current_timewe = date('h:i A', $current_time);
-					// echo "<br>".$current_timewe ;
+					
 					$end_timestamp = strtotime($end_time);					
 					
 					$start_time_slot = date('h:i A', $start_timestamp);
-					// echo "<br>".$start_time_slot;
+					
 					$end_time_slot = date('h:i A', $end_timestamp);
 					
 					// Add the timeslot to the available timeslots array
@@ -937,10 +952,19 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 						
 					}
 					
-					 echo "<br>".$todaysDate;	
 					$checkseats = $this->get_available_seats_per_timeslot($checktimeslot,$todaysDate);
 					$selected_date = get_post_meta( $post_id,'selected_date', true );
 					$check_date = 0;
+					
+					
+					$explodedArray = explode("_", $todaysDate);
+
+					// Extracting month, day, and year components
+					$month = str_pad($explodedArray[2], 2, "0", STR_PAD_LEFT);
+					$day = $explodedArray[3];
+					$year = $explodedArray[4];
+					$givenTimestamp = strtotime("$year-$month-$day");
+					$todayTimestamp = strtotime('today');
 					if($todaysDate < $selected_date){
 						$check_date = 1;
 					}
@@ -955,57 +979,73 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 						$available_seats = $no_of_booking - $checkseats;
 						$available_input_seats = $no_of_booking - $checkseats;
 					}
-					
 					$waiting_text= '';
-					if ($current_time >= $start_timestamp) {
-						$start_datetime = new DateTime($start_time);
-						$end_datetime = new DateTime($end_time);
-						$time_difference = $start_datetime->diff($end_datetime);	
-					
-						$time_diff_total_seconds = ($time_difference->h * 3600) + ($time_difference->i * 60) + $time_difference->s;
-						if ($time_diff_total_seconds >= $booking_stops_after_duration_seconds) {
-							$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
-							if ($current_time < $this_start_time) {
-								if ($available_seats <= 0) {
-									if ($iswaiting_alllowed == 1) {
-										$waiting_text = "Waiting: Allowed";
-										$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
-										$waiting_seats  = $no_of_booking;
+					if($givenTimestamp > $todayTimestamp){
+						if ($available_seats <= 0) {
+							if ($iswaiting_alllowed == 1) {
+								$waiting_text = "Waiting: Allowed";
+								$waiting_seats = $no_of_booking;
+							}
+							$output_timeslot .= '<li class="zfb_timeslot"' . (($available_seats > 0 || $iswaiting_alllowed) ? ' onclick="selectTimeslot(this)"' : '') . '>';
+						} else {
+							$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+						}
+						
+						$available_text = 'Available seats : ' . $available_seats;
+						
+					}else{
+						
+						if ($current_time >= $start_timestamp) {
+							$start_datetime = new DateTime($start_time);
+							$end_datetime = new DateTime($end_time);
+							$time_difference = $start_datetime->diff($end_datetime);	
+						
+							$time_diff_total_seconds = ($time_difference->h * 3600) + ($time_difference->i * 60) + $time_difference->s;
+							if ($time_diff_total_seconds >= $booking_stops_after_duration_seconds) {
+								$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
+								if ($current_time < $this_start_time) {
+									if ($available_seats <= 0) {
+										if ($iswaiting_alllowed == 1) {
+											$waiting_text = "Waiting: Allowed";
+											$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+											$waiting_seats  = $no_of_booking;
+										} else {
+											$output_timeslot .= '<li class="zfb_timeslot" >';
+										}
 									} else {
-										$output_timeslot .= '<li class="zfb_timeslot" >';
+										$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 									}
-								} else {
-									$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+									$available_text = 'Available seats : '.$available_seats;
+								}else{
+									$output_timeslot .= '<li class="zfb_timeslot" >';
+									$available_seats = 0;
+									$available_text = 'Timeslot Not available';
+									$waiting_text = '';
 								}
-								$available_text = 'Available seats : '.$available_seats;
 							}else{
 								$output_timeslot .= '<li class="zfb_timeslot" >';
 								$available_seats = 0;
 								$available_text = 'Timeslot Not available';
 								$waiting_text = '';
 							}
-						}else{
-							$output_timeslot .= '<li class="zfb_timeslot" >';
-							$available_seats = 0;
-							$available_text = 'Timeslot Not available';
-							$waiting_text = '';
-						}
-						
-					} else {
-					
-						if ($available_seats <= 0) {
-							if ($iswaiting_alllowed == 1) {
-								$waiting_text = "Waiting: Allowed";
-								$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
-								$waiting_seats  = $no_of_booking;
-							} else {
-								$output_timeslot .= '<li class="zfb_timeslot" >';
-							}
+							
 						} else {
-							$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+						
+							if ($available_seats <= 0) {
+								if ($iswaiting_alllowed == 1) {
+									$waiting_text = "Waiting: Allowed";
+									$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+									$waiting_seats  = $no_of_booking;
+								} else {
+									$output_timeslot .= '<li class="zfb_timeslot" >';
+								}
+							} else {
+								$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
+							}
+							$available_text = 'Available seats : '.$available_seats;
 						}
-						$available_text = 'Available seats : '.$available_seats;
 					}
+
 					
 					$output_timeslot .= '<span>'.$start_time_slot.' - ' . $end_time_slot.'</span>';
 					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots" data-startime="'.$this_start_time.'"  type="hidden" value="'.$start_time_slot."-".$end_time_slot.'">';					
@@ -1021,9 +1061,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			}
 			return $output_timeslot;
 		}
-     
+		
         function get_available_seats_per_timeslot($timeslot,$booking_date){
-           
+        	
             $args = array(
                 'post_type' => 'manage_entries',
                 'posts_per_page' => -1,
@@ -1043,11 +1083,10 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
             );
             
             $query = new WP_Query($args);
-			// echo "<pre>";
-			// print_r($query);
+			
 			if ($query->have_posts()) {
 				$post_count = $query->found_posts;
-				$no_of_booking = 0; // Initialize the variable to store the number of bookings
+				$no_of_booking = 0; 
 				$arr = array();
 				while ($query->have_posts()) {
 					$query->the_post();
@@ -1056,7 +1095,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					if($booking_status === 'booked' || $booking_status === 'approved'){
 						$no_of_booking += $slotcapacity;
 					}
-					error_log('test',$no_of_booking);
+					
 				}
 				wp_reset_postdata();				
 			
@@ -1068,7 +1107,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		
 		function zealsab_get_booking_form($attr) {
 			ob_start();	
-			// echo "edbcdcn";
+			
 			$post_id = $attr['form_id'];	
 			$enable_booking = get_post_meta($post_id, 'enable_booking', true);
 			$prefix_label = get_post_meta($post_id, 'label_symbol', true);
@@ -1134,7 +1173,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 								<select name="sab_year_n" id="sab_year">
 									<?php
 									$startYear = $currentYear + 5;
-									$endYear = 2023;
+									$endYear = 2023; //as plugin has been plubished there will be no previous entry
 									for ($year = $startYear; $year >= $endYear; $year--) {
 										echo "<option value='$year'";
 										if ($year == $currentYear) {
@@ -1176,12 +1215,12 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 										if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
 											$isToday = ($date == date('j') && $monthYear == date('n-Y')) ? "calselected_date" : "";
 											if ($isToday === "calselected_date") {
-												$lastdateid = 'calid_' . $post_id . '_' . $currentMonth . '_' . $date . '_' . $currentYear;
+												$lastdateid = 'sabid_' . $post_id . '_' . $currentMonth . '_' . $date . '_' . $currentYear;
 												$lastday = $date;
 												$lastmonth = $currentMonth;
 												$lastyear = $currentYear;
 											}
-											echo "<td id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='sab_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='sab_cal_day $isToday' onclick='getClickedId(this)'>$date</td>";
+											echo "<td id='sabid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='sabid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='sab_cal_day $isToday' onclick='getClickedId(this)'>$date</td>";
 											$date++;
 										} elseif ($dayCounter < $firstDayOfWeek) {
 											$prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter) + 1;
@@ -1232,14 +1271,14 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 								}else{		
 									$error = true;
 									error_log('Not Available');
-									// echo "<p class='not_avail'>Not Available</p>";
+									
 								}
 									
 								?>
 							</ul>
 							<?php 
 								if($error === true){
-									echo __('No timeslots found for selected date.','textdomain');
+									echo __('No timeslots found for selected date.','wp-smart-appointment-booking');
 								}else{
 									echo '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
 									echo '<p id="no-timeslots-message" class="h5" style="display: none;">No Timeslots found!</p>';
@@ -1270,12 +1309,10 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 									<script type='text/javascript'>								
 										var myScriptData = <?php echo $fields; ?>;															
 										var value = myScriptData;
-										// console.log(value);
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
 										}).then(function(form) {
 											var isSubmitting = false; // Flag variable to track form submission
-											// console.log(isSubmitting);
 											form.on('submit', function(submission) {
 												event.preventDefault();
 												var msgloader = jQuery('#zfbform-message'); 
@@ -1331,16 +1368,19 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 																setTimeout(function() {
 																	window.location.href = redirectUrl;
 																}, 3000);
-															} else {
-																jQuery('#formio_res_msg').html(response.data.message);
+															} else if(confirmationType === ''){
+
+																jQuery('#formio_res_msg').html(response.data.message).fadeIn().delay(3000).fadeOut();
+															}
+															else {
+																jQuery('#formio_res_msg').html(response.data.message).fadeIn().delay(3000).fadeOut();
 															}
 															jQuery('#nextButton').css('display', 'none');
 															jQuery('#backButton').css('display', 'none');
-															
+															$("button[name='data[submit]'] i.fa.fa-refresh.fa-spin.button-icon-right").hide();
 														} else {
 															console.log(response.data.message);
 															var errorMessage = response.data.error;
-															// submitButton.disabled = false;
                												isSubmitting = false; 
 															jQuery('#formio_res_msg').html(response.data.message).fadeIn().delay(3000).fadeOut();
 														}
@@ -1360,7 +1400,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 										<script type='text/javascript'>								
 										var myScriptData = <?php echo $fields; ?>;															
 										var value = myScriptData;
-										// console.log(value);
+										
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
 										}).then(function(form) {
@@ -1385,34 +1425,35 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 														if (response.success) {
 															jQuery("i.fa.fa-refresh.fa-spin.button-icon-right").hide();
 															var confirmationType = response.data.confirmation;
-															console.log(confirmationType);
 															var message = response.data.message;
 															var redirectPage = response.data.redirect_page;
 															var wpEditorValue = response.data.wp_editor_value;
 															var redirectUrl = response.data.redirect_url;
+
 															// Check the confirmation type
 															if (confirmationType === 'redirect_text') {
-																jQuery('#formio').hide();															
+																jQuery('#formio').hide();
 																jQuery('#formio_res_msg').html(wpEditorValue);
-															} else if (confirmationType === 'redirect_to') {
+															} else if (confirmationType === 'redirect_to' || confirmationType === 'redirect_page') {
 																jQuery('#formio_res_msg').html('<p>' + message + '</p>');
 																setTimeout(function() {
 																	window.location.href = redirectUrl;
 																}, 3000);
-															} else if (confirmationType === 'redirect_page') {
-																jQuery('#formio_res_msg').html('<p>' + message + '</p>');
-																setTimeout(function() {
-																	window.location.href = redirectUrl;
-																}, 3000);
+															} else if (confirmationType === '') {
+																console.log(message);
+																jQuery('#formio_res_msg').html(message).fadeIn().delay(3000).fadeOut();
 															} else {
-																jQuery('#formio_res_msg').html(response.data.message).fadeIn().delay(3000).fadeOut();
+																jQuery('#formio_res_msg').html(message).fadeIn().delay(3000).fadeOut();
 															}
+															$("button[name='data[submit]'] i.fa.fa-refresh.fa-spin.button-icon-right").hide();
 														} else {
 															var errorMessage = response.data.error;
 															submitButton.disabled = false;
-               												isSubmitting = false; 
+															isSubmitting = false; 
+															jQuery('#formio_res_msg').html(response.data.message).fadeIn().delay(3000).fadeOut();
 														}
 													},
+
 												});
 												return false;
 											});
@@ -1428,11 +1469,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 								}
 							
 						} else {
-							// Post exists but is not published
 							echo __("Post exists but is not published.", 'bms');
 						}
 					} else {
-						// Post does not exist
 						echo __("Post does not exist.", 'bms');
 					}
 			if(isset($enable_booking) && !empty($enable_booking)){
@@ -1467,10 +1506,12 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				11 => 'November',
 				12 => 'December'
 				);
-			$currentMonth = $_POST['currentMonth'];
-			$currentYear = $_POST['currentYear'];
-			$post_id = $_POST['form_id'];
-			ob_start();
+				$currentMonth = isset($_POST['currentMonth']) ? intval($_POST['currentMonth']) : date('n');
+				$currentMonth = max(1, min(12, $currentMonth)); // Ensure currentMonth is between 1 and 12
+				$currentYear = isset($_POST['currentYear']) ? intval($_POST['currentYear']) : date('Y');
+				$post_id = isset($_POST['form_id']) ? $_POST['form_id'] : '';
+				$running_year = date("Y");
+				ob_start();
 			?>
 			<div class="header-calender">
 				<input type="hidden" id="zealform_id" value="<?php echo $post_id; ?>" >
@@ -1486,21 +1527,25 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
                     }
                     ?>
                 </select>
-                <select name="sab_year_n" id="sab_year">
-                    <?php
-					//here
-					$futureYear = date("Y", strtotime("+10 years"));
-                  
-                    $endYear = 2023;
-                    for ($year = $futureYear; $year >= $endYear; $year--) {
-                        echo "<option value='$year'";
-                        if ($year == $currentYear) {
-                            echo " selected";
-                        }
-                        echo ">$year</option>";
-                    }
-                    ?>
-                </select>
+			
+				<select name="sab_year_n" id="sab_year">
+					<?php
+					$futureYear = date("Y", strtotime("+10 years", strtotime("January 1, $currentYear")));
+					echo '<optgroup label="Current Year">';
+					echo "<option value='$running_year'>$running_year</option>";
+					echo '</optgroup>';
+					echo '<optgroup label="Years">';
+					for ($year = $futureYear; $year >= $currentYear; $year--) {
+						echo "<option value='$year'";
+						if ($year == $currentYear) {
+							echo " selected";
+						}
+						echo ">$year</option>";
+					}
+					echo '</optgroup>';
+					?>
+				</select>
+
                 <span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
 			</div>
                 
@@ -1519,7 +1564,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
                 $firstDayOfWeek = date('N', strtotime($currentYear . '-' . $currentMonth . '-01'));
                 $firstDayOfWeek += 1;
                 $totalDays = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
-                $daysInPreviousMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth - 1, $currentYear);
+                $daysInPreviousMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
 
                 // Calculate the number of cells needed
                 $totalCells = ($totalDays + $firstDayOfWeek - 1) % 7 === 0 ? $totalDays + $firstDayOfWeek - 1 : ceil(($totalDays + $firstDayOfWeek - 1) / 7) * 7;
@@ -1531,17 +1576,16 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
                 while ($dayCounter <= $totalCells) {
                     echo "<tr>";
                     for ($i = 1; $i <= 7; $i++) {
-						// $calselected_date = "";
-						// if ($date == 1) {
-                        //    $calselected_date = "calselected_date";
-                        // }
+						
                         if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
-                             echo "<td  id='calid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='sab_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='sab_cal_day' onclick='getClickedId(this)'>$date</td>";
+                             echo "<td  id='sabid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' data_day='sabid_" . $post_id . '_' . $currentMonth . "_" . $date . "_" . $currentYear . "' class='sab_cal_day' onclick='getClickedId(this)'>$date</td>";
                             $date++;
-                        } elseif ($dayCounter < $firstDayOfWeek) {
+                        }
+						elseif ($dayCounter < $firstDayOfWeek) {
                             $prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);
                             echo "<td class='previous-month'>$prevDate</td>";
-                        } else {
+                        }
+						else {
                             $nextDate = $dayCounter - ($totalDays + $firstDayOfWeek) + 1;
                             echo "<td class='next-month'>$nextDate</td>";
                         }
@@ -1566,7 +1610,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				if(isset( $_POST['form_data'])){
 					$form_data = $_POST['form_data'];
 					$array_data = explode('_',$form_data);
-					// print_r($array_data);
 					$post_id = $array_data[1];
 					$current_month = $array_data[2];
 					$current_day = $array_data[3];
@@ -1604,7 +1647,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
                     }	
 				echo "</ul>";
 				if($error === true){
-					echo __('No timeslots found for selected date. ','textdomain');
+					echo __('No timeslots found for selected date. ','wp-smart-appointment-booking');
 				}else{
 					echo '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
 					echo '<p id="no-timeslots-message" style="display: none;">No Timeslots found!</p>';
@@ -1626,13 +1669,13 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							$get_current_status = get_post_meta($booking_id, 'entry_status', true);
 							if ($get_current_status === 'cancelled') {
 								$response = array(
-									'message' => __('Booking already cancelled', 'textdomain'),
+									'message' => __('Booking already cancelled', 'wp-smart-appointment-booking'),
 									'error' => true,
 									'status' => 'check',
 								);
 							} else {
 								$response = array(
-									'message' => __('Booking cancellation ready for confirmation', 'textdomain'),
+									'message' => __('Booking cancellation ready for confirmation', 'wp-smart-appointment-booking'),
 									'error' => 'false',
 									'status' => 'readytoconfirm',
 								);
@@ -1642,7 +1685,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							update_post_meta($booking_id, 'entry_status', 'cancelled');
 							$get_current_status = get_post_meta($booking_id, 'entry_status', true);
 							$response = array(
-								'message' => __('Booking has been cancelled successfully', 'textdomain'),
+								'message' => __('Booking has been cancelled successfully', 'wp-smart-appointment-booking'),
 								'error' => 'false',
 								'status' => 'updated',
 							);
@@ -1651,14 +1694,14 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					}
 				} else {
 					$response = array(
-						'message' => __('Something went wrong, please try again later', 'textdomain'),
+						'message' => __('Something went wrong, please try again later', 'wp-smart-appointment-booking'),
 						'error' => true,
 						'status' => 'check',
 					);
 				} 
 			} else {
 				$response = array(
-					'message' => __('Invalid URL.', 'textdomain'),
+					'message' => __('Invalid URL.', 'wp-smart-appointment-booking'),
 					'error' => true,
 				);
 			}
@@ -1679,7 +1722,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							$get_current_status = get_post_meta($booking_id,'entry_status',true);
 							if($get_current_status === 'cancelled'){
 								$error = true;
-								$msg = __('Booking already cancelled','textdomain');
+								$msg = __('Booking already cancelled','wp-smart-appointment-booking');
 								wp_send_json_error(array(
 									'message' => $msg,
 									'error' => $error,
@@ -1687,7 +1730,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 								));
 							}else{
 								$error = false;
-								$msg = __('Booking already cancelled','textdomain');
+								$msg = __('Booking already cancelled','wp-smart-appointment-booking');
 								wp_send_json_success(array(			
 									'message' => $msg,
 									'error' => $error,
@@ -1698,7 +1741,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 						if($_POST['status'] === 'confirm'){
 							update_post_meta($booking_id, 'entry_status', 'cancelled');
 							$error = false;
-							$msg = __('Booking has been cancelled successfully','textdomain');
+							$msg = __('Booking has been cancelled successfully','wp-smart-appointment-booking');
 							wp_send_json_success(array(			
 								'message' => $msg,
 								'error' => $error,
@@ -1709,7 +1752,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					}
 					
 				}else{
-					$msg = __('Something went wrong, please try again later','textdomain');
+					$msg = __('Something went wrong, please try again later','wp-smart-appointment-booking');
 					$error = true;
 					wp_send_json_success(array(			
 						'message' => $msg,
@@ -1719,7 +1762,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				} 
 				
 			}else{
-				$msg = __('Invalid URL.','textdomain');
+				$msg = __('Invalid URL.','wp-smart-appointment-booking');
 				$error = true;
 				wp_send_json_error(array(
 					'message' => $msg,
@@ -1797,7 +1840,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		
 		function cancel_booking_shortcode() {
 			$response = array(					
-				'message' => __('','textdomain'),
+				'message' => __('','wp-smart-appointment-booking'),
 				'mail_message' => '',
 				
 			);
@@ -1816,7 +1859,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$message = $this->zfb_send_notification($status,$form_id, $bookingId, $listform_label_val );
 			
 				$response = array(					
-					'message' => __('Your booking has been cancelled succesfully','textdomain'),
+					'message' => __('Your booking has been cancelled succesfully','wp-smart-appointment-booking'),
 					'mail_message' => $message,
 					
 				);
@@ -1910,12 +1953,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			return $other_label_val;
 
 		}
-
-		
 	}
 
 	add_action( 'plugins_loaded', function() {
-		// WP_SAB()->front->action = new WP_SAB_Front_Action;
 		$WP_SAB_Front_Action = new WP_SAB_Front_Action();
 	} );
 }

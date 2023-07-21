@@ -76,12 +76,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		##     ##  ######     ##    ####  #######  ##    ##  ######
 		*/
 
-		/**
-		 * Action: admin_init
-		 *
-		 * - Register admin min js and admin min css
-		 *
-		 */
+		
 
 		/*
 		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
@@ -175,7 +170,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		}
 		/**
 		 * save new notification
-		 */
+		*/
 		function zfb_save_new_notification() {
 			$response = array(
 				'success' => false,
@@ -247,10 +242,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 					'message' => 'Invalid request.',
 				);
 			}
-		
-			// Send the JSON response
-			echo json_encode($response);
+			wp_send_json_success( $response);
 			exit;
+			
 		}
 
 		/**
@@ -333,8 +327,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				'manage_options',
 				'edit.php?post_type=sab_form_builder',
 				'',
-				 'dashicons-calendar-alt',
-				// 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="m960 95.888l-256.224.001V32.113c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76h-256v-63.76c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76H64c-35.344 0-64 28.656-64 64v800c0 35.343 28.656 64 64 64h896c35.344 0 64-28.657 64-64v-800c0-35.329-28.656-63.985-64-63.985zm0 863.985H64v-800h255.776v32.24c0 17.679 14.32 32 32 32s32-14.321 32-32v-32.224h256v32.24c0 17.68 14.32 32 32 32s32-14.32 32-32v-32.24H960v799.984zM736 511.888h64c17.664 0 32-14.336 32-32v-64c0-17.664-14.336-32-32-32h-64c-17.664 0-32 14.336-32 32v64c0 17.664 14.336 32 32 32zm0 255.984h64c17.664 0 32-14.32 32-32v-64c0-17.664-14.336-32-32-32h-64c-17.664 0-32 14.336-32 32v64c0 17.696 14.336 32 32 32zm-192-128h-64c-17.664 0-32 14.336-32 32v64c0 17.68 14.336 32 32 32h64c17.664 0 32-14.32 32-32v-64c0-17.648-14.336-32-32-32zm0-255.984h-64c-17.664 0-32 14.336-32 32v64c0 17.664 14.336 32 32 32h64c17.664 0 32-14.336 32-32v-64c0-17.68-14.336-32-32-32zm-256 0h-64c-17.664 0-32 14.336-32 32v64c0 17.664 14.336 32 32 32h64c17.664 0 32-14.336 32-32v-64c0-17.68-14.336-32-32-32zm0 255.984h-64c-17.664 0-32 14.336-32 32v64c0 17.68 14.336 32 32 32h64c17.664 0 32-14.32 32-32v-64c0-17.648-14.336-32-32-32z"/></svg>' ), // Replace this with your actual SVG code
+				'dashicons-calendar-alt',
 				20
 			);
 			
@@ -366,24 +359,17 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		}
 		function view_booking_entry( $post ){
             $post_id = $_GET['post_id'] ;
-            // $post_id = $post_id;
             $form_data = get_post_meta( $post_id, 'sab_submission_data', true );	
             $form_id = get_post_meta( $post_id, 'sab_form_id', true );	
             $timeslot = get_post_meta( $post_id, 'timeslot', true );
-            // echo "<br>".	
             $booking_date = get_post_meta( $post_id, 'booking_date', true );
             $array_of_date = explode('_',$booking_date);
-            // echo "<pre>";
-            // print_r($array_of_date);
             $bookedmonth = $array_of_date[2];
             $bookedday =$array_of_date[3];
             $bookedyear =$array_of_date[4];
             $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
-			$booked_date = date('F j, Y', strtotime($booked_date));
-            // $totalbookings = get_post_meta( $post_id, 'totalbookings', true );	
+			$booked_date = date('F j, Y', strtotime($booked_date));	
             $slotcapacity = get_post_meta( $post_id, 'slotcapacity', true );	
-
-            // echo $checkseats = $this->get_available_seats_per_timeslot($timeslot,$booked_date);
 
             if(!empty($form_id)){ 
                $booking_form_title = get_the_title($form_id);               
@@ -407,72 +393,72 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
             }
             ?>
 			
-		<div class="entry_title">
-			<div class="entries_title_main">
-				<?php
-				if (isset($_GET['post_id'])) {
-					$post_id = absint($_GET['post_id']); 
-					$title = get_the_title($post_id);
-					echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
+			<div class="entry_title">
+				<div class="entries_title_main">
+					<?php
+					if (isset($_GET['post_id'])) {
+						$post_id = absint($_GET['post_id']); 
+						$title = get_the_title($post_id);
+						echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
 
-					if (current_user_can('edit_post', $post_id)) {
-						$edit_post_link = get_edit_post_link($post_id);
-						if ($edit_post_link) {
-							?>
-							<a href="<?php echo esc_url($edit_post_link); ?>" class="edit-link">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-								</svg>
-								Edit
-							</a>
-							<?php
+						if (current_user_can('edit_post', $post_id)) {
+							$edit_post_link = get_edit_post_link($post_id);
+							if ($edit_post_link) {
+								?>
+								<a href="<?php echo esc_url($edit_post_link); ?>" class="edit-link">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+										<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+										<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+									</svg>
+									Edit
+								</a>
+								<?php
+							}
+						} else {
+							error_log('You do not have permission to edit this post.');
 						}
+						
+						$published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
+						echo '<p class="published_on">Published on ' . $published_date. '</p>';
 					} else {
-						error_log('You do not have permission to edit this post.');
+						error_log('Invalid post ID.');
 					}
-					
-					$published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
-					echo '<p class="published_on">Published on ' . $published_date. '</p>';
-				} else {
-					error_log('Invalid post ID.');
-				}
-				?>
+					?>
+				</div>
 			</div>
-		</div>
 
 			<div class="main-entries-section" id="main_entries_section1">
 				<table id="main_entries_table1">
 					<tr>
-						<th class="h6"><?php echo __('Form Title', 'textdomain'); ?></th>
+						<th class="h6"><?php echo __('Form Title', 'wp-smart-appointment-booking'); ?></th>
 						<td><?php echo $booking_form_title; ?></td>
 					</tr>
 					
 					<tr>
-						<th class="h6"><?php echo __('Status', 'textdomain'); ?></th>
+						<th class="h6"><?php echo __('Status', 'wp-smart-appointment-booking'); ?></th>
 						<td><?php echo $status; ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('Customer', 'textdomain'); ?></th>
-						<td><?php echo __('Guest', 'textdomain'); ?></td>
+						<th class="h6"><?php echo __('Customer', 'wp-smart-appointment-booking'); ?></th>
+						<td><?php echo __('Guest', 'wp-smart-appointment-booking'); ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('Booked Date', 'textdomain'); ?></th>
+						<th class="h6"><?php echo __('Booked Date', 'wp-smart-appointment-booking'); ?></th>
 						<td><?php echo $booked_date; ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('Timeslot', 'textdomain'); ?></th>
+						<th class="h6"><?php echo __('Timeslot', 'wp-smart-appointment-booking'); ?></th>
 						<td><?php echo $timeslot; ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('No of Slots Booked', 'textdomain'); ?></th>
+						<th class="h6"><?php echo __('No of Slots Booked', 'wp-smart-appointment-booking'); ?></th>
 						<td><?php echo $slotcapacity; ?></td>
 					</tr>
 				</table>
 			</div>
 
 			<div class="main-entries-section" id="main_entries_section2">
-				<!-- <h3>Details</h3> -->
+				
 				<table id="main_entries_table2">
 					<?php
 					foreach($form_data['data'] as $form_key => $form_value){
@@ -514,17 +500,18 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$message = do_action('notification_send', $status, $form_id, $bookingId, $listform_label_val);
 			
 				$response = array(					
-					'message' => __('Your booking has been cancelled succesfully','textdomain'),
+					'message' => __('Your booking has been cancelled succesfully','wp-smart-appointment-booking'),
 					'mail_message' => $message,
 				);
 			}
 			
 			wp_send_json($response);
-			wp_die(); // Always include this line to end the AJAX request
+			wp_die(); 
 		}
 		
 		
 		function update_form_entry_data(){
+
 			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
 				$entry_id = $_POST['entry_id'];
 				$updated_data = $_POST['updated_data'];
@@ -564,8 +551,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			if (isset($_GET['post_type']) && isset($_GET['post_id'])) {
 				$post_type = $_GET['post_type'];
 				$post_id = $_GET['post_id'];
-				// echo "Post Type: $post_type<br>";
-				// echo "Post ID: $post_id";
+			
 				?>
 				<ul class="nav nav-tabs" id="myTabs" role="tablist">
 					<li class="nav-item">
@@ -589,8 +575,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 						$form_data = get_post_meta( $post_id, '_formschema', true ); 
 						$form_data=json_decode($form_data);
 						$shortcodes = $this->admin_get_shortcodes_keylabel($post_id);
-						// echo "<pre>";
-						// print_r($shortcodes);
 						?>
 						<div class="row">
 							<div class="col col-md-3">	
@@ -612,7 +596,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 									$cancel_bookingpage = '';
 								}
 								?>
-
 								<form id="usermap_form" method="post" data-pid="">
 									<input type="hidden" name="post_id" id="post_id" value="<?php echo esc_attr($post_id); ?>">
 									<div class="form-row">
@@ -714,18 +697,18 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 																
 								<?php
 								$form_data = $this->admin_get_shortcodes($post_id);
-								echo '<div class=""><label style="font-weight: bold;">' . __('Form shortcodes', 'textdomain') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . __('Form shortcodes', 'wp-smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['form'] as $objform) {
 									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objform . ']</span>';
 								}
 								$enable_booking = get_post_meta($post_id, 'enable_booking', true);
 								if( $enable_booking ){
-									echo '<div class=""><label style="font-weight: bold;">' . __('Booking shortcodes', 'textdomain') . '</label></div>';
+									echo '<div class=""><label style="font-weight: bold;">' . __('Booking shortcodes', 'wp-smart-appointment-booking') . '</label></div>';
 									foreach ($form_data['booking'] as $objbooking) {
 										echo '<span class="copy-text" style="margin-right: 5px;margin-bottom: 5px; font-family: Arial; font-size: 14px;">[' . $objbooking . ']</span>';
 									}
 								}
-								echo '<div class=""><label style="font-weight: bold;">' . __('Post shortcodes', 'textdomain') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . __('Post shortcodes', 'wp-smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['post'] as $objpost) {
 									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objpost . ']</span>';
 								}
@@ -759,8 +742,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 									
 									<?php
 									$notification_metadata = get_post_meta($post_id, 'notification_data', true);
-									// echo "<pre>";
-									// print_r($notification_metadata);
+									
 									if (!empty($notification_metadata) && is_array($notification_metadata)) {
 										$post_id = $_GET['post_id'];
 										?>
@@ -771,7 +753,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 												<thead>
 													<tr>
 														<th scope="col" ><input type="checkbox" id="main-check-all" class="maincheckall" value="1" ></th>
-														<!-- <th scope="col"></th> -->
+														
 														<th scope="col">
 														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
 																	<path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
@@ -898,7 +880,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 							}
 						?>
 						<form id="confirm_form" method="post" >
-						<!-- <form method="post" class="confirmation_form" id="confirm_form"> -->
+						
 							<div class="form-check form-check-inline ">
 								<input  type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
 								<label class="form-check-label" for="radioText">
@@ -949,8 +931,8 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 									?>
 								</select>
 							</div>
-							<div class="form-group redirectto_main redirect_to redirect_zfb <?php //echo $hiddenredirect_to; ?> ">
-								<label class="h6"><?php echo __('Enter Url: ', 'textdomain'); ?></label>
+							<div class="form-group redirectto_main redirect_to redirect_zfb <?php echo $hiddenredirect_to; ?> ">
+								<label class="h6"><?php echo __('Enter Url: ', 'wp-smart-appointment-booking'); ?></label>
 								<input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
 								<small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
 							</div> 
@@ -973,9 +955,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			if(isset($form_data1) && !empty($form_data1)){
 				$form_data1=json_decode($form_data1);
 				foreach ($form_data1 as $obj) {  
-					// if($obj !== 'submit'){				
+					 if($obj->key !== 'submit'){				
 					$form_list[] = $obj->key;
-					// }
+					 }
 				}
 			}
 			$booking_shortcodes = array('BookingId','Status','To','FirstName','LastName','Timeslot','BookedSeats','BookingDate','BookedDate','Service','prefixlabel','cost','StartTime','EndTime','CancelBooking');
@@ -1008,13 +990,13 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 						update_post_meta($post_id, 'notification_data', $notification_data);
 		
 						$response['success'] = true;
-						$response['message'] = __('Notification saved successfully', 'textdomain');
+						$response['message'] = __('Notification saved successfully', 'wp-smart-appointment-booking');
 						$response['state'] = $new_state;
 					} else {
-						$response['message'] = __('Something went wrong', 'textdomain');
+						$response['message'] = __('Something went wrong', 'wp-smart-appointment-booking');
 					}
 				} else {
-					$response['message'] = __('Something went wrong', 'textdomain');
+					$response['message'] = __('Something went wrong', 'wp-smart-appointment-booking');
 				}
 			}
 		
@@ -1023,7 +1005,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		
 		function delete_notification_indexes() {
 			if (isset($_POST['indexes'])) {
-				$post_id = $_POST['post_id']; // Replace with your actual post ID
+				$post_id = $_POST['post_id']; 
 				$indexesToDelete = $_POST['indexes'];
 
 				$notification_metadata = get_post_meta($post_id, 'notification_data', true);
@@ -1059,7 +1041,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			$use_html = '';
 
 			$data = get_post_meta($post_id, 'notification_data', true);
-			// print_r($data);
+			
 			if ($checkedit === 'edit' && isset($data[$index])) {
 				$title = 'Edit Notification';
 				$item = $data[$index];
@@ -1132,9 +1114,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 									</div>
 									<div class="border p-4 m-1">
 										<h5>Email</h5>
-										<!-- <div class="form-group">
-											<label>Email Setting</label>
-										</div> -->
+										
 										<div class="form-group">
 											<label for="email-to">To</label>
 											<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
@@ -1160,10 +1140,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 											<label for="email-subject">Subject</label>
 											<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
 										</div>
-										<!-- <div class="form-group">
-											<label for="additional-header">Additional Headers</label>
-											<textarea id="additional-header" name="additional_headers" class="form-control" rows="4" required><?php echo isset($additional_headers) ? $additional_headers : ''; ?></textarea>
-										</div> -->
+										
 
 										<div class="form-group">
 											<label for="mail-body">Mail Body</label>
@@ -1187,31 +1164,19 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 												Use HTML content type
 											</label>
 										</div>
-										<!-- <div class="form-group">
-											<label for="attachments">Attachments</label>
-											<input type="file" id="attachments" name="attachments[]" multiple>
-										</div> -->
-										<?php
-											// echo "<pre>";
-											// print_r($attachments);
-										?>
+									
 									</div>
 									<p id="suc_loc" ></p>
 									<input type="submit" id="submit_notification" name="submit_notification" class="btn btn-primary">
 									<button type="button" class="btn btn-secondary" id="closemodal" data-dismiss="modal">Close</button>
 								</form>
-								<!-- <p id="suc_loc"></p> -->
+								<p id="suc_loc"></p>
 							</div>
 					</div>
 				</div> 
 			</div>
 			<?php
-			//  $modalContent = ob_get_clean();
-			//  return $modalContent;
-		}
-
-		function sab_email_template_page_callback(){
-			echo __('Email Template','sab');
+			
 		}
 				
 		function sab_save_form_data() {
@@ -1235,7 +1200,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$form_title = get_the_title($form_id);	
 				
 				if (isset($form_title)) {	
-					echo __($form_title,'textdomain');
+					echo __($form_title,'wp-smart-appointment-booking');
 				}else{
 					echo '-';
 				}
@@ -1244,7 +1209,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$booking_status = get_post_meta($post_id,'entry_status',true);
 			
 				if (isset($booking_status) && !empty($booking_status)) {	
-					echo ucfirst(__($booking_status,'textdomain'));
+					echo ucfirst(__($booking_status,'wp-smart-appointment-booking'));
 				}else{
 					echo '-';
 				}
@@ -1255,15 +1220,14 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				if (isset($booking_date) && !empty($booking_date)) {
 				
 				$array_of_date = explode('_',$booking_date);
-				// echo "<pre>";
-				// print_r($array_of_date);
+			
 				$bookedmonth = $array_of_date[2];
 				$bookedday =$array_of_date[3];
 				$bookedyear =$array_of_date[4];
 				$booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
 				$booked_date = date('d F, Y', strtotime($booked_date));	
 					if (isset($booking_date) && !empty($booking_date)) {	
-						echo __($booked_date,'textdomain');
+						echo __($booked_date,'wp-smart-appointment-booking');
 					}
 				}else{
 					echo '-';
@@ -1273,7 +1237,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$timeslot = get_post_meta( $post_id, 'timeslot', true );						
 			
 				if (isset($timeslot) && !empty($timeslot)) {	
-					echo __($timeslot,'textdomain');
+					echo __($timeslot,'wp-smart-appointment-booking');
 				}else{
 					echo '-';
 				}
@@ -1335,6 +1299,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			}
 			wp_die();
 		}
+		
 		function admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id){
 			// Convert start time and end time to Unix timestamps
 			$start_timestamp = strtotime($start_time);
@@ -1385,30 +1350,23 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				// Check if the timeslot extends into any break time
 				foreach ($break_timestamps as $break_timestamp) {
 					if ($end_timeslot > $break_timestamp[0] && $current_timestamp < $break_timestamp[0]) {
-						$end_timeslot = $break_timestamp[0]; // Adjust the end of the timeslot to the start of the break
+						$end_timeslot = $break_timestamp[0]; 
 						break;
 					}
 				}
-	
-				// Format the start time and end time of the timeslot
 				$start_time_slot = date('H:i', $current_timestamp);
 				$end_time_slot = date('H:i', $end_timeslot);
-	
-				// Add the timeslot to the available timeslots array
-				//  $available_timeslots[] = $start_time_slot . ' - ' . $end_time_slot;
 				$available_timeslots[] = array(
 					'start_time_slot' => $start_time_slot,
 					'end_time_slot' => $end_time_slot,
 				);
 	
-				// Move to the next available timeslot (including the gap)
 				$current_timestamp = $end_timeslot + ($gap * 60);
 			}
 			return $available_timeslots;
 		}
 
 		function zfb_save_user_mapping() {
-			// Check if the request came from the admin side (optional)
 			if (!is_admin()) {
 				wp_send_json_error('Invalid request.');
 			}
@@ -1421,9 +1379,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			if (!empty($post_id)) {
 				update_post_meta($post_id, 'user_mapping', $user_mapping_array);
 
-				$response['message'] = __('User mapping saved successfully.', 'textdomain');
+				$response['message'] = __('User mapping saved successfully.', 'wp-smart-appointment-booking');
 			} else {
-				$response['message'] = __('Post ID is missing.', 'textdomain');
+				$response['message'] = __('Post ID is missing.', 'wp-smart-appointment-booking');
 			
 			}
 			wp_send_json($response);
@@ -1452,10 +1410,10 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 					$redirect_url = sanitize_text_field($formdata['redirect_url']);
 					update_post_meta($post_id, 'redirect_url', $redirect_url);
 				}
-				$response['message'] = __('Saved Successfully', 'textdomain');
+				$response['message'] = __('Saved Successfully', 'wp-smart-appointment-booking');
 
 			}else{
-				$response['message'] = __('Something went wrong', 'textdomain');
+				$response['message'] = __('Something went wrong', 'wp-smart-appointment-booking');
 			}
 
 			wp_send_json($response);
@@ -1468,20 +1426,20 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				?>
 				<script>
 					jQuery(document).ready(function($) {
-						$('#titlediv').remove(); // Remove the title field
+						$('#titlediv').remove(); 
 					});
 				</script>
 				<?php
 			}
 		}
 		function add_custom_filters() {
+
 			global $typenow;
 		
 			if ( 'manage_entries' === $typenow ) {
+
 				add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
-				// add_action( 'restrict_manage_posts', array( $this, 'add_custom_form_filter_dropdown' ) );
 				add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
-				// add_action( 'pre_get_posts', array( $this, 'filter_custom_form' ) );
 			}
 		}
 		
@@ -1565,12 +1523,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			add_meta_box('submitdiv', 'Modified Publish', array($this,'custom_submitdiv_content'), 'post', 'side', 'core');
 		}
 		
-		// Custom meta box content
 		function custom_submitdiv_content($post) {
-			// Output the default submitdiv content
 			submit_button(__('Publish'), 'primary', 'publish', false, array('id' => 'publish'));
 
-			// Output custom dropdown
 			echo '<div class="misc-pub-section">';
 			echo '<label for="custom_dropdown">Custom Dropdown:</label>';
 			echo '<select name="custom_dropdown" id="custom_dropdown">';
@@ -1580,7 +1535,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			echo '</select>';
 			echo '</div>';
 
-			// Output the "Move to Trash" link
 			echo '<div class="misc-pub-section">';
 			echo '<a href="' . esc_url(get_delete_post_link($post->ID)) . '">Move to Trash</a>';
 			echo '</div>';
@@ -1594,8 +1548,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$form_id = get_post_meta($post_id,'sab_form_id',true);
 				$page_slug = 'notification-settings';
 				$post_type = 'sab_form_builder';
-				// $post_id = 5508;
-
+				
 				$admin_url = admin_url('admin.php');
 				$view_entry_url = add_query_arg(
 					array(
@@ -1613,15 +1566,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			}
           
 			
-		}
-		
-		function check_waiting_list_on_trashed_delete($post_id) {
-			if (!wp_is_post_revision($post_id) && !wp_is_post_autosave($post_id)) {
-				// Your custom logic here for when a post is permanently deleted
-				// This will not run when a post is just moved to the trash
-			} else {
-				// Your custom logic here for when a post is moved to the trash
-			}
 		}
 		
 	}
