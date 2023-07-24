@@ -179,7 +179,7 @@ function cancelbooking_getQueryParam(name) {
 //cancel booking shortcode
 jQuery(document).ready(function($) {
   $('.booking-cancellation-buttons .btn-yes').on('click', function() {
-    console.log("test");
+   
       var bookingId = cancelbooking_getQueryParam("booking_id");
       var bookingstatus = cancelbooking_getQueryParam("status");
 

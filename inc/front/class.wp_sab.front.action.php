@@ -308,21 +308,21 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 						$mail_message = '';
 						$status = 'waiting';
 						$listform_label_val['Status'] = $status;
-						echo $mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
+						echo $mail_message = $this->zfb_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
 						update_post_meta($created_post_id, 'entry_status', 'waiting');
 
 					} else {
 						$mail_message = '';
 						$status = 'booked';
 						$listform_label_val['Status'] = $status;
-						$mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
+						$mail_message = $this->zfb_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
 						update_post_meta($created_post_id, 'entry_status', 'booked');
 					}
 				} else {
 					$mail_message = '';
 					$status = 'pending';
 					$listform_label_val['Status'] = $status;
-					$mail_message = do_action('notification_send', $status, $form_id, $created_post_id, $listform_label_val);
+					$mail_message = $this->zfb_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
 					update_post_meta($created_post_id, 'entry_status', 'approval_pending');
 
 				}
@@ -503,8 +503,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$bcc = $this->check_shortcode_exist($check_bcc,$form_id, $form_data ,$shortcodesArray );
 					$cc = $this->check_shortcode_exist($check_cc,$form_id, $form_data,$shortcodesArray );
 					$check_body = $this->check_shortcodes_exist_in_editor($check_body,$form_id, $form_data,$shortcodesArray );
-					$subject = $this->check_shortcodes_exist_in_editor($check_body,$form_id, $form_data,$shortcodesArray );
-
+					
 					$notification['use_html'];
 					$headers = array(						
 						'From: ' . $from,
@@ -1792,8 +1791,8 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 						
 							<label>Are you sure you want to cancel the booking?</label>
 							<div class="booking-cancellation-buttons">
-								<button class="btn-yes">Yes</button>
-								<button class="btn-no">No</button>
+								<button class="btn-yes">Yes, Confirmed</button>
+								<!-- <button class="btn-no">No</button> -->
 							</div>
 							<p class="h6" id="msg_booking_cancel"></p>
 						
@@ -1910,7 +1909,14 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
 				$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel';
 			} else {
-				$cancelbooking_url = home_url('/?booking_id=' . $encrypted_booking_id . '&status=cancel');
+				$cancelbooking_url = add_query_arg(
+					array(
+						'booking_id' => $encrypted_booking_id,
+						'status' => 'cancel',
+					),
+					site_url()
+				);		
+				$cancelbooking_url = esc_url($cancelbooking_url);
 			}
 			$no_of_booking = get_post_meta($form_id, 'no_of_booking', true);
 			

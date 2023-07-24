@@ -53,17 +53,13 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 
 			add_action('wp_ajax_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
 			add_action('wp_ajax_nopriv_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
-
-			add_action('wp_ajax_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
-			add_action('wp_ajax_nopriv_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
-
+			
 			add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
 			add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
 			
 			add_action('post_submitbox_misc_actions', array( $this, 'modify_submitdiv_content' ) );
 			add_action('delete_post', array( $this, 'check_waiting_list_on_trashed_delete' ) );
 
-			
 		}
 	
 		/*
@@ -377,6 +373,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				20
 			);
 			
+
 			add_submenu_page(
 				'edit.php?post_type=sab_form_builder', 
 				'Add New Form', 
@@ -403,7 +400,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			);
 			
 		}
-		
 		function view_booking_entry( $post ){
             $post_id = $_GET['post_id'] ;
             $form_data = get_post_meta( $post_id, 'sab_submission_data', true );	
@@ -510,7 +506,11 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 					<?php
 					foreach($form_data['data'] as $form_key => $form_value){
 						if($form_key !== 'submit'){
-							echo "<tr><th class='h6'>".ucfirst($form_key)."</th><td>".$form_value."</td></tr>";
+							echo "<tr>"
+							. "<th class='h6'>" . ucfirst($form_key) . "</th>"
+							. "<td>" . htmlspecialchars($form_value) . "</td>"
+							. "</tr>";
+						
 						}
 					}
 					?>
@@ -526,37 +526,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			</div>
             <?php
         }
-		function send_manual_notification_handler() {
-			$response = array(					
-				'message' => '',
-				'mail_message' => '',
-				
-			);
-			if (isset($_POST['status']) && isset($_POST['form_id']) && isset($_POST['post_id'])) {
-
-				$get_bookingId = sanitize_text_field($_POST['bookingId']);
-				$bookingId = $_POST['post_id'];
-				$status = $_POST['status'];
-				$formdata = get_post_meta($bookingId,'sab_submission_data',true);
-				$form_id = get_post_meta($bookingId,'sab_form_id',true);
-				update_post_meta($bookingId, 'entry_status', $status);
-			
-				$listform_label_val = $this->create_key_value_formshortcodes($bookingId,$formdata);
-				$listform_label_val['Status'] = $status;
-				
-				$message = do_action('notification_send', $status, $form_id, $bookingId, $listform_label_val);
-			
-				$response = array(					
-					'message' => __('Your booking has been cancelled succesfully','wp-smart-appointment-booking'),
-					'mail_message' => $message,
-				);
-			}
-			
-			wp_send_json($response);
-			wp_die(); 
-		}
-		
-		
 		function update_form_entry_data(){
 
 			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
@@ -989,6 +958,10 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 						<p id="confirm_msg" class="h6 m-2"></p>
 					</div>
 				</div>
+				<?php
+				$back_link = get_edit_post_link($post_id);
+				?>
+				<a href="<?php echo $back_link; ?>"><button type="button" class="btn btn-secondary mt-2" id="deletenotify">Back To Form Configuration</button></a>
 				<?php
 			} else {
 				echo "Error: Post type and/or post ID not found.";
@@ -1491,46 +1464,53 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		}
 		
 		function add_custom_booking_status_filter($post_type) {
-			
-			if ( 'manage_entries' != $post_type ) {
-				return;
-			}
-			$status = isset( $_GET['booking_status'] ) ? $_GET['booking_status'] : '';
-		
-			$options = array(
-				'any' => 'Status',
-				'booked' => 'Booked',
-				'approved' => 'Approved',
-				'cancelled' => 'Cancelled',
-				'pending' => 'Pending',
-				'waiting' => 'Waiting',
-				'submitted' => 'Submitted'
+			$args = array(
+				'post_type' => 'manage_entries',
+				'posts_per_page' => 1, // Fetch only one post to check if any exists.
 			);
 		
-			echo '<select name="booking_status" class="form-control">';
-			foreach ( $options as $value => $label ) {
-				$selected = selected( $status, $value, false );
-				echo '<option value="' . esc_attr( $value ) . '" ' . $selected . '>' . esc_html( $label ) . '</option>';
-			}
-			echo '</select>';
-
-				$selected_form_id = isset( $_GET['form_filter'] ) ? $_GET['form_filter'] : '';
+			$has_entries = new WP_Query($args);
+		
+			if ($has_entries->have_posts()) {
+				$status = isset($_GET['booking_status']) ? $_GET['booking_status'] : '';
+		
+				$options = array(
+					'any' => 'Status',
+					'booked' => 'Booked',
+					'approved' => 'Approved',
+					'cancelled' => 'Cancelled',
+					'pending' => 'Pending',
+					'waiting' => 'Waiting',
+					'submitted' => 'Submitted',
+				);
 		
 				$args = array(
 					'post_type' => 'sab_form_builder',
-					'posts_per_page' => -1
+					'posts_per_page' => -1,
 				);
-				$forms_query = new WP_Query( $args );
-			
-				echo '<select name="form_filter">';
-				echo '<option value="">All Forms</option>';
-				while ( $forms_query->have_posts() ) {
-					$forms_query->the_post();
-					$selected = selected( $selected_form_id, get_the_ID(), false );
-					echo '<option value="' . esc_attr( get_the_ID() ) . '" ' . $selected . '>' . esc_html( get_the_title() ) . '</option>';
+		
+				echo '<select name="booking_status" class="form-control">';
+				foreach ($options as $value => $label) {
+					$selected = selected($status, $value, false);
+					echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
 				}
 				echo '</select>';
+		
+				$selected_form_id = isset($_GET['form_filter']) ? $_GET['form_filter'] : '';
+		
+				$forms_query = new WP_Query($args);
+		
+				echo '<select name="form_filter">';
+				echo '<option value="">All Forms</option>';
+				while ($forms_query->have_posts()) {
+					$forms_query->the_post();
+					$selected = selected($selected_form_id, get_the_ID(), false);
+					echo '<option value="' . esc_attr(get_the_ID()) . '" ' . $selected . '>' . esc_html(get_the_title()) . '</option>';
+				}
+				echo '</select>';
+			}
 		}
+		
 		function filter_custom_booking_status($query) {
 			global $pagenow, $typenow;
 			if (!is_admin() || !in_array($query->get('post_type'), array('manage_entries'))) {

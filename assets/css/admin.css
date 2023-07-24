@@ -479,3 +479,7 @@ table.dataTable thead .sorting:nth-child(4){
   display: inline-block;
   margin-bottom: 8px;
 }
+p.edit_preview_shortcode{
+  font-size: 16px;
+  font-weight: 500;
+}

@@ -23,6 +23,10 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             add_action( 'add_meta_boxes', array( $this, 'sab_add_meta_box' ) ); 
             add_action( 'save_post', array( $this, 'sab_save_post_function' ) );
             add_action('save_post', array( $this, 'save_notes_data' ) );
+
+            add_action('wp_ajax_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
+			add_action('wp_ajax_nopriv_send_manual_notification_handler', array( $this, 'send_manual_notification_handler' ) );
+
         }
 
         /*
@@ -564,10 +568,13 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                             <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
                                         </div>
                                         <div class="form-group col-2 remove-generatetimeslot">
-                                        <svg class="remove-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" 
+                                        <button class="remove-generatetimeslot btn btn-danger">
+                                           <svg class="remove-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" 
                                             height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
                                             <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
                                             </svg>
+                                        </button>
+                                      
                                         </div>
                                     </div>
                                 <?php
@@ -758,8 +765,8 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'virtual_link', $link_value);
             }
             
-                //Symbol
-                if ( isset( $_POST['label_symbol'] ) ) {
+            //Symbol
+            if ( isset( $_POST['label_symbol'] ) ) {
                 $label_symbol = $_POST['label_symbol'];
                 update_post_meta( $post_id, 'label_symbol', $label_symbol );
             }
@@ -785,14 +792,14 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 update_post_meta( $post_id, 'start_time', $time_slot );
             }
                 //End Time
-                if ( isset( $_POST['end_time'] ) ) {
+            if ( isset( $_POST['end_time'] ) ) {
                 $time_slot = $_POST['end_time'];
                 
                 // Update the post meta data with the field value
                 update_post_meta( $post_id, 'end_time', $time_slot );
             }
                 //Steps Duration
-                if ( isset( $_POST['steps_duration'] ) ) {
+            if ( isset( $_POST['steps_duration'] ) ) {
                 $steps_duration = $_POST['steps_duration'];
                 $sanitized_steps_duration = array(
                     'hours' => sanitize_text_field( $steps_duration['hours'] ),
@@ -815,8 +822,8 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 // Update the post meta data with the field value
                 update_post_meta( $post_id, 'booking_stops_after', $sanitized_booking_stops_after_duration );
             }
-                //timeslot_duration
-                if ( isset( $_POST['timeslot_duration'] ) ) {
+            //timeslot_duration
+            if ( isset( $_POST['timeslot_duration'] ) ) {
                 $timeslot_duration = $_POST['timeslot_duration'];
                 $sanitized_timeslot_duration = array(
                     'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
@@ -878,7 +885,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                     update_post_meta($post_id, 'breaktimeslots', $sanitized_breaktimeslots);
                 }
             
-                if (isset($_POST['generatetimeslot'])) {
+            if (isset($_POST['generatetimeslot'])) {
                 $generatetimeslots = $_POST['generatetimeslot'];
                 
             
@@ -893,33 +900,33 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                     );
                 }            
                 update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
-                }else{
-                    $generatetimeslots = get_post_meta($post_id, 'generatetimeslot', true);
-                    if (empty($timeslots)) {
-                        $sanitized_generatetimeslots = array(
-                            array(
-                            'start_time' => '',
-                            'end_time' => '',
-                            ),
-                        );
-                    }
-                    update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
+            }else{
+                $generatetimeslots = get_post_meta($post_id, 'generatetimeslot', true);
+                if (empty($timeslots)) {
+                    $sanitized_generatetimeslots = array(
+                        array(
+                        'start_time' => '',
+                        'end_time' => '',
+                        ),
+                    );
                 }
+                update_post_meta($post_id, 'generatetimeslot', $sanitized_generatetimeslots);
+            }
             
-                //Enable Recurring Events
+            //Enable Recurring Events
             if (isset($_POST['enable_recurring_apt'])) {
                 // echo $_POST['enable_recurring_apt'];
                 update_post_meta($post_id, 'enable_recurring_apt', 1);
             } else {
                 delete_post_meta($post_id, 'enable_recurring_apt');
             }
-                // Check if the meta values are set
+            // Check if the meta values are set
             if (isset($_POST['recurring_type'])) {
                 $recurring_type = sanitize_text_field($_POST['recurring_type']);
                 update_post_meta($post_id, 'recurring_type', $recurring_type);
             }
             
-            // Check if the 'recur_weekdays' field is present in the $_POST data
+                // Check if the 'recur_weekdays' field is present in the $_POST data
             if (isset($_POST['recur_weekdays'])) {
                 // Sanitize the array of weekdays
                 $sanitized_recur_weekdays = array_map('sanitize_text_field', $_POST['recur_weekdays']);
@@ -935,7 +942,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'advancedata', $advancedata);
                 
             }
-                // Holidays
+            // Holidays
             if (isset($_POST['holidays'])) {
                 $holidays = array_map('sanitize_text_field', $_POST['holidays']);
                 update_post_meta($post_id, 'holiday_dates', $holidays);
@@ -958,6 +965,34 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'end_repeats_after', $end_repeats_after);
             }
          }
+        
+        function send_manual_notification_handler() {
+			$response = array(					
+				'message' => '',
+				'mail_message' => '',
+				
+			);
+			if (isset($_POST['status']) && isset($_POST['form_id']) && isset($_POST['post_id'])) {
+				$bookingId = $_POST['post_id'];
+				$status = $_POST['status'];
+				$formdata = get_post_meta($bookingId,'sab_submission_data',true);
+				$form_id = get_post_meta($bookingId,'sab_form_id',true);
+				update_post_meta($bookingId, 'entry_status', $status);
+			
+				$listform_label_val = $this->admin_getkey_value_formshortcodes($bookingId,$formdata);
+				$listform_label_val['Status'] = $status;
+                    
+                $message =$this->zfb_admin_send_notification($status, $form_id, $bookingId, $listform_label_val);
+			
+				$response = array(					
+					'message' => __('Your booking has been cancelled succesfully','wp-smart-appointment-booking'),
+					'mail_message' => $message,
+				);
+			}
+			
+			wp_send_json($response);
+			wp_die(); 
+		}
         /**
          * 
          *  Save Booking Entries post type data
@@ -1289,7 +1324,17 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             $post_types = array( 'sab_form_builder');
 
             if ( in_array( $post_type, $post_types ) ) {
-
+                $post_id = isset($_GET['post']) ? $_GET['post'] : '';
+                if ($post_id && get_post_status($post_id) === 'publish') {
+                    add_meta_box(
+                        'form_shortcode_data',
+                        __('Form Shortcode','wp-smart-appointment-booking'), 
+                        array( $this, 'zfb_render_meta_box_shortcode' ),
+                        $post_type,
+                        'normal',
+                        'high'
+                    );
+                }
                 add_meta_box(
                     'create_sab_form',
                     __( 'Form Configuration', 'wp-smart-appointment-booking' ),
@@ -1319,6 +1364,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
              
             }
         }
+        function zfb_render_meta_box_shortcode($post){
+          
+            $post_id = $post->ID;            
+            echo "<p class='edit_preview_shortcode'>[booking_form form_id='".$post_id."']</p>";
+        }
         /**
          * configure_notifications - add meta box callback
          */
@@ -1341,9 +1391,9 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                     $admin_url
                 );
 
-                echo '<div class="" id="misc-notification"> 
-                        <a href="' . esc_url($view_entry_url) . '" style="color:black;" target="_blank"><b>Click here to configure <br>Email Notifications & Confirmations</a> </b>
-                        </div>';
+                echo '<a href="' . esc_url($view_entry_url) . '" style="color:black;background-color:#5f809d;" target="_blank"><div class="btn btn-secondary" style="border:1px solid lightgray;color:#666;background-color:#f5f5f5;" id="misc-notification"> 
+                        <b>Configure Email Notifications & Confirmations </b>
+                        </div></a>';
                 ?>
             
                 <?php
