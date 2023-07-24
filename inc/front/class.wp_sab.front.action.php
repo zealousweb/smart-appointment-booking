@@ -1959,7 +1959,3 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		$WP_SAB_Front_Action = new WP_SAB_Front_Action();
 	} );
 }
-function WP_SAB_Front_Action() {
-	return new WP_SAB_Front_Action();	
-}
-WP_SAB_Front_Action();

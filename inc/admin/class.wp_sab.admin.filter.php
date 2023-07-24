@@ -91,10 +91,9 @@ if ( !class_exists( 'WP_SAB_Admin_Filter' ) ) {
 			$new_columns = array_merge($new_columns, $columns);
 			return $new_columns;
 		}
-
 	}
-
 	add_action( 'plugins_loaded', function() {
-		WP_SAB()->admin->filter = new WP_SAB_Admin_Filter;
+		$WP_SAB_Admin_Filter = new WP_SAB_Admin_Filter();
 	} );
+	
 }

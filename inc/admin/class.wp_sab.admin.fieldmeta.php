@@ -2047,9 +2047,8 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
         }
         
     }           
-
     add_action( 'plugins_loaded', function() {
-        WP_SAB()->admin = new WP_SAB_Admin_Fieldmeta;
-    } );
-}
+		$WP_SAB_Admin_Fieldmeta = new WP_SAB_Admin_Fieldmeta();
+	} );
+ }
 ?>
