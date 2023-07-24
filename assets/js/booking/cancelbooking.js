@@ -1,33 +1,3 @@
-// function showAlertWithFadeOut(message, duration) {
-//     var alert = jQuery('<div class="alert alert-success">' + message + '</div>');
-//     alert.css({
-//       'position': 'fixed',
-//       'top': '10px',
-//       'left': '50%',
-//       'transform': 'translateX(-50%)',
-//       'padding': '10px',
-//       'background-color': '#4CAF50',
-//       'color': '#FFFFFF',
-//       'font-size': '16px',
-//       'border-radius': '5px',
-//       'opacity': '0',
-//       'transition': 'opacity 0.5s ease-in-out'
-//     });
-  
-//     jQuery('body').append(alert);
-//     setTimeout(function() {
-//       alert.css('opacity', '1');
-//     }, 100);
-  
-//     setTimeout(function() {
-//       alert.css('opacity', '0');
-//       setTimeout(function() {
-//         alert.remove();
-//       }, 500);
-//     }, duration);
-//   }
-  
-
 function front_getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
@@ -35,9 +5,7 @@ function front_getQueryParam(name) {
   
   jQuery(document).ready(function() {
     var searchParams_booking = front_getQueryParam("booking_id");
-    var searchParams_status = front_getQueryParam("status");
-    console.log(searchParams_booking + searchParams_status);
-  
+    var searchParams_status = front_getQueryParam("status");  
     if (searchParams_booking && searchParams_status === "cancel") {
       jQuery.ajax({
         url: myAjax.ajaxurl,
@@ -49,14 +17,12 @@ function front_getQueryParam(name) {
           status: 'check',
         },
         success: function(response) {
-          console.log(response);
           if (response.error === 'false') {
             var confirmationType = response.status;
             
             if (confirmationType === 'readytoconfirm') {
               var confirmed = confirm(`Do you want to proceed to cancel the booking?`);
               if (confirmed) {
-                console.log("confirmed");
                 jQuery.ajax({
                     url: myAjax.ajaxurl,
                     type: 'post',

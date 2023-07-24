@@ -164,7 +164,6 @@ jQuery(document).ready(function($) {
     $('#add-row').click(function() {
         var intial_index = $('.repeater-row').length;
         var index = intial_index ;
-        console.log(index);
         var row = '<div class="repeater-row border m-0 mb-2 p-3 row">' +
             '<div class="form-group col-md-3">' +
             '<label class="h6" for="advance_date_' + index + '">Advance Date:</label>' +
@@ -412,7 +411,7 @@ if (pageParam === "notification-settings") {
             checkedItems.each(function() {
                 indexesToDelete.push($(this).val());
             });
-            console.log(indexesToDelete);
+           
             // Perform AJAX request to delete the indexes
             $.ajax({
                 type: 'POST',
@@ -423,8 +422,7 @@ if (pageParam === "notification-settings") {
                     post_id: post_id,
                 },
                 success: function(response) {
-                    // Handle the success response here
-                    console.log(response);
+                    // Handle the success response here                   
                     $('#notifytable').load(location.href + ' #notifytable');
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -506,7 +504,6 @@ if (pageParam === "notification-settings") {
             processData:false,
             contentType:false,        
             success: function (response) {
-                console.log(response);
                 jQuery('#map_success').html(response.message).fadeIn().delay(2000).fadeOut();              
             }
         });
@@ -527,7 +524,6 @@ if (pageParam === "notification-settings") {
             processData:false,
             contentType:false,        
             success: function (response) {
-                 console.log(response);
                 jQuery('#confirm_msg').html(response.message).fadeIn().delay(2000).fadeOut();              
             }
         });

@@ -5,7 +5,7 @@
  * Handles the admin functionality.
  *
  * @package WordPress
- * @subpackage Plugin name
+ * @subpackage WP Smart Appointment & Booking
  * @since 1.0
  */
 

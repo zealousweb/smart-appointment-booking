@@ -55,31 +55,6 @@ if ( ! defined( 'WP_SAB_PREFIX' ) ) {
 }
 
 /**
- * Initialize the main class
- */
-
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-plugin-name-activator.php
- */
-// function sab_activate_plugin_name() {
-// 	require_once plugin_dir_path( __FILE__ ) . '/inc/class.wp_sab.activator.php';
-// 	Plugin_Name_Activator::activate();
-// }
-
-// /**
-//  * The code that runs during plugin deactivation.
-//  * This action is documented in includes/class-plugin-name-deactivator.php
-//  */
-// function sab_deactivate_plugin_name() {
-// 	require_once plugin_dir_path( __FILE__ ) . '/inc/class.wp_sab.deactivator.php';
-// 	Plugin_Name_Deactivator::deactivate();
-// }
-
-// register_activation_hook( __FILE__, 'sab_activate_plugin_name' );
-// register_deactivation_hook( __FILE__, 'sab_deactivate_plugin_name' );
-
-/**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */

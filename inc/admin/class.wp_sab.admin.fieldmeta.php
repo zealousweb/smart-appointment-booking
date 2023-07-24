@@ -84,13 +84,16 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
             $form_data = get_post_meta( $post->ID, 'sab_submission_data', true );   
             $form_id = get_post_meta( $post->ID, 'sab_form_id', true ); 
             $timeslot = get_post_meta( $post->ID, 'timeslot', true );
-            $times = explode("-", $timeslot);
-            $start_time = trim(date("h:i", strtotime($times[0])));
-            $end_time = trim(date("h:i", strtotime($times[1])));
-
-            $booking_date = get_post_meta( $post->ID, 'booking_date', true );
+            if(isset($timeslot) && !empty($timeslot)){
+                $times = explode("-", $timeslot);
+                $start_time = trim(date("h:i", strtotime($times[0])));
+                $end_time = trim(date("h:i", strtotime($times[1])));
+            }
            
-            $array_of_date = explode('_', $booking_date);
+            $booking_date = get_post_meta( $post->ID, 'booking_date', true );
+            if(isset($booking_date) && !empty($booked_date)){
+                $array_of_date = explode('_', $booking_date);
+            }
             if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
                 $bookedday = $array_of_date[3];
