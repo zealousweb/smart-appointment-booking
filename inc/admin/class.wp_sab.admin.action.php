@@ -114,10 +114,6 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				//boostrap
 				wp_enqueue_style( 'datatable_admin_css',WP_SAB_URL.'assets/css/boostrap/jquery.dataTables.min.css', array(), 1.1, 'all' );
 			 }
-
-			
-	
-			
 		}
 	
 		/**
@@ -400,6 +396,10 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			);
 			
 		}
+		/**
+		 * 
+		 * view booking entry
+		 */
 		function view_booking_entry( $post ){
             $post_id = $_GET['post_id'] ;
             $form_data = get_post_meta( $post_id, 'sab_submission_data', true );	
@@ -526,6 +526,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			</div>
             <?php
         }
+		/**
+		 * Update booking form entries in backend
+		 */
 		function update_form_entry_data(){
 
 			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
@@ -544,6 +547,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			}
             wp_die();
         }
+		/**
+		 * Admin : get key value pair of shortcodes to send in manual notification or post update
+		 */
 		function admin_get_shortcodes_keylabel($post_id){
 			$shortcode_list = array();
 			$form_data = get_post_meta( $post_id, '_formschema', true ); 
@@ -560,6 +566,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			
 			return $shortcode_list;
 		}
+		/**
+		 * Render notification setting page
+		 */
 		function render_notification_settings_page() {
 			// Add your page content here
 			echo "<div class='notification-page-main m-4 p-1 ' >";
@@ -968,6 +977,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			}
 			echo '</div>';
 		}
+		/**
+		 * get shortcodes to display in page
+		 */
 		function admin_get_shortcodes($post_id){
 			$form_list = array();
 			$shortcode_list = array();
@@ -990,6 +1002,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			
 			return $shortcode_list;
 		}
+		/**
+		 * Update notification status: enable and disable
+		 */
 		function zfb_update_notification_state() {
 			$response = array(
 				'success' => false,
@@ -1022,7 +1037,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		
 			wp_send_json($response);
 		}
-		
+		/**
+		 * delete Notification entry from backend
+		 */
 		function delete_notification_indexes() {
 			if (isset($_POST['indexes'])) {
 				$post_id = $_POST['post_id']; 
@@ -1042,7 +1059,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				wp_send_json_error('Invalid request.');
 			}
 		}
-		
+		/**
+		 * modal : add and edit new notification
+		 */
 		function generateModal($index,$post_id) {
 			
 			$mode = ($index === 'add') ? 'add' : '';
@@ -1198,7 +1217,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			<?php
 			
 		}
-				
+		/**
+		 * save form data
+		 * */	
 		function sab_save_form_data() {
 			
 			$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
@@ -1211,6 +1232,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			exit;
 
 		}
+		/**
+		 * populate columns of post type
+		 */
 		function populate_custom_column($column, $post_id) {
 			if ($column === 'shortcode') {				
 				echo "[booking_form form_id='".$post_id."']";
@@ -1265,6 +1289,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			
 
 		}
+		/**
+		 * html to preview timeslots or generate new timeslots
+		 */
 		function zfb_preiveiw_timeslot() {
 			$error = 0;
 			$output = '';		
@@ -1319,7 +1346,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			}
 			wp_die();
 		}
-		
+		/** 
+		 * generate timeslots
+		 */
 		function admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id){
 			// Convert start time and end time to Unix timestamps
 			$start_timestamp = strtotime($start_time);
@@ -1385,7 +1414,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			}
 			return $available_timeslots;
 		}
-
+		/**
+		 * User Mapping fields
+		 */
 		function zfb_save_user_mapping() {
 			if (!is_admin()) {
 				wp_send_json_error('Invalid request.');
@@ -1407,6 +1438,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			wp_send_json($response);
 			exit;
 		}
+		/** 
+		 * Confirmation settings 
+		 * */
 		function zfb_save_confirmation() {
 
 			if (isset($_POST['confirmation_data'])) {
@@ -1439,6 +1473,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			wp_send_json($response);
 			exit;
 		}	
+		/**
+		 * Disable Title FOR META BOX 
+		 */
 		function disable_title_editing_for_custom_post_type() {
 			global $post_type;
 		
@@ -1452,17 +1489,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				<?php
 			}
 		}
-		function add_custom_filters() {
-
-			global $typenow;
-		
-			if ( 'manage_entries' === $typenow ) {
-
-				add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
-				add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
-			}
-		}
-		
+		/**
+		 * ADD FILTER DROPDOWN for status
+		 */
 		function add_custom_booking_status_filter($post_type) {
 			$args = array(
 				'post_type' => 'manage_entries',
@@ -1510,7 +1539,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				echo '</select>';
 			}
 		}
-		
+		/**
+		 * Filter as per selected Status
+		 */
 		function filter_custom_booking_status($query) {
 			global $pagenow, $typenow;
 			if (!is_admin() || !in_array($query->get('post_type'), array('manage_entries'))) {
@@ -1544,29 +1575,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				}
 			}
 		}
-		
-		function modify_submitdiv_meta_box() {
-			remove_meta_box('submitdiv', 'post', 'side');
-			add_meta_box('submitdiv', 'Modified Publish', array($this,'custom_submitdiv_content'), 'post', 'side', 'core');
-		}
-		
-		function custom_submitdiv_content($post) {
-			submit_button(__('Publish'), 'primary', 'publish', false, array('id' => 'publish'));
-
-			echo '<div class="misc-pub-section">';
-			echo '<label for="custom_dropdown">Custom Dropdown:</label>';
-			echo '<select name="custom_dropdown" id="custom_dropdown">';
-			echo '<option value="option1">Option 1</option>';
-			echo '<option value="option2">Option 2</option>';
-			echo '<option value="option3">Option 3</option>';
-			echo '</select>';
-			echo '</div>';
-
-			echo '<div class="misc-pub-section">';
-			echo '<a href="' . esc_url(get_delete_post_link($post->ID)) . '">Move to Trash</a>';
-			echo '</div>';
-		}
-
+		/**
+		 * add configuration email link
+		 */
 		function modify_submitdiv_content() {
 			global $post;
 			$post_id = $post->ID;

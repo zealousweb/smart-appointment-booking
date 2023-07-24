@@ -113,7 +113,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
 		*/
 		
-		
+		/**
+		 * Check if booking is open
+		 */
 		function isbooking_open($post_id, $timeslot, $booked_date) {
 			$explodedArray = explode("_", $booked_date);
 			// Extracting month, day, and year components
@@ -273,7 +275,8 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
 					$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel';
 				}else{
-					$cancelbooking_url = home_url('/?booking_id=' . $encrypted_booking_id . '&status=cancel');
+					$encoded_booking_id = urlencode($encrypted_booking_id);
+					$cancelbooking_url = home_url('/?booking_id=' . $encoded_booking_id . '&status=cancel');
 				}
 
 				$prefixlabel = get_post_meta( $form_id, 'label_symbol', true );
@@ -899,6 +902,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			}
 			return $output_timeslot;
 		}
+		/**
+		 * generate timeslots
+		 */
 		function front_generate_timeslots($post_id, $todaysDate = null){
 			$output_timeslot = '';
 			$generatetimeslot = get_post_meta($post_id, 'generatetimeslot', true);	
@@ -957,7 +963,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					
 					
 					$explodedArray = explode("_", $todaysDate);
-
 					// Extracting month, day, and year components
 					$month = str_pad($explodedArray[2], 2, "0", STR_PAD_LEFT);
 					$day = $explodedArray[3];
@@ -1044,14 +1049,12 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							$available_text = 'Available seats : '.$available_seats;
 						}
 					}
-
 					
 					$output_timeslot .= '<span>'.$start_time_slot.' - ' . $end_time_slot.'</span>';
 					$output_timeslot .= '<input class="zfb-selected-time" name="booking_slots" data-startime="'.$this_start_time.'"  type="hidden" value="'.$start_time_slot."-".$end_time_slot.'">';					
 					$output_timeslot .= '<span class="zfb-tooltip-text" data-seats="'.$available_input_seats.'" > '.$available_text.'<br>'.$waiting_text.'</span>';
 					$output_timeslot .= '<span class="zfb-waiting" style="display:none;" class="hidden" data-checkdate="'.$check_date.'" data-waiting="'.$iswaiting_alllowed.'" data-seats="'.$waiting_seats.'" >'.$iswaiting_alllowed.'</span>';
-					$output_timeslot .= '</li>';
-					
+					$output_timeslot .= '</li>';					
 				}
 			}else{
 				$output_timeslot .= '<li class="zfb_timeslot">';
@@ -1060,7 +1063,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			}
 			return $output_timeslot;
 		}
-		
+		/**
+		 * 
+		 * Get_available_seats_per_timeslot
+		 * 
+		 */
         function get_available_seats_per_timeslot($timeslot,$booking_date){
         	
             $args = array(
@@ -1103,7 +1110,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			}
             return $no_of_booking;
         }
-		
+		/**
+		 * 
+		 * fetch booking form
+		 * 
+		 */
 		function zealsab_get_booking_form($attr) {
 			ob_start();	
 			
@@ -1490,6 +1501,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 
 			return ob_get_clean();
 		  }
+		 /**
+		 * 
+		 * Calender on change of month and year
+		 * 
+		 */
 		  function action_reload_calender(){
 			$monthNames = array(
 				1 => 'January',
@@ -1547,8 +1563,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 
                 <span class="arrow" id="next-month" onclick="getClicked_next(this)">&rarr;</span>
 			</div>
-                
-           
             <table>
                 <tr>
                     <th>Sun</th>
@@ -1604,6 +1618,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			echo $output;
 			wp_die();
 		  }
+		/**
+		 * 
+		 * Display Timeslots
+		 * 
+		 */
 		  function action_display_available_timeslots(){
 				$error = false;
 				if(isset( $_POST['form_data'])){
@@ -1653,6 +1672,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				}
 				wp_die();
 		  }
+		/**
+		 * 
+		 * Cancel Booking
+		 * 
+		 */
 		  function zfb_cancel_booking() {
 			$encrypt_bookingId = $_POST['bookingId'];
 			
@@ -1707,72 +1731,11 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			wp_send_json($response);
 			wp_die();
 		}
-		
-		function zfb_cancel_booking_old(){
-
-			$encrypt_bookingId = $_POST['bookingId'];	
-			if (isset($_POST['bookingId']) && isset($_POST['bookingstatus'])) {
-				$booking_id = base64_decode($encrypt_bookingId);
-				$bookingstatus = $_POST['bookingstatus'];
-
-				if ($bookingstatus === 'cancel' ) {
-					if(isset($_POST['status'])){
-						if($_POST['status'] === 'check'){
-							$get_current_status = get_post_meta($booking_id,'entry_status',true);
-							if($get_current_status === 'cancelled'){
-								$error = true;
-								$msg = __('Booking already cancelled','wp-smart-appointment-booking');
-								wp_send_json_error(array(
-									'message' => $msg,
-									'error' => $error,
-									'status' => 'check',
-								));
-							}else{
-								$error = false;
-								$msg = __('Booking already cancelled','wp-smart-appointment-booking');
-								wp_send_json_success(array(			
-									'message' => $msg,
-									'error' => $error,
-									'status' => 'readytoconfirm',
-								));								
-							}
-						}
-						if($_POST['status'] === 'confirm'){
-							update_post_meta($booking_id, 'entry_status', 'cancelled');
-							$error = false;
-							$msg = __('Booking has been cancelled successfully','wp-smart-appointment-booking');
-							wp_send_json_success(array(			
-								'message' => $msg,
-								'error' => $error,
-								'status' => 'updated',
-							));	
-
-						}
-					}
-					
-				}else{
-					$msg = __('Something went wrong, please try again later','wp-smart-appointment-booking');
-					$error = true;
-					wp_send_json_success(array(			
-						'message' => $msg,
-						'error' => $error,
-						'status' => 'check',
-					));		
-				} 
-				
-			}else{
-				$msg = __('Invalid URL.','wp-smart-appointment-booking');
-				$error = true;
-				wp_send_json_error(array(
-					'message' => $msg,
-					'error' => $error,
-				));
-				
-			}
-
-			wp_die();
-		}
-
+		/**
+		 * 
+		 * confirm_booking_cancellation
+		 * 
+		 */
 		function confirm_booking_cancellation() {
 			ob_start();
 			echo '<div class="booking-cancellation-card">';
@@ -1836,7 +1799,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			echo '</div>';
 			return ob_get_clean();
 		}
-		
+		/**
+		 * shortcode to add in page
+		 */
 		function cancel_booking_shortcode() {
 			$response = array(					
 				'message' => __('','wp-smart-appointment-booking'),
@@ -1867,7 +1832,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			wp_send_json($response);
 			wp_die();
 		}
-
+		/**
+		 * function to create shortcode pair for email notification
+		 */
 		function create_key_value_formshortcodes($bookingId,$form_data){
 			
 			$form_id = get_post_meta($bookingId,'sab_form_id',true);
