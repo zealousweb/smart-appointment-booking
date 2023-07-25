@@ -3,14 +3,14 @@ Smart Appointment & Booking all-in-one plugin efficiently manages appointments w
 
 # Features
 	
-Add bookings to calendar 
-Allow to map users, enable guest checking or Account is necessary.
-Dashboard Reporting and Analytics, also Calendar View to see appointments
-Export all bookings
-Payment Processing: Integrate with payment gateways to securely accept online payments or deposits at the time of booking. 
-Can display form via Script somewhere else
-Push notifications
-User dashboard on frontend for logged in user - can view total bookings and cancel bookings on website
+1. Add bookings to calendar 
+2. Allow to map users, enable guest checking or Account is necessary.
+3. Dashboard Reporting and Analytics, also Calendar View to see appointments
+4. Export all bookings
+5. Payment Processing: Integrate with payment gateways to securely accept online payments or deposits at the time of booking. 
+6. Can display form via Script somewhere else
+7. Push notifications
+8. User dashboard on frontend for logged in user - can view total bookings and cancel bookings on website
 
 # How To Use
 
