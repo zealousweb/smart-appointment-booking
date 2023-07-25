@@ -1387,8 +1387,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				if ($within_break) {
 					continue;
 				}
-	
-				// Calculate the end timestamp for the current timeslot
+				
 				$end_timeslot = $current_timestamp + ($duration * 60);
 	
 				// Check if the timeslot extends beyond the end time
