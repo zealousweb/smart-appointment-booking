@@ -1,6 +1,22 @@
 # smart-appointment-booking
 Smart Appointment & Booking all-in-one plugin efficiently manages appointments with customizable forms, seamless booking, and waitlist management.
 
+# Features of Smart Appointment & Booking =
+
+* Create and Configure Forms and customize them as needed, and configure the thank-you message.
+* You can also set page redirection upon form submission.
+* Its not just ordinary forms! You can create specialized booking forms tailored to your unique requirements. 
+* Set up booking calendar settings, and customize the thank-you message or redirection upon successful bookings. 
+* In admin you can manage and track booking entries in the backend effortlessly.
+* We are Offer both physical and virtual appointments to your customers. 
+* Share Google links or Zoom links via email to facilitate seamless virtual interactions.
+* The waitlist feature enables customers to join a waitlist for full bookings. You can later approve the booking and send notification.
+* From admin you can Modifications and Cancellations the Bookings.
+* Additionally, your staff can efficiently reschedule or cancel bookings as necessary.
+* View and Edit Booking Entries and Form Entries.
+* Update status, booking dates, and send manual notifications to stay in control.
+* Guest Check-In feature allow anyone to submit forms without the need for account creation.
+
 # How To Use
 
 **Add New Booking Form and Configure fields and Hit save. Form will be automatically updated and  saved**
