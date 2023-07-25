@@ -1,0 +1,274 @@
+# Copyright (C) 2023 Smart Appointment & Booking
+# This file is distributed under the same license as the Smart Appointment & Booking package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Smart Appointment & Booking 1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/smart-appointment-booking\n"
+"POT-Creation-Date: 2023-07-24 14:10:24+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2023-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: inc/admin/class.sab.admin.action.php:476
+msgid "Form Title"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:481
+msgid "Status"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:485
+msgid "Customer"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:486
+msgid "Guest"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:489
+msgid "Booked Date"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:493
+msgid "Timeslot"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:497
+msgid "No of Slots Booked"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:725
+msgid "Form shortcodes"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:731
+msgid "Booking shortcodes"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:736
+msgid "Post shortcodes"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:960
+msgid "Enter Url: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:1028
+msgid "Notification saved successfully"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:1031
+#: inc/admin/class.sab.admin.action.php:1034
+#: inc/admin/class.sab.admin.action.php:1470
+msgid "Something went wrong"
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:1433
+msgid "User mapping saved successfully."
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:1435
+msgid "Post ID is missing."
+msgstr ""
+
+#: inc/admin/class.sab.admin.action.php:1467
+msgid "Saved Successfully"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:194
+msgid "From: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:200
+msgid "To: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:373
+msgid "Prefix Symbol : "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:377
+msgid "Cost : "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:385
+#: inc/admin/class.sab.admin.fieldmeta.php:620
+msgid "Select Weekdays: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:421
+msgid "Appointment Type: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:442
+msgid "Link: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:458
+msgid "Select Date : "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:463
+msgid "Start Time: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:467
+msgid "End Time: "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:474
+msgid "Timeslot Duration(hh:mm)"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:480
+msgid "Step/Interval Duration between each Timeslot"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:495
+msgid "No of Booking per Timeslots : "
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:991
+#: inc/front/class.sab.front.action.php:1826
+msgid "Your booking has been cancelled succesfully"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1196
+#: inc/front/class.sab.front.action.php:526
+msgid "Email sent successfully"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1198
+#: inc/front/class.sab.front.action.php:528
+msgid "Failed to send email"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1205
+#: inc/front/class.sab.front.action.php:535
+msgid "Notification not found for the given status"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1303
+msgid "Edit Forms Details"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1311
+msgid "Send Manual Notification"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1319
+msgid "Notes"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1334
+msgid "Form Shortcode"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1343
+msgid "Form Configuration"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1352
+msgid "Booking Configuration"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1419
+msgid "Booked"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1420
+msgid "Approved"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1421
+msgid "Cancelled"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1422
+msgid "Waiting"
+msgstr ""
+
+#: inc/admin/class.sab.admin.fieldmeta.php:1423
+msgid "Pending"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:200
+msgid "The booking window has closed."
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:212
+msgid "No available seats"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:359
+msgid "Something went wrong, Please try again later"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:835
+#: inc/front/class.sab.front.action.php:860
+#: inc/front/class.sab.front.action.php:887
+msgid "Available seats : "
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:864
+#: inc/front/class.sab.front.action.php:870
+msgid "Timeslot Not available"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1291
+msgid "No timeslots found for selected date."
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1478
+msgid "Form data not found."
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1482
+msgid "Post exists but is not published."
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1485
+msgid "Post does not exist."
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1668
+msgid "No timeslots found for selected date. "
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1695
+msgid "Booking already cancelled"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1701
+msgid "Booking cancellation ready for confirmation"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1711
+msgid "Booking has been cancelled successfully"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1720
+msgid "Something went wrong, please try again later"
+msgstr ""
+
+#: inc/front/class.sab.front.action.php:1727
+msgid "Invalid URL."
+msgstr ""
+#. Plugin Name of the plugin/theme
+msgid "Smart Appointment & Booking"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking andmodifications waitlist management."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "ZealousWeb"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://www.zealousweb.com"
+msgstr ""
