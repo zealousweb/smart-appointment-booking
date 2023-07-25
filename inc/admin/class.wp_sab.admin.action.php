@@ -1,29 +1,29 @@
 <?php
 /**
- * WP_SAB_Admin_Action Class
+ * SAB_Admin_Action Class
  *
  * Handles the admin functionality.
  *
  * @package WordPress
- * @package WP Smart Appointment & Booking
+ * @package Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
+if ( !class_exists( 'SAB_Admin_Action' ) ) {
 
 	/**
-	 *  The WP_SAB_Admin_Action Class
+	 *  The SAB_Admin_Action Class
 	 */
-	class WP_SAB_Admin_Action {
+	class SAB_Admin_Action {
 
 		function __construct()  {
 			add_action( 'init',array( $this, 'action_init_sab' ));
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
-			add_action('admin_menu',array( $this, 'wp_sab_add_post_type_menu' ));
+			add_action('admin_menu',array( $this, 'sab_add_post_type_menu' ));
 				
 			add_action( 'wp_ajax_sab_save_form_data', array( $this, 'sab_save_form_data' ));
 			add_action('manage_sab_form_builder_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
@@ -87,8 +87,8 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		* WP Enqueue Styles
 		*/
 		function action_init_sab(){
-			wp_register_style( WP_SAB_PREFIX . '_admin_min_css', WP_SAB_URL . 'assets/css/admin.min.css', array(), WP_SAB_VERSION );
-			wp_register_style( WP_SAB_PREFIX . '_admin_css', WP_SAB_URL . 'assets/css/admin.css', array(), WP_SAB_VERSION );
+			wp_register_style( SAB_PREFIX . '_admin_min_css', SAB_URL . 'assets/css/admin.min.css', array(), SAB_VERSION );
+			wp_register_style( SAB_PREFIX . '_admin_css', SAB_URL . 'assets/css/admin.css', array(), SAB_VERSION );
 		}
 
 	
@@ -103,16 +103,16 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 
 			
 			if (is_singular('sab_form_builder') || is_singular('zeal_formbuilder') || (isset($post_type) && ($post_type == 'sab_form_builder' || $post_type == 'manage_entries')) || (isset($_GET['post_type']) && ($_GET['post_type'] === 'sab_form_builder' || $_GET['post_type'] === 'manage_entries'))) {
-				wp_enqueue_style( '_admin_css',WP_SAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( '_admin_css',SAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
 				wp_enqueue_style( 'sab_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
 				//formio
-				wp_enqueue_style( 'sab_formio_full_min',WP_SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
+				wp_enqueue_style( 'sab_formio_full_min',SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
 				//boostrap
-				wp_enqueue_style( 'sab_boostrap_min',WP_SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( 'sab_boostrap_min',SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );	
 			 }
 			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
 				//boostrap
-				wp_enqueue_style( 'datatable_admin_css',WP_SAB_URL.'assets/css/boostrap/jquery.dataTables.min.css', array(), 1.1, 'all' );
+				wp_enqueue_style( 'datatable_admin_css',SAB_URL.'assets/css/boostrap/jquery.dataTables.min.css', array(), 1.1, 'all' );
 			 }
 		}
 	
@@ -130,30 +130,30 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 
 			if (is_singular('sab_form_builder') || is_singular('zeal_formbuilder') || $post_type == 'sab_form_builder' || isset($_GET['post_type']) && $_GET['post_type'] === 'sab_form_builder' || isset($_GET['post_type']) && $_GET['post_type'] === 'manage_entries' ||  $post_type == 'manage_entries') {
 				//boostrap folder
-				wp_enqueue_script( 'sab_popper.minjs', WP_SAB_URL.'assets/js/boostrap/popper.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'sab_jquery-3.7.0.min',WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'sab_boostrap.min', WP_SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );				
-				wp_enqueue_script( 'sab_boostrap_bundlemin', WP_SAB_URL.'assets/js/boostrap/boostrap.bundle.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_popper.minjs', SAB_URL.'assets/js/boostrap/popper.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_jquery-3.7.0.min',SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'sab_boostrap.min', SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );				
+				wp_enqueue_script( 'sab_boostrap_bundlemin', SAB_URL.'assets/js/boostrap/boostrap.bundle.min.js', array( 'jquery' ), 1.1, false );
 
 				//formio folder
-			 	wp_enqueue_script( 'sab_formio_full_min', WP_SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
+			 	wp_enqueue_script( 'sab_formio_full_min', SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
 				
 				//booking folder
-				wp_enqueue_script( 'booking-form', WP_SAB_URL.'assets/js/booking/booking-form.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'booking-form', SAB_URL.'assets/js/booking/booking-form.js', array( 'jquery' ), 1.1, false );
 				wp_localize_script('booking-form', 'ajax_object', array(
 					'ajax_url' => admin_url('admin-ajax.php')
 				));
 	
-				wp_enqueue_script( 'admin', WP_SAB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'admin', SAB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
 			 }
 			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
 				//boostrap folder
-				wp_enqueue_script( 'datatble_admin',WP_SAB_URL.'assets/js/boostrap/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'datatbleboostrap',WP_SAB_URL.'assets/js/boostrap/dataTables.boostrap5.min.js',array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'datatble_admin',SAB_URL.'assets/js/boostrap/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'datatbleboostrap',SAB_URL.'assets/js/boostrap/dataTables.boostrap5.min.js',array( 'jquery' ), 1.1, false );
 			 }
 
-			 wp_register_script( WP_SAB_PREFIX . '_admin_js', WP_SAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), WP_SAB_VERSION );
+			 wp_register_script( SAB_PREFIX . '_admin_js', SAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), SAB_VERSION );
 
 		}
 
@@ -252,7 +252,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		 *
 		 * It also adds menu items to the admin dashboard for easy access to the plugin's functionality.
 		 */
-		function wp_sab_add_post_type_menu() {
+		function sab_add_post_type_menu() {
 			
 			$labels_form = array(
 				'name' => 'Generate Appointment and Booking Forms',
@@ -473,28 +473,28 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			<div class="main-entries-section" id="main_entries_section1">
 				<table id="main_entries_table1">
 					<tr>
-						<th class="h6"><?php echo __('Form Title', 'wp-smart-appointment-booking'); ?></th>
+						<th class="h6"><?php echo __('Form Title', 'smart-appointment-booking'); ?></th>
 						<td><?php echo $booking_form_title; ?></td>
 					</tr>
 					
 					<tr>
-						<th class="h6"><?php echo __('Status', 'wp-smart-appointment-booking'); ?></th>
+						<th class="h6"><?php echo __('Status', 'smart-appointment-booking'); ?></th>
 						<td><?php echo $status; ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('Customer', 'wp-smart-appointment-booking'); ?></th>
-						<td><?php echo __('Guest', 'wp-smart-appointment-booking'); ?></td>
+						<th class="h6"><?php echo __('Customer', 'smart-appointment-booking'); ?></th>
+						<td><?php echo __('Guest', 'smart-appointment-booking'); ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('Booked Date', 'wp-smart-appointment-booking'); ?></th>
+						<th class="h6"><?php echo __('Booked Date', 'smart-appointment-booking'); ?></th>
 						<td><?php echo $booked_date; ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('Timeslot', 'wp-smart-appointment-booking'); ?></th>
+						<th class="h6"><?php echo __('Timeslot', 'smart-appointment-booking'); ?></th>
 						<td><?php echo $timeslot; ?></td>
 					</tr>
 					<tr>
-						<th class="h6"><?php echo __('No of Slots Booked', 'wp-smart-appointment-booking'); ?></th>
+						<th class="h6"><?php echo __('No of Slots Booked', 'smart-appointment-booking'); ?></th>
 						<td><?php echo $slotcapacity; ?></td>
 					</tr>
 				</table>
@@ -722,18 +722,18 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 																
 								<?php
 								$form_data = $this->admin_get_shortcodes($post_id);
-								echo '<div class=""><label style="font-weight: bold;">' . __('Form shortcodes', 'wp-smart-appointment-booking') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . __('Form shortcodes', 'smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['form'] as $objform) {
 									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objform . ']</span>';
 								}
 								$enable_booking = get_post_meta($post_id, 'enable_booking', true);
 								if( $enable_booking ){
-									echo '<div class=""><label style="font-weight: bold;">' . __('Booking shortcodes', 'wp-smart-appointment-booking') . '</label></div>';
+									echo '<div class=""><label style="font-weight: bold;">' . __('Booking shortcodes', 'smart-appointment-booking') . '</label></div>';
 									foreach ($form_data['booking'] as $objbooking) {
 										echo '<span class="copy-text" style="margin-right: 5px;margin-bottom: 5px; font-family: Arial; font-size: 14px;">[' . $objbooking . ']</span>';
 									}
 								}
-								echo '<div class=""><label style="font-weight: bold;">' . __('Post shortcodes', 'wp-smart-appointment-booking') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . __('Post shortcodes', 'smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['post'] as $objpost) {
 									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objpost . ']</span>';
 								}
@@ -957,7 +957,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 								</select>
 							</div>
 							<div class="form-group redirectto_main redirect_to redirect_zfb <?php echo $hiddenredirect_to; ?> ">
-								<label class="h6"><?php echo __('Enter Url: ', 'wp-smart-appointment-booking'); ?></label>
+								<label class="h6"><?php echo __('Enter Url: ', 'smart-appointment-booking'); ?></label>
 								<input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
 								<small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
 							</div> 
@@ -1025,13 +1025,13 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 						update_post_meta($post_id, 'notification_data', $notification_data);
 		
 						$response['success'] = true;
-						$response['message'] = __('Notification saved successfully', 'wp-smart-appointment-booking');
+						$response['message'] = __('Notification saved successfully', 'smart-appointment-booking');
 						$response['state'] = $new_state;
 					} else {
-						$response['message'] = __('Something went wrong', 'wp-smart-appointment-booking');
+						$response['message'] = __('Something went wrong', 'smart-appointment-booking');
 					}
 				} else {
-					$response['message'] = __('Something went wrong', 'wp-smart-appointment-booking');
+					$response['message'] = __('Something went wrong', 'smart-appointment-booking');
 				}
 			}
 		
@@ -1244,7 +1244,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$form_title = get_the_title($form_id);	
 				
 				if (isset($form_title)) {	
-					echo __($form_title,'wp-smart-appointment-booking');
+					echo __($form_title,'smart-appointment-booking');
 				}else{
 					echo '-';
 				}
@@ -1253,7 +1253,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$booking_status = get_post_meta($post_id,'entry_status',true);
 			
 				if (isset($booking_status) && !empty($booking_status)) {	
-					echo ucfirst(__($booking_status,'wp-smart-appointment-booking'));
+					echo ucfirst(__($booking_status,'smart-appointment-booking'));
 				}else{
 					echo '-';
 				}
@@ -1271,7 +1271,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
 				$booked_date = date('d F, Y', strtotime($booked_date));	
 					if (isset($booking_date) && !empty($booking_date)) {	
-						echo __($booked_date,'wp-smart-appointment-booking');
+						echo __($booked_date,'smart-appointment-booking');
 					}
 				}else{
 					echo '-';
@@ -1281,7 +1281,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 				$timeslot = get_post_meta( $post_id, 'timeslot', true );						
 			
 				if (isset($timeslot) && !empty($timeslot)) {	
-					echo __($timeslot,'wp-smart-appointment-booking');
+					echo __($timeslot,'smart-appointment-booking');
 				}else{
 					echo '-';
 				}
@@ -1430,9 +1430,9 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 			if (!empty($post_id)) {
 				update_post_meta($post_id, 'user_mapping', $user_mapping_array);
 
-				$response['message'] = __('User mapping saved successfully.', 'wp-smart-appointment-booking');
+				$response['message'] = __('User mapping saved successfully.', 'smart-appointment-booking');
 			} else {
-				$response['message'] = __('Post ID is missing.', 'wp-smart-appointment-booking');
+				$response['message'] = __('Post ID is missing.', 'smart-appointment-booking');
 			
 			}
 			wp_send_json($response);
@@ -1464,10 +1464,10 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 					$redirect_url = sanitize_text_field($formdata['redirect_url']);
 					update_post_meta($post_id, 'redirect_url', $redirect_url);
 				}
-				$response['message'] = __('Saved Successfully', 'wp-smart-appointment-booking');
+				$response['message'] = __('Saved Successfully', 'smart-appointment-booking');
 
 			}else{
-				$response['message'] = __('Something went wrong', 'wp-smart-appointment-booking');
+				$response['message'] = __('Something went wrong', 'smart-appointment-booking');
 			}
 
 			wp_send_json($response);
@@ -1608,7 +1608,7 @@ if ( !class_exists( 'WP_SAB_Admin_Action' ) ) {
 		
 	}
 	add_action( 'plugins_loaded', function() {
-		$WP_SAB_Admin_Action = new WP_SAB_Admin_Action();
+		$SAB_Admin_Action = new SAB_Admin_Action();
 	} );
 
 }

@@ -1,23 +1,23 @@
 <?php
 /**
- * WP_SAB_Front_Action Class
+ * SAB_Front_Action Class
  *
  * Handles the Frontend Actions.
  *
  * @package WordPress
- * @subpackage WP Smart Appointment & Booking
+ * @subpackage Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'WP_SAB_Front_Action' ) ){
+if ( !class_exists( 'SAB_Front_Action' ) ){
 
 	/**
-	 *  The WP_SAB_Front_Action Class
+	 *  The SAB_Front_Action Class
 	 */
-	class WP_SAB_Front_Action {
+	class SAB_Front_Action {
 
 		function __construct()  {
 
@@ -70,23 +70,23 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		 */
 		function action__wp_enqueue_scripts() {
 			if(is_admin()){
-				wp_enqueue_script( WP_SAB_PREFIX . '_bookingform', WP_SAB_URL . 'assets/js/booking/booking-form.js', array( 'jquery-core' ), WP_SAB_VERSION );
+				wp_enqueue_script( SAB_PREFIX . '_bookingform', SAB_URL . 'assets/js/booking/booking-form.js', array( 'jquery-core' ), SAB_VERSION );
 			}
-			wp_enqueue_script( WP_SAB_PREFIX . '_front', WP_SAB_URL . 'assets/js/front.js', array( 'jquery-core' ), WP_SAB_VERSION );
-			wp_enqueue_script( 'sab_formio_full_min', WP_SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( SAB_PREFIX . '_front', SAB_URL . 'assets/js/front.js', array( 'jquery-core' ), SAB_VERSION );
+			wp_enqueue_script( 'sab_formio_full_min', SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
 			
 			wp_localize_script('sab_formio_full_min', 'myAjax', array(
 				'ajaxurl' => admin_url('admin-ajax.php')
 			));
-			wp_enqueue_script( 'sab_boostrap.min', WP_SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );
-			wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
-			wp_enqueue_script( 'sab_jquery-3.7.0.min',WP_SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( 'sab_boostrap.min', SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
+			wp_enqueue_script( 'sab_jquery-3.7.0.min',SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
 
 			//cancel booking 
 
 			if (is_front_page()) {
 
-				wp_enqueue_script('cancel-booking', WP_SAB_URL . 'assets/js/booking/cancelbooking.js', array('jquery'), '1.0', true);
+				wp_enqueue_script('cancel-booking', SAB_URL . 'assets/js/booking/cancelbooking.js', array('jquery'), '1.0', true);
 				
 				wp_localize_script('cancelbooking', 'myAjax', array(
 					'ajaxurl' => admin_url('admin-ajax.php'),
@@ -95,9 +95,9 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		}
 		function action__enqueue_styles() {
 
-			wp_enqueue_style( 'sab_front',WP_SAB_URL.'assets/css/front.css', array(), 1.1, 'all' );
-			wp_enqueue_style( 'sab_boostrap_min',WP_SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );
-			wp_enqueue_style( 'sab_formio_full_min',WP_SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_front',SAB_URL.'assets/css/front.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_boostrap_min',SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );
+			wp_enqueue_style( 'sab_formio_full_min',SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
 			wp_enqueue_style( 'sab_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
 				
 	   }
@@ -197,7 +197,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 			if($check_isbooking_open === false){
 				$error = true;
 				wp_send_json_error(array(
-					'message' => __('The booking window has closed.','wp-smart-appointment-booking'),
+					'message' => __('The booking window has closed.','smart-appointment-booking'),
 					'error' => $error,
 				));
 				wp_die();
@@ -209,7 +209,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$waiting_list = 'true';
 				} else {
 					$register_booking = 'false';
-					$error = __('No available seats','wp-smart-appointment-booking');
+					$error = __('No available seats','smart-appointment-booking');
 				}
 			}else{
 				$register_booking = 'true';
@@ -356,7 +356,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$error = true;
 				
 				wp_send_json_error(array(
-					'message' => __('Something went wrong, Please try again later','wp-smart-appointment-booking'),
+					'message' => __('Something went wrong, Please try again later','smart-appointment-booking'),
 					'error' => $error,
 				));
 			}
@@ -523,16 +523,16 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					$loop = 1;
 					$result = wp_mail($to, $subject, $check_body, $headers);		
 					if ($result === true) {
-						$message = __('Email sent successfully','wp-smart-appointment-booking');
+						$message = __('Email sent successfully','smart-appointment-booking');
 					} else {
-						$message = __('Failed to send email','wp-smart-appointment-booking');
+						$message = __('Failed to send email','smart-appointment-booking');
 						error_log('Failed to send email');
 					}
 				}
 			
 			}
 			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status', 'wp-smart-appointment-booking');
+				$message = __('Notification not found for the given status', 'smart-appointment-booking');
 				error_log('Notification not found for the given status');
 			}
 			return $message;
@@ -832,7 +832,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 								} else {
 									$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 								}
-								$available_text = __('Available seats : ','wp-smart-appointment-booking').$available_seats;
+								$available_text = __('Available seats : ','smart-appointment-booking').$available_seats;
 							}else{
 								if ($current_time >= $start_timestamp) {
 								
@@ -857,17 +857,17 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 											} else {
 												$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 											}
-											$available_text = __('Available seats : ','wp-smart-appointment-booking').$available_seats;
+											$available_text = __('Available seats : ','smart-appointment-booking').$available_seats;
 										}else{
 											$output_timeslot .= '<li class="zfb_timeslot" >';
 											$available_seats = 0;
-											$available_text = __('Timeslot Not available','wp-smart-appointment-booking');
+											$available_text = __('Timeslot Not available','smart-appointment-booking');
 											$waiting_text = '';
 										}
 									}else{
 										$output_timeslot .= '<li class="zfb_timeslot" >';
 										$available_seats = 0;
-										$available_text = __('Timeslot Not available','wp-smart-appointment-booking');
+										$available_text = __('Timeslot Not available','smart-appointment-booking');
 										$waiting_text = '';
 									}
 									
@@ -884,7 +884,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 									} else {
 										$output_timeslot .= '<li class="zfb_timeslot" onclick="selectTimeslot(this)" >';
 									}
-									$available_text = __('Available seats : ','wp-smart-appointment-booking').$available_seats;
+									$available_text = __('Available seats : ','smart-appointment-booking').$available_seats;
 								}
 							}
 
@@ -1288,7 +1288,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							</ul>
 							<?php 
 								if($error === true){
-									echo __('No timeslots found for selected date.','wp-smart-appointment-booking');
+									echo __('No timeslots found for selected date.','smart-appointment-booking');
 								}else{
 									echo '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
 									echo '<p id="no-timeslots-message" class="h5" style="display: none;">No Timeslots found!</p>';
@@ -1665,7 +1665,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
                     }	
 				echo "</ul>";
 				if($error === true){
-					echo __('No timeslots found for selected date. ','wp-smart-appointment-booking');
+					echo __('No timeslots found for selected date. ','smart-appointment-booking');
 				}else{
 					echo '<input class="zfb-selected-capacity" type="number" name="zfbslotcapacity" placeholder="Enter Slot Capacity" min="1" value="1">';
 					echo '<p id="no-timeslots-message" style="display: none;">No Timeslots found!</p>';
@@ -1692,13 +1692,13 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							$get_current_status = get_post_meta($booking_id, 'entry_status', true);
 							if ($get_current_status === 'cancelled') {
 								$response = array(
-									'message' => __('Booking already cancelled', 'wp-smart-appointment-booking'),
+									'message' => __('Booking already cancelled', 'smart-appointment-booking'),
 									'error' => true,
 									'status' => 'check',
 								);
 							} else {
 								$response = array(
-									'message' => __('Booking cancellation ready for confirmation', 'wp-smart-appointment-booking'),
+									'message' => __('Booking cancellation ready for confirmation', 'smart-appointment-booking'),
 									'error' => 'false',
 									'status' => 'readytoconfirm',
 								);
@@ -1708,7 +1708,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 							update_post_meta($booking_id, 'entry_status', 'cancelled');
 							$get_current_status = get_post_meta($booking_id, 'entry_status', true);
 							$response = array(
-								'message' => __('Booking has been cancelled successfully', 'wp-smart-appointment-booking'),
+								'message' => __('Booking has been cancelled successfully', 'smart-appointment-booking'),
 								'error' => 'false',
 								'status' => 'updated',
 							);
@@ -1717,14 +1717,14 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 					}
 				} else {
 					$response = array(
-						'message' => __('Something went wrong, please try again later', 'wp-smart-appointment-booking'),
+						'message' => __('Something went wrong, please try again later', 'smart-appointment-booking'),
 						'error' => true,
 						'status' => 'check',
 					);
 				} 
 			} else {
 				$response = array(
-					'message' => __('Invalid URL.', 'wp-smart-appointment-booking'),
+					'message' => __('Invalid URL.', 'smart-appointment-booking'),
 					'error' => true,
 				);
 			}
@@ -1804,7 +1804,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 		 */
 		function cancel_booking_shortcode() {
 			$response = array(					
-				'message' => __('','wp-smart-appointment-booking'),
+				'message' => __('','smart-appointment-booking'),
 				'mail_message' => '',
 				
 			);
@@ -1823,7 +1823,7 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 				$message = $this->zfb_send_notification($status,$form_id, $bookingId, $listform_label_val );
 			
 				$response = array(					
-					'message' => __('Your booking has been cancelled succesfully','wp-smart-appointment-booking'),
+					'message' => __('Your booking has been cancelled succesfully','smart-appointment-booking'),
 					'mail_message' => $message,
 					
 				);
@@ -1929,6 +1929,6 @@ if ( !class_exists( 'WP_SAB_Front_Action' ) ){
 	}
 
 	add_action( 'plugins_loaded', function() {
-		$WP_SAB_Front_Action = new WP_SAB_Front_Action();
+		$SAB_Front_Action = new SAB_Front_Action();
 	} );
 }

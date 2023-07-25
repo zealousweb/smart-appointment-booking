@@ -1,23 +1,23 @@
 <?php
 /**
- * WP_SAB_Admin_Fieldmeta Class
+ * SAB_Admin_Fieldmeta Class
  *
  * Handles the admin functionality.
  *
  * @package WordPress
- * @subpackage WP Smart Appointment & Booking
+ * @subpackage Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
+if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
 
     /**
-     * The WP_SAB_Admin Class
+     * The SAB_Admin Class
      */
-    class WP_SAB_Admin_Fieldmeta {
+    class SAB_Admin_Fieldmeta {
         function __construct() {
             
             add_action( 'add_meta_boxes', array( $this, 'sab_add_meta_box' ) ); 
@@ -191,13 +191,13 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 <p class="h6">Booked Timeslot</p>
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <p  for="start_time" class="h6"><?php echo __('From: ', 'wp-smart-appointment-booking'); ?></p>
+                                        <p  for="start_time" class="h6"><?php echo __('From: ', 'smart-appointment-booking'); ?></p>
                                         <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
                                         
                                     </div>
                                     
                                     <div class="form-group col-md-4">
-                                        <p for="end_time" class="h6"><?php echo __('To: ', 'wp-smart-appointment-booking'); ?></p>
+                                        <p for="end_time" class="h6"><?php echo __('To: ', 'smart-appointment-booking'); ?></p>
                                         <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
                                     </div>
                                     <span class="validation-message" style="color: red;"></span>
@@ -370,11 +370,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label  class="h6"><?php echo __('Prefix Symbol : ', 'wp-smart-appointment-booking'); ?></label>
+                                        <label  class="h6"><?php echo __('Prefix Symbol : ', 'smart-appointment-booking'); ?></label>
                                         <input type="text" class="form-control" name="label_symbol" value="<?php echo esc_attr($symbol); ?>">
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label  class="h6"> <?php echo __('Cost : ', 'wp-smart-appointment-booking'); ?></label>
+                                        <label  class="h6"> <?php echo __('Cost : ', 'smart-appointment-booking'); ?></label>
                                         <input type="number" class="form-control" name="cost" value="<?php echo esc_attr($cost); ?>">
                                     </div>
                                 </div>
@@ -382,7 +382,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                         </div>
                         <div class="col-6">
                                  <!-- <div class="card"> -->
-                                <label class="h6"><?php echo __('Select Weekdays: ', 'wp-smart-appointment-booking'); ?></label>
+                                <label class="h6"><?php echo __('Select Weekdays: ', 'smart-appointment-booking'); ?></label>
                                 <div class="form-group">
                                     <div class="form-check form-check-inline">
                                         <input type="checkbox" name="weekdays[]" value="monday" <?php echo (is_array($weekdays) && in_array('monday', $weekdays)) ? 'checked' : ''; ?> id="weekday_monday">
@@ -418,7 +418,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                         <label class="form-check-label" for="weekday_sunday">Sunday</label>
                                      </div>
                                 </div>
-                                <div class="form-group form-general-group"><label  class="h6"><?php echo __('Appointment Type: ', 'wp-smart-appointment-booking'); ?></label>
+                                <div class="form-group form-general-group"><label  class="h6"><?php echo __('Appointment Type: ', 'smart-appointment-booking'); ?></label>
 
                                     <div class="form-check form-check-inline">
                                     <input type="radio" name="appointment_type" id="appointment_type_virtual" value="virtual" <?php if ($appointment_type == 'virtual') echo 'checked="checked"'; ?>>
@@ -439,7 +439,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                     </div>
                                     <?php else : ?>
                                         <div class="vlink-container hidden form-group form-general-group">
-                                            <label for="virtual_link"  class="h6"><?php echo __('Link: ', 'wp-smart-appointment-booking'); ?></label>
+                                            <label for="virtual_link"  class="h6"><?php echo __('Link: ', 'smart-appointment-booking'); ?></label>
                                             <input type="text" class="form-control" name="virtual_link" value="<?php echo esc_attr($virtual_link); ?>">
                                         </div>
                                     <?php endif; 
@@ -455,29 +455,29 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 <div id="tab2" class="tab-content">
                     <div class="">
                         <div class="form-group form-general-group ">
-                            <label  class="h6"><?php echo __('Select Date : ', 'wp-smart-appointment-booking'); ?></label>
+                            <label  class="h6"><?php echo __('Select Date : ', 'smart-appointment-booking'); ?></label>
                             <input type="date" class="form-control col-md-4" name="selected_date" value="<?php echo esc_attr($selected_date); ?>">
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-2">
-                                <label  class="h6"><?php echo __('Start Time: ', 'wp-smart-appointment-booking'); ?></label>
+                                <label  class="h6"><?php echo __('Start Time: ', 'smart-appointment-booking'); ?></label>
                                 <input type="time" class="form-control" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
                             </div>
                             <div class="form-group col-md-2">
-                                <label  class="h6"><?php echo __('End Time: ', 'wp-smart-appointment-booking'); ?></label>
+                                <label  class="h6"><?php echo __('End Time: ', 'smart-appointment-booking'); ?></label>
                                 <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
                                </div>
                             <span class="validation-message" style="color: red;"></span>
                         </div>
                        
                         <div class="form-group">
-                            <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'wp-smart-appointment-booking'); ?></label>
+                            <label  class="h6"><?php echo __('Timeslot Duration(hh:mm)', 'smart-appointment-booking'); ?></label>
                             <input type="number" class="hours col-md-2 " name="timeslot_duration[hours]" min="0" max="23" placeholder="HH" value="<?php echo isset($timeslot_duration['hours']) ? esc_attr($timeslot_duration['hours']) : ''; ?>" >
                             <span>:</span>
                             <input type="number" class="minutes col-md-2" name="timeslot_duration[minutes]" min="0" max="59" placeholder="MM" value="<?php echo isset($timeslot_duration['minutes']) ? esc_attr($timeslot_duration['minutes']) : ''; ?>" >
                             <span class="timeslot-validation-message" style="color: red;"></span>
                         </div>
-                        <label for="steps_duration"  class="h6"><?php echo __("Step/Interval Duration between each Timeslot","wp-smart-appointment-booking"); ?></label>
+                        <label for="steps_duration"  class="h6"><?php echo __("Step/Interval Duration between each Timeslot","smart-appointment-booking"); ?></label>
                         <div class="form-row">
                             
                             <div class="form-group col-md-2">
@@ -492,7 +492,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                         </div>
                         <div class="form-group">                
                             <!-- Booking per Timeslots -->
-                            <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'wp-smart-appointment-booking'); ?></label>
+                            <label  class="h6"><?php echo __('No of Booking per Timeslots : ', 'smart-appointment-booking'); ?></label>
                             <input class="form-control col-md-2" type="number" name="no_of_booking" value="<?php echo esc_attr($no_of_booking); ?>">
                         </div>
                         <div class="form-check form-check-inline">
@@ -617,7 +617,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                                 </select>
                             </div>
                             <div id="certain_weekdays_fields" class="form-group form-general-group" style="display: none;" >
-                            <label for="recurring_type"><?php echo __('Select Weekdays: ', 'wp-smart-appointment-booking'); ?></label>
+                            <label for="recurring_type"><?php echo __('Select Weekdays: ', 'smart-appointment-booking'); ?></label>
                                 <div class="form-check">
                                     
                                     <input type="checkbox" name="recur_weekdays[]" value="monday" <?php echo (is_array($recur_weekdays) && in_array('monday', $recur_weekdays)) ? 'checked' : ''; ?> >
@@ -988,7 +988,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 $message =$this->zfb_admin_send_notification($status, $form_id, $bookingId, $listform_label_val);
 			
 				$response = array(					
-					'message' => __('Your booking has been cancelled succesfully','wp-smart-appointment-booking'),
+					'message' => __('Your booking has been cancelled succesfully','smart-appointment-booking'),
 					'mail_message' => $message,
 				);
 			}
@@ -1193,16 +1193,16 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
 					$loop = 1;                  
 					$result = wp_mail($to, $subject, $check_body, $headers);		
 					if ($result === true) {
-						$message = __('Email sent successfully','wp-smart-appointment-booking');
+						$message = __('Email sent successfully','smart-appointment-booking');
 					} else {
-						$message = __('Failed to send email','wp-smart-appointment-booking');
+						$message = __('Failed to send email','smart-appointment-booking');
 						error_log('Failed to send email');
 					}
 				}
                			
 			}
 			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status', 'wp-smart-appointment-booking');
+				$message = __('Notification not found for the given status', 'smart-appointment-booking');
 				error_log('Notification not found for the given status');
 			}
 			return $message;
@@ -1300,7 +1300,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
 
                 add_meta_box(
                     'edit_form_data',
-                    __( 'Edit Forms Details', 'wp-smart-appointment-booking' ),
+                    __( 'Edit Forms Details', 'smart-appointment-booking' ),
                     array( $this, 'zfb_edit_form_details' ),
                     $post_type,
                     'normal',
@@ -1308,7 +1308,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 );
                 add_meta_box(
                     'manual_notification', 
-                    __('Send Manual Notification','wp-smart-appointment-booking'), 
+                    __('Send Manual Notification','smart-appointment-booking'), 
                     array( $this, 'notification_logs' ),
                     $post_type,
                     'side', 
@@ -1316,7 +1316,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 );
                 add_meta_box(
                     'notes-meta-box',
-                    __('Notes','wp-smart-appointment-booking'), 
+                    __('Notes','smart-appointment-booking'), 
                     array( $this, 'zfb_render_notes_meta_box' ),
                     $post_type,
                     'side',
@@ -1331,7 +1331,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 if ($post_id && get_post_status($post_id) === 'publish') {
                     add_meta_box(
                         'form_shortcode_data',
-                        __('Form Shortcode','wp-smart-appointment-booking'), 
+                        __('Form Shortcode','smart-appointment-booking'), 
                         array( $this, 'zfb_render_meta_box_shortcode' ),
                         $post_type,
                         'normal',
@@ -1340,7 +1340,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 }
                 add_meta_box(
                     'create_sab_form',
-                    __( 'Form Configuration', 'wp-smart-appointment-booking' ),
+                    __( 'Form Configuration', 'smart-appointment-booking' ),
                     array( $this, 'formio_render_meta_box_content' ),
                     $post_type,
                     'normal',
@@ -1349,7 +1349,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
 
                 add_meta_box(
                     'appointment_setting',
-                    __( 'Booking Configuration', 'wp-smart-appointment-booking' ),
+                    __( 'Booking Configuration', 'smart-appointment-booking' ),
                     array( $this, 'sab_repeat_appointment' ),
                     $post_type,
                     'normal',
@@ -1416,11 +1416,11 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
                 <?php 
                 if($enable_booking){
                 ?>
-                <option value="booked" ><?php echo __('Booked','wp-smart-appointment-booking'); ?></option>
-                <option value="approved" ><?php echo __('Approved','wp-smart-appointment-booking'); ?></option>
-                <option value="cancelled" ><?php echo __('Cancelled','wp-smart-appointment-booking'); ?></option>
-                <option value="waiting" ><?php echo __('Waiting','wp-smart-appointment-booking'); ?></option>
-                <option value="pending" ><?php echo __('Pending','wp-smart-appointment-booking'); ?></option>
+                <option value="booked" ><?php echo __('Booked','smart-appointment-booking'); ?></option>
+                <option value="approved" ><?php echo __('Approved','smart-appointment-booking'); ?></option>
+                <option value="cancelled" ><?php echo __('Cancelled','smart-appointment-booking'); ?></option>
+                <option value="waiting" ><?php echo __('Waiting','smart-appointment-booking'); ?></option>
+                <option value="pending" ><?php echo __('Pending','smart-appointment-booking'); ?></option>
                 <?php 
                 }
                 ?>
@@ -2101,7 +2101,7 @@ if ( !class_exists( 'WP_SAB_Admin_Fieldmeta' ) ) {
         
     }           
     add_action( 'plugins_loaded', function() {
-		$WP_SAB_Admin_Fieldmeta = new WP_SAB_Admin_Fieldmeta();
+		$SAB_Admin_Fieldmeta = new SAB_Admin_Fieldmeta();
 	} );
  }
 ?>

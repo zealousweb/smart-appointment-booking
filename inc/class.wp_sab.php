@@ -1,20 +1,20 @@
 <?php
 /**
- * WP_SAB Class
+ * AB_SAB Class
  *
  * Handles the plugin functionality.
  *
  * @package WordPress
- * @package WP Smart Appointment & Booking
+ * @package Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! class_exists( 'WP_SAB' ) ) {
+if ( ! class_exists( 'AB_SAB' ) ) {
 
-    class WP_SAB {
+    class AB_SAB {
 
         private static $_instance = null;
         var $admin = null,
@@ -31,21 +31,20 @@ if ( ! class_exists( 'WP_SAB' ) ) {
         private function __construct() {
             add_action( 'setup_theme', array( $this, 'action__setup_theme' ) );
             add_action( 'plugins_loaded', array( $this, 'action__plugins_loaded' ), 1 );
-			// register_activation_hook( __FILE__,  array( $this, 'activate_wp_sab' ), 1 );
         }
         function action__setup_theme() {
 
 				if ( is_admin() ) {
 
-					WP_SAB()->admin = new WP_SAB_Admin;
-					WP_SAB()->admin->action = new WP_SAB_Admin_Action;
-					WP_SAB()->admin->filter = new WP_SAB_Admin_Filter;
+					AB_SAB()->admin = new SAB_Admin;
+					AB_SAB()->admin->action = new SAB_Admin_Action;
+					AB_SAB()->admin->filter = new SAB_Admin_Filter;
 
 				} else {
 
-					WP_SAB()->front = new WP_SAB_Front;
-					WP_SAB()->front->action = new WP_SAB_Front_Action;
-					WP_SAB()->front->filter = new WP_SAB_Front_Filter;
+					AB_SAB()->front = new SAB_Front;
+					AB_SAB()->front->action = new SAB_Front_Action;
+					AB_SAB()->front->filter = new SAB_Front_Filter;
 				}
         }
 
@@ -54,8 +53,8 @@ if ( ! class_exists( 'WP_SAB' ) ) {
 			global $wp_version;
 
 			# Set filter for plugin's languages directory
-			$WP_SAB_lang_dir = dirname( WP_SAB_PLUGIN_BASENAME ) . '/languages/';
-			$WP_SAB_lang_dir = apply_filters( 'WP_SAB_languages_directory', $WP_SAB_lang_dir );
+			$SAB_lang_dir = dirname( SAB_PLUGIN_BASENAME ) . '/languages/';
+			$SAB_lang_dir = apply_filters( 'SAB_languages_directory', $SAB_lang_dir );
 
 			# Traditional WordPress plugin locale filter.
 			$get_locale = get_locale();
@@ -69,19 +68,15 @@ if ( ! class_exists( 'WP_SAB' ) ) {
 			$mofile = sprintf( '%1$s-%2$s.mo', 'wp-smart-appointment-booking', $locale );
 
 			# Setup paths to current locale file
-			$mofile_global = WP_LANG_DIR . '/plugins/' . basename( WP_SAB_DIR ) . '/' . $mofile;
+			$mofile_global = WP_LANG_DIR . '/plugins/' . basename( SAB_DIR ) . '/' . $mofile;
 
 			if ( file_exists( $mofile_global ) ) {
 				# Look in global /wp-content/languages/plugin-name folder
-				load_textdomain( 'wp-smart-appointment-booking', $mofile_global );
+				load_textdomain( 'smart-appointment-booking', $mofile_global );
 			} else {
 				# Load the default language files
-				load_plugin_textdomain( 'wp-smart-appointment-booking', false, $WP_SAB_lang_dir );
+				load_plugin_textdomain( 'smart-appointment-booking', false, $SAB_lang_dir );
 			}
         }
-
-		function activate_wp_sab() {
-
-		}
     }
 }

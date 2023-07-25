@@ -1,4 +1,4 @@
-=== WP Smart Appointment & Booking  ===
+=== Smart Appointment & Booking  ===
 
 Contributors: zealopensource
 Tags: Booking, Appointment, Scheduling form, forms, Booking Appointments
@@ -10,21 +10,26 @@ Version: 1.0
 Stable tag: 1.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-The WP Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users to specific pages after submission. and options to modify form entries.
+The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users to specific pages after submission. and options to modify form entries.
 == Description ==
 
-ZealousWeb Technologies has come up with a powerful solution - WP Smart Appointment & Booking. This all-in-one plugin efficiently manages appointments with customizable forms, seamless booking. It enhances customer experiences and streamlines processes for service-based businesses, appointment management, and booking services.
+ZealousWeb Technologies has come up with a powerful solution - Smart Appointment & Booking. This all-in-one plugin efficiently manages appointments with customizable forms, seamless booking. It enhances customer experiences and streamlines processes for service-based businesses, appointment management, and booking services.
 
-= Features of WP Smart Appointment & Booking =
+= Features of Smart Appointment & Booking =
 
-* Create and Configure Forms: Create separate forms, customize them as needed, and configure the thank-you message or page redirection upon form submission. Easily view form entries in the backend for effective management.
-* Booking Forms: Booking Forms: Not just ordinary forms! You can create specialized booking forms tailored to your unique requirements. Set up booking calendar settings, and customize the thank-you message or page redirection upon successful bookings. Manage and track booking entries in the backend effortlessly.
-* Flexible Form Usage: The plugin allows you to utilize forms as booking forms or standalone forms. With easy enable and disable booking configuration options, you have complete control over their functionality.
-* Physical or Virtual Appointments: Offer both physical and virtual appointments to your customers. Share Google links or Zoom links via email to facilitate seamless virtual interactions.
-* Waitlist Management: Never let a fully booked time slot or service go unused. The waitlist feature enables customers to join a waitlist for full bookings. You can later approve the booking and send notification.
-* Booking Modifications and Cancellations: Empower your customers to make modifications or cancellations to their bookings within a predefined time frame. Additionally, your staff can efficiently reschedule or cancel bookings as necessary.
-* View and Edit Booking Entries and Form Entries: Easily view, edit, and manage booking entries and form entries from the backend. Update status, booking dates, and send manual notifications to stay in control.
-* Default: Guest Check-In: Keep things open and accessible with a guest check-in feature. Allow anyone to submit forms without the need for account creation.
+* Create and Configure Forms and customize them as needed, and configure the thank-you message.
+* You can also set page redirection upon form submission.
+* Its not just ordinary forms! You can create specialized booking forms tailored to your unique requirements. 
+* Set up booking calendar settings, and customize the thank-you message or redirection upon successful bookings. 
+* In admin you can manage and track booking entries in the backend effortlessly.
+* We are Offer both physical and virtual appointments to your customers. 
+* Share Google links or Zoom links via email to facilitate seamless virtual interactions.
+* The waitlist feature enables customers to join a waitlist for full bookings. You can later approve the booking and send notification.
+* From admin you can Modifications and Cancellations the Bookings.
+* Additionally, your staff can efficiently reschedule or cancel bookings as necessary.
+* View and Edit Booking Entries and Form Entries.
+* Update status, booking dates, and send manual notifications to stay in control.
+* Guest Check-In feature allow anyone to submit forms without the need for account creation.
 
 == Plugin Requirement ==
 
@@ -56,11 +61,11 @@ Installing the plugin is easy. Just follow these steps:
 
 1. From the dashboard of your site, navigate to Plugins --> Add New.
 2. Select the Upload option and hit "Choose File."
-3. When the popup appears select the wp-smart-appointment-booking.zip file from your desktop.
+3. When the popup appears select the smart-appointment-booking.zip file from your desktop.
 4. Follow the on-screen instructions and wait till the upload completes.
 5. When it's finished, activate the plugin via the prompt. A message will display confirming activation was successful.
 
-That's it! Just configure your settings as you see fit, and you're on your way to creating forms with Stripe in your style. Are you facing problems while installation? Need help getting things started? Check out the (documentation link)[https://www.zealousweb.com/documentation/wp-smart-appointment-booking/] here.
+That's it! Just configure your settings as you see fit, and you're on your way to creating forms with Stripe in your style. Are you facing problems while installation? Need help getting things started? Check out the (documentation link)[https://www.zealousweb.com/documentation/smart-appointment-booking/] here.
 
 == Frequently Asked Questions ==
 

@@ -1,23 +1,23 @@
 <?php
 /**
- * WP_SAB_Front_Filter Class
+ * SAB_Front_Filter Class
  *
  * Handles the Frontend Filters.
  *
  * @package WordPress
- * @subpackage WP Smart Appointment & Booking
+ * @subpackage Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! class_exists( 'WP_SAB_Front_Filter' ) ) {
+if ( ! class_exists( 'SAB_Front_Filter' ) ) {
 
     /**
-     *  The WP_SAB_Front_Filter Class
+     *  The SAB_Front_Filter Class
      */
-    class WP_SAB_Front_Filter {
+    class SAB_Front_Filter {
 
         public function __construct() {
             // Add your constructor code here, if needed
@@ -46,7 +46,7 @@ if ( ! class_exists( 'WP_SAB_Front_Filter' ) ) {
 
     }
 	add_action( 'plugins_loaded', function() {
-		$WP_SAB_Front_Filter = new WP_SAB_Front_Filter();
+		$SAB_Front_Filter = new SAB_Front_Filter();
 	} );
 
 }

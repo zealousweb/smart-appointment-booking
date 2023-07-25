@@ -1,23 +1,23 @@
 <?php
 /**
- * WP_SAB_Admin_Filter Class
+ * SAB_Admin_Filter Class
  *
  * Handles the admin functionality.
  *
  * @package WordPress
- * @subpackage WP Smart Appointment & Booking
+ * @subpackage Smart Appointment & Booking
  * @since 1.0
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'WP_SAB_Admin_Filter' ) ) {
+if ( !class_exists( 'SAB_Admin_Filter' ) ) {
 
 	/**
-	 *  The WP_SAB_Admin_Filter Class
+	 *  The SAB_Admin_Filter Class
 	 */
-	class WP_SAB_Admin_Filter {
+	class SAB_Admin_Filter {
 
 		function __construct() {
 			add_filter('manage_sab_form_builder_posts_columns', array( $this,'add_custom_column_sab_form_builder'), 10, 2 );		
@@ -93,7 +93,7 @@ if ( !class_exists( 'WP_SAB_Admin_Filter' ) ) {
 		}
 	}
 	add_action( 'plugins_loaded', function() {
-		$WP_SAB_Admin_Filter = new WP_SAB_Admin_Filter();
+		$SAB_Admin_Filter = new SAB_Admin_Filter();
 	} );
 	
 }

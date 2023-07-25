@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: WP Smart Appointment & Booking
- * Plugin URL: https://wordpress.org/plugins/wp-smart-appointment-booking/
+ * Plugin Name: Smart Appointment & Booking
+ * Plugin URL: https://wordpress.org/plugins/smart-appointment-booking/
  * Description: This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking andmodifications waitlist management.
  * Version: 1.0
  * Author: ZealousWeb
  * Author URI: https://www.zealousweb.com
  * Developer: The Zealousweb Team
  * Developer E-Mail: support@zealousweb.com
- * Text Domain: wp-smart-appointment-booking
+ * Text Domain: smart-appointment-booking
  * Domain Path: /languages
  *
  * Copyright: © 2009-2023 ZealousWeb Technologies.
@@ -26,47 +26,47 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @since 1.0
  */
 
-if ( ! defined( 'WP_SAB_VERSION' ) ) {
-	define( 'WP_SAB_VERSION', '1.0' ); // Version of the plugin
+if ( ! defined( 'SAB_VERSION' ) ) {
+	define( 'SAB_VERSION', '1.0' ); // Version of the plugin
 }
 
-if ( ! defined( 'WP_SAB_FILE' ) ) {
-	define( 'WP_SAB_FILE', __FILE__ ); // Plugin File
+if ( ! defined( 'SAB_FILE' ) ) {
+	define( 'SAB_FILE', __FILE__ ); // Plugin File
 }
 
-if ( ! defined( 'WP_SAB_DIR' ) ) {
-	define( 'WP_SAB_DIR', dirname( __FILE__ ) ); // Plugin directory path
+if ( ! defined( 'SAB_DIR' ) ) {
+	define( 'SAB_DIR', dirname( __FILE__ ) ); // Plugin directory path
 }
 
-if ( ! defined( 'WP_SAB_URL' ) ) {
-	define( 'WP_SAB_URL', plugin_dir_url( __FILE__ ) ); // Plugin URL
+if ( ! defined( 'SAB_URL' ) ) {
+	define( 'SAB_URL', plugin_dir_url( __FILE__ ) ); // Plugin URL
 }
 
-if ( ! defined( 'WP_SAB_PLUGIN_BASENAME' ) ) {
-	define( 'WP_SAB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // Plugin base name
+if ( ! defined( 'SAB_PLUGIN_BASENAME' ) ) {
+	define( 'SAB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // Plugin base name
 }
 
-if ( ! defined( 'WP_SAB_META_PREFIX' ) ) {
-	define( 'WP_SAB_META_PREFIX', 'wp_sab_' ); // Plugin metabox prefix
+if ( ! defined( 'SAB_META_PREFIX' ) ) {
+	define( 'SAB_META_PREFIX', 'sab_' ); // Plugin metabox prefix
 }
 
-if ( ! defined( 'WP_SAB_PREFIX' ) ) {
-	define( 'WP_SAB_PREFIX', 'wp_sab' ); // Plugin prefix
+if ( ! defined( 'SAB_PREFIX' ) ) {
+	define( 'SAB_PREFIX', 'sab' ); // Plugin prefix
 }
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-if ( ! function_exists( 'WP_SAB' ) ) {
+if ( ! function_exists( 'SAB' ) ) {
 	if ( is_admin() ) {
-        require_once( WP_SAB_DIR . '/inc/admin/class.wp_sab.admin.action.php' );
-        require_once( WP_SAB_DIR . '/inc/admin/class.wp_sab.admin.fieldmeta.php' );
-        require_once( WP_SAB_DIR . '/inc/admin/class.wp_sab.admin.filter.php' );
+        require_once( SAB_DIR . '/inc/admin/class.sab.admin.action.php' );
+        require_once( SAB_DIR . '/inc/admin/class.sab.admin.fieldmeta.php' );
+        require_once( SAB_DIR . '/inc/admin/class.sab.admin.filter.php' );
     }else{
-		require_once( WP_SAB_DIR . '/inc/front/class.wp_sab.front.filter.php' );
+		require_once( SAB_DIR . '/inc/front/class.sab.front.filter.php' );
    	}
     
-    require_once( WP_SAB_DIR . '/inc/front/class.wp_sab.front.action.php' );
-    require_once( WP_SAB_DIR . '/inc/class.wp_sab.php' );
+    require_once( SAB_DIR . '/inc/front/class.sab.front.action.php' );
+    require_once( SAB_DIR . '/inc/class.sab.php' );
 }
