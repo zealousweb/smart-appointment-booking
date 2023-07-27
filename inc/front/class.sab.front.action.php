@@ -616,20 +616,37 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 				return false;
 			} else {
 				$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
+				$holiday_dates = get_post_meta($post_id, 'holiday_dates', true);
+				if ($holiday_dates && empty($holiday_dates)){
+					$holiday_dates = array();
+				}
+				$arrayofdates = array(); $arrayof_advdates = array();
+				$enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
+				$selected_date = get_post_meta($post_id, 'selected_date', true);
+				if($enable_advance_setting && $enable_advance_setting){
+					$advancedata = get_post_meta($post_id, 'advancedata', true);
+					foreach ($advancedata as $index => $data) {
+						if ($holiday_dates && is_array($holiday_dates)){
+							if (!in_array($data['advance_date'], $holiday_dates)) {
+								$arrayofdates[] = $data['advance_date'];
+							}
+						}
+					}
+				}
+				
 				if ($check_type) {
-					$arrayofdates = array();
+					
 					$weekdays_num = array();
 					$weekdays = get_post_meta($post_id, 'weekdays', true);					
 					$all_days = array("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday");
 					$todays_date = date("Y-m-d");
-                    $selected_date = get_post_meta($post_id, 'selected_date', true);
-					$selected_date = date("Y-m-d", strtotime($selected_date));
-					
+                  
                     if($date < $selected_date || $date < $todays_date){
                         $arrayofdates = array();
                     }else{
-                       	$recurring_type = get_post_meta($post_id, 'recurring_type', true);
-                        $holiday_dates = get_post_meta($post_id, 'holiday_dates', true);
+
+                      	$recurring_type = get_post_meta($post_id, 'recurring_type', true);					
+                    
                         $end_repeats_type = get_post_meta($post_id, 'end_repeats', true);
                         if ($end_repeats_type == 'on') {
                             $end_repeats_on = get_post_meta($post_id, 'end_repeats_on',true);
@@ -653,12 +670,11 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 								if (in_array($dayOfWeek, $weekdays_num) && !in_array($currentDate, $holiday_dates)) {
 									$arrayofdates[] = $currentDate; 
 								}
-
 								$startDate = strtotime('+1 day', $startDate); 
 							}
 
 							
-						}elseif ($recurring_type == 'weekdays') {
+						}elseif ($recurring_type == 'weekdays') { 
                             
                             foreach ($weekdays as $wdays) {
                                 $weekdays_num[] = date('N', strtotime($wdays));
@@ -674,7 +690,6 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 								if (in_array($dayOfWeek, $weekdays_num) && !in_array($currentDate, $holiday_dates)) {
 									$arrayofdates[] = $currentDate; 
 								}
-
 								$startDate = strtotime('+1 day', $startDate); 
 							}
                             
@@ -700,40 +715,38 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 								$startDate = strtotime('+1 day', $startDate); 
 							}
                         }elseif ($recurring_type == 'daily') {
-							
+						
 							$startDate = strtotime($date);
 							$endDate = strtotime($end_repeats_on_date);
 							$dayOfWeek = date('N', $startDate); 
 							$currentDate = date('Y-m-d', $startDate);
-
+						
 							if (!in_array($currentDate, $holiday_dates)) {
 								$arrayofdates[] = $currentDate; 
 							}
 
-						}elseif ($recurring_type == 'advanced') {
-							$advancedata = get_post_meta($post_id, 'advancedata', true);
-                            foreach ($advancedata as $index => $data) {
-                                if (!in_array($data['advance_date'], $holiday_dates)) {
-                                    $arrayofdates[] = $data['advance_date'];
-                                }
-                            }
 						}
 						
+						
                     }
+					return $arrayofdates;
+				}else{
+					$arrayofdates[] = $selected_date;
 					return $arrayofdates;
 				}
 			}		
 			
 		}
 		function get_advanced_timeslots($post_id,$booking_date,$inputdate){
+			
 			$no_of_booking = get_post_meta($post_id, 'no_of_booking', true); 
 			$output_timeslot = '';
 			$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
 			if ($check_type) {
-				$recurring_type = get_post_meta($post_id, 'recurring_type', true);				
+				$recurring_type = get_post_meta($post_id, 'enable_advance_setting', true);				
 			}
 
-			if($check_type && $recurring_type== 'advanced'){
+			if($check_type && $recurring_type == 1){
 				$advancedata = get_post_meta($post_id, 'advancedata', true);
 				$get_timezone = get_post_meta($post_id,'timezone',true);                
                 date_default_timezone_set($get_timezone);
@@ -757,9 +770,7 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 					$booking_stops_after_sec = $booking_stops_after_hours . ':' . $booking_stops_after_minutes . ':00';
 					if (!empty($booking_stops_after_sec)) {
 						$booking_stops_after_duration_seconds = ($booking_stops_after_array['hours'] * 3600) + ($booking_stops_after_array['minutes'] * 60);
-						//echo "<br>".
 					}
-					
 				}
 				foreach ($advancedata as $index => $data) {
 					if($data['advance_date'] == $inputdate){
@@ -917,8 +928,7 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 				//get booking_stops_after duration
 				$timeslot_BookAllow = get_post_meta($post_id, 'timeslot_BookAllow', true);
 				$booking_stops_after = get_post_meta( $post_id, 'booking_stops_after', true );
-				if (!empty($booking_stops_after)) {
-					
+				if (!empty($booking_stops_after)) {					
 					$booking_stops_after_array = array(
 						'hours' => sanitize_text_field($booking_stops_after['hours']),
 						'minutes' => sanitize_text_field($booking_stops_after['minutes'])
@@ -929,22 +939,18 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 					$booking_stops_after_sec = $booking_stops_after_hours . ':' . $booking_stops_after_minutes . ':00';
 					if (!empty($booking_stops_after_sec)) {
 						$booking_stops_after_duration_seconds = ($booking_stops_after_array['hours'] * 3600) + ($booking_stops_after_array['minutes'] * 60);
-						
 					}
-					
 				}
 				$no_of_booking = get_post_meta($post_id, 'no_of_booking', true); 				
 				foreach ($generatetimeslot as $index => $timeslot) {
+					
 					$current_time = time();
 					$start_time = isset($timeslot['start_time']) ? $timeslot['start_time'] : '';
 					$end_time = isset($timeslot['end_time']) ? $timeslot['end_time'] : '';
 					$start_timestamp = strtotime($start_time);
 					$current_timewe = date('h:i A', $current_time);
-					
-					$end_timestamp = strtotime($end_time);					
-					
+					$end_timestamp = strtotime($end_time);
 					$start_time_slot = date('h:i A', $start_timestamp);
-					
 					$end_time_slot = date('h:i A', $end_timestamp);
 					
 					// Add the timeslot to the available timeslots array
@@ -1266,11 +1272,10 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 								<?php
 												
 								if(isset($is_available) && is_array($is_available) && in_array($todaysDate,$is_available)){
-									
 									$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
-									$recurring_type = get_post_meta($post_id, 'recurring_type', true);
+									echo $enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
 									
-									if($check_type && $recurring_type== 'advanced'){
+									if($enable_advance_setting && isset($enable_advance_setting)){
 										
 										echo $this->get_advanced_timeslots($post_id,$lastdateid,$todaysDate);	
 									}else{
@@ -1647,13 +1652,25 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
                     if (isset($is_available) && is_array($is_available)) {
                         if (in_array($todaysDate, $is_available)) {
                             $check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
-                            $recurring_type = get_post_meta($post_id, 'recurring_type', true);
-                            
-                            if($check_type && $recurring_type== 'advanced'){
-                                echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);	
-                            }else{
+                            $enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
+
+							if($enable_advance_setting && !empty($enable_advance_setting)){
+								$advancedata = get_post_meta($post_id, 'advancedata', true);
+								foreach ($advancedata as $item) {
+									$advanceDates[] = $item['advance_date'];
+								}
+								if($check_type && !empty($check_type)){
+									if($advanceDates && isset($advanceDates) && in_array($todaysDate,$advanceDates)){
+										echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
+									}else{
+										echo $this->front_generate_timeslots($post_id,$form_data);	
+									}
+								}else{
+									echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
+								}
+							}else{
                                 echo $this->front_generate_timeslots($post_id,$form_data);		
-                            }	
+                            }
                         } else {
 							$error = true;
                             error_log('Check End date! Selected date exceed the selected end date');

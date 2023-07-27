@@ -88,12 +88,12 @@ jQuery(document).ready(function($) {
        }
        if (selectedOption === 'advanced') {
           
-           jQuery('#advance-meta-box').show();
+        //    jQuery('#advance-meta-box').show();
            jQuery('.end_repeats_label').hide();
            jQuery('.end_repeats_options').hide();
        } else {
          
-           jQuery('#advance-meta-box').hide();
+        //    jQuery('#advance-meta-box').hide();
            jQuery('.end_repeats_label').show();
            jQuery('.end_repeats_options').show();
        }
