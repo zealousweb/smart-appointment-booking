@@ -91,9 +91,10 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
             }
            
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
-            if(isset($booking_date) && !empty($booked_date)){
+            if($booking_date && !empty($booking_date)){
                 $array_of_date = explode('_', $booking_date);
             }
+            // print_r($array_of_date);
             if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
                 $bookedday = $array_of_date[3];
@@ -204,6 +205,90 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                             </div>
                         </div>
                     </div>
+                    <div id="waitinglist_main">
+                    <?php
+                        $current_page = isset($_GET['page']) ? absint($_GET['page']) : 1;
+                        $args = array(
+                            'post_type' => 'manage_entries',
+                            'posts_per_page' => 5, 
+                            'paged' => $current_page,
+                            'meta_query' => array(
+                                'relation' => 'AND',
+                                array(
+                                    'key' => 'timeslot',
+                                    'value' => $timeslot,
+                                    'compare' => '='
+                                ),
+                                array(
+                                    'key' => 'booking_date',
+                                    'value' => $booking_date,
+                                    'compare' => '='
+                                )
+                            )
+                        );
+
+                        $query = new WP_Query($args);
+
+                        if ($query->have_posts()) {
+                            echo '<div class="border-top border-dark mb-2"></div>';
+                            echo '<p>Waiting List</p>';
+                            // echo '<div id="waitingtable">';
+                            echo '<table class="table table-bordered waitingtable " style="width:60%">';
+                            echo '<tr>';
+                            echo '<th style="width:10%">Post ID</th>';
+                            echo '<th style="width:50%">Post Title</th>';
+                            echo '<th style="width:20%">Status</th>';
+                            echo '<th style="width:20%"><svg><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                            </svg></th>';
+                            echo '</tr>';
+                            $i = 1;
+                            while ($query->have_posts()) {
+                                $query->the_post();
+                                $post_id = get_the_ID();
+                                $post_title = get_the_title();
+                                $booking_status = get_post_meta($post_id, 'entry_status', true);
+
+                                if ($booking_status === 'waiting') {
+                                    echo '<tr>';
+                                    echo '<td>'.$i.'-'. $post_id . '</td>';
+                                    echo '<td>' . $post_title . '</td>';
+                                    echo '<td>' . $booking_status . '</td>';
+                                    echo '<td><a href="' . get_edit_post_link($post_id) . '"><svg><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                        </svg></a></td>';
+                                    echo '</tr>';
+                                }
+                                $i++;
+                            }
+
+                            echo '</table>';
+
+                            // echo '</div>';
+                            wp_reset_postdata();
+                        }
+                     
+                        // Calculate the total number of pages
+                        $total_pages = $query->max_num_pages;
+                        echo $query->found_posts.' Items';
+                        if ($total_pages > 1) {
+                            echo '<div id="pagination-links">';
+                                echo '<select id="sabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
+                                    for ($page = 1; $page <= $total_pages; $page++) {
+                                        echo '<option value="' . $page . '"';
+                                        if ($page == $current_page) {
+                                            echo ' selected';
+                                        }
+                                        echo '>' . $page . '</option>';
+                                    }
+                                echo '</select>';
+                                echo __('of Page ','textdomain');
+                                echo $total_pages;
+                            echo '</div>';
+                        }
+                        ?>
+                    </div>
+                    <hr>
                 </div>
                 <?php
             }
@@ -1336,6 +1421,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                     'side',
                     'default'
                 );
+            
             }
 
             $post_types = array( 'sab_form_builder');
@@ -1380,6 +1466,9 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                 );
              
             }
+        }
+        function zfb_view_waiting_list($post){
+            
         }
         function zfb_render_meta_box_shortcode($post){
           

@@ -60,6 +60,9 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			add_action('post_submitbox_misc_actions', array( $this, 'modify_submitdiv_content' ) );
 			add_action('delete_post', array( $this, 'check_waiting_list_on_trashed_delete' ) );
 
+			add_action('wp_ajax_get_paginated_items_for_waiting_list', array( $this, 'get_paginated_items_for_waiting_list' ) );
+			add_action('wp_ajax_nopriv_get_paginated_items_for_waiting_list', array( $this, 'get_paginated_items_for_waiting_list' ) );
+
 		}
 	
 		/*
@@ -1604,7 +1607,102 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
           
 			
 		}
+		/**
+		 * Get pagination entry list: get_paginated_items_for_waiting_list
+		 */
+		function get_paginated_items_for_waiting_list(){
+			// Define the current page number
+			$current_page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+			$timeslot = isset($_POST['timeslot']) ? ($_POST['timeslot']) : '';
+			$booking_date = isset($_POST['booking_date']) ? ($_POST['booking_date']) : '';
+			$args = array(
+				'post_type' => 'manage_entries',
+				'posts_per_page' => 5, // Show 5 entries per page
+				'paged' => $current_page, // Use the current page number for pagination
+				'meta_query' => array(
+					'relation' => 'AND',
+					array(
+						'key' => 'timeslot',
+						'value' => $timeslot,
+						'compare' => '='
+					),
+					array(
+						'key' => 'booking_date',
+						'value' => $booking_date,
+						'compare' => '='
+					)
+				)
+			);
 		
+
+			$query = new WP_Query($args);
+			// echo '<pre>';
+			// echo $query->request;
+			// echo '</pre>';
+			// echo "<pre>";print_r($query);
+			// Output the paginated items as a response
+			ob_start();
+			if ($query->have_posts()) {
+				echo '<div class="border-top border-dark mb-2"></div>';
+				echo '<p>Waiting List</p>';
+				// echo '<div id="waitingtable">';
+				echo '<table class="table table-bordered waitingtable " style="width:60%">';
+				echo '<tr>';
+				echo '<th style="width:10%">Post ID</th>';
+				echo '<th style="width:50%">Post Title</th>';
+				echo '<th style="width:20%">Status</th>';
+				echo '<th style="width:20%"><svg><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+				<path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+				</svg></th>';
+				echo '</tr>';
+				$i = ($current_page - 1) * 5 + 1;
+				while ($query->have_posts()) {
+					$query->the_post();
+					$post_id = get_the_ID();
+					$post_title = get_the_title();
+					$booking_status = get_post_meta($post_id, 'entry_status', true);
+		
+					if ($booking_status === 'waiting') {
+						echo '<tr>';
+						echo '<td>'.$i.'-'. $post_id . '</td>';
+						echo '<td>' . $post_title . '</td>';
+						echo '<td>' . $booking_status . '</td>';
+						echo '<td><a href="' . get_edit_post_link($post_id) . '"><svg><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+							<path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+							</svg></a></td>';
+						echo '</tr>';
+					}
+					$i++;
+				}
+		
+				echo '</table>';
+				echo '</div>';
+				wp_reset_postdata();
+		
+				// Calculate the total number of pages
+				$total_pages = $query->max_num_pages;
+				echo $query->found_posts.' Items';
+				if ($total_pages > 1) {
+					echo '<div id="pagination-links">';
+					echo '<select id="sabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
+						for ($page = 1; $page <= $total_pages; $page++) {
+							echo '<option value="' . $page . '"';
+							if ($page == $current_page) {
+								echo ' selected';
+							}
+							echo '>' . $page . '</option>';
+						}
+					echo '</select>';
+					echo __('of Page ','textdomain');
+					echo $total_pages;
+					echo '</div>';
+				}
+			}
+		
+			// Send the response back to the Ajax request
+			echo ob_get_clean();
+			wp_die(); // End the script
+		}
 	}
 	add_action( 'plugins_loaded', function() {
 		$SAB_Admin_Action = new SAB_Admin_Action();

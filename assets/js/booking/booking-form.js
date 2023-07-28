@@ -489,7 +489,7 @@ if (pageParam === "notification-settings") {
            notifytable.search(this.value).draw();
        }); 
    });
-
+  
    jQuery(document).on('submit', '#usermap_form', function(event) {    
        event.preventDefault();    
        var form=jQuery('#usermap_form').serialize();
@@ -530,3 +530,32 @@ if (pageParam === "notification-settings") {
 
    });
 }
+
+jQuery(document).ready(function () {
+    jQuery('#sabpage-number').on('change', function(e) {
+    
+        e.preventDefault();
+        // console.log("!");
+        const page = jQuery("#sabpage-number").val();
+        const timeslot = jQuery("#sabpage-number").data("timeslot");
+        const booking_date = jQuery("#sabpage-number").data("booking_date");
+        jQuery.ajax({
+            url: ajaxurl,
+            type: "POST",
+            dataType: "html",
+            data: {
+            action: "get_paginated_items_for_waiting_list", // Action hook to trigger the server-side function
+            page: page,
+            timeslot: timeslot,
+            booking_date: booking_date,
+            },
+            success: function (data) {
+                // Display the fetched items on the page
+                jQuery("#waitinglist_main").html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            },
+        });
+    });
+});

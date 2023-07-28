@@ -311,7 +311,7 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 						$mail_message = '';
 						$status = 'waiting';
 						$listform_label_val['Status'] = $status;
-						echo $mail_message = $this->zfb_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
+						$mail_message = $this->zfb_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
 						update_post_meta($created_post_id, 'entry_status', 'waiting');
 
 					} else {
@@ -1661,9 +1661,14 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 								}
 								if($check_type && !empty($check_type)){
 									if($advanceDates && isset($advanceDates) && in_array($todaysDate,$advanceDates)){
-										echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
+										if(in_array($todaysDate,$advanceDates)){
+											echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
+										}else{
+											echo $this->front_generate_timeslots($post_id,$form_data);	
+										}
 									}else{
-										echo $this->front_generate_timeslots($post_id,$form_data);	
+										$error = true;
+                            			error_log('Advanced Dates not configured properly.');
 									}
 								}else{
 									echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
@@ -1674,7 +1679,6 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
                         } else {
 							$error = true;
                             error_log('Check End date! Selected date exceed the selected end date');
-                            
                         }
                     } else {
 						$error = true;

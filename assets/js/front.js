@@ -32,6 +32,7 @@ jQuery('#'+clickedId).addClass('calselected_date');
          
           jQuery('#zfb-timeslots-table-container').html(data);
           jQuery('#booking_date').val(getid);
+          checkNextButtonState();
       }
       
   });
@@ -209,37 +210,33 @@ $('.booking-cancellation-buttons .btn-yes').on('click', function() {
     }
 });
 });
-jQuery(document).ready(function($) {
-// Function to check the condition and enable/disable the "Next" button
 function checkNextButtonState() {
   var inputValue = parseInt($('.zfb-selected-capacity').val());
   var maxValue = parseInt($('.zfb-selected-capacity').attr('max'));
   var minValue = parseInt($('.zfb-selected-capacity').attr('min'));
   var isInputValid = inputValue >= minValue && inputValue <= maxValue;
-   // console.log(isInputValid);
+  //console.log(isInputValid);
   var isSelected = $('#zfb-slot-list li').hasClass('selected');
   var isButtonDisabled = !isInputValid || !isSelected;
 
   $('#nextButton').prop('disabled', isButtonDisabled);
 }
-// Initial state when the page loads
-checkNextButtonState();
-
-$(window).on('load', function() {
+jQuery(document).ready(function($) {
+  
   checkNextButtonState();
-});
+  $(window).on('load', function() {
+    checkNextButtonState();
+  });
+  $('.zfb-selected-capacity').change(function() {
+    checkNextButtonState();
+  });
+  $('.zfb-selected-capacity').on('input', function() {
+    console.log("test");
+    checkNextButtonState();
+  });
 
-// Call the function whenever the input value changes
-$('.zfb-selected-capacity').change(function() {
-  checkNextButtonState();
-});
-$('.zfb-selected-capacity').on('input', function() {
-  console.log("test");
-  checkNextButtonState();
-});
-
-$(document).on('click', '#zfb-slot-list li', function() {  
-  var isSelected = $(this).hasClass('selected');     
-  $('#nextButton').prop('disabled', !isSelected);
-}); 
+  $(document).on('click', '#zfb-slot-list li', function() {  
+    var isSelected = $(this).hasClass('selected');     
+    $('#nextButton').prop('disabled', !isSelected);
+  }); 
 });
