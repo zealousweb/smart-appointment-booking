@@ -230,17 +230,17 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                         $query = new WP_Query($args);
 
                         if ($query->have_posts()) {
-                            echo '<div class="border-top border-dark mb-2"></div>';
-                            echo '<p>Waiting List</p>';
-                            // echo '<div id="waitingtable">';
-                            echo '<table class="table table-bordered waitingtable " style="width:60%">';
+                            echo '<div class="border-top section-break mb-2"></div>';
+                            echo '<p class="h6">Waiting List</p>';
+                            echo '<table class="table table-bordered waitingtable " style="width:70%;text-align: center;">';
                             echo '<tr>';
+                            echo '<th style="width:3%">No</th>';
                             echo '<th style="width:10%">Post ID</th>';
-                            echo '<th style="width:50%">Post Title</th>';
+                            echo '<th style="width:20%">Post Title</th>';
                             echo '<th style="width:20%">Status</th>';
-                            echo '<th style="width:20%"><svg><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                            </svg></th>';
+                            echo '<th style="width:20%">No of Bookings</th>';
+                            echo '<th style="width:25%">Published Date</th>';
+                            echo '<th style="width:5%">Edit</th>';
                             echo '</tr>';
                             $i = 1;
                             while ($query->have_posts()) {
@@ -248,15 +248,17 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                                 $post_id = get_the_ID();
                                 $post_title = get_the_title();
                                 $booking_status = get_post_meta($post_id, 'entry_status', true);
+                                $no_of_bookings = get_post_meta($post_id, 'slotcapacity', true);
 
                                 if ($booking_status === 'waiting') {
                                     echo '<tr>';
-                                    echo '<td>'.$i.'-'. $post_id . '</td>';
+                                    echo '<td>'.$i.'</td>';
+                                    echo '<td>'.$post_id . '</td>';
                                     echo '<td>' . $post_title . '</td>';
                                     echo '<td>' . $booking_status . '</td>';
-                                    echo '<td><a href="' . get_edit_post_link($post_id) . '"><svg><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                                        </svg></a></td>';
+                                    echo '<td>' . $no_of_bookings . '</td>';
+                                    echo '<td>' . $published_date = get_the_date('F j, Y @ h:i a',$post_id). '</td>';
+                                    echo '<td><a href="' . get_edit_post_link($post_id) . '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>';
                                     echo '</tr>';
                                 }
                                 $i++;
@@ -270,10 +272,11 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                      
                         // Calculate the total number of pages
                         $total_pages = $query->max_num_pages;
-                        echo $query->found_posts.' Items';
+                        echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
+                        echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
                         if ($total_pages > 1) {
-                            echo '<div id="pagination-links">';
-                                echo '<select id="sabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
+                            
+                                echo '<select id="sabpage-number"  data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
                                     for ($page = 1; $page <= $total_pages; $page++) {
                                         echo '<option value="' . $page . '"';
                                         if ($page == $current_page) {
@@ -282,10 +285,12 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                                         echo '>' . $page . '</option>';
                                     }
                                 echo '</select>';
-                                echo __('of Page ','textdomain');
+                                echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
+                                echo __('of List Items ','textdomain');
                                 echo $total_pages;
-                            echo '</div>';
+                          
                         }
+                        echo '</div>';
                         ?>
                     </div>
                     <hr>

@@ -616,8 +616,9 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 				return false;
 			} else {
 				$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
+				
 				$holiday_dates = get_post_meta($post_id, 'holiday_dates', true);
-				if ($holiday_dates && empty($holiday_dates)){
+				if (isset($holiday_dates) && empty($holiday_dates)) {
 					$holiday_dates = array();
 				}
 				$arrayofdates = array(); $arrayof_advdates = array();

@@ -121,7 +121,7 @@ if(seats == 0 || seats === 'not_available' ){
   }else{
     var isEnabled = true; 
     $('.zfb-selected-capacity').prop('disabled', !isEnabled); 
-    $('.zfb-selected-capacity').attr('max', waitingseats);
+    $('.zfb-selected-capacity').attr('max', 1);
     
   }   
 }else{    

@@ -391,7 +391,10 @@ if (pageParam === "notification-settings") {
                processData:false,
                contentType:false,        
                success: function (response) {
-                   jQuery('.close').trigger('click');                   
+                    // console.log("test");
+                   jQuery('.notifyform').trigger("reset");
+                   jQuery('.close').trigger('click');
+                                    
                }
                
            });
@@ -532,10 +535,10 @@ if (pageParam === "notification-settings") {
 }
 
 jQuery(document).ready(function () {
-    jQuery('#sabpage-number').on('change', function(e) {
-    
+    // jQuery('#sabpage-number').on('change', function(e) {
+    jQuery(document).on('change', '#sabpage-number', function(e) {
         e.preventDefault();
-        // console.log("!");
+         console.log("!");
         const page = jQuery("#sabpage-number").val();
         const timeslot = jQuery("#sabpage-number").data("timeslot");
         const booking_date = jQuery("#sabpage-number").data("booking_date");
