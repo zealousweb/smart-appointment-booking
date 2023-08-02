@@ -91,9 +91,10 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
             }
            
             $booking_date = get_post_meta( $post->ID, 'booking_date', true );
-            if(isset($booking_date) && !empty($booked_date)){
+            if($booking_date && !empty($booking_date)){
                 $array_of_date = explode('_', $booking_date);
             }
+            // print_r($array_of_date);
             if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
                 $bookedday = $array_of_date[3];
@@ -110,14 +111,13 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
             $date_generated = get_the_date($post->ID);
             $status = get_post_meta( $post->ID, 'entry_status', true );
            
-          
-                $post_id = $post->ID; 
-                $title = get_the_title($post_id);
-                echo '<div class="form-pair" style="margin-top:30px;">';
-                echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
-                $published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
-                echo '<p class="published_on" style="font-size:18px;">Published on ' . $published_date. '</p>';
-                echo '</div>';
+            $post_id = $post->ID; 
+            $title = get_the_title($post_id);
+            echo '<div class="form-pair" style="margin-top:30px;">';
+            echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
+            $published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
+            echo '<p class="published_on" style="font-size:18px;">Published on ' . $published_date. '</p>';
+            echo '</div>';
             ?>
             <div class="form-pair">
                 <span style="font-size:20px;"  class="h6" style="font-weight: 800;">Form  </span> 
@@ -153,7 +153,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                                 </div>
                             </div>
                             <div class="group-pair">
-                                <p  class="h6">No of Bookings</p>
+                                <p class="h6">No of Bookings</p>
                                 <div class="value">
                                 <input type="number" class="form-control" name="no_of_bookings" id="no_of_bookings" value="<?php echo $slotcapacity; ?>">
                                 </div>
@@ -165,7 +165,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                             if ($cost || $symbol) {                               
                             ?>
                             <div class="group-pair">
-                                <p  class="h6">Cost: <?php echo $symbol.''.$cost;?> </p>
+                                <p class="h6">Cost: <?php echo $symbol.''.$cost;?> </p>
                                
                             </div>
                             <?php  } ?>
@@ -205,6 +205,95 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                             </div>
                         </div>
                     </div>
+                    <div id="waitinglist_main">
+                    <?php
+                        $current_page = isset($_GET['page']) ? absint($_GET['page']) : 1;
+                        $args = array(
+                            'post_type' => 'manage_entries',
+                            'posts_per_page' => 5, 
+                            'paged' => $current_page,
+                            'meta_query' => array(
+                                'relation' => 'AND',
+                                array(
+                                    'key' => 'timeslot',
+                                    'value' => $timeslot,
+                                    'compare' => '='
+                                ),
+                                array(
+                                    'key' => 'booking_date',
+                                    'value' => $booking_date,
+                                    'compare' => '='
+                                )
+                            )
+                        );
+
+                        $query = new WP_Query($args);
+
+                        if ($query->have_posts()) {
+                            echo '<div class="border-top section-break mb-2"></div>';
+                            echo '<p class="h6">Waiting List</p>';
+                            echo '<table class="table table-bordered waitingtable " style="width:70%;text-align: center;">';
+                            echo '<tr>';
+                            echo '<th style="width:3%">No</th>';
+                            echo '<th style="width:10%">Post ID</th>';
+                            echo '<th style="width:20%">Post Title</th>';
+                            echo '<th style="width:20%">Status</th>';
+                            echo '<th style="width:20%">No of Bookings</th>';
+                            echo '<th style="width:25%">Published Date</th>';
+                            echo '<th style="width:5%">Edit</th>';
+                            echo '</tr>';
+                            $i = 1;
+                            while ($query->have_posts()) {
+                                $query->the_post();
+                                $post_id = get_the_ID();
+                                $post_title = get_the_title();
+                                $booking_status = get_post_meta($post_id, 'entry_status', true);
+                                $no_of_bookings = get_post_meta($post_id, 'slotcapacity', true);
+
+                                if ($booking_status === 'waiting') {
+                                    echo '<tr>';
+                                    echo '<td>'.$i.'</td>';
+                                    echo '<td>'.$post_id . '</td>';
+                                    echo '<td>' . $post_title . '</td>';
+                                    echo '<td>' . $booking_status . '</td>';
+                                    echo '<td>' . $no_of_bookings . '</td>';
+                                    echo '<td>' . $published_date = get_the_date('F j, Y @ h:i a',$post_id). '</td>';
+                                    echo '<td><a href="' . get_edit_post_link($post_id) . '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>';
+                                    echo '</tr>';
+                                }
+                                $i++;
+                            }
+
+                            echo '</table>';
+
+                            // echo '</div>';
+                            wp_reset_postdata();
+                        }
+                     
+                        // Calculate the total number of pages
+                        $total_pages = $query->max_num_pages;
+                        echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
+                        echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
+                        if ($total_pages > 1) {
+                            
+                                echo '<select id="sabpage-number"  data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
+                                    for ($page = 1; $page <= $total_pages; $page++) {
+                                        echo '<option value="' . $page . '"';
+                                        if ($page == $current_page) {
+                                            echo ' selected';
+                                        }
+                                        echo '>' . $page . '</option>';
+                                    }
+                                echo '</select>';
+                                echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
+                                echo __('of List Items ','textdomain');
+                                echo $total_pages;
+                          
+                        }
+                        echo '</div>';
+                        ?>
+                    </div>
+                    <hr>
                 </div>
                 <?php
             }
@@ -318,6 +407,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
             $generatetimeslots = get_post_meta($post->ID, 'generatetimeslot', true);
           
             //section 2 
+            $enable_advance_setting = get_post_meta($post->ID, 'enable_advance_setting', true);
             $enable_recurring_apt = get_post_meta($post->ID, 'enable_recurring_apt', true);
             $recurring_type = get_post_meta($post->ID, 'recurring_type', true);
             //advanced field
@@ -346,6 +436,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                     
                     <li class="nav-link"><a href="#tab1">General</a></li>
                     <li class="nav-link"><a href="#tab2">Timeslots</a></li>
+                    <li class="nav-link"><a href="#tab4">Advanced Selection</a></li>
                     <li class="nav-link"><a href="#tab3">Recurring Appointment</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
@@ -605,6 +696,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                         <?php else : ?>
                             <div id="recurring_result" style="display: none;">
                         <?php endif; ?>
+                          
                             <label class="h6" for="recurring_type">Repeat Recurring</label>
                             <div class="form-group form-general-group col-md-3 pl-md-0">
                                 <select class="form-control " name="recurring_type" id="recurring_type">
@@ -613,7 +705,6 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                                     <option value="weekend" <?php echo selected('weekend', $recurring_type, false); ?>>Every Weekend</option>
                                     <option value="weekdays" <?php echo selected('weekdays', $recurring_type, false); ?>>Every Weekday</option>
                                     <option value="certain_weekdays" <?php echo selected('certain_weekdays', $recurring_type, false); ?>>Certain Days</option>
-                                    <option value="advanced" <?php echo selected('advanced', $recurring_type, false); ?>>Advanced</option>
                                 </select>
                             </div>
                             <div id="certain_weekdays_fields" class="form-group form-general-group" style="display: none;" >
@@ -635,56 +726,6 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                                     <input type="checkbox" name="recur_weekdays[]" value="sunday" <?php echo (is_array($recur_weekdays) && in_array('sunday', $recur_weekdays)) ? 'checked' : ''; ?> >
                                     <label class="form-check-label" for="weekday_sunday">Sunday</label>
                                 </div>
-                            </div>
-                            <div id="advance-meta-box">
-                                <div id="add-row" class="adddatefieldgroup">
-                                    <label class="h6">Add Date Field Group</label>
-                                    <svg  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                    </svg>
-                                </div>
-                                <?php foreach ($advancedata as $index => $data) { ?>
-                                    <div class="repeater-row border m-0 mb-2 p-3 row">
-                                        <div class="form-group col-md-3">
-                                            <label class="h6" for="advance_date_<?php echo $index; ?>">Advance Date:</label>
-                                            <input type="date" class="form-control" id="advance_date_<?php echo $index; ?>" name="advancedata[<?php echo $index; ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
-                                        </div>
-                                        <div class="timeslot-repeater timeslot-container col-md-9 "  id="timeslot-repeater-<?php echo $index; ?>">
-                                            <div class="add-timeslot" id="add_timeslot_m">
-                                                <label class="h6 ml-1">Add Timeslots </label>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                                </svg>
-                                            </div>
-                                            <?php foreach ($data['advance_timeslot'] as $slot_index => $timeslot) { ?>
-                                                <div class="form-row timeslot-row ">
-                                                    <div class="form-group col-md-3">
-                                                        <label>Start Time:</label>
-                                                        <input type="time" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
-                                                    </div>
-                                                    <div class="form-group col-md-3"> 
-                                                        <label>End Time:</label>
-                                                        <input type="time" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>Bookings:</label>
-                                                        <input type="number" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][bookings]" value="<?php echo esc_attr($timeslot['bookings']); ?>">
-                                                    </div>
-                                                    <div class="form-group col-2 remove-timeslot-wrapper">
-                                                    <svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" 
-                                                        height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
-                                            
-                                        </div>
-                                        <button type="button" class="remove-row btn btn-danger">Remove Date</button>
-                                    </div>
-                                <?php } ?>
                             </div>
                             <div class="holiday-repeater">
                                
@@ -723,6 +764,63 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                                 </div>
                             </div>
                         </div>
+                </div>
+                <div id="tab4" class="tab-content">
+                 
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" id="enable_recurring_apt_i" name="enable_advance_setting" value="1" <?php echo checked(1, $enable_advance_setting, false); ?>>
+                    <label class="form-check-label h6" for="waiting_list">Enable advanced Setting</label>
+                </div>
+                <div id="advance-meta-box">
+                    <div id="add-row" class="adddatefieldgroup">
+                        <label class="h6">Add Date Field Group</label>
+                        <svg  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </div>
+                    <?php foreach ($advancedata as $index => $data) { ?>
+                        <div class="repeater-row border m-0 mb-2 p-3 row">
+                            <div class="form-group col-md-3">
+                                <label class="h6" for="advance_date_<?php echo $index; ?>">Advance Date:</label>
+                                <input type="date" class="form-control" id="advance_date_<?php echo $index; ?>" name="advancedata[<?php echo $index; ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
+                            </div>
+                            <div class="timeslot-repeater timeslot-container col-md-9 "  id="timeslot-repeater-<?php echo $index; ?>">
+                                <div class="add-timeslot" id="add_timeslot_m">
+                                    <label class="h6 ml-1">Add Timeslots </label>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                    </svg>
+                                </div>
+                                <?php foreach ($data['advance_timeslot'] as $slot_index => $timeslot) { ?>
+                                    <div class="form-row timeslot-row ">
+                                        <div class="form-group col-md-3">
+                                            <label>Start Time:</label>
+                                            <input type="time" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][start_time]" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                                        </div>
+                                        <div class="form-group col-md-3"> 
+                                            <label>End Time:</label>
+                                            <input type="time" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][end_time]" value="<?php echo esc_attr($timeslot['end_time']); ?>">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Bookings:</label>
+                                            <input type="number" class="form-control" name="advancedata[<?php echo $index; ?>][advance_timeslot][<?php echo $slot_index; ?>][bookings]" value="<?php echo esc_attr($timeslot['bookings']); ?>">
+                                        </div>
+                                        <div class="form-group col-2 remove-timeslot-wrapper">
+                                        <svg class="remove-timeslot" xmlns="http://www.w3.org/2000/svg" width="16" 
+                                            height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                <?php } ?>
+                                
+                            </div>
+                            <button type="button" class="remove-row btn btn-danger">Remove Date</button>
+                        </div>
+                    <?php } ?>
+                </div>
                 </div>
             </div>
             <?php
@@ -779,10 +877,10 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
             }
                 //Cost
             if ( isset( $_POST['cost'] ) ) {
-                $selected_date = $_POST['cost'];
-                update_post_meta( $post_id, 'cost', $selected_date );
+                $cost = $_POST['cost'];
+                update_post_meta( $post_id, 'cost', $cost );
             }
-                //selected_date
+            //selected_date
             if ( isset( $_POST['selected_date'] ) ) {
                 $selected_date = $_POST['selected_date'];
                 update_post_meta( $post_id, 'selected_date', $selected_date );
@@ -922,6 +1020,12 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'enable_recurring_apt', 1);
             } else {
                 delete_post_meta($post_id, 'enable_recurring_apt');
+            }
+            if (isset($_POST['enable_advance_setting'])) {
+                // echo $_POST['enable_advance_setting'];
+                update_post_meta($post_id, 'enable_advance_setting', 1);
+            } else {
+                delete_post_meta($post_id, 'enable_advance_setting');
             }
             // Check if the meta values are set
             if (isset($_POST['recurring_type'])) {
@@ -1322,6 +1426,7 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                     'side',
                     'default'
                 );
+            
             }
 
             $post_types = array( 'sab_form_builder');
@@ -1366,6 +1471,9 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                 );
              
             }
+        }
+        function zfb_view_waiting_list($post){
+            
         }
         function zfb_render_meta_box_shortcode($post){
           
