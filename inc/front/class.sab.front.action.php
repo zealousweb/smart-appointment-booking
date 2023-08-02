@@ -621,20 +621,20 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 				if (isset($holiday_dates) && empty($holiday_dates)) {
 					$holiday_dates = array();
 				}
-				$arrayofdates = array(); $arrayof_advdates = array();
+				$arrayofdates = array(); 
+				$arrayof_advdates = array();
 				$enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
 				$selected_date = get_post_meta($post_id, 'selected_date', true);
 				if($enable_advance_setting && $enable_advance_setting){
 					$advancedata = get_post_meta($post_id, 'advancedata', true);
 					foreach ($advancedata as $index => $data) {
-						if ($holiday_dates && is_array($holiday_dates)){
-							if (!in_array($data['advance_date'], $holiday_dates)) {
-								$arrayofdates[] = $data['advance_date'];
-							}
+						
+						if (!in_array($data['advance_date'], $holiday_dates)) {
+							$arrayof_advdates[] = $data['advance_date'];
 						}
+						
 					}
 				}
-				
 				if ($check_type) {
 					
 					$weekdays_num = array();
@@ -721,16 +721,20 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 							$endDate = strtotime($end_repeats_on_date);
 							$dayOfWeek = date('N', $startDate); 
 							$currentDate = date('Y-m-d', $startDate);
+							$str_currentDate = strtotime($currentDate);
 						
-							if (!in_array($currentDate, $holiday_dates)) {
-								$arrayofdates[] = $currentDate; 
+							if ( $str_currentDate <= $endDate) {
+								if (!in_array($currentDate, $holiday_dates)) {
+									$arrayofdates[] = $currentDate; 
+								}
 							}
-
 						}
 						
 						
                     }
-					return $arrayofdates;
+					$new_array = array_merge($arrayof_advdates,$arrayofdates);
+					return $new_array;
+
 				}else{
 					$arrayofdates[] = $selected_date;
 					return $arrayofdates;
@@ -1267,27 +1271,27 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 							echo "<h4 id='headtodays_date'>$TodaysDate</h4>";			
 							// Get array of available dates 
 							$is_available = $this->processDate($post_id,$todaysDate);
-						
+								// echo "<pre>";
+								// print_r($is_available);
 							?>
 							<ul id='zfb-slot-list'>
-								<?php
-												
+								<?php		
 								if(isset($is_available) && is_array($is_available) && in_array($todaysDate,$is_available)){
 									$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
-									echo $enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
-									
-									if($enable_advance_setting && isset($enable_advance_setting)){
-										
-										echo $this->get_advanced_timeslots($post_id,$lastdateid,$todaysDate);	
+									$enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
+									 
+									$advancedata = get_post_meta($post_id, 'advancedata', true);
+									foreach ($advancedata as $item) {
+										$advanceDates[] = $item['advance_date'];
+									}
+									if(in_array($todaysDate,$advanceDates)){
+									  echo $this->get_advanced_timeslots($post_id,$lastdateid,$todaysDate);   
 									}else{
-										echo $this->front_generate_timeslots($post_id,$lastdateid);	
-										
-									}						
-													
-								}else{		
+										echo $this->front_generate_timeslots($post_id,$lastdateid);                                
+									}        
+								}else {
 									$error = true;
-									error_log('Not Available');
-									
+									error_log('Check End date! Selected date exceed the selected end date');
 								}
 									
 								?>
@@ -1650,37 +1654,28 @@ if ( !class_exists( 'SAB_Front_Action' ) ){
 				echo "<ul id='zfb-slot-list'>";
                     
 					$is_available = $this->processDate($post_id,$todaysDate);
+					
                     if (isset($is_available) && is_array($is_available)) {
-                        if (in_array($todaysDate, $is_available)) {
-                            $check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
-                            $enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
 
-							if($enable_advance_setting && !empty($enable_advance_setting)){
+                        if(isset($is_available) && is_array($is_available) && in_array($todaysDate,$is_available)){
+							$check_type = get_post_meta($post_id, 'enable_recurring_apt', true);
+							$enable_advance_setting = get_post_meta($post_id, 'enable_advance_setting', true);
+							 
+							// if($enable_advance_setting && !empty($enable_advance_setting)){
 								$advancedata = get_post_meta($post_id, 'advancedata', true);
 								foreach ($advancedata as $item) {
 									$advanceDates[] = $item['advance_date'];
 								}
-								if($check_type && !empty($check_type)){
-									if($advanceDates && isset($advanceDates) && in_array($todaysDate,$advanceDates)){
-										if(in_array($todaysDate,$advanceDates)){
-											echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
-										}else{
-											echo $this->front_generate_timeslots($post_id,$form_data);	
-										}
-									}else{
-										$error = true;
-                            			error_log('Advanced Dates not configured properly.');
-									}
+								if(in_array($todaysDate,$advanceDates)){
+								   echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
 								}else{
-									echo $this->get_advanced_timeslots($post_id,$form_data,$todaysDate);
+								   echo $this->front_generate_timeslots($post_id,$form_data);                                      
 								}
-							}else{
-                                echo $this->front_generate_timeslots($post_id,$form_data);		
-                            }
-                        } else {
+							// }         
+						}else {
 							$error = true;
-                            error_log('Check End date! Selected date exceed the selected end date');
-                        }
+							error_log('Check End date! Selected date exceed the selected end date');
+						}
                     } else {
 						$error = true;
                         error_log('Array does not exist.');

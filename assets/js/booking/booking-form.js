@@ -391,7 +391,6 @@ if (pageParam === "notification-settings") {
                processData:false,
                contentType:false,        
                success: function (response) {
-                    // console.log("test");
                    jQuery('.notifyform').trigger("reset");
                    jQuery('.close').trigger('click');
                                     
