@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Smart Appointment & Booking
- * Plugin URL: https://www.zealousweb.com/store/smart-appointment-booking-pro/
+ * Plugin URL: https://www.zealousweb.com/store/smart-appointment-booking/
  * Description: This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking andmodifications waitlist management.
  * Version: 1.0
  * Author: ZealousWeb
