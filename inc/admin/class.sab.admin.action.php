@@ -1636,8 +1636,9 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		
 
 			$query = new WP_Query($args);
+			$count_posts = $query->found_posts;
 			ob_start();
-			if ($query->have_posts()) {
+			if ($query->have_posts() &&  $count_posts > 1) {
 				echo '<div class="border-top border-dark mb-2"></div>';
 				echo '<p>Waiting List</p>';
 				// echo '<div id="waitingtable">';
@@ -1672,7 +1673,6 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				}
 		
 				echo '</table>';
-				echo '</div>';
 				wp_reset_postdata();
 		
 				// Calculate the total number of pages

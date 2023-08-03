@@ -228,8 +228,8 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                         );
 
                         $query = new WP_Query($args);
-
-                        if ($query->have_posts()) {
+                        $count_posts = $query->found_posts;
+                        if ($query->have_posts() &&  $count_posts > 1) {
                             echo '<div class="border-top section-break mb-2"></div>';
                             echo '<p class="h6">Waiting List</p>';
                             echo '<table class="table table-bordered waitingtable " style="width:70%;text-align: center;">';
@@ -265,32 +265,31 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
                             }
 
                             echo '</table>';
-
-                            // echo '</div>';
                             wp_reset_postdata();
+                            
+                            // Calculate the total number of pages
+                            $total_pages = $query->max_num_pages;
+                            echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
+                                echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
+                                if ($total_pages > 1) {
+                                    
+                                        echo '<select id="sabpage-number"  data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
+                                            for ($page = 1; $page <= $total_pages; $page++) {
+                                                echo '<option value="' . $page . '"';
+                                                if ($page == $current_page) {
+                                                    echo ' selected';
+                                                }
+                                                echo '>' . $page . '</option>';
+                                            }
+                                        echo '</select>';
+                                        echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
+                                        echo __('of List Items ','textdomain');
+                                        echo $total_pages;
+                                
+                                }
+                            echo '</div>';
                         }
                      
-                        // Calculate the total number of pages
-                        $total_pages = $query->max_num_pages;
-                        echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-                        echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
-                        if ($total_pages > 1) {
-                            
-                                echo '<select id="sabpage-number"  data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
-                                    for ($page = 1; $page <= $total_pages; $page++) {
-                                        echo '<option value="' . $page . '"';
-                                        if ($page == $current_page) {
-                                            echo ' selected';
-                                        }
-                                        echo '>' . $page . '</option>';
-                                    }
-                                echo '</select>';
-                                echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
-                                echo __('of List Items ','textdomain');
-                                echo $total_pages;
-                          
-                        }
-                        echo '</div>';
                         ?>
                     </div>
                     <hr>
@@ -1540,11 +1539,13 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
         }
         
         function zfb_edit_form_details($post){
-            // echo $post_id;
+           
             $form_id = get_post_meta( $post->ID, 'sab_form_id', true ); 
             $form_schema = get_post_meta($form_id, '_formschema', true);
+           
             $form_data = get_post_meta($post->ID, 'sab_submission_data', true );
             if ($form_schema) {
+                // echo $post->ID;
                 ?>
                <div id="formio"></div>
 
@@ -1615,6 +1616,8 @@ if ( !class_exists( 'SAB_Admin_Fieldmeta' ) ) {
 
              <?php
 
+            }else{
+                echo __('Form Not Configured','smart-appointment-booking');
             }
         }
         function zfb_render_notes_meta_box($post) {
