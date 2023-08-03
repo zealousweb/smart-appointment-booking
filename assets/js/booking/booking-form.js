@@ -87,13 +87,11 @@ jQuery(document).ready(function($) {
            $('#certain_weekdays_fields').hide();
        }
        if (selectedOption === 'advanced') {
-          
-           jQuery('#advance-meta-box').show();
+                   
            jQuery('.end_repeats_label').hide();
            jQuery('.end_repeats_options').hide();
        } else {
-         
-           jQuery('#advance-meta-box').hide();
+                   
            jQuery('.end_repeats_label').show();
            jQuery('.end_repeats_options').show();
        }
