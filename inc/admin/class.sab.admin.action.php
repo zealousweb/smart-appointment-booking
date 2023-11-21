@@ -1,6 +1,6 @@
 <?php
 /**
- * SAB_Admin_Action Class
+ * SAAB_Admin_Action Class
  *
  * Handles the admin functionality.
  *
@@ -12,56 +12,54 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'SAB_Admin_Action' ) ) {
+if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 
 	/**
-	 *  The SAB_Admin_Action Class
+	 *  The SAAB_Admin_Action Class
 	 */
-	class SAB_Admin_Action {
+	class SAAB_Admin_Action {
 
 		function __construct()  {
-			add_action( 'init',array( $this, 'action_init_sab' ));
-			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
-			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
-			add_action('admin_menu',array( $this, 'sab_add_post_type_menu' ));
+			add_action( 'init',array( $this, 'saab_action_init' ));
+			add_action( 'admin_enqueue_scripts',array( $this, 'saab_enqueue_styles' ));
+			add_action( 'admin_enqueue_scripts',array( $this, 'saab_enqueue_scripts' ));
+			add_action('admin_menu',array( $this, 'saab_add_post_type_menu' ));
 				
-			add_action( 'wp_ajax_sab_save_form_data', array( $this, 'sab_save_form_data' ));
-			add_action('manage_sab_form_builder_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
-			add_action('manage_manage_entries_posts_custom_column', array( $this, 'populate_custom_column' ), 10, 2);
+			add_action( 'wp_ajax_saab_save_form_data', array( $this, 'saab_save_form_data' ));
+			add_action('manage_saab_form_builder_posts_custom_column', array( $this, 'saab_populate_custom_column' ), 10, 2);
+			add_action('manage_manage_entries_posts_custom_column', array( $this, 'saab_populate_custom_column' ), 10, 2);
 
-			add_action('wp_ajax_zfb_preiveiw_timeslot', array( $this, 'zfb_preiveiw_timeslot' ) );
-			add_action('wp_ajax_nopriv_zfb_preiveiw_timeslot', array( $this, 'zfb_preiveiw_timeslot' ) );
+			add_action('wp_ajax_saab_preiveiw_timeslot', array( $this, 'saab_preiveiw_timeslot' ) );
+			add_action('wp_ajax_nopriv_saab_preiveiw_timeslot', array( $this, 'saab_preiveiw_timeslot' ) );
 
-			add_action( 'wp_ajax_zfb_save_new_notification', array( $this, 'zfb_save_new_notification' ));
-			add_action('wp_ajax_nopriv_zfb_save_new_notification', array( $this, 'zfb_save_new_notification' ) );
+			add_action( 'wp_ajax_saab_save_new_notification', array( $this, 'saab_save_new_notification' ));
+			add_action('wp_ajax_nopriv_saab_save_new_notification', array( $this, 'saab_save_new_notification' ) );
 
-			add_action('init', array( $this, 'add_notification_capability' ) );
-			add_action('admin_enqueue_scripts',  array( $this, 'enqueue_admin_scripts' ), 10, 2);
+			add_action('init', array( $this, 'saab_add_notification_capability' ) );
+			add_action('admin_enqueue_scripts',  array( $this, 'saab_enqueue_admin_scripts' ), 10, 2);
 			
-			add_action('wp_ajax_delete_notification_indexes', array( $this, 'delete_notification_indexes' ) );
+			add_action('wp_ajax_delete_notification_indexes', array( $this, 'saab_delete_notification_indexes' ) );
 
-			add_action( 'wp_ajax_zfb_update_notification_state', array( $this, 'zfb_update_notification_state' ));
-			add_action('wp_ajax_nopriv_zfb_update_notification_state', array( $this, 'zfb_update_notification_state' ) );
+			add_action( 'wp_ajax_saab_update_notification_state', array( $this, 'saab_update_notification_state' ));
+			add_action('wp_ajax_nopriv_saab_update_notification_state', array( $this, 'saab_update_notification_state' ) );
 
-			add_action('wp_ajax_zfb_save_user_mapping', array( $this, 'zfb_save_user_mapping' ) );
-			add_action('wp_ajax_nopriv_zfb_save_user_mapping', array( $this, 'zfb_save_user_mapping' ) );
+			add_action('wp_ajax_saab_save_user_mapping', array( $this, 'saab_save_user_mapping' ) );
+			add_action('wp_ajax_nopriv_saab_save_user_mapping', array( $this, 'saab_save_user_mapping' ) );
 
-			add_action( 'wp_ajax_zfb_save_confirmation', array( $this, 'zfb_save_confirmation' ));
-			add_action('wp_ajax_nopriv_zfb_save_confirmation', array( $this, 'zfb_save_confirmation' ) );
+			add_action( 'wp_ajax_saab_save_confirmation', array( $this, 'saab_save_confirmation' ));
+			add_action('wp_ajax_nopriv_saab_save_confirmation', array( $this, 'saab_save_confirmation' ) );
 
-			add_action('edit_form_after_title', array( $this, 'disable_title_editing_for_custom_post_type' ) );
+			add_action('edit_form_after_title', array( $this, 'saab_disaable_title_editing_for__post_type' ) );
 
-			add_action('wp_ajax_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
-			add_action('wp_ajax_nopriv_update_form_entry_data', array( $this, 'update_form_entry_data' ) );
+			add_action('wp_ajax_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
+			add_action('wp_ajax_nopriv_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
 			
-			add_action( 'restrict_manage_posts', array( $this, 'add_custom_booking_status_filter' ) );
-			add_action( 'pre_get_posts', array( $this, 'filter_custom_booking_status' ) );
+			add_action( 'restrict_manage_posts', array( $this, 'saab_add_custom_booking_status_filter' ) );
+			add_action( 'pre_get_posts', array( $this, 'saab_filter_custom_booking_status' ) );
 			
-			add_action('post_submitbox_misc_actions', array( $this, 'modify_submitdiv_content' ) );
-			add_action('delete_post', array( $this, 'check_waiting_list_on_trashed_delete' ) );
-
-			add_action('wp_ajax_get_paginated_items_for_waiting_list', array( $this, 'get_paginated_items_for_waiting_list' ) );
-			add_action('wp_ajax_nopriv_get_paginated_items_for_waiting_list', array( $this, 'get_paginated_items_for_waiting_list' ) );
+			add_action('post_submitbox_misc_actions', array( $this, 'saab_modify_submitdiv_content' ) );			
+			add_action('wp_ajax_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
+			add_action('wp_ajax_nopriv_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
 
 		}
 	
@@ -88,90 +86,124 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		*/
 		/**
 		* WP Enqueue Styles
-		*/
-		function action_init_sab(){
-			wp_register_style( SAB_PREFIX . '_admin_min_css', SAB_URL . 'assets/css/admin.min.css', array(), SAB_VERSION );
-			wp_register_style( SAB_PREFIX . '_admin_css', SAB_URL . 'assets/css/admin.css', array(), SAB_VERSION );
+		*/	
+		function saab_action_init(){
+			wp_register_style( SAAB_PREFIX . '_admin_min_css', SAAB_URL . 'assets/css/admin.min.css', array(), SAAB_VERSION );
+			wp_register_style( SAAB_PREFIX . '_admin_css', SAAB_URL . 'assets/css/admin.css', array(), SAAB_VERSION );
 		}
 
-	
-		function enqueue_styles() {
-
-			if(isset($_GET['post'])){
-				$postid = $_GET['post'];
-				$post_type = get_post_type($postid);
-			}else{
+		function saab_enqueue_styles() {
+			global $post;
+			if ($post) {
+				$post_type = $post->post_type;
+			} else {
 				$post_type = '';
 			}
 
-			
-			if (is_singular('sab_form_builder') || is_singular('zeal_formbuilder') || (isset($post_type) && ($post_type == 'sab_form_builder' || $post_type == 'manage_entries')) || (isset($_GET['post_type']) && ($_GET['post_type'] === 'sab_form_builder' || $_GET['post_type'] === 'manage_entries'))) {
-				wp_enqueue_style( '_admin_css',SAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
-				wp_enqueue_style( 'sab_font-awesomev1','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css', array(), 1.1, 'all' );
+			if (
+				is_singular('saab_form_builder') || 
+				is_singular('zeal_formbuilder') || 
+				(isset($post_type) && ($post_type == 'saab_form_builder' || $post_type == 'manage_entries')) 
+			) {
+				wp_enqueue_style( '_admin_css',SAAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( 'saab_font-awesomev1',SAAB_URL.'assets/css/font-awesome.css', array(), 1.1, 'all' );
 				//formio
-				wp_enqueue_style( 'sab_formio_full_min',SAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
+				wp_enqueue_style( 'saab_formio_full_min',SAAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
 				//boostrap
-				wp_enqueue_style( 'sab_boostrap_min',SAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( 'saab_boostrap_min',SAAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );	
 			 }
-			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
+			
+			 if ( is_page( ['notification-settings'] ) ) {
 				//boostrap
-				wp_enqueue_style( 'datatable_admin_css',SAB_URL.'assets/css/boostrap/jquery.dataTables.min.css', array(), 1.1, 'all' );
-			 }
+				wp_enqueue_style( 'datatable_admin_css',SAAB_URL.'assets/css/boostrap/jquery.dataTables.min.css', array(), 1.1, 'all' );
+			 }	
+			 if (  isset( $_GET['nonce'] ) ||  check_ajax_referer( 'other_setting', 'nonce', false ) ) {		 
+				 wp_enqueue_style( 'saab_boostrap_min',SAAB_URL.'assets/css/boostrap/boostrap.min.css', array(), 1.1, 'all' );
+			 }	
 		}
 	
 		/**
 		* WP Enqueue Scripts
 		*/
-		function enqueue_scripts() {
+		function saab_enqueue_scripts() {
 		
-			if(isset($_GET['post'])){
-				$postid = $_GET['post'];
-				$post_type = get_post_type($postid);
-			}else{
+			global $post;
+			if ($post) {
+				$post_type = $post->post_type;
+			} else {
 				$post_type = '';
-			}
-
-			if (is_singular('sab_form_builder') || is_singular('zeal_formbuilder') || $post_type == 'sab_form_builder' || isset($_GET['post_type']) && $_GET['post_type'] === 'sab_form_builder' || isset($_GET['post_type']) && $_GET['post_type'] === 'manage_entries' ||  $post_type == 'manage_entries') {
+			}		
+			if ( is_page( ['notification-settings'] ) ) {
 				//boostrap folder
-				wp_enqueue_script( 'sab_popper.minjs', SAB_URL.'assets/js/boostrap/popper.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'sab_jquery-3.7.0.slim.min', SAB_URL.'assets/js/boostrap/jquery-3.7.0.slim.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'sab_jquery-3.7.0.min',SAB_URL.'assets/js/boostrap/jquery-3.7.0.min.js', array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'sab_boostrap.min', SAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );				
-				wp_enqueue_script( 'sab_boostrap_bundlemin', SAB_URL.'assets/js/boostrap/boostrap.bundle.min.js', array( 'jquery' ), 1.1, false );
-
+				wp_enqueue_script( 'datatble_admin',SAAB_URL.'assets/js/boostrap/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'datatbleboostrap',SAAB_URL.'assets/js/boostrap/dataTables.boostrap5.min.js',array( 'jquery' ), 1.1, false );
+			 }
+			if (				
+				is_singular('saab_form_builder') || 
+				is_singular('zeal_formbuilder') || 
+				$post_type == 'saab_form_builder' || 
+				$post_type == 'manage_entries'
+			) {
+				wp_enqueue_script( 'saab_popper.minjs', SAAB_URL.'assets/js/boostrap/popper.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'saab_boostrap.min', SAAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );				
+				wp_enqueue_script( 'saab_boostrap_bundlemin', SAAB_URL.'assets/js/boostrap/boostrap.bundle.min.js', array( 'jquery' ), 1.1, false );
+   
 				//formio folder
-			 	wp_enqueue_script( 'sab_formio_full_min', SAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
-				
+			 	wp_enqueue_script( 'saab_formio_full_min', SAAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
+				$ajax_nonce = wp_create_nonce('saab_ajax_nonce');
 				//booking folder
-				wp_enqueue_script( 'booking-form', SAB_URL.'assets/js/booking/booking-form.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'booking-form', SAAB_URL.'assets/js/booking/booking-form.js', array( 'jquery-core' ), 1.1, false );
 				wp_localize_script('booking-form', 'ajax_object', array(
-					'ajax_url' => admin_url('admin-ajax.php')
+					'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+					'nonce'   => $ajax_nonce,
 				));
 	
-				wp_enqueue_script( 'admin', SAB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'admin', SAAB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );
 			 }
-			 if (isset($_GET['page']) && $_GET['page'] === 'notification-settings') {
-				//boostrap folder
-				wp_enqueue_script( 'datatble_admin',SAB_URL.'assets/js/boostrap/jquery.dataTables.min.js',array( 'jquery' ), 1.1, false );
-				wp_enqueue_script( 'datatbleboostrap',SAB_URL.'assets/js/boostrap/dataTables.boostrap5.min.js',array( 'jquery' ), 1.1, false );
-			 }
-
-			 wp_register_script( SAB_PREFIX . '_admin_js', SAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), SAB_VERSION );
+			 if (  isset( $_GET['nonce'] ) ||  wp_verify_nonce( 'other_setting', 'nonce', false ) ) {
+				wp_enqueue_script( 'saab_popper.minjs', SAAB_URL.'assets/js/boostrap/popper.min.js', array( 'jquery' ), 1.1, false );
+				wp_enqueue_script( 'saab_boostrap.min', SAAB_URL.'assets/js/boostrap/boostrap.min.js', array( 'jquery' ), 1.1, false );				
+				wp_enqueue_script( 'saab_boostrap_bundlemin', SAAB_URL.'assets/js/boostrap/boostrap.bundle.min.js', array( 'jquery' ), 1.1, false );
+   
+				//formio folder
+			 	wp_enqueue_script( 'saab_formio_full_min', SAAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
+				$ajax_nonce = wp_create_nonce('saab_ajax_nonce');
+				//booking folder
+				wp_enqueue_script( 'booking-form', SAAB_URL.'assets/js/booking/booking-form.js',array( 'jquery-core' ), 1.1, false );
+				wp_localize_script('booking-form', 'ajax_object', array(
+					'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+					'nonce'   => $ajax_nonce,
+				));
+	
+				wp_enqueue_script( 'admin', SAAB_URL.'assets/js/admin.js', array( 'jquery' ), 1.1, false );  
+			}
+			 
+			 //boostrap folder
+			 wp_register_script( SAAB_PREFIX . '_admin_js', SAAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), SAAB_VERSION );
 
 		}
 
-		function enqueue_admin_scripts() {
+		function saab_enqueue_admin_scripts() {
 			wp_enqueue_script('jquery-ui-tabs');
 		}
 		// Add capability to user role
-		function add_notification_capability() {
+		function saab_add_notification_capability() {
 			$role = get_role('administrator'); 
 			$role->add_cap('edit_notifications'); 
 		}
 		/**
 		 * save new notification
 		*/
-		function zfb_save_new_notification() {
+		function saab_save_new_notification() {
+			
+			if ( !isset( $_POST['security'] ) &&! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' )) { 
+				$response = array(
+					'success' => false,
+					'message' => 'Invalid Nonce request.',
+				);
+				wp_send_json_success( $response);
+				exit;  
+			}
 			$response = array(
 				'success' => false,
 				'message' => 'Invalid request.',
@@ -201,7 +233,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				);
 			
 				if ($post_id) {
-					$get_notification_array = get_post_meta($post_id, 'notification_data', true);
+					$get_notification_array = get_post_meta($post_id, 'saab_notification_data', true);
 		
 					// Verify if the meta key exists and contains data
 					if (!empty($get_notification_array)) {
@@ -210,19 +242,19 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 							$get_notification_array[$index] = $notification_data;
 						} else {
 							if(is_string($get_notification_array)){
-								update_post_meta($post_id, 'notification_data','');
+								update_post_meta($post_id, 'saab_notification_data','');
 								$get_notification_array[] = $notification_data;
-								update_post_meta($post_id, 'notification_data', $get_notification_array);
+								update_post_meta($post_id, 'saab_notification_data', $get_notification_array);
 							}else{
 								$get_notification_array[] = $notification_data;
 							}
 							
 							
 						}		
-						update_post_meta($post_id, 'notification_data', $get_notification_array);
+						update_post_meta($post_id, 'saab_notification_data', $get_notification_array);
 					} else {
 						$get_notification_array = array($notification_data);
-						update_post_meta($post_id, 'notification_data', $get_notification_array);
+						update_post_meta($post_id, 'saab_notification_data', $get_notification_array);
 					}
 		
 					$response = array(
@@ -250,16 +282,16 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		/**
 		 * Add custom post types and admin menu items for WP Smart Appointment & Booking plugin.
 		 *
-		 * This function registers two custom post types: 'sab_form_builder' for generating appointment and booking forms,
+		 * This function registers two custom post types: 'saab_form_builder' for generating appointment and booking forms,
 		 * and 'manage_entries' for managing entries submitted through the forms.
 		 *
 		 * It also adds menu items to the admin dashboard for easy access to the plugin's functionality.
 		 */
-		function sab_add_post_type_menu() {
+		function saab_add_post_type_menu() {
 			
 			$labels_form = array(
-				'name' => 'Generate Appointment and Booking Forms',
-				'singular_name' => 'Generate Appointment and Booking Form',
+				'name' => esc_html__('Generate Appointment and Booking Forms','smart-appointment-booking'),
+				'singular_name' => esc_html__('Generate Appointment and Booking Form','smart-appointment-booking'),
 			);
 		
 			$args_form = array(
@@ -287,11 +319,11 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				'query_var' => true,
 				'supports' => array( 'title' ),
 			);
-			register_post_type('sab_form_builder', $args_form);
+			register_post_type('saab_form_builder', $args_form);
 
-			$labels = array(
-				'name' => 'Manage Entries',
-				'singular_name' => 'Manage Entry',
+			$labels = array(				
+				'name' => esc_html__('Manage Entries','smart-appointment-booking'),
+				'singular_name' => esc_html__('Manage Entry','smart-appointment-booking'),
 			);
 		
 			$args = array(
@@ -325,64 +357,22 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				'WP Smart A&B',
 				'WP Smart A&B',
 				'manage_options',
-				'edit.php?post_type=sab_form_builder',
+				'edit.php?post_type=saab_form_builder',
 				'',
-				'data:image/svg+xml;base64,' . base64_encode( '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-						viewBox="0 0 1024 1024" style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
-					<style type="text/css">
-						.st0{fill:#A7AAAD;}
-						.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#A7AAAD;}
-					</style>
-					<g>
-						<path class="st0" d="M762.9,819.7h-54v9.9c0,18.7,15.2,33.9,33.9,33.9h54v-9.9C796.9,834.9,781.7,819.7,762.9,819.7z"/>
-						<path class="st0" d="M660.4,819.7h-54v9.9c0,18.7,15.2,33.9,33.9,33.9h54v-9.9C694.3,834.9,679.1,819.7,660.4,819.7z"/>
-						<path class="st0" d="M557.8,819.7h-54v9.9c0,18.7,15.2,33.9,33.9,33.9h54v-9.9C591.7,834.9,576.5,819.7,557.8,819.7z"/>
-						<path class="st1" d="M263.4,443.9c-53.1,63.5-80,128.5-77.8,187.8v0c-0.1,1.8-0.3,3.5-0.3,5.2c-1-3.1-2.1-6.9-3.4-11.3
-							c-3-10.4-4.7-20.4-5.6-25.5c-0.1-0.7-0.2-1.2-0.3-1.7c-0.5-2.8-2.1-15.7-3.9-29.3c-1-8-2.1-16.2-3-22.7c-2.3-17.5-6.8-36.3-10.1-49
-							c-3.3-12.7-8.9-26.1-14.4-38.5c-5.5-12.4-13.9-27.4-20.3-38.3c-6.4-10.8-15.2-21.2-15.2-21.2c-26.6-30.9-49.7-32.8-49.7-32.8
-							c-22.6-5.5-42-1.4-42-1.4c3.7-22.6,10.7-35.9,17.1-47.9c0.3-0.7,0.7-1.3,1-1.9c6.7-12.5,17.9-24,24.2-29.3c0.2-0.2,0.5-0.4,0.8-0.7
-							c7.9-6.7,39.6-33.6,95.2-33.1c57.8,0.5,85.6,23.6,100.5,38.4c14.9,14.7,32.7,40.1,37.3,46.8c4.6,6.6,13.3,20.2,13.3,20.2
-							s8.1,13,15.8,25.2C300.2,403.1,280.4,423.4,263.4,443.9z M118,315.4c0,6.1-4.8,11-10.7,11s-10.7-4.9-10.7-11c0-6.1,4.8-11,10.7-11
-							C113.2,304.4,118,309.3,118,315.4z"/>
-						<path class="st0" d="M722.1,164.1c-53.8,24.3-102.2,48-146.1,71.3c-179.1,95.2-279.1,185.4-329,263c11.9-13.7,25.5-27.1,40.7-40
-							C373,386.1,505.3,330.7,681,293.6l10.7-2.2c19.7-59.2,32.3-105.3,36.9-123C729.7,164.8,725.7,162.7,722.1,164.1z"/>
-						<path class="st0" d="M652.7,400c5.2-12.5,11-29.4,17.1-45.5c0.9-2.7,1.9-5.7,3.1-8.1c4.7-12.7,8.8-24.5,11.9-33.6
-							c-294.7,62.1-420.8,167.6-462.9,258C290.4,481.7,385.6,420.9,652.7,400z"/>
-						<path class="st0" d="M643.4,417.6c-151.8,14.7-267.6,47-344.5,96.2c-39.2,25.1-63.5,51.5-78.3,76.4c-28.4,47.7-20.7,109.4,21,146
-							c8.1,7.1,16.5,12.4,24.4,16.1c22.1,10.2,44.3,15.3,66,15.3c61.1,0,123.1-40.6,184.2-120.7C560.1,589.2,602.9,512.2,643.4,417.6z"/>
-						<path class="st0" d="M720.2,413.3c-19.5,0.5-38.3,1.3-56.4,2.3l-12.3,27.7C610,537.3,566,614.3,520.8,672
-							c-17.9,22.8-35.9,42.5-54.1,59.2c116.5-77.3,232.6-223.3,301-318.7C751.7,412.5,735.6,412.8,720.2,413.3L720.2,413.3z"/>
-						<path class="st0" d="M782.5,394.5c24.1-37.4,48.7-80.4,61.1-101.1c2.4-4-0.3-9.4-4.4-8.7c-50.1,7.7-116,20.4-135.3,24.2
-							c-3.3,10-7.2,21.4-11.5,33.7l-0.4,1c-0.8,1.8-1.7,4.2-2.4,6.6l-0.7,2c-3.2,8.8-12.9,32.3-18.3,46.3
-							C692.3,396.7,732.6,394.3,782.5,394.5L782.5,394.5z"/>
-						<path class="st0" d="M220.2,702c-0.3-0.3,0.1,0.6,1.3,2.3C221.1,703.5,220.6,702.8,220.2,702z"/>
-						<path class="st0" d="M594.3,644.1c24.4-16.6,49.7-35.1,75.9-55.5c80.8-62.9,150-128.2,189.1-166.7c2.1-2,0.7-5.7-2.2-5.7
-							c-26.4-0.5-54.7-0.7-71.3-0.9C739.7,480,670.7,569.4,594.3,644.1z"/>
-						<path class="st0" d="M335.3,776.8c-1.8,0.1-3.5,0.1-5.2,0.1c1,0,2,0,3,0C333.9,776.9,334.6,776.8,335.3,776.8L335.3,776.8z"/>
-						<path class="st0" d="M325.6,776.7c1,0,2.1,0.1,3.2,0.1c0.1,0,0.2,0,0.4,0C327.9,776.9,326.7,776.8,325.6,776.7L325.6,776.7z"/>
-						<path class="st0" d="M307.3,775.2h-0.5c11.3,4.9,23.1,8.8,35,11.7c27.9,7.8,103.9,29.4,124.2,37.5c0,0-43.9-23-55.3-31.3h-0.2
-							c7.6-0.5,22.4-1.9,30-3.2c30.2,6.4,31.7,9.5,49.8,16.7c0,0-29.3-21.8-29.8-21.8c35.5-10,69.4-28.4,97.7-55.1
-							c1.4-1.5,2.8-2.7,4.3-4.2c27.2-25.7,53.1-39.7,63.2-44.8c17.6-9.1,71.3-36,153.5-43.1c-47.2-2.2-88.8-6.1-122.3-10.8
-							C519.8,733.5,413.4,786.5,307.3,775.2L307.3,775.2z"/>
-						<path class="st0" d="M935.6,665.2c-82.8-35.5-217.4-24.2-311,41c9.3-1.9,19.4-3,30.2-3c9.1,0,18.6,0.8,28.5,2.7
-							c27.4,5.2,55.4,21.9,85,39.5c33.7,20,68.6,40.8,109.1,50.1l0.3,0.1c4.1,1.1,7.9,2.1,11.6,2.9c38.6,7.5,83.3-3.8,104-26.2
-							c7.9-8.5,11.4-17.9,10.6-27.8C1002.2,721,988.9,688,935.6,665.2z"/>
-					</g>
-					</svg>' ),
+				'dashicons-twitter',
 				20
 			);
 			
-
 			add_submenu_page(
-				'edit.php?post_type=sab_form_builder', 
+				'edit.php?post_type=saab_form_builder', 
 				'Add New Form', 
 				'Add New Form', 
 				'manage_options', 
-				admin_url('post-new.php?post_type=sab_form_builder')
+				admin_url('post-new.php?post_type=saab_form_builder')
 			);
 		
 			add_submenu_page(
-				'edit.php?post_type=sab_form_builder',
+				'edit.php?post_type=saab_form_builder',
 				'Manage Entries',
 				'Manage Entries',
 				'manage_options',
@@ -395,7 +385,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				'Notification Settings', 
 				'manage_options', 
 				'notification-settings', 
-				array($this, 'render_notification_settings_page')
+				array($this, 'saab_render_notification_settings_page')
 			);
 			
 		}
@@ -403,159 +393,41 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		 * 
 		 * view booking entry
 		 */
-		function view_booking_entry( $post ){
-            $post_id = $_GET['post_id'] ;
-            $form_data = get_post_meta( $post_id, 'sab_submission_data', true );	
-            $form_id = get_post_meta( $post_id, 'sab_form_id', true );	
-            $timeslot = get_post_meta( $post_id, 'timeslot', true );
-            $booking_date = get_post_meta( $post_id, 'booking_date', true );
-            $array_of_date = explode('_',$booking_date);
-            $bookedmonth = $array_of_date[2];
-            $bookedday =$array_of_date[3];
-            $bookedyear =$array_of_date[4];
-            $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
-			$booked_date = date('F j, Y', strtotime($booked_date));	
-            $slotcapacity = get_post_meta( $post_id, 'slotcapacity', true );	
-
-            if(!empty($form_id)){ 
-               $booking_form_title = get_the_title($form_id);               
-            }
-            $date_generated = get_the_date('d/m/Y',$post_id);
-            $status = get_post_meta( $post_id, 'entry_status', true );
-            if(empty($status)){
-                $status = "Approval Pending";
-            }elseif($status == 'completed'){
-                $status = "Completed";
-            }elseif($status == 'approval_pending'){
-                $status = "Approval Pending";
-            }elseif($status == 'cancelled'){
-                $status = "Cancelled";
-            }elseif($status == 'manual'){
-                $status = "Manual";
-            }elseif($status == 'expired'){
-                $status = "Expired";
-            }elseif($status == 'waiting'){
-                $status = "Waiting";
-            }
-            ?>
-			
-			<div class="entry_title">
-				<div class="entries_title_main">
-					<?php
-					if (isset($_GET['post_id'])) {
-						$post_id = absint($_GET['post_id']); 
-						$title = get_the_title($post_id);
-						echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
-
-						if (current_user_can('edit_post', $post_id)) {
-							$edit_post_link = get_edit_post_link($post_id);
-							if ($edit_post_link) {
-								?>
-								<a href="<?php echo esc_url($edit_post_link); ?>" class="edit-link">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-										<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-										<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-									</svg>
-									Edit
-								</a>
-								<?php
-							}
-						} else {
-							error_log('You do not have permission to edit this post.');
-						}
-						
-						$published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
-						echo '<p class="published_on">Published on ' . $published_date. '</p>';
-					} else {
-						error_log('Invalid post ID.');
-					}
-					?>
-				</div>
-			</div>
-
-			<div class="main-entries-section" id="main_entries_section1">
-				<table id="main_entries_table1">
-					<tr>
-						<th class="h6"><?php echo __('Form Title', 'smart-appointment-booking'); ?></th>
-						<td><?php echo $booking_form_title; ?></td>
-					</tr>
-					
-					<tr>
-						<th class="h6"><?php echo __('Status', 'smart-appointment-booking'); ?></th>
-						<td><?php echo $status; ?></td>
-					</tr>
-					<tr>
-						<th class="h6"><?php echo __('Customer', 'smart-appointment-booking'); ?></th>
-						<td><?php echo __('Guest', 'smart-appointment-booking'); ?></td>
-					</tr>
-					<tr>
-						<th class="h6"><?php echo __('Booked Date', 'smart-appointment-booking'); ?></th>
-						<td><?php echo $booked_date; ?></td>
-					</tr>
-					<tr>
-						<th class="h6"><?php echo __('Timeslot', 'smart-appointment-booking'); ?></th>
-						<td><?php echo $timeslot; ?></td>
-					</tr>
-					<tr>
-						<th class="h6"><?php echo __('No of Slots Booked', 'smart-appointment-booking'); ?></th>
-						<td><?php echo $slotcapacity; ?></td>
-					</tr>
-				</table>
-			</div>
-
-			<div class="main-entries-section" id="main_entries_section2">
-				
-				<table id="main_entries_table2">
-					<?php
-					foreach($form_data['data'] as $form_key => $form_value){
-						if($form_key !== 'submit'){
-							echo "<tr>"
-							. "<th class='h6'>" . ucfirst($form_key) . "</th>"
-							. "<td>" . htmlspecialchars($form_value) . "</td>"
-							. "</tr>";
-						
-						}
-					}
-					?>
-				</table>
-			</div>
-
-			<div class="main-entries-section" id="main_entries_section3">
-				<h6>Notes</h6>
-				<?php 
-				$notes = get_post_meta($post_id, 'notes', true);
-				echo esc_textarea($notes);
-				?>
-			</div>
-            <?php
-        }
+	
 		/**
 		 * Update booking form entries in backend
 		 */
-		function update_form_entry_data(){
+		function saab_update_form_entry_data(){
+			
+			if ( !isset( $_POST['security'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' ) ) {   
+				return;
+			}
 
 			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
-				$entry_id = $_POST['entry_id'];
-				$updated_data = $_POST['updated_data'];
-				$get_submitted_data = get_post_meta($entry_id, 'sab_submission_data', true);
-				$updated_data = $_POST['updated_data'];
-				echo "<pre>";
-				print_r($get_submitted_data);
+
+				$entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '';
+				$get_submitted_data = get_post_meta($entry_id, 'saab_submission_data', true);
+				$updated_data = $_POST['updated_data'];	
 				foreach ($updated_data as $key => $value) {
+					$sanitized_value = sanitize_text_field($value);
 					if (isset($get_submitted_data['data'][$key])) {
-						$get_submitted_data['data'][$key] = $value;
+						$get_submitted_data['data'][$key] = $sanitized_value;
 					}
 				}
-				update_post_meta($entry_id, 'sab_submission_data', $get_submitted_data);
+				
+				update_post_meta($entry_id, 'saab_submission_data', $get_submitted_data);
 			}
             wp_die();
         }
 		/**
-		 * Admin : get key value pair of shortcodes to send in manual notification or post update
+		 * Admin: Get key-value pairs of shortcodes to send in manual notification or post update.
+		 *
+		 * @param int $post_id The post ID.
+		 * @return array An array of shortcode key-value pairs.
 		 */
-		function admin_get_shortcodes_keylabel($post_id){
+		function saab_admin_get_shortcodes_keylabel($post_id){
 			$shortcode_list = array();
-			$form_data = get_post_meta( $post_id, '_formschema', true ); 
+			$form_data = get_post_meta( $post_id, 'saab_formschema', true ); 
 			if(isset($form_data) && !empty($form_data)){
 				$form_data=json_decode($form_data);
 				foreach ($form_data as $obj) {     
@@ -572,44 +444,40 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		/**
 		 * Render notification setting page
 		 */
-		function render_notification_settings_page() {
+		function saab_render_notification_settings_page() {
 			// Add your page content here
 			echo "<div class='notification-page-main m-4 p-1 ' >";
+		
+			if (isset($_GET['post_type']) && isset($_GET['post_id']) && isset( $_GET['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['nonce'] ) ) , 'other_setting' )) {
 			
-			if (isset($_GET['post_type']) && isset($_GET['post_id'])) {
-				$post_type = $_GET['post_type'];
-				$post_id = $_GET['post_id'];
+				$post_type = sanitize_text_field($_GET['post_type']);
+				$post_id = absint( $_GET['post_id']);				
 			
 				?>
 				<ul class="nav nav-tabs" id="myTabs" role="tablist">
 					<li class="nav-item">
-						<a class="nav-link active" id="tab_fieldmapping" data-bs-toggle="tab" href="#content_fieldmapping" role="tab" aria-controls="content_fieldmapping" aria-selected="true">Field Mapping</a>
+						<a class="nav-link active" id="tab_fieldmapping" data-bs-toggle="tab" href="#content_fieldmapping" role="tab" aria-controls="content_fieldmapping" aria-selected="true"><?php echo esc_html__('Field Mapping','smart-appointment-booking'); ?></a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" id="tab_notification" data-bs-toggle="tab" href="#content_notification" role="tab" aria-controls="content_notification" aria-selected="false">Notification</a>
+						<a class="nav-link" id="tab_notification" data-bs-toggle="tab" href="#content_notification" role="tab" aria-controls="content_notification" aria-selected="false"><?php echo esc_html__('Notification','smart-appointment-booking'); ?></a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" id="tab_confirmation" data-bs-toggle="tab" href="#content_confirmation" role="tab" aria-controls="content_confirmation" aria-selected="false">Confirmation</a>
+						<a class="nav-link" id="tab_confirmation" data-bs-toggle="tab" href="#content_confirmation" role="tab" aria-controls="content_confirmation" aria-selected="false"><?php echo esc_html__('Confirmation','smart-appointment-booking'); ?></a>
 					</li>
-					<li class="nav-item">
-						<a class="nav-link" id="tab_documentation" data-bs-toggle="tab" href="#content_documentation" role="tab" aria-controls="content_documentation" aria-selected="false">Documentation</a>
-					</li>
-					
 				</ul>
 
 				<div class="tab-content p-4 border" id="myTabContent">
 					<div class="tab-pane fade show active " id="content_fieldmapping" role="tabpanel" aria-labelledby="tab_fieldmapping">
 						<?php
-						$form_data = get_post_meta( $post_id, '_formschema', true ); 
+						$form_data = get_post_meta($post_id, 'saab_formschema', true ); 
 						$form_data=json_decode($form_data);
-						$shortcodes = $this->admin_get_shortcodes_keylabel($post_id);
+						$shortcodes = $this->saab_admin_get_shortcodes_keylabel($post_id);
 						?>
 						<div class="row">
 							<div class="col col-md-3">	
-
 								<?php
 								$post_id = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
-								$user_mapping = get_post_meta($post_id, 'user_mapping', true);
+								$user_mapping = get_post_meta($post_id, 'saab_user_mapping', true);
 								if ($user_mapping) {
 									$first_name = isset($user_mapping['first_name']) ? sanitize_text_field($user_mapping['first_name']) : '';
 									$last_name = isset($user_mapping['last_name']) ? sanitize_text_field($user_mapping['last_name']) : '';
@@ -628,31 +496,31 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 									<input type="hidden" name="post_id" id="post_id" value="<?php echo esc_attr($post_id); ?>">
 									<div class="form-row">
 										<div class="form-group col-md-6">
-											<label class="h6" for="first-name">First Name:</label>
+											<label class="h6" for="lfirstname"  id="lfirstname">First Name:</label>
 											<select class="form-control" id="first-name" name="first_name">
 												<option value="any" disabled>Any</option>
 												<?php 													
-													$fieldFirstName = $this->admin_get_shortcodes_keylabel($post_id);
+													$fieldFirstName = $this->saab_admin_get_shortcodes_keylabel($post_id);
 													foreach ($fieldFirstName as $option) {
 														$fieldKey = $option['fieldkey'];
 														$fieldLabel = $option['fieldlabel'];
 														$selected = ($fieldKey == $first_name) ? 'selected' : '';
-														echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+														echo '<option value="' . esc_attr($fieldKey) . '" ' . esc_html($selected) . '>' . esc_html($fieldLabel) . '</option>';
 													}
 												?>
 											</select>
 										</div>
 										<div class="form-group col-md-6">
-											<label class="h6" for="last-name">Last Name:</label>
+											<label class="h6" for="llastname" id="llastname">Last Name:</label>
 											<select class="form-control" id="last-name" name="last_name">
 												<option value="any" disabled>Any</option>
 												<?php 													
-													$fieldLastName = $this->admin_get_shortcodes_keylabel($post_id);
+													$fieldLastName = $this->saab_admin_get_shortcodes_keylabel($post_id);
 													foreach ($fieldLastName as $option) {
 														$fieldKey = $option['fieldkey'];
 														$fieldLabel = $option['fieldlabel'];
 														$selected = ($fieldKey == $last_name) ? 'selected' : '';
-														echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+														echo '<option value="' . esc_attr($fieldKey) . '" ' . esc_html($selected) . '>' . esc_html($fieldLabel) . '</option>';
 													}
 												?>
 											</select>
@@ -660,16 +528,16 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 									</div>
 									<div class="form-row">
 										<div class="form-group col">
-											<label class="h6" for="email">Email:</label>
+											<label class="h6" >Email:</label>
 											<select class="form-control" id="email" name="email">
 											<option value="any" disabled>Any</option>
 											<?php 													
-												$fieldEmail = $this->admin_get_shortcodes_keylabel($post_id);
+												$fieldEmail = $this->saab_admin_get_shortcodes_keylabel($post_id);
 												foreach ($fieldEmail as $option) {
 													$fieldKey = $option['fieldkey'];
 													$fieldLabel = $option['fieldlabel'];
 													$selected = ($fieldKey == $email) ? 'selected' : '';
-													echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+													echo '<option value="' . esc_attr($fieldKey) . '" ' . esc_html($selected) . '>' . esc_html($fieldLabel) . '</option>';
 												}
 											?>
 											</select>
@@ -677,16 +545,16 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 									</div>
 									<div class="form-row">
 										<div class="form-group col">
-											<label class="h6" for="service">Service:</label>
+											<label class="h6" >Service:</label>
 											<select class="form-control" id="service" name="service">
 											<option value="any" disabled>Any</option>
 											<?php 													
-												$fieldService = $this->admin_get_shortcodes_keylabel($post_id);
+												$fieldService = $this->saab_admin_get_shortcodes_keylabel($post_id);
 												foreach ($fieldService as $option) {
 													$fieldKey = $option['fieldkey'];
 													$fieldLabel = $option['fieldlabel'];
 													$selected = ($fieldKey == $service) ? 'selected' : '';
-													echo '<option value="' . esc_attr($fieldKey) . '" ' . $selected . '>' . esc_html($fieldLabel) . '</option>';
+													echo '<option value="' . esc_attr($fieldKey) . '" ' . esc_html($selected) . '>' . esc_html($fieldLabel) . '</option>';
 												}
 											?>
 											</select>
@@ -695,16 +563,14 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 
 									<div class="form-row">
 										<div class="form-group col">
-											<label class="h6" for="email">Cancel Booking Page:</label>
+											<label class="h6" >Cancel Booking Page:</label>
 											<select name="cancel_bookingpage"  class="form-control" id="selected_page">
 												<option value="">Select a page</option>
 												<?php
 												$pages = get_pages();
-											
-
 												foreach ($pages as $page) {
 													$selected = $cancel_bookingpage == $page->ID ? 'selected' : '';
-													echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
+													echo '<option value="' .  esc_attr($page->ID). '" ' . esc_html($selected). '>' . esc_html($page->post_title) . '</option>';
 												}
 												?>
 											</select>
@@ -724,21 +590,21 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 								<p class="smal head-shortcode">Here is a list of available shortcodes to use in email notification mail body</p>
 																
 								<?php
-								$form_data = $this->admin_get_shortcodes($post_id);
-								echo '<div class=""><label style="font-weight: bold;">' . __('Form shortcodes', 'smart-appointment-booking') . '</label></div>';
+								$form_data = $this->saab_admin_get_shortcodes($post_id);
+								echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Form shortcodes', 'smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['form'] as $objform) {
-									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objform . ']</span>';
+									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' .  esc_attr($objform) . ']</span>';
 								}
-								$enable_booking = get_post_meta($post_id, 'enable_booking', true);
+								$enable_booking = get_post_meta($post_id, 'saab_enable_booking', true);
 								if( $enable_booking ){
-									echo '<div class=""><label style="font-weight: bold;">' . __('Booking shortcodes', 'smart-appointment-booking') . '</label></div>';
+									echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Booking shortcodes', 'smart-appointment-booking') . '</label></div>';
 									foreach ($form_data['booking'] as $objbooking) {
-										echo '<span class="copy-text" style="margin-right: 5px;margin-bottom: 5px; font-family: Arial; font-size: 14px;">[' . $objbooking . ']</span>';
+										echo '<span class="copy-text" style="margin-right: 5px;margin-bottom: 5px; font-family: Arial; font-size: 14px;">[' .  esc_attr($objbooking) . ']</span>';
 									}
 								}
-								echo '<div class=""><label style="font-weight: bold;">' . __('Post shortcodes', 'smart-appointment-booking') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Post shortcodes', 'smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['post'] as $objpost) {
-									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . $objpost . ']</span>';
+									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' . esc_attr($objpost) . ']</span>';
 								}
 								
 								?>
@@ -755,28 +621,26 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 							
 							// Check if the post is published
 							if ($status === 'publish') {
-
-								$get_no_of_notification = get_post_meta($post_id,'no_of_notification',true);
 								$index='add';
 								?>
 								<div class="main-container-notification border border-light" >
 									
 									<div class="form-group">
 										<!-- Button to trigger the modal -->
-										<button type="button" class="btn btn-secondary" id="add_notify_btn" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">Add New notification </button>
+										<button type="button" class="btn btn-secondary" id="add_notify_btn" data-toggle="modal" data-target="#notifyModal<?php echo esc_attr( $index ); ?>">Add New notification </button>
 									</div>
 									<!-- Modal -->
-									<?php  $this->generateModal($index,$post_id); ?>
+									<?php  $this->saab_generateModal($index,$post_id); ?>
 									
 									<?php
-									$notification_metadata = get_post_meta($post_id, 'notification_data', true);
+									$notification_metadata = get_post_meta($post_id, 'saab_notification_data', true);
 									
 									if (!empty($notification_metadata) && is_array($notification_metadata)) {
-										$post_id = $_GET['post_id'];
+										$post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : '';
 										?>
 										
 										<div id="tab5" class="tab-content">
-											<input type="hidden" name="post_id" id="post_id" value="<?php echo $_REQUEST['post_id']; ?>" >
+											<input type="hidden" name="post_id" id="post_id" value="<?php echo $post_id; ?>" >
 											<table class="table notificationtable datatable table-striped" id="notifytable" >
 												<thead>
 													<tr>
@@ -803,12 +667,12 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 														$notification_id = 'notify_' . $index;
 														?>
 														<tr>
-															<td><input type="checkbox" id="zfb-check-all<?php echo $index; ?>" class="child-checkall" value="<?php echo $index; ?>"></td>
+															<td><input type="checkbox" id="saab-check-all<?php echo esc_attr($index); ?>" class="child-checkall" value="<?php echo esc_attr($index); ?>"></td>
 															<td>
 																<?php 
-																echo $ni."."; 
+																echo esc_attr($ni)."."; 
 																$ni++;
-																echo " ".$notification_name; 
+																echo " ". esc_html( $notification_name ); 
 																?>
 															</td>
 															<td>
@@ -817,15 +681,15 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 																		
 																		$booking_status = isset($notification['type']) ? $notification['type'] : '';
 																	
-																		echo $booking_status;
+																		echo esc_html($booking_status);
 																	?>
 																</span>
 															</td>
 															<td>
-															<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo $notification_id; ?>" data-notification-state="<?php echo $state; ?>">
+															<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo esc_attr( $notification_id ); ?>" data-notification-state="<?php echo esc_html( $state ); ?>">
 															<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
 															<td> 
-																<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo $index; ?>">
+																<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo esc_attr($index); ?>">
 																<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
 																	<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
 																	<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
@@ -833,7 +697,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 																	Edit
 																</button>
 																<!-- Modal -->
-																<?php  $this->generateModal($index,$post_id); ?>
+																<?php  $this->saab_generateModal($index,$post_id); ?>
 															</td>
 															</tr>
 														<?php
@@ -856,37 +720,12 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 								?>
 						</div>
 					</div>
-				
-					<div class="tab-pane fade" id="content_documentation" role="tabpanel" aria-labelledby="tab_documentation">
-						<div class="shortcodes_list col-md-6 m-4">
-							<ul>
-								<li class="h6">Create Email Alerts for admin and as well for user with on following Status: Booked, Pending, Approved, Cancelled, Waiting.</li>
-								<li>Map this required Fields with Form's field : Email Field helps to send email alert to user who submitted form</li>
-								<li class="h6">New Booking Created: (When auto approve mode is enabled)</li>
-								<li>When any user or admin makes a new booking, create an email notification containing the relevant details of the booking. This notification will indicate that the booking is booked and confirmed
-								</li>
-								<li class="h6">Booking Pending: (When auto approve mode is disabled)</li>
-								<li>Create an email notification for user when a booking is approved by admin. This notification will indicate that the booking has been "Approved" and is confirmed.
-								</li>
-								<li class="h6">Booking Approved: (When auto approve mode is disabled)</li>
-								<li>Create an email notification for user when a booking is approved by admin. This notification will indicate that the booking has been "Approved" and is confirmed.
-								</li>
-								<li class="h6">Booking Cancelled:</li>
-								<li>In case a booking is cancelled either by an admin or a user, create an email alert providing you with the pertinent information. This notification will indicate that the booking has been "Cancelled" and will no longer be valid.
-								</li>
-							</ul>
-
-							<ul>
-								<li class="h6">Submitted : (Send Email on submitting Form) </li>
-								<li>If the booking feature is not set up or disabled, you have the option to configure email notifications specifically for the "submitted" status. You can generate admin and user email alert.</li>
-							</ul>
-						</div>
-					</div>
+			
 					<div class="tab-pane fade" id="content_confirmation" role="tabpanel" aria-labelledby="tab_confirmation">
 						<?php
-						$confirmation = get_post_meta($post_id, 'confirmation', true);  
-						$redirect_text = get_post_meta($post_id, 'redirect_text', true);
-						$redirect_to= get_post_meta($post_id, 'redirect_to', true);
+						$confirmation = get_post_meta($post_id, 'saab_confirmation', true);  
+						$redirect_text = get_post_meta($post_id, 'saab_redirect_text', true);
+						$redirect_to= get_post_meta($post_id, 'saab_redirect_to', true);
 						$hiddenredirect_text = '';
 							if ($confirmation == 'redirect_text'){
 								$hiddenredirect_to = 'hidden';
@@ -912,34 +751,34 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 							<div class="form-check form-check-inline ">
 								<input  type="radio" name="confirmation" id="radioText" value="redirect_text" <?php if ($confirmation == 'redirect_text') echo 'checked="checked"'; ?>>
 								<label class="form-check-label" for="radioText">
-									Text
+									<?php echo esc_html__('Texts','smart-appointment-booking'); ?>
 								</label>
 							</div>
 							<div class="form-check form-check-inline">
 								<input  type="radio" name="confirmation" id="radioPage" value="redirect_page" <?php if ($confirmation == 'redirect_page') echo 'checked="checked"'; ?>>
 								<label class="form-check-label" for="radioPage">
-									Page
+								<?php echo esc_html__('Page','smart-appointment-booking'); ?>
 								</label>
 							</div>
 							<div class="form-check form-check-inline">
 								<input type="radio" name="confirmation" id="radioRedirect" value="redirect_to" <?php if ($confirmation == 'redirect_to') echo 'checked="checked"'; ?>>
 								<label class="form-check-label" for="radioRedirect">
-									Redirect to
+								<?php echo esc_html__('Redirect to','smart-appointment-booking'); ?>
 								</label>
 							</div>
 							<!-- Class is used for on change event display div: redirectto_main redirect_page , redirectto_main redirect_text, redirectto_main redirect_to -->
-							<div class="form-group redirectto_main redirect_text text_zfb <?php echo $hiddenredirect_text; ?> ">
+							<div class="form-group redirectto_main redirect_text text_saab <?php echo esc_html( $hiddenredirect_text ); ?> ">
 								<?php
 									wp_editor($redirect_text, 'redirect_text', array(
 										'textarea_name' => 'redirect_text',
 									));
 								?>
 							</div>
-							<div class="form-group redirectto_main redirect_page page_zfb <?php echo $hiddenredirect_page; ?>  ">
-								<label  class="h6">Select a page:</label>
-								<input type="text" id="redirectpage-search" placeholder="Search...">
+							<div class="form-group redirectto_main redirect_page page_saab <?php echo esc_html( $hiddenredirect_page ); ?>  ">
+								<label  class="h6"><?php echo esc_html__('Select a page:','smart-appointment-booking'); ?></label>
+								<!-- <input type="text" id="redirectpage-search" placeholder="Search..."> -->
 								<select name="redirect_page" id="redirectpage-dropdown">
-									<option value="">Select a page</option>
+									<option value=""><?php echo esc_html__('Select a page','smart-appointment-booking'); ?></option>
 									<?php
 									$args = array(
 										'post_type' => 'page',
@@ -954,17 +793,17 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 										if ($selected_page_id == $page->ID) {
 											$selected = 'selected="selected"';
 										}
-										echo '<option value="' . $page->ID . '" ' . $selected . '>' . $page->post_title . '</option>';
+										echo '<option value="' . esc_attr($page->ID) . '" ' . esc_html($selected) . '>' . esc_attr($page->post_title) . '</option>';
 									}
 									?>
 								</select>
 							</div>
-							<div class="form-group redirectto_main redirect_to redirect_zfb <?php echo $hiddenredirect_to; ?> ">
-								<label class="h6"><?php echo __('Enter Url: ', 'smart-appointment-booking'); ?></label>
+							<div class="form-group redirectto_main redirect_to redirect_saab <?php echo esc_html( $hiddenredirect_to ); ?> ">
+								<label class="h6"><?php echo esc_html__('Enter Url: ', 'smart-appointment-booking'); ?></label>
 								<input type="text" name="redirect_to" id="redirect-url" class="form-control" value="<?php echo esc_attr($redirect_to); ?>" pattern="https?://.+" style="width: 500px !important;" placeholder="Enter url with http or https">
-								<small class="redirecturl-error" style="display:none;">Please enter a valid URL starting with http:// or https://</small>
+								<small class="redirecturl-error" style="display:none;"><?php echo esc_html__('Please enter a valid URL starting with http:// or https://','smart-appointment-booking'); ?></small>
 							</div> 
-							<input type="hidden" name="post_id" value="<?php echo $post_id;?>">
+							<input type="hidden" name="post_id" value="<?php echo esc_attr( $post_id );?>">
 							<input type="submit" value="Save" class="btn btn-primary" name="Save">
 						</form>
 						<p id="confirm_msg" class="h6 m-2"></p>
@@ -973,7 +812,11 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				<?php
 				$back_link = get_edit_post_link($post_id);
 				?>
-				<a href="<?php echo $back_link; ?>"><button type="button" class="btn btn-secondary mt-2" id="deletenotify">Back To Form Configuration</button></a>
+				<a href="<?php echo esc_url($back_link); ?>">
+					<button type="button" class="btn btn-secondary mt-2" id="deletenotify">
+						<?php echo esc_html__('Back To Form Configuration','smart-appointment-booking'); ?>
+					</button>
+				</a>
 				<?php
 			} else {
 				echo "Error: Post type and/or post ID not found.";
@@ -983,10 +826,10 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		/**
 		 * get shortcodes to display in page
 		 */
-		function admin_get_shortcodes($post_id){
+		function saab_admin_get_shortcodes($post_id){
 			$form_list = array();
 			$shortcode_list = array();
-			$form_data1 = get_post_meta( $post_id, '_formschema', true ); 
+			$form_data1 = get_post_meta($post_id, 'saab_formschema', true ); 
 			if(isset($form_data1) && !empty($form_data1)){
 				$form_data1=json_decode($form_data1);
 				foreach ($form_data1 as $obj) {  
@@ -994,7 +837,13 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 					$form_list[] = $obj->key;
 					 }
 				}
+				 // Additional values to be added
+				 $additional_values = ['To', 'FirstName', 'LastName','Service'];
+
+				 // Merge arrays and remove duplicates
+				 $form_list = array_unique(array_merge($form_list, $additional_values));
 			}
+			
 			$booking_shortcodes = array('BookingId','Status','To','FirstName','LastName','Timeslot','BookedSeats','BookingDate','BookedDate','Service','prefixlabel','cost','StartTime','EndTime','CancelBooking');
 			$post_shortcodes = array('FormId','FormTitle');
 			$shortcode_list = array(
@@ -1008,55 +857,66 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		/**
 		 * Update notification status: enable and disable
 		 */
-		function zfb_update_notification_state() {
+		function saab_update_notification_state() {
 			$response = array(
 				'success' => false,
 				'message' => 'Invalid request.',
 			);
-		
-			if (isset($_POST['post_id'], $_POST['notification_id'], $_POST['new_state'])) {
-				$post_id = $_POST['post_id'];
-				$notification_id = $_POST['notification_id'];
-				$index = ltrim($notification_id, "notify_");
-				$new_state = $_POST['new_state'];
-		
-				// Get the existing notification metadata
-				$notification_data = get_post_meta($post_id, 'notification_data', true);
-				if ($notification_data) {
-					if (isset($notification_data[$index])) {
-						$notification_data[$index]['state'] = $new_state;
-						update_post_meta($post_id, 'notification_data', $notification_data);
-		
-						$response['success'] = true;
-						$response['message'] = __('Notification saved successfully', 'smart-appointment-booking');
-						$response['state'] = $new_state;
+			
+			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' )) {
+				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
+				wp_send_json($response);
+			}else{
+				if (isset($_POST['post_id'], $_POST['notification_id'], $_POST['new_state'])) {
+					$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+					$notification_id = isset($_POST['notification_id']) ? absint($_POST['notification_id']) : 0;
+
+					$index = ltrim($notification_id, "notify_");
+					$new_state = isset($_POST['new_state']) ? sanitize_text_field($_POST['new_state']) : '';
+					
+					// Get the existing notification metadata
+					$notification_data = get_post_meta($post_id, 'saab_notification_data', true);
+					if ($notification_data) {
+						if (isset($notification_data[$index])) {
+							$notification_data[$index]['state'] = $new_state;
+							update_post_meta($post_id, 'saab_notification_data', $notification_data);
+			
+							$response['success'] = true;
+							$response['message'] = esc_html__('Notification saved successfully', 'smart-appointment-booking');
+							$response['state'] = $new_state;
+						} else {
+							$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
+						}
 					} else {
-						$response['message'] = __('Something went wrong', 'smart-appointment-booking');
+						$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 					}
-				} else {
-					$response['message'] = __('Something went wrong', 'smart-appointment-booking');
 				}
+			
+				wp_send_json($response);
+				
 			}
-		
-			wp_send_json($response);
+			wp_die();
 		}
 		/**
 		 * delete Notification entry from backend
 		 */
-		function delete_notification_indexes() {
+		function saab_delete_notification_indexes() {
+			
+			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' )) {
+				wp_send_json_error('Invalid request.');
+				wp_die();
+			}
 			if (isset($_POST['indexes'])) {
-				$post_id = $_POST['post_id']; 
-				$indexesToDelete = $_POST['indexes'];
-
-				$notification_metadata = get_post_meta($post_id, 'notification_data', true);
-
+				$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+				$indexesToDelete = isset($_POST['indexes']) ? sanitize_text_field($_POST['indexes']) : '';	
+				$notification_metadata = get_post_meta($post_id, 'saab_notification_data', true);
 				foreach ($indexesToDelete as $index) {
 					if (isset($notification_metadata[$index])) {
 						unset($notification_metadata[$index]);
 					}
 				}
 
-				update_post_meta($post_id, 'notification_data', $notification_metadata);
+				update_post_meta($post_id, 'saab_notification_data', $notification_metadata);
 				wp_send_json_success('Indexes deleted successfully.');
 			} else {
 				wp_send_json_error('Invalid request.');
@@ -1065,7 +925,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		/**
 		 * modal : add and edit new notification
 		 */
-		function generateModal($index,$post_id) {
+		function saab_generateModal($index,$post_id) {
 			
 			$mode = ($index === 'add') ? 'add' : '';
 			$checkedit = ($index === 'add') ? 'add' : 'edit';
@@ -1082,7 +942,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			$mail_body = '';
 			$use_html = '';
 
-			$data = get_post_meta($post_id, 'notification_data', true);
+			$data = get_post_meta($post_id, 'saab_notification_data', true);
 			
 			if ($checkedit === 'edit' && isset($data[$index])) {
 				$title = 'Edit Notification';
@@ -1101,119 +961,107 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			}
 			
 			?>
-			<div class="modal fade notification-modal" id="notifyModal<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo $index; ?>" aria-hidden="true">
+			<div class="modal fade notification-modal" id="notifyModal<?php echo esc_attr($index); ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo esc_attr($index); ?>" aria-hidden="true">
 				<div class="modal-dialog modal-lg notification-mdialog modal-dialog-scrollable">
 					<div class="modal-content notification-mcontent">
-						
+						<input type="hidden" value="<?php echo esc_attr($post_id); ?>" name="form_id">
+						<!-- Modal header -->
+						<div class="modal-header">
+							<h4 class="modal-title" id="myModalLabel"><?php echo esc_html($title); ?></h4>
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						</div>
 							
-							<input type="hidden" value="<?php echo $post_id; ?>" name="form_id">
-							<!-- Modal header -->
-							<div class="modal-header">
-								<h4 class="modal-title" id="myModalLabel"><?php echo $title; ?></h4>
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-							</div>
-							
-							<!-- Modal body -->
-							<div class="modal-body notification-mdialog" style="max-height: 100%;overflow-y: auto;">
-								<form class="notifyform" data-id ="<?php echo $index; ?>" method="post">
-									<div class="border p-4 m-1">
-										<h5>General Notification Setting</h5>
-										<input type="hidden" value="<?php echo $index; ?>" name="editnotify" >
-										<div class="form-group">
-											<input type="hidden" name="form_id" value="<?php echo $post_id; ?>">
-										</div>
-										<div class="form-group">
-											<label for="notification-name">Notification Name</label>
-											<input type="text" value="<?php echo $notificationName; ?>" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
-										</div>
-
-										<div class="form-group">
-											<label for="state">State</label>
-											<div class="form-check">
-												<input class="form-check" type="radio" name="state" id="disable" value="disabled"<?php echo ($state === 'disabled' || $state === 'disable') ? 'checked' : ''; ?>>
-												<label class="form-check-label" for="disable">Disable</label>
-												</div>
-											<div class="form-check">
-												<input class="form-check" type="radio" name="state" id="enable" value="enabled"<?php echo ($state === 'enabled' || $state === 'enable') ? 'checked' : ''; ?>>
-												<label class="form-check-label" for="enabled">Enable</label>
-											</div>
-										</div>
-
-										<div class="form-group">
-											<label for="type-dropdown">Type</label>
-											<select class="form-select form-control" id="type-dropdown" name="type">
-												<?php
-												$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','waiting','submitted');
-												foreach ($available_types as $avail_type) {
-													$selected = ($avail_type === $type) ? 'selected' : '';
-													echo '<option value="' . $avail_type . '" ' . $selected . '>' . ucfirst($avail_type) . '</option>';
-												}
-												?>
-											</select>
-
-										</div>
-
+						<!-- Modal body -->
+						<div class="modal-body notification-mdialog" style="max-height: 100%;overflow-y: auto;">
+							<form class="notifyform" data-id ="<?php echo esc_attr($index); ?>" method="post">
+								<div class="border p-4 m-1">
+									<h5>General Notification Setting</h5>
+									<input type="hidden" value="<?php echo esc_attr($index); ?>" name="editnotify" >
+									<div class="form-group">
+										<input type="hidden" name="form_id" value="<?php echo esc_attr($post_id); ?>">
 									</div>
-									<div class="border p-4 m-1">
-										<h5>Email</h5>
-										
-										<div class="form-group">
-											<label for="email-to">To</label>
-											<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
+									<div class="form-group">
+										<label >Notification Name</label>
+										<input type="text" value="<?php echo esc_html($notificationName); ?>" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
+									</div>
+									<div class="form-group">
+										<label >State</label>
+										<div class="form-check">
+											<input class="form-check" type="radio" name="state" id="disable" value="disabled"<?php echo ($state === 'disabled' || $state === 'disable') ? 'checked' : ''; ?>>
+											<label class="form-check-label" >Disable</label>
+											</div>
+										<div class="form-check">
+											<input class="form-check" type="radio" name="state" id="enable" value="enabled"<?php echo ($state === 'enabled' || $state === 'enable') ? 'checked' : ''; ?>>
+											<label class="form-check-label" >Enable</label>
 										</div>
-
-										<div class="form-group">
-											<label for="email-from">From</label>
-											<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
-										</div>
-										<div class="form-group">
-											<label for="email-from">Reply To</label>
-											<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" >
-										</div>
-										<div class="form-group">
-											<label for="email-from">Bcc</label>
-											<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" >
-										</div>
-										<div class="form-group">
-											<label for="email-from">Cc</label>
-											<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" >
-										</div>
-										<div class="form-group">
-											<label for="email-subject">Subject</label>
-											<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
-										</div>
-										
-
-										<div class="form-group">
-											<label for="mail-body">Mail Body</label>
+									</div>
+									<div class="form-group">
+										<label >Type</label>
+										<select class="form-select form-control" id="type-dropdown" name="type">
 											<?php
+											$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','waiting','submitted');
+											foreach ($available_types as $avail_type) {
+												$selected = ($avail_type === $type) ? 'selected' : '';
+												echo '<option value="' . esc_html($avail_type) . '" ' . esc_attr($selected) . '>' . ucfirst(esc_html($avail_type)) . '</option>';
+
+											}
+											?>
+										</select>
+									</div>
+								</div>
+								<div class="border p-4 m-1">
+									<h5><?php echo esc_html__('Email','smart-appointment-booking'); ?></h5>
+									<div class="form-group">
+										<label ><?php echo esc_html__('To','smart-appointment-booking'); ?></label>
+										<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
+									</div>
+									<div class="form-group">
+										<label ><?php echo esc_html__('From','smart-appointment-booking'); ?></label>
+										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
+									</div>
+									<div class="form-group">
+										<label ><?php echo esc_html__('Reply To','smart-appointment-booking'); ?></label>
+										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" >
+									</div>
+									<div class="form-group">
+										<label ><?php echo esc_html__('Bcc','smart-appointment-booking'); ?></label>
+										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" >
+									</div>
+									<div class="form-group">
+										<label ><?php echo esc_html__('Cc','smart-appointment-booking'); ?></label>
+										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" >
+									</div>
+									<div class="form-group">
+										<label><?php echo esc_html__('Subject','smart-appointment-booking'); ?></label>
+										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
+									</div>
+									<div class="form-group">
+										<label><?php echo esc_html__('Mail Body','smart-appointment-booking'); ?></label>
+										<?php
 											wp_editor(isset($mail_body) ? $mail_body : '', 'mail_body' . $index, array(
 												'textarea_name' =>  'mail_body' . $index,
 											));
-											?>
-										</div>
-										
-										<div class="form-check">
-											
-											<?php 
-												$checked = '';
-												if($use_html && !empty($use_html)){
-													$checked = 'checked';
-												}
-											?>
-											<input class="form-check-input" type="checkbox" id="use_html" name="use_html" value="1" <?php echo $checked;?>>
-											<label class="form-check-label" for="flexCheckDefault">
-												Use HTML content type
-											</label>
-										</div>
-									
+										?>
 									</div>
-									<p id="suc_loc" ></p>
-									<input type="submit" id="submit_notification" name="submit_notification" class="btn btn-primary">
-									<button type="button" class="btn btn-secondary" id="closemodal" data-dismiss="modal">Close</button>
-								</form>
-								<p id="suc_loc"></p>
-							</div>
+									<div class="form-check">
+										<?php 
+											$checked = '';
+											if($use_html && !empty($use_html)){
+												$checked = 'checked';
+											}
+										?>
+										<input class="form-check-input" type="checkbox" id="use_html" name="use_html" value="1" <?php echo esc_html($checked);?>>
+										<label class="form-check-label" >
+										<?php echo esc_html__('Use HTML content type','smart-appointment-booking'); ?>
+										</label>
+									</div>
+								</div>
+								<p id="suc_loc" ></p>
+								<input type="submit" id="submit_notification" name="submit_notification" class="btn btn-primary">
+								<button type="button" class="btn btn-secondary" id="closemodal" data-dismiss="modal"><?php echo esc_html__('Close','smart-appointment-booking'); ?></button>
+							</form>
+							<p id="suc_loc"></p>
+						</div>
 					</div>
 				</div> 
 			</div>
@@ -1223,47 +1071,94 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 		/**
 		 * save form data
 		 * */	
-		function sab_save_form_data() {
-			
-			$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+		function saab_save_form_data() {
 
-			$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
+			if (isset($_POST['security']) || wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'saab_ajax_nonce')) {
 			
-			update_post_meta( $post_id, '_formschema', $form_data );
+				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
-			wp_send_json_success( 'Form data saved successfully.' );
+				$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
+
+				$form_data = $_POST['form_data'];
+
+				if (is_array($form_data)) {
+
+					foreach ($form_data as $field_name => &$field_value) {
+						
+						if (is_array($field_value)) {
+							foreach ($field_value as &$value) {
+								
+								if (is_email($value)) {
+									$value = sanitize_email($value);
+								} elseif (is_numeric($value)) {
+									$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+								} elseif (is_string($value)) {									
+									$value = sanitize_textarea_field($value);
+								} else {								
+									$value = sanitize_text_field($value);
+								}
+							}
+						} else {
+							
+							if (is_email($field_value)) {
+								$field_value = sanitize_email($field_value);
+							} elseif (is_numeric($field_value)) {
+								$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
+							} elseif (is_string($field_value)) {							
+								$field_value = sanitize_textarea_field($field_value);
+							} else {							
+								$field_value = sanitize_text_field($field_value);
+							}
+						}
+					}
+				}
+				
+				update_post_meta($post_id, 'saab_formschema', $form_data );
+
+				wp_send_json_success( 'Form data saved successfully.' );
+				
+			}else{
+				wp_send_json_error('Nonce verification failed');
+			}
 			exit;
 
 		}
 		/**
 		 * populate columns of post type
 		 */
-		function populate_custom_column($column, $post_id) {
+		function saab_populate_custom_column($column, $post_id) {
 			if ($column === 'shortcode') {				
-				echo "[booking_form form_id='".$post_id."']";
+				echo "[saab_booking_form form_id='".esc_attr($post_id)."']";
 			}
 			if ($column === 'form') {	
-				$form_id = get_post_meta($post_id,'sab_form_id',true);	
+				$form_id = get_post_meta($post_id,'saab_form_id',true);	
 				$form_title = get_the_title($form_id);	
 				
-				if (isset($form_title)) {	
-					echo __($form_title,'smart-appointment-booking');
+				if (isset($form_title)) {
+					echo sprintf(
+						esc_html__('%s', 'smart-appointment-booking'),
+						esc_html($form_title)
+					);
+				
 				}else{
 					echo '-';
 				}
 			}
 			if ($column === 'booking_status') {		
-				$booking_status = get_post_meta($post_id,'entry_status',true);
+				$booking_status = get_post_meta($post_id,'saab_entry_status',true);
 			
-				if (isset($booking_status) && !empty($booking_status)) {	
-					echo ucfirst(__($booking_status,'smart-appointment-booking'));
+				if (isset($booking_status) && !empty($booking_status)) {
+					echo sprintf(
+						esc_html__('%s', 'smart-appointment-booking'),
+						esc_html(ucfirst($booking_status))
+					);	
 				}else{
 					echo '-';
 				}
 				
 			}
 			if ($column === 'booking_date') {
-				$booking_date = get_post_meta($post_id,'booking_date',true);
+				$booking_date = get_post_meta($post_id,'saab_booking_date',true);
 				if (isset($booking_date) && !empty($booking_date)) {
 				
 				$array_of_date = explode('_',$booking_date);
@@ -1272,19 +1167,26 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				$bookedday =$array_of_date[3];
 				$bookedyear =$array_of_date[4];
 				$booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
-				$booked_date = date('d F, Y', strtotime($booked_date));	
+				$booked_date = gmdate('d F, Y', strtotime($booked_date));	
 					if (isset($booking_date) && !empty($booking_date)) {	
-						echo __($booked_date,'smart-appointment-booking');
+						echo sprintf(
+							esc_html__('%s', 'smart-appointment-booking'),
+							esc_html($booked_date)
+						);
+						
 					}
 				}else{
 					echo '-';
 				}	
 			}
 			if ($column === 'timeslot') {
-				$timeslot = get_post_meta( $post_id, 'timeslot', true );						
+				$timeslot = get_post_meta($post_id, 'saab_timeslot', true );						
 			
-				if (isset($timeslot) && !empty($timeslot)) {	
-					echo __($timeslot,'smart-appointment-booking');
+				if (isset($timeslot) && !empty($timeslot)) {
+					echo sprintf(
+						esc_html__('%s', 'smart-appointment-booking'),
+						esc_html($timeslot)
+					);	
 				}else{
 					echo '-';
 				}
@@ -1293,21 +1195,35 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 
 		}
 		/**
-		 * html to preview timeslots or generate new timeslots
+		 * Generate HTML for previewing or creating time slots.
+		 *
+		 * This function is responsible for generating HTML that allows users to preview existing time slots
+		 * or create new ones. It serves as a part of a larger system for managing time slots in a web application.
+		 * 
 		 */
-		function zfb_preiveiw_timeslot() {
+		function saab_preiveiw_timeslot() {
 			$error = 0;
 			$output = '';		
+		
+			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['security'] ) ) , 'saab_ajax_nonce' )) {
+				$error = 1;
+				$error_mess = "Nonce verification failed";
+				// Send error response
+				wp_send_json_error(array(
+					'error_mess' => $error_mess
+				));				
+				wp_die();
+			}
 			if (isset($_POST['post_id'])) {
 					
-					$post_id = $_POST['post_id'];
-					$start_time = get_post_meta($post_id, 'start_time', true);
-					$end_time = get_post_meta($post_id, 'end_time', true);
-					$break_times = get_post_meta($post_id, 'breaktimeslots', true);
-					$duration_minutes = get_post_meta($post_id, 'timeslot_duration', true);
-					$gap_minutes = get_post_meta($post_id, 'steps_duration', true);
+					$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+					$start_time = get_post_meta($post_id, 'saab_start_time', true);
+					$end_time = get_post_meta($post_id, 'saab_end_time', true);
+					$break_times = get_post_meta($post_id, 'saab_breaktimeslots', true);
+					$duration_minutes = get_post_meta($post_id, 'saab_timeslot_duration', true);
+					$gap_minutes = get_post_meta($post_id, 'saab_steps_duration', true);
 			
-					$available_timeslots_list = $this->admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id);
+					$available_timeslots_list = $this->saab_admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id);
 				
 					foreach ($available_timeslots_list as $index => $timeslot) {
 						$start_time = isset($timeslot['start_time_slot']) ? $timeslot['start_time_slot'] : '';
@@ -1315,11 +1231,11 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 						$output .= '<div class="form-row timeslot-row generatetimeslot">';
 						$output .= '<div class="form-group col-md-3">';
 						$output .= '<label>Start Time:</label>';
-						$output .= '<input type="time" class="form-control" name="generatetimeslot[' . $index . '][start_time]" value="' . esc_attr($start_time) . '">';
+						$output .= '<input type="time" class="form-control" name="generatetimeslot[' . esc_attr($index) . '][start_time]" value="' . esc_attr($start_time) . '">';
 						$output .= '</div>';
 						$output .= '<div class="form-group col-md-3">';
 						$output .= '<label>End Time:</label>';
-						$output .= '<input type="time" class="form-control" name="generatetimeslot[' . $index . '][end_time]" value="' . esc_attr($end_time) . '">';
+						$output .= '<input type="time" class="form-control" name="generatetimeslot[' . esc_attr($index) . '][end_time]" value="' . esc_attr($end_time) . '">';
 						$output .= '</div>';
 						$output .= '<div class="form-group col-2 remove-generatetimeslot">';
 						$output .= '<svg class="remove-generatetimeslot" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">';
@@ -1349,10 +1265,22 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			}
 			wp_die();
 		}
-		/** 
-		 * generate timeslots
+		/**
+		 * Generate time slots based on specified parameters.
+		 *
+		 * This function calculates and generates time slots within a given time range, considering
+		 * the desired duration, gaps between slots, and breaks. It is used in the administration panel
+		 * to create and manage time slots for a specific post.
+		 *
+		 * @param string $start_time      The starting time for generating time slots (e.g., "09:00 AM").
+		 * @param string $end_time        The ending time for generating time slots (e.g., "05:00 PM").
+		 * @param array $duration_minutes  The duration of each time slot in minutes.
+		 * @param array $gap_minutes      The gap between time slots in minutes.
+		 * @param array $break_times     An array of break times during which no slots will be generated.
+		 * @param int $post_id           The ID of the associated post.
+		 *
 		 */
-		function admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id){
+		function saab_admin_generate_timeslots($start_time, $end_time, $duration_minutes, $gap_minutes, $break_times, $post_id){
 			// Convert start time and end time to Unix timestamps
 			$start_timestamp = strtotime($start_time);
 			$end_timestamp = strtotime($end_time);
@@ -1405,8 +1333,8 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 						break;
 					}
 				}
-				$start_time_slot = date('H:i', $current_timestamp);
-				$end_time_slot = date('H:i', $end_timeslot);
+				$start_time_slot = gmdate('H:i', $current_timestamp);
+				$end_time_slot = gmdate('H:i', $end_timeslot);
 				$available_timeslots[] = array(
 					'start_time_slot' => $start_time_slot,
 					'end_time_slot' => $end_time_slot,
@@ -1417,34 +1345,48 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			return $available_timeslots;
 		}
 		/**
-		 * User Mapping fields
+		 * Save user mapping fields.
+		 *
+		 * This function is responsible for saving user mapping fields.
 		 */
-		function zfb_save_user_mapping() {
+		function saab_save_user_mapping() {
 			if (!is_admin()) {
 				wp_send_json_error('Invalid request.');
 			}
-		
-			$user_mapping = isset($_POST['zfbuser_mapping']) ? stripslashes($_POST['zfbuser_mapping']) : '';
+			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['security'] ) ) , 'saab_ajax_nonce' )) {
+				wp_send_json_error(array('message' => 'Nonce verification failed'));
+				wp_die();
+			}
+			$user_mapping = isset($_POST['saabuser_mapping']) ? stripslashes($_POST['saabuser_mapping']) : '';
 		
 			parse_str($user_mapping, $user_mapping_array);
 		
 			$post_id = isset($user_mapping_array['post_id']) ? sanitize_text_field($user_mapping_array['post_id']) : '';
 			if (!empty($post_id)) {
-				update_post_meta($post_id, 'user_mapping', $user_mapping_array);
+				update_post_meta($post_id, 'saab_user_mapping', $user_mapping_array);
 
-				$response['message'] = __('User mapping saved successfully.', 'smart-appointment-booking');
+				$response['message'] = esc_html__('User mapping saved successfully.', 'smart-appointment-booking');
 			} else {
-				$response['message'] = __('Post ID is missing.', 'smart-appointment-booking');
+				$response['message'] = esc_html__('Post ID is missing.', 'smart-appointment-booking');
 			
 			}
 			wp_send_json($response);
 			exit;
 		}
-		/** 
-		 * Confirmation settings 
-		 * */
-		function zfb_save_confirmation() {
-
+		/**
+		 * Save confirmation settings.
+		 *
+		 * This function is responsible for processing and saving confirmation settings associated with a specific post.
+		 * It validates the security token and processes the form data sent via AJAX to update the post's confirmation settings.
+		 *
+		 * @return void
+		 */
+		function saab_save_confirmation() {
+			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' )) {
+				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
+				wp_send_json($response);
+				exit;
+			}
 			if (isset($_POST['confirmation_data'])) {
 
 				parse_str($_POST['confirmation_data'], $formdata);
@@ -1452,33 +1394,39 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				$post_id = $formdata['post_id'];
 				if (isset($formdata['confirmation'])) {
 					$redirect_url = sanitize_text_field($formdata['confirmation']);
-					update_post_meta($post_id, 'confirmation', $redirect_url);
+					update_post_meta($post_id, 'saab_confirmation', $redirect_url);
 				}
 				if (isset($formdata['redirect_text'])) {
 					$wp_editor_value = wp_kses_post($formdata['redirect_text']);
-					update_post_meta($post_id, 'redirect_text', $wp_editor_value);
+					update_post_meta($post_id, 'saab_redirect_text', $wp_editor_value);
 				}
 				if (isset($formdata['redirect_page'])) {
 					$redirect_page = sanitize_text_field($formdata['redirect_page']);
-					update_post_meta($post_id, 'redirect_page', $redirect_page);
+					update_post_meta($post_id, 'saab_redirect_page', $redirect_page);
 				}
 				if (isset($formdata['redirect_url'])) {
 					$redirect_url = sanitize_text_field($formdata['redirect_url']);
-					update_post_meta($post_id, 'redirect_url', $redirect_url);
+					update_post_meta($post_id, 'saab_redirect_url', $redirect_url);
 				}
-				$response['message'] = __('Saved Successfully', 'smart-appointment-booking');
+				$response['message'] = esc_html__('Saved Successfully', 'smart-appointment-booking');
 
 			}else{
-				$response['message'] = __('Something went wrong', 'smart-appointment-booking');
+				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 			}
 
 			wp_send_json($response);
 			exit;
 		}	
 		/**
-		 * Disable Title FOR META BOX 
+		 * Disable title editing for a specific post type's metabox.
+		 *
+		 * This function is used to prevent the editing of the post title in the WordPress editor for a
+		 * specific post type named 'manage_entries'. It removes the title metabox using JavaScript
+		 * when editing posts of this post type.
+		 *
+		 * @return void
 		 */
-		function disable_title_editing_for_custom_post_type() {
+		function saab_disable_title_editing_for__post_type() {
 			global $post_type;
 		
 			if ($post_type === 'manage_entries') {
@@ -1492,19 +1440,36 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			}
 		}
 		/**
-		 * ADD FILTER DROPDOWN for status
+		 * Add custom booking status and form filters to the 'manage_entries' custom post type.
+		 *
+		 * This function adds custom filters for booking status and associated forms in the WordPress admin
+		 * when viewing the 'manage_entries' custom post type. It provides options to filter entries by booking status
+		 * and associate them with specific forms.
+		 *
+		 * @param string $post_type The post type to which filters are being added.
+		 *
+		 * @return void
 		 */
-		function add_custom_booking_status_filter($post_type) {
+		function saab_add_custom_booking_status_filter($post_type) {
+
+			if('manage_entries' !== $post_type){
+				return; 
+			}
+			
 			$args = array(
 				'post_type' => 'manage_entries',
 				'posts_per_page' => 1, // Fetch only one post to check if any exists.
 			);
-		
+			
 			$has_entries = new WP_Query($args);
-		
+			
 			if ($has_entries->have_posts()) {
-				$status = isset($_GET['booking_status']) ? $_GET['booking_status'] : '';
-		
+			
+				if (isset($_GET['booking_status_filter_nonce']) && 	! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_GET['booking_status_filter_nonce'] ) ) , 'booking_status_filter_nonce' )) {
+					$status = isset($_GET['booking_status']) ? $_GET['booking_status'] : '';
+				}else{
+					$status = '';
+				}
 				$options = array(
 					'any' => 'Status',
 					'booked' => 'Booked',
@@ -1516,18 +1481,19 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				);
 		
 				$args = array(
-					'post_type' => 'sab_form_builder',
+					'post_type' => 'saab_form_builder',
 					'posts_per_page' => -1,
 				);
-		
+				wp_nonce_field('booking_status_filter_nonce', 'booking_status_filter_nonce');
 				echo '<select name="booking_status" class="form-control">';
+				
 				foreach ($options as $value => $label) {
 					$selected = selected($status, $value, false);
 					echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
 				}
 				echo '</select>';
-		
-				$selected_form_id = isset($_GET['form_filter']) ? $_GET['form_filter'] : '';
+
+				$selected_form_id = isset($_GET['form_filter']) ? sanitize_text_field($_GET['form_filter']) : '';
 		
 				$forms_query = new WP_Query($args);
 		
@@ -1542,14 +1508,26 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			}
 		}
 		/**
-		 * Filter as per selected Status
+		 * Filter 'manage_entries' by selected booking status and form criteria.
+		 *
+		 * This function modifies the main query for the 'manage_entries' custom post type in the WordPress admin,
+		 * allowing filtering by booking status and associated form. It ensures that entries are displayed according
+		 * to the selected criteria when filtering is applied.
+		 *
+		 * @param WP_Query $query The main WordPress query object.
+		 *
+		 * @return void
 		 */
-		function filter_custom_booking_status($query) {
+		function saab_filter_custom_booking_status($query) {
 			global $pagenow, $typenow;
 			if (!is_admin() || !in_array($query->get('post_type'), array('manage_entries'))) {
 				return;
 			}
-
+			
+			if (!isset($_GET['booking_status_filter_nonce']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_GET['booking_status_filter_nonce'] ) ) , 'booking_status_filter_nonce' )) {
+				return;
+			}
+			
 			if ('edit.php' === $pagenow && 'manage_entries' === $typenow) {
 				$booking_status = isset($_GET['booking_status']) ? sanitize_text_field($_GET['booking_status']) : '';
 				$form_filter = isset($_GET['form_filter']) ? intval($_GET['form_filter']) : 0;
@@ -1567,7 +1545,7 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 
 					if (!empty($form_filter)) {
 						$meta_query[] = array(
-							'key' => 'sab_form_id',
+							'key' => 'saab_form_id',
 							'value' => $form_filter,
 							'compare' => '='
 						);
@@ -1578,18 +1556,23 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			}
 		}
 		/**
-		 * add configuration email link
+		 * Add a link to configure email notifications in the 'Submit' meta box.
+		 *
+		 * This function enhances the WordPress admin interface for the 'saab_form_builder' custom post type.
+		 * It adds a link that allows users to configure email notifications associated with the form.
+		 *
+		 * @return void
 		 */
-		function modify_submitdiv_content() {
+		function saab_modify_submitdiv_content() {
 			global $post;
 			$post_id = $post->ID;
 			$post_type = get_post_type( $post_id );
-			if($post_type === 'sab_form_builder'){
-				$form_id = get_post_meta($post_id,'sab_form_id',true);
+			if($post_type === 'saab_form_builder'){
+				$form_id = get_post_meta($post_id,'saab_form_id',true);
 				$page_slug = 'notification-settings';
-				$post_type = 'sab_form_builder';
+				$post_type = 'saab_form_builder';
 				
-				$admin_url = admin_url('admin.php');
+				$admin_url = esc_url(admin_url('admin.php'));
 				$view_entry_url = add_query_arg(
 					array(
 						'page' => $page_slug,
@@ -1608,13 +1591,25 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 			
 		}
 		/**
-		 * Get pagination entry list: get_paginated_items_for_waiting_list
+		 * Retrieve paginated items for the waiting list.
+		 *
+		 * This function handles an AJAX request to fetch and display paginated items on the waiting list for a specific timeslot and booking date.
+		 *
+		 * @return void
 		 */
-		function get_paginated_items_for_waiting_list(){
+		function saab_get_paginated_items_for_waiting_list(){
+			// Verify the nonce
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'get_paginated_items_nonce' )) {
+				// Send the response back to the Ajax request
+				echo ob_get_clean();
+				wp_die(); // End the script
+			}
 			// Define the current page number
+			
 			$current_page = isset($_POST['page']) ? absint($_POST['page']) : 1;
-			$timeslot = isset($_POST['timeslot']) ? ($_POST['timeslot']) : '';
-			$booking_date = isset($_POST['booking_date']) ? ($_POST['booking_date']) : '';
+			$timeslot = isset($_POST['timeslot']) ? sanitize_text_field($_POST['timeslot']) : '';
+			$booking_date = isset($_POST['booking_date']) ? sanitize_text_field($_POST['booking_date']) : '';
+
 			$args = array(
 				'post_type' => 'manage_entries',
 				'posts_per_page' => 5, // Show 5 entries per page
@@ -1632,13 +1627,11 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 						'compare' => '='
 					)
 				)
-			);
-		
+			);		
 
 			$query = new WP_Query($args);
-			$count_posts = $query->found_posts;
 			ob_start();
-			if ($query->have_posts() &&  $count_posts > 1) {
+			if ($query->have_posts()) {
 				echo '<div class="border-top border-dark mb-2"></div>';
 				echo '<p>Waiting List</p>';
 				// echo '<div id="waitingtable">';
@@ -1656,23 +1649,24 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 					$query->the_post();
 					$post_id = get_the_ID();
 					$post_title = get_the_title();
-					$booking_status = get_post_meta($post_id, 'entry_status', true);
-					$no_of_bookings = get_post_meta($post_id, 'slotcapacity', true);
+					$booking_status = get_post_meta($post_id, 'saab_entry_status', true);
+					$no_of_bookings = get_post_meta($post_id, 'saab_slotcapacity', true);
 					
 					if ($booking_status === 'waiting') {
 						echo '<tr>';
-						echo '<td>'.$i.'-'. $post_id . '</td>';
-						echo '<td>' . $post_title . '</td>';
-						echo '<td>' . $booking_status . '</td>';
-						echo '<td>' . $no_of_bookings . '</td>';
-						echo '<td>' . $published_date = get_the_date('F j, Y @ h:i a',$post_id). '</td>';
-						echo '<td><a href="' . get_edit_post_link($post_id) . '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>';
+						echo '<td>' . esc_html($i) . '-' . esc_html($post_id) . '</td>';
+						echo '<td>' . esc_html($post_title) . '</td>';
+						echo '<td>' . esc_html($booking_status) . '</td>';
+						echo '<td>' . esc_html($no_of_bookings) . '</td>';
+						echo '<td>' . esc_html(get_the_date('F j, Y @ h:i a', $post_id)) . '</td>';
+						echo '<td><a href="' . esc_url(get_edit_post_link($post_id)) . '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>';
 						echo '</tr>';
 					}
 					$i++;
 				}
 		
 				echo '</table>';
+				echo '</div>';
 				wp_reset_postdata();
 		
 				// Calculate the total number of pages
@@ -1681,30 +1675,30 @@ if ( !class_exists( 'SAB_Admin_Action' ) ) {
 				echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
 				if ($total_pages > 1) {
 				
-					echo '<select id="sabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '">';
+					echo '<select id="saabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '" data-nonce="'.wp_create_nonce('get_paginated_items_nonce').'">';
 						for ($page = 1; $page <= $total_pages; $page++) {
-							echo '<option value="' . $page . '"';
+							echo '<option value="' . esc_attr($page) . '"';
 							if ($page == $current_page) {
 								echo ' selected';
 							}
-							echo '>' . $page . '</option>';
+							echo '>' . esc_html($page) . '</option>';
+
 						}
 					echo '</select>';
 					echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
-					echo __('of List Items ','textdomain');
+					echo esc_html__('of List Items ','smart-appointment-booking');
 					echo $total_pages;
 				
 				}
 				echo '</div>';	
-			}
-		
-			// Send the response back to the Ajax request
+			}		
 			echo ob_get_clean();
-			wp_die(); // End the script
+			
+			wp_die(); 
 		}
 	}
 	add_action( 'plugins_loaded', function() {
-		$SAB_Admin_Action = new SAB_Admin_Action();
+		$SAAB_Admin_Action = new SAAB_Admin_Action();
 	} );
 
 }

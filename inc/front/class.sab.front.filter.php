@@ -1,6 +1,6 @@
 <?php
 /**
- * SAB_Front_Filter Class
+ * SAAB_Front_Filter Class
  *
  * Handles the Frontend Filters.
  *
@@ -8,16 +8,15 @@
  * @subpackage Smart Appointment & Booking
  * @since 1.0
  */
-
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! class_exists( 'SAB_Front_Filter' ) ) {
+if ( ! class_exists( 'SAAB_Front_Filter' ) ) {
 
     /**
-     *  The SAB_Front_Filter Class
+     *  The SAAB_Front_Filter Class
      */
-    class SAB_Front_Filter {
+    class SAAB_Front_Filter {
 
         public function __construct() {
             // Add your constructor code here, if needed
@@ -45,8 +44,8 @@ if ( ! class_exists( 'SAB_Front_Filter' ) ) {
         */
 
     }
-	add_action( 'plugins_loaded', function() {
-		$SAB_Front_Filter = new SAB_Front_Filter();
-	} );
+    // add_action( 'plugins_loaded', function() {
+    //  $SAAB_Front_Filter = new SAAB_Front_Filter();
+    // } );
 
 }

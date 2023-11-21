@@ -12,249 +12,249 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: inc/admin/class.sab.admin.action.php:476
+#: inc/admin/class.saab.admin.action.php:476
 msgid "Form Title"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:481
+#: inc/admin/class.saab.admin.action.php:481
 msgid "Status"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:485
+#: inc/admin/class.saab.admin.action.php:485
 msgid "Customer"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:486
+#: inc/admin/class.saab.admin.action.php:486
 msgid "Guest"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:489
+#: inc/admin/class.saab.admin.action.php:489
 msgid "Booked Date"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:493
+#: inc/admin/class.saab.admin.action.php:493
 msgid "Timeslot"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:497
+#: inc/admin/class.saab.admin.action.php:497
 msgid "No of Slots Booked"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:725
+#: inc/admin/class.saab.admin.action.php:725
 msgid "Form shortcodes"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:731
+#: inc/admin/class.saab.admin.action.php:731
 msgid "Booking shortcodes"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:736
+#: inc/admin/class.saab.admin.action.php:736
 msgid "Post shortcodes"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:960
+#: inc/admin/class.saab.admin.action.php:960
 msgid "Enter Url: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:1028
+#: inc/admin/class.saab.admin.action.php:1028
 msgid "Notification saved successfully"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:1031
-#: inc/admin/class.sab.admin.action.php:1034
-#: inc/admin/class.sab.admin.action.php:1470
+#: inc/admin/class.saab.admin.action.php:1031
+#: inc/admin/class.saab.admin.action.php:1034
+#: inc/admin/class.saab.admin.action.php:1470
 msgid "Something went wrong"
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:1433
+#: inc/admin/class.saab.admin.action.php:1433
 msgid "User mapping saved successfully."
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:1435
+#: inc/admin/class.saab.admin.action.php:1435
 msgid "Post ID is missing."
 msgstr ""
 
-#: inc/admin/class.sab.admin.action.php:1467
+#: inc/admin/class.saab.admin.action.php:1467
 msgid "Saved Successfully"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:194
+#: inc/admin/class.saab.admin.fieldmeta.php:194
 msgid "From: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:200
+#: inc/admin/class.saab.admin.fieldmeta.php:200
 msgid "To: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:373
+#: inc/admin/class.saab.admin.fieldmeta.php:373
 msgid "Prefix Symbol : "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:377
+#: inc/admin/class.saab.admin.fieldmeta.php:377
 msgid "Cost : "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:385
-#: inc/admin/class.sab.admin.fieldmeta.php:620
+#: inc/admin/class.saab.admin.fieldmeta.php:385
+#: inc/admin/class.saab.admin.fieldmeta.php:620
 msgid "Select Weekdays: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:421
+#: inc/admin/class.saab.admin.fieldmeta.php:421
 msgid "Appointment Type: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:442
+#: inc/admin/class.saab.admin.fieldmeta.php:442
 msgid "Link: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:458
+#: inc/admin/class.saab.admin.fieldmeta.php:458
 msgid "Select Date : "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:463
+#: inc/admin/class.saab.admin.fieldmeta.php:463
 msgid "Start Time: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:467
+#: inc/admin/class.saab.admin.fieldmeta.php:467
 msgid "End Time: "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:474
+#: inc/admin/class.saab.admin.fieldmeta.php:474
 msgid "Timeslot Duration(hh:mm)"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:480
+#: inc/admin/class.saab.admin.fieldmeta.php:480
 msgid "Step/Interval Duration between each Timeslot"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:495
+#: inc/admin/class.saab.admin.fieldmeta.php:495
 msgid "No of Booking per Timeslots : "
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:991
-#: inc/front/class.sab.front.action.php:1826
+#: inc/admin/class.saab.admin.fieldmeta.php:991
+#: inc/front/class.saab.front.action.php:1826
 msgid "Your booking has been cancelled succesfully"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1196
-#: inc/front/class.sab.front.action.php:526
+#: inc/admin/class.saab.admin.fieldmeta.php:1196
+#: inc/front/class.saab.front.action.php:526
 msgid "Email sent successfully"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1198
-#: inc/front/class.sab.front.action.php:528
+#: inc/admin/class.saab.admin.fieldmeta.php:1198
+#: inc/front/class.saab.front.action.php:528
 msgid "Failed to send email"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1205
-#: inc/front/class.sab.front.action.php:535
+#: inc/admin/class.saab.admin.fieldmeta.php:1205
+#: inc/front/class.saab.front.action.php:535
 msgid "Notification not found for the given status"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1303
+#: inc/admin/class.saab.admin.fieldmeta.php:1303
 msgid "Edit Forms Details"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1311
+#: inc/admin/class.saab.admin.fieldmeta.php:1311
 msgid "Send Manual Notification"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1319
+#: inc/admin/class.saab.admin.fieldmeta.php:1319
 msgid "Notes"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1334
+#: inc/admin/class.saab.admin.fieldmeta.php:1334
 msgid "Form Shortcode"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1343
+#: inc/admin/class.saab.admin.fieldmeta.php:1343
 msgid "Form Configuration"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1352
+#: inc/admin/class.saab.admin.fieldmeta.php:1352
 msgid "Booking Configuration"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1419
+#: inc/admin/class.saab.admin.fieldmeta.php:1419
 msgid "Booked"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1420
+#: inc/admin/class.saab.admin.fieldmeta.php:1420
 msgid "Approved"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1421
+#: inc/admin/class.saab.admin.fieldmeta.php:1421
 msgid "Cancelled"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1422
+#: inc/admin/class.saab.admin.fieldmeta.php:1422
 msgid "Waiting"
 msgstr ""
 
-#: inc/admin/class.sab.admin.fieldmeta.php:1423
+#: inc/admin/class.saab.admin.fieldmeta.php:1423
 msgid "Pending"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:200
+#: inc/front/class.saab.front.action.php:200
 msgid "The booking window has closed."
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:212
+#: inc/front/class.saab.front.action.php:212
 msgid "No available seats"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:359
+#: inc/front/class.saab.front.action.php:359
 msgid "Something went wrong, Please try again later"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:835
-#: inc/front/class.sab.front.action.php:860
-#: inc/front/class.sab.front.action.php:887
+#: inc/front/class.saab.front.action.php:835
+#: inc/front/class.saab.front.action.php:860
+#: inc/front/class.saab.front.action.php:887
 msgid "Available seats : "
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:864
-#: inc/front/class.sab.front.action.php:870
+#: inc/front/class.saab.front.action.php:864
+#: inc/front/class.saab.front.action.php:870
 msgid "Timeslot Not available"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1291
+#: inc/front/class.saab.front.action.php:1291
 msgid "No timeslots found for selected date."
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1478
+#: inc/front/class.saab.front.action.php:1478
 msgid "Form data not found."
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1482
+#: inc/front/class.saab.front.action.php:1482
 msgid "Post exists but is not published."
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1485
+#: inc/front/class.saab.front.action.php:1485
 msgid "Post does not exist."
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1668
+#: inc/front/class.saab.front.action.php:1668
 msgid "No timeslots found for selected date. "
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1695
+#: inc/front/class.saab.front.action.php:1695
 msgid "Booking already cancelled"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1701
+#: inc/front/class.saab.front.action.php:1701
 msgid "Booking cancellation ready for confirmation"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1711
+#: inc/front/class.saab.front.action.php:1711
 msgid "Booking has been cancelled successfully"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1720
+#: inc/front/class.saab.front.action.php:1720
 msgid "Something went wrong, please try again later"
 msgstr ""
 
-#: inc/front/class.sab.front.action.php:1727
+#: inc/front/class.saab.front.action.php:1727
 msgid "Invalid URL."
 msgstr ""
 #. Plugin Name of the plugin/theme
@@ -262,7 +262,7 @@ msgid "Smart Appointment & Booking"
 msgstr ""
 
 #. Description of the plugin/theme
-msgid "This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking andmodifications waitlist management."
+msgid "This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking and modifications waitlist management."
 msgstr ""
 
 #. Author of the plugin/theme

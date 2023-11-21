@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Smart Appointment & Booking
- * Plugin URL: https://www.zealousweb.com/store/smart-appointment-booking/
- * Description: This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking andmodifications waitlist management.
- * Version: 1.0
+ * Plugin URL: https://wordpress.org/plugins/smart-appointment-booking/
+ * Description: This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking and modifications waitlist management.
+ * Version: 1.0.0
  * Author: ZealousWeb
  * Author URI: https://www.zealousweb.com
  * Developer: The Zealousweb Team
@@ -22,51 +22,48 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * Basic plugin definitions
  *
- * @package Plugin name
- * @since 1.0
+ * @package Smart Appointment & Booking
+ * @since 1.0.0
  */
 
-if ( ! defined( 'SAB_VERSION' ) ) {
-	define( 'SAB_VERSION', '1.0' ); // Version of the plugin
+if ( ! defined( 'SAAB_VERSION' ) ) {
+	define( 'SAAB_VERSION', '1.0.0' ); // Version of the plugin
 }
 
-if ( ! defined( 'SAB_FILE' ) ) {
-	define( 'SAB_FILE', __FILE__ ); // Plugin File
+if ( ! defined( 'SAAB_FILE' ) ) {
+	define( 'SAAB_FILE', __FILE__ ); // Plugin File
 }
 
-if ( ! defined( 'SAB_DIR' ) ) {
-	define( 'SAB_DIR', dirname( __FILE__ ) ); // Plugin directory path
+if ( ! defined( 'SAAB_DIR' ) ) {
+	define( 'SAAB_DIR', dirname( __FILE__ ) ); // Plugin directory path
 }
 
-if ( ! defined( 'SAB_URL' ) ) {
-	define( 'SAB_URL', plugin_dir_url( __FILE__ ) ); // Plugin URL
+if ( ! defined( 'SAAB_URL' ) ) {
+	define( 'SAAB_URL', plugin_dir_url( __FILE__ ) ); // Plugin URL
 }
 
-if ( ! defined( 'SAB_PLUGIN_BASENAME' ) ) {
-	define( 'SAB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // Plugin base name
+if ( ! defined( 'SAAB_PLUGIN_BASENAME' ) ) {
+	define( 'SAAB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // Plugin base name
 }
 
-if ( ! defined( 'SAB_META_PREFIX' ) ) {
-	define( 'SAB_META_PREFIX', 'sab_' ); // Plugin metabox prefix
+if ( ! defined( 'SAAB_META_PREFIX' ) ) {
+	define( 'SAAB_META_PREFIX', 'saab_' ); // Plugin metabox prefix
 }
 
-if ( ! defined( 'SAB_PREFIX' ) ) {
-	define( 'SAB_PREFIX', 'sab' ); // Plugin prefix
+if ( ! defined( 'SAAB_PREFIX' ) ) {
+	define( 'SAAB_PREFIX', 'saab' ); // Plugin prefix
 }
 
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-if ( ! function_exists( 'SAB' ) ) {
+if ( ! function_exists( 'SAAB' ) ) {
 	if ( is_admin() ) {
-        require_once( SAB_DIR . '/inc/admin/class.sab.admin.action.php' );
-        require_once( SAB_DIR . '/inc/admin/class.sab.admin.fieldmeta.php' );
-        require_once( SAB_DIR . '/inc/admin/class.sab.admin.filter.php' );
+        require_once( SAAB_DIR . '/inc/admin/class.saab.admin.action.php' );
+        require_once( SAAB_DIR . '/inc/admin/class.saab.admin.fieldmeta.php' );
+        require_once( SAAB_DIR . '/inc/admin/class.saab.admin.filter.php' );
     }else{
-		require_once( SAB_DIR . '/inc/front/class.sab.front.filter.php' );
+		require_once( SAAB_DIR . '/inc/front/class.saab.front.filter.php' );
    	}
     
-    require_once( SAB_DIR . '/inc/front/class.sab.front.action.php' );
-    require_once( SAB_DIR . '/inc/class.sab.php' );
+    require_once( SAAB_DIR . '/inc/front/class.saab.front.action.php' );
+    require_once( SAAB_DIR . '/inc/class.saab.php' );
 }
+

@@ -1,13 +1,13 @@
 === Smart Appointment & Booking  ===
 
-Contributors: zealopensource
+Contributor: zealopensource
 Tags: Booking, Appointment, Scheduling form, forms, Booking Appointments
 Donate link: http://www.zealousweb.net/payment/
 Requires at least: 5.9
-Tested up to: 6.2
-License: GPLv3 or later License
-Version: 1.0
-Stable tag: 1.0
+Tested up to: 6.3
+License: GPL-3.0-or-later
+Version: 1.0.0
+Stable tag: 1.0.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users to specific pages after submission. and options to modify form entries.
@@ -17,14 +17,19 @@ ZealousWeb Technologies has come up with a powerful solution - Smart Appointment
 
 = Features of Smart Appointment & Booking =
 
-* Add bookings to calendar 
-* Allow to map users, enable guest checking or Account is necessary.
-* Dashboard Reporting and Analytics, also Calendar View to see appointments
-* Export all bookings
-* Payment Processing: Integrate with payment gateways to securely accept online payments or deposits at the time of booking. 
-* Can display form via Script somewhere else
-* Push notifications
-* User dashboard on frontend for logged in user - can view total bookings and cancel bookings on website
+* Create and Configure Forms and customize them as needed, and configure the thank-you message.
+* You can also set page redirection upon form submission.
+* Its not just ordinary forms! You can create specialized booking forms tailored to your unique requirements. 
+* Set up booking calendar settings, and customize the thank-you message or redirection upon successful bookings. 
+* In admin you can manage and track booking entries in the backend effortlessly.
+* We are Offer both physical and virtual appointments to your customers. 
+* Share Google links or Zoom links via email to facilitate seamless virtual interactions.
+* The waitlist feature enables customers to join a waitlist for full bookings. You can later approve the booking and send notification.
+* From admin you can Modifications and Cancellations the Bookings.
+* Additionally, your staff can efficiently reschedule or cancel bookings as necessary.
+* View and Edit Booking Entries and Form Entries.
+* Update status, booking dates, and send manual notifications to stay in control.
+* Guest Check-In feature allow anyone to submit forms without the need for account creation.
 
 == Plugin Requirement ==
 
@@ -50,6 +55,18 @@ We also offer custom Wordpress extension development and Wordpress theme design 
 Our professional impassioned Wordpress experts provide profound and customer-oriented development of your project within short timeframes.
 
 Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.zealousweb.com)</strong>!
+
+## External Service Integration
+
+This plugin relies on an external service for Form.io. It is important to note that form is created is used to enhance the functionality of this plugin.
+
+## Form.io Library Integration
+
+This plugin relies on the Form.io library for rendering form. 
+- [Learn more about form builder](https://help.form.io/developers/form-development/form-builder)
+- [Learn more about the Form.io library](https://www.form.io)
+- [Form.io Library Terms of Use](https://www.form.io/terms)
+- [Form.io Library Privacy Policy](https://www.form.io/privacy)
 
 == Installation ==
 Installing the plugin is easy. Just follow these steps:
@@ -82,10 +99,10 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.0 =
 * Initial Release
 
 == Upgrade Notice ==
 
-= 1.0 =
+= 1.0.0 =
 1.0 is Initial Release.

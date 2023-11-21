@@ -1,11 +1,11 @@
-jQuery(document).ready(function() {
+jQuery(document).ready(function($) {
     jQuery("#custom-meta-box-tabs").tabs();
 }); 
 //Url Link hide and show
 jQuery(document).ready(function() {
    // Hide/show container of field Appointment type Tab1 based on radio button selection
    jQuery('input[name="appointment_type"]').on('change', function() {
-       // alert("test");
+      
      var selectedOption = jQuery(this).val();
      if (selectedOption === 'virtual') {
        jQuery('.vlink-container').removeClass('hidden');
@@ -17,12 +17,12 @@ jQuery(document).ready(function() {
 //break field
 jQuery(document).ready(function($) {
    //break field Tab 1
-   var $container = $('#break_time_container');
-   var $addTimeBtn = $('#add-break-time');
+   var $container = jQuery('#break_time_container');
+   var $addTimeBtn = jQuery('#add-break-time');
 
    // Add Time Field
    $addTimeBtn.click(function() {
-       var $repeaterRow = $('.break-repeater-row:first').clone(); // Clone the first repeater row
+       var $repeaterRow = jQuery('.break-repeater-row:first').clone(); // Clone the first repeater row
        $repeaterRow.find('input').val(''); // Clear the input values of the cloned repeater row
        $repeaterRow.find('.brk-remove-time').show(); // Show the remove button for the cloned repeater row
        $repeaterRow.appendTo($container); // Append the cloned repeater row to the container
@@ -30,7 +30,7 @@ jQuery(document).ready(function($) {
 
    // Remove Time Field
    $container.on('click', '.brk-remove-time', function() {
-       $(this).closest('.break-repeater-row').remove(); // Remove the corresponding repeater row
+       jQuery(this).closest('.break-repeater-row').remove(); // Remove the corresponding repeater row
    });
 
    // Hide the Remove button for the initial row
@@ -39,7 +39,7 @@ jQuery(document).ready(function($) {
 //Holiday Repeater Field
 jQuery(document).ready(function($) {
    // Add date functionality
-   $(document).on('click', '.add-holidate', function() {
+   jQuery(document).on('click', '.add-holidate', function() {
    
        var dateFieldHTML = `
            <div class="form-row holidate-field">
@@ -54,23 +54,23 @@ jQuery(document).ready(function($) {
                </div>
            </div>
          `;
-       $('.holiday-repeater').append(dateFieldHTML);
+       jQuery('.holiday-repeater').append(dateFieldHTML);
    });
 
    // Remove date functionality
-   $(document).on('click', '.remove-holidate', function() {
-       $(this).closest('.holidate-field').remove();
+   jQuery(document).on('click', '.remove-holidate', function() {
+       jQuery(this).closest('.holidate-field').remove();
    });
 });
 //timeslots break
 jQuery(document).ready(function($) {
    // Hide/show container based on repeat dropdown selection
-   $('#repeat_field').on('change', function() {
-     var selectedOption = $(this).val();
+   jQuery('#repeat_field').on('change', function() {
+     var selectedOption = jQuery(this).val();
      if (selectedOption === 'advanced') {
-       $('.repeater-container').show();
+       jQuery('.repeater-container').show();
      } else {
-       $('.repeater-container').hide();
+       jQuery('.repeater-container').hide();
      }
    });
  });
@@ -78,20 +78,22 @@ jQuery(document).ready(function($) {
 jQuery(document).ready(function($) {
   
    // Show/hide certain weekdays fields
-   $('#recurring_type').on('change', function() {
+   jQuery('#recurring_type').on('change', function() {
        
-       var selectedOption = $(this).val();
+       var selectedOption = jQuery(this).val();
        if (selectedOption === 'certain_weekdays') {
-           $('#certain_weekdays_fields').show();
+           jQuery('#certain_weekdays_fields').show();
        } else {
-           $('#certain_weekdays_fields').hide();
+           jQuery('#certain_weekdays_fields').hide();
        }
        if (selectedOption === 'advanced') {
-                   
+          
+        //    jQuery('#advance-meta-box').show();
            jQuery('.end_repeats_label').hide();
            jQuery('.end_repeats_options').hide();
        } else {
-                   
+         
+        //    jQuery('#advance-meta-box').hide();
            jQuery('.end_repeats_label').show();
            jQuery('.end_repeats_options').show();
        }
@@ -99,21 +101,21 @@ jQuery(document).ready(function($) {
    }).trigger('change');
 
    // Show/hide custom date fields
-   $('#recurring_type').on('change', function() {
-       var selectedOption = $(this).val();
+   jQuery('#recurring_type').on('change', function() {
+       var selectedOption = jQuery(this).val();
        if (selectedOption === 'custom_date') {
-           $('#custom_date_fields').show();
+           jQuery('#custom_date_fields').show();
        } else {
-           $('#custom_date_fields').hide();
+           jQuery('#custom_date_fields').hide();
        }
    }).trigger('change');
 
    // Add Custom Date button click event
-   $('#add-custom-date').on('click', function(e) {
+   jQuery('#add-custom-date').on('click', function(e) {
        e.preventDefault();
 
        // Clone the custom date and time input fields and remove button
-       var $customDate = $('.custom-date:last').clone();
+       var $customDate = jQuery('.custom-date:last').clone();
        $customDate.find('.remove-custom-date').removeClass('remove-custom-date').addClass('remove-custom-date-new').text('Remove');
 
        // Clear the values of the cloned custom date and time input fields
@@ -121,15 +123,15 @@ jQuery(document).ready(function($) {
        $customDate.find('.custom-time-input').val('');
 
        // Append the cloned custom date and time fields to the container
-       $('#custom_dates_container').append($customDate);
+       jQuery('#custom_dates_container').append($customDate);
    });
 
    // Remove Custom Date button click event
-   $(document).on('click', '.remove-custom-date', function(e) {
+   jQuery(document).on('click', '.remove-custom-date', function(e) {
        e.preventDefault();
 
        // Remove the corresponding custom date and time fields
-       $(this).parent('.custom-date').remove();
+       jQuery(this).parent('.custom-date').remove();
    });
 });
 
@@ -145,7 +147,7 @@ jQuery(document).ready(function($) {
        });
 });
 //link validation
-jQuery(document).ready(function() {
+jQuery(document).ready(function($) {
    // Client-side validation for the virtual link field
    const virtualLinkField = jQuery('input[name="virtual_link"]');
    const validationError = jQuery('.validation-error');
@@ -159,8 +161,8 @@ jQuery(document).ready(function() {
 });
 jQuery(document).ready(function($) {
    // Add row
-   $('#add-row').click(function() {
-       var intial_index = $('.repeater-row').length;
+   jQuery('#add-row').click(function() {
+       var intial_index = jQuery('.repeater-row').length;
        var index = intial_index ;
        var row = '<div class="repeater-row border m-0 mb-2 p-3 row">' +
            '<div class="form-group col-md-3">' +
@@ -203,8 +205,8 @@ jQuery(document).ready(function($) {
    });
 
    // Add timeslot
-   $(document).on('click', '.add-timeslot', function() {
-       var repeaterRow = $(this).closest('.repeater-row');
+   jQuery(document).on('click', '.add-timeslot', function() {
+       var repeaterRow = jQuery(this).closest('.repeater-row');
       
        var timeslotContainer = repeaterRow.find('.timeslot-container');
        var repeaterIndex = repeaterRow.index() - 1;
@@ -235,36 +237,34 @@ jQuery(document).ready(function($) {
    });
 
    // Remove row
-   $(document).on('click', '.remove-row', function() {
-       $(this).closest('.repeater-row').remove();
+   jQuery(document).on('click', '.remove-row', function() {
+       jQuery(this).closest('.repeater-row').remove();
    });
 
    // Remove timeslot
-   $(document).on('click', '.remove-timeslot', function() {
-       $(this).closest('.timeslot-row').remove();
+   jQuery(document).on('click', '.remove-timeslot', function() {
+       jQuery(this).closest('.timeslot-row').remove();
    });
 });
 jQuery(document).ready(function($) {
-   $('input[name="confirmation"]').change(function() {
-      
-       var selectedOption = $(this).val();
-      
-       $('.redirectto_main').addClass('hidden');
-       $('.redirectto_main.' + selectedOption).removeClass('hidden');
+   jQuery('input[name="confirmation"]').change(function() {     
+       var selectedOption = jQuery(this).val();      
+       jQuery('.redirectto_main').addClass('hidden');
+       jQuery('.redirectto_main.' + selectedOption).removeClass('hidden');
    });
 });
 jQuery(document).ready(function($) {
    // Search functionality
-   $('#redirectpage-search').on('keyup', function() {
-       var searchValue = $(this).val().toLowerCase();
+   jQuery('#redirectpage-search').on('keyup', function() {
+       var searchValue = jQuery(this).val().toLowerCase();
 
-       $('#redirectpage-dropdown option').each(function() {
-           var optionText = $(this).text().toLowerCase();
+       jQuery('#redirectpage-dropdown option').each(function() {
+           var optionText = jQuery(this).text().toLowerCase();
 
            if (optionText.indexOf(searchValue) > -1) {
-               $(this).prop('hidden', false);
+               jQuery(this).prop('hidden', false);
            } else {
-               $(this).prop('hidden', true);
+               jQuery(this).prop('hidden', true);
            }
        });
    });
@@ -272,16 +272,18 @@ jQuery(document).ready(function($) {
 
 jQuery(document).ready(function($) {
    jQuery(document).on('click', '#preview_timeslot', function() {        
-       var post = $(this).attr("pid");
+       var post = jQuery(this).attr("pid");
        var url=window.location.href;
        var arr=url.split('wp-admin')[0];
        var link=arr+'wp-admin/admin-ajax.php';
+       var nonce = ajax_object.nonce;
        jQuery.ajax({
            url: link,
            type: "POST",
            data: { 
-           action: "zfb_preiveiw_timeslot",
+           action: "saab_preiveiw_timeslot",
            post_id: post,
+           security: nonce, 
            },
            success: function (response) {
                var timeSlotsHTML = response.data.output;
@@ -296,8 +298,8 @@ jQuery(document).ready(function($) {
 });
 jQuery(document).ready(function($) {
    // Add Timeslot
-   $(document).on('click', '.add-generatetimeslot', function() {
-     var index = $('.generatetimeslot-repeater .generatetimeslot').length;
+   jQuery(document).on('click', '.add-generatetimeslot', function() {
+     var index = jQuery('.generatetimeslot-repeater .generatetimeslot').length;
      var timeslot = `
          <div class="form-row timeslot-row generatetimeslot">
              <div class="form-group col-md-3">
@@ -318,19 +320,19 @@ jQuery(document).ready(function($) {
              </div>
          </div>
      `;
-     $('.generatetimeslot-repeater').append(timeslot);
+     jQuery('.generatetimeslot-repeater').append(timeslot);
    });
  
    // Remove Timeslot
-   $(document).on('click', '.remove-generatetimeslot', function() {
-     $(this).closest('.generatetimeslot').remove();
+   jQuery(document).on('click', '.remove-generatetimeslot', function() {
+     jQuery(this).closest('.generatetimeslot').remove();
    });
  });
  
 jQuery(document).ready(function($) {
    // Add Timeslot
-   $('.add-breaktimeslot').click(function() {
-     var index = $('.breaktimeslot-repeater .breaktimeslot').length;
+   jQuery('.add-breaktimeslot').click(function() {
+     var index = jQuery('.breaktimeslot-repeater .breaktimeslot').length;
      var timeslot = `
          <div class="breaktimeslot">
              <label  class="h6">Start Time:</label>
@@ -346,19 +348,19 @@ jQuery(document).ready(function($) {
              </button>
          </div>
      `;
-     $('.breaktimeslot-repeater').append(timeslot);
+     jQuery('.breaktimeslot-repeater').append(timeslot);
    });
  
    // Remove Timeslot
-   $(document).on('click', '.remove-breaktimeslot', function() {
-     $(this).closest('.breaktimeslot').remove();
+   jQuery(document).on('click', '.remove-breaktimeslot', function() {
+     jQuery(this).closest('.breaktimeslot').remove();
    });
  });
 
-jQuery(document).ready(function() {
-   $('#send_notification_button').on('click', function() {
-     var status = $('#manual_notification').attr('data-formid');
-     $('#publish').click();
+jQuery(document).ready(function($) {
+   jQuery('#send_notification_button').on('click', function() {
+     var status = jQuery('#manual_notification').attr('data-formid');
+     jQuery('#publish').click();
     
    });
 });
@@ -374,14 +376,15 @@ if (pageParam === "notification-settings") {
     
    jQuery(document).ready(function() {
        jQuery(document).on('submit', '.notifyform', function(event) {   
-          
+            var nonce = ajax_object.nonce;
            event.preventDefault();    
            var form= jQuery(this).serialize();
            var index =  jQuery(this).data('id');
            var formData=new FormData();
-           formData.append('action','zfb_save_new_notification');
+           formData.append('action','saab_save_new_notification');
            formData.append('notification_data',form);
            formData.append('editnotify', index);
+           formData.append('security', nonce);
            jQuery.ajax({
                type: 'POST',
                url: ajaxurl,
@@ -389,7 +392,9 @@ if (pageParam === "notification-settings") {
                processData:false,
                contentType:false,        
                success: function (response) {
-                   jQuery('.close').trigger('click');                   
+                   jQuery('.notifyform').trigger("reset");
+                   jQuery('.close').trigger('click');
+                                    
                }
                
            });
@@ -398,18 +403,18 @@ if (pageParam === "notification-settings") {
    });
    jQuery(document).ready(function($) {
        // Delete button click event
-       $('#deletenotify').on('click', function() {
+       jQuery('#deletenotify').on('click', function() {
 
            var post_id = jQuery('#post_id').val();
            // Get the checked checkboxes
-           var checkedItems = $('.child-checkall:checked');
+           var checkedItems = jQuery('.child-checkall:checked');
            var indexesToDelete = [];
 
            // Extract the indexes of checked checkboxes
            checkedItems.each(function() {
-               indexesToDelete.push($(this).val());
+               indexesToDelete.push(jQuery(this).val());
            });
-          
+           var nonce = ajax_object.nonce;
            // Perform AJAX request to delete the indexes
            $.ajax({
                type: 'POST',
@@ -418,10 +423,11 @@ if (pageParam === "notification-settings") {
                    action: 'delete_notification_indexes',
                    indexes: indexesToDelete,
                    post_id: post_id,
+                   security: nonce, 
                },
                success: function(response) {
                    // Handle the success response here                   
-                   $('#notifytable').load(location.href + ' #notifytable');
+                   jQuery('#notifytable').load(location.href + ' #notifytable');
                },
                error: function(jqXHR, textStatus, errorThrown) {
                    // Handle the error here
@@ -432,32 +438,34 @@ if (pageParam === "notification-settings") {
    });
    jQuery(document).ready(function($) {
        // Check all checkbox click event
-       $('#main-check-all').on('click', function() {
+       jQuery('#main-check-all').on('click', function() {
            // Get the checked status of the main checkbox
-           var isChecked = $(this).prop('checked');
-           $('.child-checkall').prop('checked', isChecked);
+           var isChecked = jQuery(this).prop('checked');
+           jQuery('.child-checkall').prop('checked', isChecked);
        });
    });
    jQuery(document).ready(function($) {
-       $(document).on('click', '.enable-btn', function() {
-           var post_id = $('#post_id').val();
-           var notifyTable = $('#notifytable');
-           var notificationId = $(this).data('notification-id');
-           var notificationState = $(this).data('notification-state');
+       jQuery(document).on('click', '.enable-btn', function() {
+           var post_id = jQuery('#post_id').val();
+           var notifyTable = jQuery('#notifytable');
+           var notificationId = jQuery(this).data('notification-id');
+           var notificationState = jQuery(this).data('notification-state');
            var newState = (notificationState === 'enabled') ? 'disabled' : 'enabled';
+           var nonce = ajax_object.nonce;
            $.ajax({
                url: ajaxurl,
                type: 'POST',
                data: {
-                   action: 'zfb_update_notification_state',
+                   action: 'saab_update_notification_state',
                    notification_id: notificationId,
                    new_state: newState,
-                   post_id: post_id
+                   post_id: post_id,
+                   security: nonce, 
                },
               
                success: function(response) {
                    if (response.success) {
-                   var enableBtn = $('.enable-btn[data-notification-id="' + notificationId + '"]');
+                   var enableBtn = jQuery('.enable-btn[data-notification-id="' + notificationId + '"]');
                    enableBtn.text(newState === 'enabled' ? 'Enable' : 'Disable');
                    enableBtn.data('notification-state', newState);
                    } else {
@@ -472,29 +480,35 @@ if (pageParam === "notification-settings") {
        });
    });
 
-   jQuery(document).ready(function() {
-       var notifytable = jQuery('#notifytable').DataTable();({
-       dom: 'Bfrtip',
-       paging: true, 
-       pageLength: 1,
-       searching: true,
-       ordering: true, 
-       aaSorting: [[0, 'asc'] , [ 1, "asc" ]],       
-       responsive: true
-       
-       });
-       jQuery("#searchbox").keyup(function() {
-           notifytable.search(this.value).draw();
-       }); 
-   });
+   jQuery(document).ready(function($) {
+        // Check if the element with ID 'notifytable' exists
+        if (jQuery('#notifytable').length) {
+            var notifytable = jQuery('#notifytable').DataTable({
+                dom: 'Bfrtip',
+                paging: true,
+                pageLength: 1,
+                searching: true,
+                ordering: true,
+                aaSorting: [[0, 'asc'], [1, 'asc']],
+                responsive: true
+            });
 
+            // Add the search functionality
+            jQuery('#searchbox').keyup(function() {
+                notifytable.search(this.value).draw();
+            });
+        }
+    });
+
+  
    jQuery(document).on('submit', '#usermap_form', function(event) {    
        event.preventDefault();    
+       var nonce = ajax_object.nonce;
        var form=jQuery('#usermap_form').serialize();
        var formData=new FormData();
-       formData.append('action','zfb_save_user_mapping');
-       formData.append('zfbuser_mapping',form);
-     
+       formData.append('action','saab_save_user_mapping');
+       formData.append('saabuser_mapping',form);
+       formData.append('security',nonce);
        jQuery.ajax({
            type: 'POST',
            url: ajaxurl,
@@ -510,11 +524,12 @@ if (pageParam === "notification-settings") {
 
    jQuery(document).on('submit', '#confirm_form', function(event) {   
        event.preventDefault();    
+       var nonce = ajax_object.nonce;
        var form=jQuery('#confirm_form').serialize();
        var formData=new FormData();
-       formData.append('action','zfb_save_confirmation');
+       formData.append('action','saab_save_confirmation');
        formData.append('confirmation_data',form);
-     
+       formData.append('security',nonce);
        jQuery.ajax({
            type: 'POST',
            url: ajax_object.ajax_url,
@@ -528,3 +543,33 @@ if (pageParam === "notification-settings") {
 
    });
 }
+
+jQuery(document).ready(function ($) {
+    // jQuery('#saabpage-number').on('change', function(e) {
+    jQuery(document).on('change', '#saabpage-number', function(e) {
+        e.preventDefault();
+        const page = jQuery("#saabpage-number").val();
+        const timeslot = jQuery("#saabpage-number").data("timeslot");
+        const booking_date = jQuery("#saabpage-number").data("booking_date");
+        const nonce = jQuery("#saabpage-number").data("nonce"); // Get the nonce value
+        jQuery.ajax({
+            url: ajaxurl,
+            type: "POST",
+            dataType: "html",
+            data: {
+            action: "saab_get_paginated_items_for_waiting_list", // Action hook to trigger the server-side function
+            page: page,
+            timeslot: timeslot,
+            booking_date: booking_date,
+            security: nonce, // Include the nonce in the data
+            },
+            success: function (data) {
+                // Display the fetched items on the page
+                jQuery("#waitinglist_main").html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            },
+        });
+    });
+});

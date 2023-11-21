@@ -7,14 +7,16 @@ jQuery(document).ready(function() {
   var searchParams_booking = front_getQueryParam("booking_id");
   var searchParams_status = front_getQueryParam("status");  
   if (searchParams_booking && searchParams_status === "cancel") {
+    var nonce = myAjax.nonce;
     jQuery.ajax({
       url: myAjax.ajaxurl,
       type: 'post',
       data: {
-        action: "zfb_cancel_booking",
+        action: "saab_cancel_booking",
         bookingId: searchParams_booking,
         bookingstatus: searchParams_status,
         status: 'check',
+        security: nonce, 
       },
       success: function(response) {
         if (response.error === 'false') {
@@ -23,14 +25,16 @@ jQuery(document).ready(function() {
           if (confirmationType === 'readytoconfirm') {
             var confirmed = confirm(`Do you want to proceed to cancel the booking?`);
             if (confirmed) {
+              var nonce2 = myAjax.nonce;
               jQuery.ajax({
                   url: myAjax.ajaxurl,
                   type: 'post',
                   data: {
-                    action: "zfb_cancel_booking",
+                    action: "saab_cancel_booking",
                     bookingId: searchParams_booking,
                     bookingstatus: searchParams_status,
                     status: 'confirm',
+                    security: nonce2, 
                   },
                   success: function(response) {
                 
@@ -74,14 +78,15 @@ jQuery(document).ready(function($) {
   $('.booking-cancellation-buttons .btn-yes').on('click', function() {
       var bookingId = front_getQueryParam("booking_id");
       var bookingstatus = front_getQueryParam("status");
-
+      var nonce = myAjax.nonce;
       if (bookingId && bookingstatus === 'cancel') {
           $.ajax({
               url: myAjax.ajaxurl,
               type: 'post',
               data: {
                   action: 'cancel_booking_shortcode',
-                  bookingId: bookingId
+                  bookingId: bookingId,
+                  security: nonce, 
               },
               success: function(response) {
                   if (response.success) {

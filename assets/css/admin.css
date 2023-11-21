@@ -422,22 +422,22 @@ table.dataTable thead .sorting:nth-child(4) {
 .main-entries-section th {
     text-align: left;
 }
-.zfb-entry-details {
+.saab-entry-details {
     display: flex;
     flex-direction: column;
 }
-.zfb-entry-details .row {
+.saab-entry-details .row {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
-.zfb-entry-details .row .col-6 {
+.saab-entry-details .row .col-6 {
     flex-basis: 50%;
 }
-.zfb-entry-details .group-pair {
+.saab-entry-details .group-pair {
     margin-bottom: 10px;
 }
-.zfb-entry-details .group-pair label {
+.saab-entry-details .group-pair label {
     display: inline-block;
     margin-bottom: 8px;
 }
@@ -448,4 +448,9 @@ p.edit_preview_shortcode {
 .alignleft.actions {
     display: flex !important;
 }
-
+div#heading-premium {
+    display: none;
+}
+div#group-premium {
+    display: none;
+}

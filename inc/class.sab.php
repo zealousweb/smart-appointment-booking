@@ -1,6 +1,6 @@
 <?php
 /**
- * AB_SAB Class
+ * SAAB Class
  *
  * Handles the plugin functionality.
  *
@@ -12,9 +12,9 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! class_exists( 'AB_SAB' ) ) {
+if ( ! class_exists( 'SAAB' ) ) {
 
-    class AB_SAB {
+    class SAAB {
 
         private static $_instance = null;
         var $admin = null,
@@ -29,32 +29,32 @@ if ( ! class_exists( 'AB_SAB' ) ) {
         }
 
         private function __construct() {
-            add_action( 'setup_theme', array( $this, 'action__setup_theme' ) );
-            add_action( 'plugins_loaded', array( $this, 'action__plugins_loaded' ), 1 );
+            add_action( 'setup_theme', array( $this, 'saab_action__setup_theme' ) );
+            add_action( 'plugins_loaded', array( $this, 'saab_action__plugins_loaded' ), 1 );
         }
-        function action__setup_theme() {
+        function saab_action__setup_theme() {
 
 				if ( is_admin() ) {
 
-					AB_SAB()->admin = new SAB_Admin;
-					AB_SAB()->admin->action = new SAB_Admin_Action;
-					AB_SAB()->admin->filter = new SAB_Admin_Filter;
+					SAAB()->admin = new SAAB_Admin;
+					SAAB()->admin->action = new SAAB_Admin_Action;
+					SAAB()->admin->filter = new SAAB_Admin_Filter;
 
 				} else {
 
-					AB_SAB()->front = new SAB_Front;
-					AB_SAB()->front->action = new SAB_Front_Action;
-					AB_SAB()->front->filter = new SAB_Front_Filter;
+					SAAB()->front = new SAAB_Front;
+					SAAB()->front->action = new SAAB_Front_Action;
+					SAAB()->front->filter = new SAAB_Front_Filter;
 				}
         }
 
-        function action__plugins_loaded() {
+        function saab_action__plugins_loaded() {
 			
 			global $wp_version;
 
 			# Set filter for plugin's languages directory
-			$SAB_lang_dir = dirname( SAB_PLUGIN_BASENAME ) . '/languages/';
-			$SAB_lang_dir = apply_filters( 'SAB_languages_directory', $SAB_lang_dir );
+			$SAAB_lang_dir = dirname( SAAB_PLUGIN_BASENAME ) . '/languages/';
+			$SAAB_lang_dir = apply_filters( 'SAAB_languages_directory', $SAAB_lang_dir );
 
 			# Traditional WordPress plugin locale filter.
 			$get_locale = get_locale();
@@ -68,14 +68,14 @@ if ( ! class_exists( 'AB_SAB' ) ) {
 			$mofile = sprintf( '%1$s-%2$s.mo', 'wp-smart-appointment-booking', $locale );
 
 			# Setup paths to current locale file
-			$mofile_global = WP_LANG_DIR . '/plugins/' . basename( SAB_DIR ) . '/' . $mofile;
+			$mofile_global = WP_LANG_DIR . '/plugins/' . basename( SAAB_DIR ) . '/' . $mofile;
 
 			if ( file_exists( $mofile_global ) ) {
 				# Look in global /wp-content/languages/plugin-name folder
 				load_textdomain( 'smart-appointment-booking', $mofile_global );
 			} else {
 				# Load the default language files
-				load_plugin_textdomain( 'smart-appointment-booking', false, $SAB_lang_dir );
+				load_plugin_textdomain( 'smart-appointment-booking', false, $SAAB_lang_dir );
 			}
         }
     }
