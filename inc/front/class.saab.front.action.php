@@ -1669,7 +1669,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 															} else {
 																jQuery('#formio_res_msg').html(message).fadeIn().delay(3000).fadeOut();
 															}
-															$("button[name='data[submit]'] i.fa.fa-refresh.fa-spin.button-icon-right").hide();
+															jQuery("button[name='data[submit]'] i.fa.fa-refresh.fa-spin.button-icon-right").hide();
 														} else {
 															var errorMessage = response.data.error;
 															submitButton.disabled = false;
