@@ -191,7 +191,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			$bookedseats = isset($_POST['bookedseats']) ? absint($_POST['bookedseats']) : 0;
 			
 			$FormTitle = get_the_title($form_id);
-			$form_data = $_POST['form_data'];
+			$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 
 			if (is_array($form_data)) {
 
@@ -458,7 +458,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			}
 
 			$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;
-			$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
+			$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 			if (is_array($form_data)) {
 				foreach ($form_data as $field_name => $field_value) {
 					// Check if the field value is an array (e.g., for checkboxes or multi-select)
