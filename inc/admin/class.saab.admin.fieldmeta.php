@@ -884,7 +884,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             
              //Steps Duration
             if ( isset( $_POST['steps_duration'] ) ) {
-                $steps_duration = $_POST['steps_duration'];
+                $steps_duration = sanitize_text_field($_POST['steps_duration']);
                 $sanitized_steps_duration = array(
                     'hours' => sanitize_text_field( $steps_duration['hours'] ),
                     'minutes' => sanitize_text_field( $steps_duration['minutes'] )
@@ -895,7 +895,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //timeslot_duration
             if ( isset( $_POST['booking_stops_after'] ) ) {
-                $booking_stops_after_duration = $_POST['booking_stops_after'];
+                $booking_stops_after_duration = sanitize_text_field($_POST['booking_stops_after']);
                 $sanitized_booking_stops_after_duration = array(
                     'hours' => sanitize_text_field( $booking_stops_after_duration['hours'] ),
                     'minutes' => sanitize_text_field( $booking_stops_after_duration['minutes'] )
@@ -906,7 +906,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //timeslot_duration
             if ( isset( $_POST['timeslot_duration'] ) ) {
-                $timeslot_duration = $_POST['timeslot_duration'];
+                $timeslot_duration = sanitize_text_field($_POST['timeslot_duration']);
                 $sanitized_timeslot_duration = array(
                     'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
                     'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
@@ -940,7 +940,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //multiple breaks
             if (isset($_POST['breaktimeslots'])) {
-                $breaktimeslots = $_POST['breaktimeslots'];
+                $breaktimeslots = sanitize_text_field($_POST['breaktimeslots']);
             
                 // Sanitize and save the values
                 $sanitized_breaktimeslots = array();
@@ -967,7 +967,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 }
             
             if (isset($_POST['generatetimeslot'])) {
-                $generatetimeslots = $_POST['generatetimeslot'];   
+                $generatetimeslots = sanitize_text_field($_POST['generatetimeslot']);   
                 // Sanitize and save the values
                 $sanitized_generatetimeslots = array();
                 foreach ($generatetimeslots as $generatetimeslot) {
@@ -1012,7 +1012,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'saab_recur_weekdays', $sanitized_recur_weekdays); 
             }
             if (isset($_POST['advancedata'])) {                
-                $advancedata = $_POST['advancedata'];                
+                $advancedata = sanitize_text_field($_POST['advancedata']);                
                 update_post_meta($post_id, 'saab_advancedata', $advancedata);
             }
             if (isset($_POST['holidays'])) {
@@ -1080,7 +1080,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'saab_timeslot', $timeslot);
             }
           
-            if (isset($_POST['manual_notification']) &&  $_POST['manual_notification']  !== 'any') {
+            if (isset($_POST['manual_notification']) &&  sanitize_text_field($_POST['manual_notification']  !== 'any')) {
                 $selected_action = isset($_POST['manual_notification']) ? sanitize_text_field($_POST['manual_notification']) : ''; 
                 $booking_status = isset($_POST['booking_status']) ? sanitize_text_field($_POST['booking_status']) : ''; 
                 // update_post_meta($post_id, 'saab_entry_status', $booking_status);                

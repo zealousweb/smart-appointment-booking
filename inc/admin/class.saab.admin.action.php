@@ -397,7 +397,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 
 				$entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '';
 				$get_submitted_data = get_post_meta($entry_id, 'saab_submission_data', true);
-				$updated_data = $_POST['updated_data'];	
+				$updated_data = sanitize_text_field($_POST['updated_data']);	
 				foreach ($updated_data as $key => $value) {
 					$sanitized_value = sanitize_text_field($value);
 					if (isset($get_submitted_data['data'][$key])) {
@@ -857,7 +857,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 				wp_send_json($response);
 			}else{
-				if (isset($_POST['post_id'], $_POST['notification_id'], $_POST['new_state'])) {
+				if (isset($_POST['post_id'], absint($_POST['notification_id']), sanitize_text_field($_POST['new_state']))) {
 					$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
 					$notification_id = isset($_POST['notification_id']) ? absint($_POST['notification_id']) : 0;
 
@@ -1067,9 +1067,9 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			
 				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
-				$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
+				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 
-				$form_data = $_POST['form_data'];
+				$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
 
 				if (is_array($form_data)) {
 

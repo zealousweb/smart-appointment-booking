@@ -458,7 +458,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			}
 
 			$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;
-			$form_data = $_POST['form_data'];
+			$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
 			if (is_array($form_data)) {
 				foreach ($form_data as $field_name => $field_value) {
 					// Check if the field value is an array (e.g., for checkboxes or multi-select)
@@ -535,7 +535,6 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				$service =  ucfirst($form_data['data'][$getservice]);					
 			}			
 				
-			// $encrypted_booking_id = wp_base64_encode($created_post_id);
 			$encrypted_booking_id = $created_post_id;
 			$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
 			$ajax_nonce = wp_create_nonce('my_ajax_nonce');
@@ -1847,7 +1846,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			if ( isset( $_POST['security'] ) &&  wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'my_ajax_nonce' ) ) {   
 				$error = false;
 				if(isset( $_POST['form_data'])){
-					$form_data = $_POST['form_data'];
+					$form_data = sanitize_text_field($_POST['form_data']);
 					$array_data = explode('_',$form_data);
 					$post_id = $array_data[1];
 					$current_month = $array_data[2];
@@ -1855,7 +1854,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					$current_year = $array_data[4];
 				}
 				if(isset( $_POST['clickedId'])){
-					$clickedId = $_POST['clickedId'];
+					$clickedId = absint($_POST['clickedId']);
 				}
 				$todaysDate = gmdate('Y-m-d', strtotime("$current_year-$current_month-$current_day"));
 				$TodaysDate_F = gmdate('F d, Y', strtotime("$current_year-$current_month-$current_day"));
