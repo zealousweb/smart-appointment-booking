@@ -857,7 +857,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 				wp_send_json($response);
 			}else{
-				if (isset($_POST['post_id'], absint($_POST['notification_id']), sanitize_text_field($_POST['new_state']))) {
+				if (null !== ($_POST['post_id'] ?? null) && null !== absint($_POST['notification_id'] ?? null) && null !== sanitize_text_field($_POST['new_state'] ?? null)) {
 					$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
 					$notification_id = isset($_POST['notification_id']) ? absint($_POST['notification_id']) : 0;
 
