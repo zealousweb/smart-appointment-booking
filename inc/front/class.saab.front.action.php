@@ -1991,7 +1991,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			if (isset($_REQUEST['booking_id']) && isset($_REQUEST['status'])) {
 				// $booking_id = wp_base64_decode($encrypt_bookingId);
 				$booking_id = $encrypt_bookingId;
-				$bookingstatus = $_REQUEST['status'];
+				$bookingstatus = sanitize_text_field( $_REQUEST['status'] );
 
 				if ($bookingstatus === 'cancel' ) {
 

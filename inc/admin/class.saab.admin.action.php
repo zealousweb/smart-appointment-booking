@@ -201,7 +201,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$get_notification_array = array();
 			if (isset($_POST['notification_data'])) {
 			
-				parse_str($_POST['notification_data'], $form_data);
+				parse_str(sanitize_text_field($_POST['notification_data']), $form_data);
 				$post_id = $form_data['form_id'];
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
@@ -1069,8 +1069,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 
 				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 
-				$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
-
 				if (is_array($form_data)) {
 
 					foreach ($form_data as $field_name => &$field_value) {
@@ -1347,7 +1345,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				wp_send_json_error(array('message' => 'Nonce verification failed'));
 				wp_die();
 			}
-			$user_mapping = isset($_POST['saabuser_mapping']) ? stripslashes($_POST['saabuser_mapping']) : '';
+			$user_mapping = isset($_POST['saabuser_mapping']) ? sanitize_text_field($_POST['saabuser_mapping']) : '';
 		
 			parse_str($user_mapping, $user_mapping_array);
 		
@@ -1379,7 +1377,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			if (isset($_POST['confirmation_data'])) {
 
-				parse_str($_POST['confirmation_data'], $formdata);
+				parse_str(sanitize_text_field($_POST['confirmation_data']), $formdata);
 				
 				$post_id = $formdata['post_id'];
 				if (isset($formdata['confirmation'])) {
@@ -1456,7 +1454,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			if ($has_entries->have_posts()) {
 			
 				if (isset($_GET['booking_status_filter_nonce']) && 	! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_GET['booking_status_filter_nonce'] ) ) , 'booking_status_filter_nonce' )) {
-					$status = isset($_GET['booking_status']) ? $_GET['booking_status'] : '';
+					$status = isset($_GET['booking_status']) ? sanitize_text_field( $_GET['booking_status'] ) : '';
 				}else{
 					$status = '';
 				}
