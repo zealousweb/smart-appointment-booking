@@ -1039,7 +1039,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
          * 
          */
         function saab_save_notes_data($post_id) {
-            if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
+            if (!isset($_POST['notes_nonce']) || !wp_verify_nonce(sanitize_text_field( wp_unslash ( $_POST['notes_nonce'] ) ), 'save_notes')) {
                 return;
             }
 
