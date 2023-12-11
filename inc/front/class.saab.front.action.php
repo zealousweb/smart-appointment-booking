@@ -1484,9 +1484,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 										$advanceDates[] = $item['advance_date'];
 									}
 									if(in_array($todaysDate,$advanceDates)){
-									  echo $this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate);   
+									  echo esc_html($this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate));   
 									}else{
-										echo $this->saab_front_generate_timeslots($post_id,$lastdateid);                                
+										echo esc_html($this->saab_front_generate_timeslots($post_id,$lastdateid));                                
 									}        
 								}else {
 									$error = true;
@@ -1831,7 +1831,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				</style>
 				<?php
 				$output = ob_get_clean();
-				echo $output;
+				echo esc_attr($output);
 				wp_die();
 			} else {
 				wp_die();

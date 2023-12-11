@@ -261,7 +261,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             // Calculate the total number of pages
                             $total_pages = $query->max_num_pages;
                             echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-                            echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
+                            echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
                             if ($total_pages > 1) {
                                 
                                     echo '<select id="saabpage-number"  data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.wp_create_nonce('get_paginated_items_nonce').'">';
@@ -530,7 +530,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
-                                    <?php echo $this->timezone_dropdown($post->ID); ?>
+                                    <?php echo esc_html($this->timezone_dropdown($post->ID)); ?>
                                 </div> 
                                 <div class="form-group form-general-group">
                                     <label class="h6" for="bookemail-map">Map Booking Email:</label>
@@ -723,7 +723,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         <div class="repeater-row border m-0 mb-2 p-3 row">
                             <div class="form-group col-md-3">
                                 <label class="h6" for="advance_date_<?php echo esc_attr($index); ?>">Advance Date:</label>
-                                <input type="date" class="form-control" id="advance_date_<?php echo esc_attr($index); ?>" name="advancedata[<?php echo $index; ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
+                                <input type="date" class="form-control" id="advance_date_<?php echo esc_attr($index); ?>" name="advancedata[<?php echo esc_attr($index); ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
                             </div>
                             <div class="timeslot-repeater timeslot-container col-md-9 "  id="timeslot-repeater-<?php echo esc_attr($index); ?>">
                                 <div class="add-timeslot" id="add_timeslot_m">

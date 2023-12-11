@@ -1003,27 +1003,27 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 									<h5><?php echo esc_html__('Email','smart-appointment-booking'); ?></h5>
 									<div class="form-group">
 										<label ><?php echo esc_html__('To','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
+										<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? esc_attr($email_to) : ''; ?>" required>
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('From','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
+										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? esc_attr($email_from) : ''; ?>" required>
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('Reply To','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" >
+										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? esc_attr($email_replyto) : ''; ?>" >
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('Bcc','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" >
+										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? esc_attr($email_bcc) : ''; ?>" >
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('Cc','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" >
+										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? esc_attr($email_cc) : ''; ?>" >
 									</div>
 									<div class="form-group">
 										<label><?php echo esc_html__('Subject','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
+										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? esc_attr($email_subject) : ''; ?>" required>
 									</div>
 									<div class="form-group">
 										<label><?php echo esc_html__('Mail Body','smart-appointment-booking'); ?></label>
@@ -1589,7 +1589,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			// Verify the nonce
 			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'get_paginated_items_nonce' )) {
 				// Send the response back to the Ajax request
-				echo ob_get_clean();
+				echo esc_attr(ob_get_clean());
 				wp_die(); // End the script
 			}
 			// Define the current page number
@@ -1660,10 +1660,10 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				// Calculate the total number of pages
 				$total_pages = $query->max_num_pages;
 				echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-				echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
+				echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
 				if ($total_pages > 1) {
 				
-					echo '<select id="saabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '" data-nonce="'.wp_create_nonce('get_paginated_items_nonce').'">';
+					echo '<select id="saabpage-number" data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.esc_attr(wp_create_nonce('get_paginated_items_nonce')).'">';
 						for ($page = 1; $page <= $total_pages; $page++) {
 							echo '<option value="' . esc_attr($page) . '"';
 							if ($page == $current_page) {
@@ -1680,7 +1680,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				}
 				echo '</div>';	
 			}		
-			echo ob_get_clean();
+			echo esc_attr(ob_get_clean());
 			
 			wp_die(); 
 		}
