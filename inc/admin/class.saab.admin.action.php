@@ -201,7 +201,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$get_notification_array = array();
 			if (isset($_POST['notification_data'])) {
 			
-				parse_str(sanitize_text_field($_POST['notification_data']), $form_data);
+				parse_str(wp_unslash(sanitize_text_field($_POST['notification_data']), $form_data));
 				$post_id = $form_data['form_id'];
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
@@ -1377,7 +1377,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			if (isset($_POST['confirmation_data'])) {
 
-				parse_str(sanitize_text_field($_POST['confirmation_data']), $formdata);
+				parse_str(wp_unslash(sanitize_text_field($_POST['confirmation_data'])), $formdata);
 				
 				$post_id = $formdata['post_id'];
 				if (isset($formdata['confirmation'])) {
@@ -1454,7 +1454,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			if ($has_entries->have_posts()) {
 			
 				if (isset($_GET['booking_status_filter_nonce']) && 	! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_GET['booking_status_filter_nonce'] ) ) , 'booking_status_filter_nonce' )) {
-					$status = isset($_GET['booking_status']) ? sanitize_text_field( $_GET['booking_status'] ) : '';
+					$status = isset($_GET['booking_status']) ? sanitize_text_field( wp_unslash($_GET['booking_status'] )) : '';
 				}else{
 					$status = '';
 				}
@@ -1589,7 +1589,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			// Verify the nonce
 			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'get_paginated_items_nonce' )) {
 				// Send the response back to the Ajax request
-				echo esc_attr(ob_get_clean());
+				echo esc_html(ob_get_clean());
 				wp_die(); // End the script
 			}
 			// Define the current page number
@@ -1680,7 +1680,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				}
 				echo '</div>';	
 			}		
-			echo esc_attr(ob_get_clean());
+			echo esc_html(ob_get_clean());
 			
 			wp_die(); 
 		}
