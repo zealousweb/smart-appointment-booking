@@ -531,6 +531,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
                                     <?php echo esc_html($this->timezone_dropdown($post->ID)); ?>
+                                    
                                 </div> 
                                 <div class="form-group form-general-group">
                                     <label class="h6" for="bookemail-map">Map Booking Email:</label>
