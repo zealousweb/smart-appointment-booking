@@ -1490,7 +1490,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				while ($forms_query->have_posts()) {
 					$forms_query->the_post();
 					$selected = selected($selected_form_id, get_the_ID(), false);
-					echo '<option value="' . esc_attr(get_the_ID()) . '" ' . $selected . '>' . esc_html(get_the_title()) . '</option>';
+					echo '<option value="' . esc_attr(get_the_ID()) . '" ' . esc_attr($selected) . '>' . esc_html(get_the_title()) . '</option>';
 				}
 				echo '</select>';
 			}

@@ -307,7 +307,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 <form-builder form="form"></form-builder>
                 <script type='text/javascript'>
                     
-                    var myScriptData = <?php echo $myScriptData; ?>;
+                    var myScriptData = <?php echo esc_js($myScriptData); ?>;
                     window.onload = function() {
                         
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
@@ -1470,7 +1470,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $enable_booking = get_post_meta($form_id, 'saab_enable_booking', true);
             
             ?>
-            <select name="manual_notification" id="manual_notification" data-formid="<?php echo $form_id; ?>" data-postid="<?php echo $post_id; ?>" >
+            <select name="manual_notification" id="manual_notification" data-formid="<?php echo esc_attr($form_id); ?>" data-postid="<?php echo esc_attr($post_id); ?>" >
             <option value="any">Choose an action</option>
                 <?php 
                 if($enable_booking){
@@ -1529,7 +1529,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             submitButton.updateValue();
                         }
 
-                        var entryId = <?php echo $post->ID; ?>;
+                        var entryId = <?php echo esc_js($post->ID); ?>;
                         var updatedData = submission.data;
                         var nonce = ajax_object.nonce;
                         jQuery.ajax({
