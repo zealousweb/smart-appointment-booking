@@ -76,6 +76,11 @@ This plugin relies on the Form.io library for rendering form.
 - [Form.io Library Terms of Use](https://www.form.io/terms)
 - [Form.io Library Privacy Policy](https://www.form.io/privacy)
 
+## Boostrap 
+
+This is used.
+- jquery-3.7. 0.min.js
+
 == Installation ==
 Installing the plugin is easy. Just follow these steps:
 
