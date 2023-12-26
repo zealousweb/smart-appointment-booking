@@ -1675,7 +1675,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 					echo '</select>';
 					echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
 					echo esc_html__('of List Items ','smart-appointment-booking');
-					echo $total_pages;
+					echo esc_html($total_pages);
 				
 				}
 				echo '</div>';	

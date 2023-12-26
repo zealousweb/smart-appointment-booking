@@ -573,11 +573,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     <div class="form-row timeslot-row generatetimeslot">
                                         <div class="form-group col-md-3">
                                             <label>Start Time:</label>
-                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][start_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo esc_attr($index); ?>][start_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['start_time']); ?>">
                                         </div>
                                         <div class="form-group col-md-3"> 
                                             <label>End Time:</label>
-                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][end_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
+                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo esc_attr($index); ?>][end_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
                                         </div>
                                         
                                         <div class="form-group col-2 remove-generatetimeslot">

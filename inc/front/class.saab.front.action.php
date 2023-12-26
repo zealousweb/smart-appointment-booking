@@ -1508,7 +1508,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							<span class="saab-cost">Cost: <?php echo esc_html($prefix_label) . ' ' . esc_html($cost); ?></span>
 						</div>
 						<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('booking_form_nonce'); ?>">
-						<input type="hidden" id="booking_date" name="booking_date" value="<?php echo $lastdateid; ?>" name="booking_date" >
+						<input type="hidden" id="booking_date" name="booking_date" value="<?php echo esc_attr($lastdateid); ?>" name="booking_date" >
 					</div>
 					<div class="step step2">
 					<?php	
@@ -1620,7 +1620,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									}else{
 										?>
 										<script type='text/javascript'>								
-										var myScriptData = <?php echo $fields; ?>;															
+										var myScriptData = <?php echo esc_js($fields); ?>;															
 										var value = myScriptData;
 										
 										Formio.createForm(document.getElementById('formio'), {
