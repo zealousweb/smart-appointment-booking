@@ -630,7 +630,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 										?>
 										
 										<div id="tab5" class="tab-content">
-											<input type="hidden" name="post_id" id="post_id" value="<?php echo $post_id; ?>" >
+											<input type="hidden" name="post_id" id="post_id" value="<?php echo esc_attr($post_id); ?>" >
 											<table class="table notificationtable datatable table-striped" id="notifytable" >
 												<thead>
 													<tr>
