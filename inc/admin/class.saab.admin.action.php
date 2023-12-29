@@ -74,16 +74,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		*/
 
 		
-
-		/*
-		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
-		##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
-		######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
-		##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
-		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
-		*/
 		/**
 		* WP Enqueue Styles
 		*/	
@@ -211,7 +201,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$get_notification_array = array();
 			if (isset($_POST['notification_data'])) {
 			
-				parse_str($_POST['notification_data'], $form_data);
+				parse_str(wp_unslash(sanitize_text_field($_POST['notification_data']), $form_data));
 				$post_id = $form_data['form_id'];
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
@@ -407,7 +397,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 
 				$entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '';
 				$get_submitted_data = get_post_meta($entry_id, 'saab_submission_data', true);
-				$updated_data = $_POST['updated_data'];	
+				$updated_data = sanitize_text_field($_POST['updated_data']);	
 				foreach ($updated_data as $key => $value) {
 					$sanitized_value = sanitize_text_field($value);
 					if (isset($get_submitted_data['data'][$key])) {
@@ -640,7 +630,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 										?>
 										
 										<div id="tab5" class="tab-content">
-											<input type="hidden" name="post_id" id="post_id" value="<?php echo $post_id; ?>" >
+											<input type="hidden" name="post_id" id="post_id" value="<?php echo esc_attr($post_id); ?>" >
 											<table class="table notificationtable datatable table-striped" id="notifytable" >
 												<thead>
 													<tr>
@@ -867,7 +857,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 				wp_send_json($response);
 			}else{
-				if (isset($_POST['post_id'], $_POST['notification_id'], $_POST['new_state'])) {
+				if (null !== ($_POST['post_id'] ?? null) && null !== absint($_POST['notification_id'] ?? null) && null !== sanitize_text_field($_POST['new_state'] ?? null)) {
 					$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
 					$notification_id = isset($_POST['notification_id']) ? absint($_POST['notification_id']) : 0;
 
@@ -1013,27 +1003,27 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 									<h5><?php echo esc_html__('Email','smart-appointment-booking'); ?></h5>
 									<div class="form-group">
 										<label ><?php echo esc_html__('To','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? $email_to : ''; ?>" required>
+										<input type="text" id="email-to" name="email_to" class="form-control" value="<?php echo isset($email_to) ? esc_attr($email_to) : ''; ?>" required>
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('From','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? $email_from : ''; ?>" required>
+										<input type="text" id="email-from" name="email_from" class="form-control" value="<?php echo isset($email_from) ? esc_attr($email_from) : ''; ?>" required>
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('Reply To','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? $email_replyto : ''; ?>" >
+										<input type="text" id="email-replyto" name="email_replyto" class="form-control" value="<?php echo isset($email_replyto) ? esc_attr($email_replyto) : ''; ?>" >
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('Bcc','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? $email_bcc : ''; ?>" >
+										<input type="text" id="email-bcc" name="email_bcc" class="form-control" value="<?php echo isset($email_bcc) ? esc_attr($email_bcc) : ''; ?>" >
 									</div>
 									<div class="form-group">
 										<label ><?php echo esc_html__('Cc','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? $email_cc : ''; ?>" >
+										<input type="text" id="email-cc" name="email_cc" class="form-control" value="<?php echo isset($email_cc) ? esc_attr($email_cc) : ''; ?>" >
 									</div>
 									<div class="form-group">
 										<label><?php echo esc_html__('Subject','smart-appointment-booking'); ?></label>
-										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? $email_subject : ''; ?>" required>
+										<input type="text" id="email-subject" name="email_subject" class="form-control" value="<?php echo isset($email_subject) ? esc_attr($email_subject) : ''; ?>" required>
 									</div>
 									<div class="form-group">
 										<label><?php echo esc_html__('Mail Body','smart-appointment-booking'); ?></label>
@@ -1077,9 +1067,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			
 				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
-				$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data'] : array();
-
-				$form_data = $_POST['form_data'];
+				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 
 				if (is_array($form_data)) {
 
@@ -1357,7 +1345,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				wp_send_json_error(array('message' => 'Nonce verification failed'));
 				wp_die();
 			}
-			$user_mapping = isset($_POST['saabuser_mapping']) ? stripslashes($_POST['saabuser_mapping']) : '';
+			$user_mapping = isset($_POST['saabuser_mapping']) ? sanitize_text_field($_POST['saabuser_mapping']) : '';
 		
 			parse_str($user_mapping, $user_mapping_array);
 		
@@ -1389,7 +1377,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			if (isset($_POST['confirmation_data'])) {
 
-				parse_str($_POST['confirmation_data'], $formdata);
+				parse_str(wp_unslash(sanitize_text_field($_POST['confirmation_data'])), $formdata);
 				
 				$post_id = $formdata['post_id'];
 				if (isset($formdata['confirmation'])) {
@@ -1466,7 +1454,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			if ($has_entries->have_posts()) {
 			
 				if (isset($_GET['booking_status_filter_nonce']) && 	! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_GET['booking_status_filter_nonce'] ) ) , 'booking_status_filter_nonce' )) {
-					$status = isset($_GET['booking_status']) ? $_GET['booking_status'] : '';
+					$status = isset($_GET['booking_status']) ? sanitize_text_field( wp_unslash($_GET['booking_status'] )) : '';
 				}else{
 					$status = '';
 				}
@@ -1502,7 +1490,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				while ($forms_query->have_posts()) {
 					$forms_query->the_post();
 					$selected = selected($selected_form_id, get_the_ID(), false);
-					echo '<option value="' . esc_attr(get_the_ID()) . '" ' . $selected . '>' . esc_html(get_the_title()) . '</option>';
+					echo '<option value="' . esc_attr(get_the_ID()) . '" ' . esc_attr($selected) . '>' . esc_html(get_the_title()) . '</option>';
 				}
 				echo '</select>';
 			}
@@ -1601,7 +1589,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			// Verify the nonce
 			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'get_paginated_items_nonce' )) {
 				// Send the response back to the Ajax request
-				echo ob_get_clean();
+				echo esc_html(ob_get_clean());
 				wp_die(); // End the script
 			}
 			// Define the current page number
@@ -1672,10 +1660,10 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				// Calculate the total number of pages
 				$total_pages = $query->max_num_pages;
 				echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-				echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
+				echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
 				if ($total_pages > 1) {
 				
-					echo '<select id="saabpage-number" data-timeslot="' . $timeslot . '" data-booking_date="' . $booking_date . '" data-nonce="'.wp_create_nonce('get_paginated_items_nonce').'">';
+					echo '<select id="saabpage-number" data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.esc_attr(wp_create_nonce('get_paginated_items_nonce')).'">';
 						for ($page = 1; $page <= $total_pages; $page++) {
 							echo '<option value="' . esc_attr($page) . '"';
 							if ($page == $current_page) {
@@ -1687,12 +1675,12 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 					echo '</select>';
 					echo '<span class="item-count" style="margin-right:5px;margin-left: 7px; font-size: 15px;font-weight: 600;">'; 
 					echo esc_html__('of List Items ','smart-appointment-booking');
-					echo $total_pages;
+					echo esc_html($total_pages);
 				
 				}
 				echo '</div>';	
 			}		
-			echo ob_get_clean();
+			echo esc_html(ob_get_clean());
 			
 			wp_die(); 
 		}

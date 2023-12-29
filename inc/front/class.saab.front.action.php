@@ -191,7 +191,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			$bookedseats = isset($_POST['bookedseats']) ? absint($_POST['bookedseats']) : 0;
 			
 			$FormTitle = get_the_title($form_id);
-			$form_data = $_POST['form_data'];
+			$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 
 			if (is_array($form_data)) {
 
@@ -458,7 +458,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			}
 
 			$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;
-			$form_data = $_POST['form_data'];
+			$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 			if (is_array($form_data)) {
 				foreach ($form_data as $field_name => $field_value) {
 					// Check if the field value is an array (e.g., for checkboxes or multi-select)
@@ -535,7 +535,6 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				$service =  ucfirst($form_data['data'][$getservice]);					
 			}			
 				
-			// $encrypted_booking_id = wp_base64_encode($created_post_id);
 			$encrypted_booking_id = $created_post_id;
 			$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
 			$ajax_nonce = wp_create_nonce('my_ajax_nonce');
@@ -1098,10 +1097,10 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 								}
 							}
 
-							$output_timeslot .= '<span>' . htmlspecialchars($start_timeslot, ENT_QUOTES, 'UTF-8') . ' - ' . htmlspecialchars($end_timeslot, ENT_QUOTES, 'UTF-8') . '</span>';
-							$output_timeslot .= '<input class="saab-selected-time" name="booking_slots" type="hidden" value="' . htmlspecialchars($start_timeslot . '-' . $end_timeslot, ENT_QUOTES, 'UTF-8') . '">';
-							$output_timeslot .= '<span class="saab-tooltip-text" data-seats="' . htmlspecialchars($available_input_seats, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($available_text, ENT_QUOTES, 'UTF-8') . '<br>' . htmlspecialchars($waiting_text, ENT_QUOTES, 'UTF-8') . '</span>';
-							$output_timeslot .= '<span class="saab-waiting" style="display:none;" class="hidden" data-checkdate="' . htmlspecialchars($check_date, ENT_QUOTES, 'UTF-8') . '" data-waiting="' . htmlspecialchars($iswaiting_alllowed, ENT_QUOTES, 'UTF-8') . '" data-seats="' . htmlspecialchars($waiting_seats, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($iswaiting_alllowed, ENT_QUOTES, 'UTF-8') . '</span>';
+							$output_timeslot .= '<span>' . htmlspecialchars(esc_attr($start_timeslot), ENT_QUOTES, 'UTF-8') . ' - ' . htmlspecialchars(esc_attr($end_timeslot), ENT_QUOTES, 'UTF-8') . '</span>';
+							$output_timeslot .= '<input class="saab-selected-time" name="booking_slots" type="hidden" value="' . htmlspecialchars(esc_attr($start_timeslot) . '-' . esc_attr($end_timeslot), ENT_QUOTES, 'UTF-8') . '">';
+							$output_timeslot .= '<span class="saab-tooltip-text" data-seats="' . htmlspecialchars(esc_attr($available_input_seats), ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(esc_attr($available_text), ENT_QUOTES, 'UTF-8') . '<br>' . htmlspecialchars(esc_attr($waiting_text), ENT_QUOTES, 'UTF-8') . '</span>';
+							$output_timeslot .= '<span class="saab-waiting" style="display:none;" class="hidden" data-checkdate="' . htmlspecialchars(esc_attr($check_date), ENT_QUOTES, 'UTF-8') . '" data-waiting="' . htmlspecialchars(esc_attr($iswaiting_alllowed), ENT_QUOTES, 'UTF-8') . '" data-seats="' . htmlspecialchars(esc_attr($waiting_seats), ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(esc_attr($iswaiting_alllowed), ENT_QUOTES, 'UTF-8') . '</span>';
 							$output_timeslot .= '</li>';
 							
 						
@@ -1255,10 +1254,10 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						}
 					}
 					
-					$output_timeslot .= '<span>' . htmlspecialchars($start_time_slot, ENT_QUOTES, 'UTF-8') . ' - ' . htmlspecialchars($end_time_slot, ENT_QUOTES, 'UTF-8') . '</span>';
-					$output_timeslot .= '<input class="saab-selected-time" name="booking_slots" data-startime="' . htmlspecialchars($this_start_time, ENT_QUOTES, 'UTF-8') . '" type="hidden" value="' . htmlspecialchars($start_time_slot . '-' . $end_time_slot, ENT_QUOTES, 'UTF-8') . '">';
-					$output_timeslot .= '<span class="saab-tooltip-text" data-seats="' . htmlspecialchars($available_input_seats, ENT_QUOTES, 'UTF-8') . '"> ' . htmlspecialchars($available_text, ENT_QUOTES, 'UTF-8') . '<br>' . htmlspecialchars($waiting_text, ENT_QUOTES, 'UTF-8') . '</span>';
-					$output_timeslot .= '<span class="saab-waiting" style="display:none;" class="hidden" data-checkdate="' . htmlspecialchars($check_date, ENT_QUOTES, 'UTF-8') . '" data-waiting="' . htmlspecialchars($iswaiting_alllowed, ENT_QUOTES, 'UTF-8') . '" data-seats="' . htmlspecialchars($waiting_seats, ENT_QUOTES, 'UTF-8') . '" >' . htmlspecialchars($iswaiting_alllowed, ENT_QUOTES, 'UTF-8') . '</span>';
+					$output_timeslot .= '<span>' . htmlspecialchars(esc_attr($start_time_slot), ENT_QUOTES, 'UTF-8') . ' - ' . htmlspecialchars(esc_attr($end_time_slot), ENT_QUOTES, 'UTF-8') . '</span>';
+					$output_timeslot .= '<input class="saab-selected-time" name="booking_slots" data-startime="' . htmlspecialchars(esc_attr($this_start_time), ENT_QUOTES, 'UTF-8') . '" type="hidden" value="' . htmlspecialchars(esc_attr($start_time_slot) . '-' . esc_attr($end_time_slot), ENT_QUOTES, 'UTF-8') . '">';
+					$output_timeslot .= '<span class="saab-tooltip-text" data-seats="' . htmlspecialchars(esc_attr($available_input_seats), ENT_QUOTES, 'UTF-8') . '"> ' . htmlspecialchars(esc_attr($available_text), ENT_QUOTES, 'UTF-8') . '<br>' . htmlspecialchars(esc_attr($waiting_text), ENT_QUOTES, 'UTF-8') . '</span>';
+					$output_timeslot .= '<span class="saab-waiting" style="display:none;" class="hidden" data-checkdate="' . htmlspecialchars(esc_attr($check_date), ENT_QUOTES, 'UTF-8') . '" data-waiting="' . htmlspecialchars(esc_attr($iswaiting_alllowed), ENT_QUOTES, 'UTF-8') . '" data-seats="' . htmlspecialchars(esc_attr($waiting_seats), ENT_QUOTES, 'UTF-8') . '" >' . htmlspecialchars(esc_attr($iswaiting_alllowed), ENT_QUOTES, 'UTF-8') . '</span>';
 					$output_timeslot .= '</li>';
 									
 				}
@@ -1388,7 +1387,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 										if ($i == $currentMonth) {
 											echo " selected";
 										}
-										echo ">{$monthNames[$i]}</option>";
+										echo ">" . esc_html($monthNames[$i]) . "</option>";
 									}
 									?>
 								</select>
@@ -1485,9 +1484,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 										$advanceDates[] = $item['advance_date'];
 									}
 									if(in_array($todaysDate,$advanceDates)){
-									  echo $this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate);   
+									  echo esc_html($this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate));   
 									}else{
-										echo $this->saab_front_generate_timeslots($post_id,$lastdateid);                                
+										echo esc_html($this->saab_front_generate_timeslots($post_id,$lastdateid));                                
 									}        
 								}else {
 									$error = true;
@@ -1509,7 +1508,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							<span class="saab-cost">Cost: <?php echo esc_html($prefix_label) . ' ' . esc_html($cost); ?></span>
 						</div>
 						<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('booking_form_nonce'); ?>">
-						<input type="hidden" id="booking_date" name="booking_date" value="<?php echo $lastdateid; ?>" name="booking_date" >
+						<input type="hidden" id="booking_date" name="booking_date" value="<?php echo esc_attr($lastdateid); ?>" name="booking_date" >
 					</div>
 					<div class="step step2">
 					<?php	
@@ -1528,7 +1527,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									if(isset($enable_booking) && !empty($enable_booking)){
 								?>
 									<script type='text/javascript'>								
-										var myScriptData = <?php echo $fields; ?>;															
+										var myScriptData = <?php echo esc_js($fields); ?>;															
 										var value = myScriptData;
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
@@ -1621,7 +1620,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									}else{
 										?>
 										<script type='text/javascript'>								
-										var myScriptData = <?php echo $fields; ?>;															
+										var myScriptData = <?php echo esc_js($fields); ?>;															
 										var value = myScriptData;
 										
 										Formio.createForm(document.getElementById('formio'), {
@@ -1670,7 +1669,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 															} else {
 																jQuery('#formio_res_msg').html(message).fadeIn().delay(3000).fadeOut();
 															}
-															$("button[name='data[submit]'] i.fa.fa-refresh.fa-spin.button-icon-right").hide();
+															jQuery("button[name='data[submit]'] i.fa.fa-refresh.fa-spin.button-icon-right").hide();
 														} else {
 															var errorMessage = response.data.error;
 															submitButton.disabled = false;
@@ -1832,7 +1831,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				</style>
 				<?php
 				$output = ob_get_clean();
-				echo $output;
+				echo esc_attr($output);
 				wp_die();
 			} else {
 				wp_die();
@@ -1847,7 +1846,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			if ( isset( $_POST['security'] ) &&  wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'my_ajax_nonce' ) ) {   
 				$error = false;
 				if(isset( $_POST['form_data'])){
-					$form_data = $_POST['form_data'];
+					$form_data = sanitize_text_field($_POST['form_data']);
 					$array_data = explode('_',$form_data);
 					$post_id = $array_data[1];
 					$current_month = $array_data[2];
@@ -1855,13 +1854,13 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					$current_year = $array_data[4];
 				}
 				if(isset( $_POST['clickedId'])){
-					$clickedId = $_POST['clickedId'];
+					$clickedId = absint($_POST['clickedId']);
 				}
 				$todaysDate = gmdate('Y-m-d', strtotime("$current_year-$current_month-$current_day"));
 				$TodaysDate_F = gmdate('F d, Y', strtotime("$current_year-$current_month-$current_day"));
 				echo "<h3 id='head_avail_time'>Available Time Slots</h3>";
 				echo "<h4 id='headtodays_date'>" . esc_html($TodaysDate_F) . "</h4>";
-				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="' . htmlspecialchars($clickedId, ENT_QUOTES, 'UTF-8') . '" >';
+				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="' . htmlspecialchars(esc_attr($clickedId), ENT_QUOTES, 'UTF-8') . '" >';
 				echo "<ul id='saab-slot-list'>";
                     
 					$is_available = $this->saab_processDate($post_id,$todaysDate);				
@@ -1878,9 +1877,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									$advanceDates[] = $item['advance_date'];
 								}
 								if(in_array($todaysDate,$advanceDates)){
-								   echo $this->saab_get_advanced_timeslots($post_id,$form_data,$todaysDate);
+								   echo esc_html($this->saab_get_advanced_timeslots($post_id,$form_data,$todaysDate));
 								}else{
-								   echo $this->saab_front_generate_timeslots($post_id,$form_data);                                      
+								   echo esc_html($this->saab_front_generate_timeslots($post_id,$form_data));                                      
 								}
 							// }         
 						}else {
@@ -1992,7 +1991,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			if (isset($_REQUEST['booking_id']) && isset($_REQUEST['status'])) {
 				// $booking_id = wp_base64_decode($encrypt_bookingId);
 				$booking_id = $encrypt_bookingId;
-				$bookingstatus = $_REQUEST['status'];
+				$bookingstatus = sanitize_text_field( $_REQUEST['status'] );
 
 				if ($bookingstatus === 'cancel' ) {
 

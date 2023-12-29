@@ -24,24 +24,6 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             add_action('save_post', array( $this, 'saab_save_notes_data' ) );
         }
 
-        /*
-           ###     ######  ######## ####  #######  ##    ##  ######
-          ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##
-         ##   ##  ##          ##     ##  ##     ## ####  ## ##
-        ##     ## ##          ##     ##  ##     ## ## ## ##  ######
-        ######### ##          ##     ##  ##     ## ##  ####       ##
-        ##     ## ##    ##    ##     ##  ##     ## ##   ### ##    ##
-        ##     ##  ######     ##    ####  #######  ##    ##  ######
-        */
-        /*
-        ######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
-        ##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
-        ##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
-        ######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
-        ##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
-        ##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
-        ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
-        */
         function saab_get_available_seats_per_timeslot($checktimeslot,$date){
             
             $args = array(
@@ -115,7 +97,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $title = get_the_title($post_id);
             echo '<div class="form-pair" style="margin-top:30px;">';
             echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
-            $published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
+            $published_date = esc_attr(get_the_date( 'F j, Y @ h:i a', $post_id ));
             echo '<p class="published_on" style="font-size:18px;">Published on ' . esc_html($published_date) . '</p>';
             echo '</div>';
             ?>
@@ -137,18 +119,18 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     <select name="booking_status" class="form-control" id="custom_status">
                                         <?php 
                                             if($status === "confirmation" || $status === "completed" || $status === "booked" || $status === "pending" || $status === "submitted"  ){
-                                                echo $selected = 'selected';
+                                                echo esc_attr($selected) . '="selected"';
                                             }else{ 
                                                 $selected = ''; 
                                             }
                                         ?>
                                         <option value="any">Status</option>
-                                        <option value="booked" <?php echo $selected; ?>>Booked</option>
-                                        <option value="approved" <?php echo ($status === "approved") ? 'selected' : ''; ?>>Approved</option>
-                                        <option value="cancelled" <?php echo ($status === "cancelled") ? 'selected' : ''; ?>>Cancelled</option>
-                                        <option value="pending" <?php echo ($status === "pending") ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="waiting" <?php echo ($status === "waiting") ? 'selected' : ''; ?>>Waiting</option>
-                                        <option value="submitted" <?php echo ($status === "submitted") ? 'selected' : ''; ?>>Submitted</option>
+                                        <option value="booked" <?php echo esc_attr($selected); ?>>Booked</option>
+                                        <option value="approved" <?php echo esc_attr($status === "approved" ? 'selected' : ''); ?>>Approved</option>
+                                        <option value="cancelled" <?php echo esc_attr($status === "cancelled" ? 'selected' : ''); ?>>Cancelled</option>
+                                        <option value="pending" <?php echo esc_attr($status === "pending" ? 'selected' : ''); ?>>Pending</option>
+                                        <option value="waiting" <?php echo esc_attr($status === "waiting" ? 'selected' : ''); ?>>Waiting</option>
+                                        <option value="submitted" <?php echo esc_attr($status === "submitted" ? 'selected' : ''); ?>>Submitted</option>
                                     </select>
                                     <input type="hidden" name="form_id" value="<?php echo esc_attr($form_id); ?>">
                                 </div>
@@ -279,7 +261,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             // Calculate the total number of pages
                             $total_pages = $query->max_num_pages;
                             echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-                            echo '<span class="item-count" style="margin-right: 5px;">' . $query->found_posts . ' Items</span>';
+                            echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
                             if ($total_pages > 1) {
                                 
                                     echo '<select id="saabpage-number"  data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.wp_create_nonce('get_paginated_items_nonce').'">';
@@ -325,7 +307,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 <form-builder form="form"></form-builder>
                 <script type='text/javascript'>
                     
-                    var myScriptData = <?php echo $myScriptData; ?>;
+                    var myScriptData = <?php echo esc_js($myScriptData); ?>;
                     window.onload = function() {
                         
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
@@ -458,7 +440,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         <div class="col-6">
                             <!-- <div class=""> -->
                                 <div class="form-check form-check-inline">
-                                    <input type="checkbox" name="enable_booking" id="enable_booking" value="1" <?php echo checked(1, $enable_booking, false); ?>>
+                                    <input type="checkbox" name="enable_booking" id="enable_booking" value="1" <?php echo esc_attr(checked(1, $enable_booking, false)); ?>>
                                     <label class="form-check-label h6" for="enable_booking"> Enable or disaable booking form</label>
                                 </div>
                                 <div class="form-group form-general-group">
@@ -522,12 +504,12 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group"><label  class="h6"><?php echo esc_html__('Appointment Type: ', 'smart-appointment-booking'); ?></label>
 
                                     <div class="form-check form-check-inline">
-                                    <input type="radio" name="appointment_type" id="appointment_type_virtual" value="virtual" <?php if ($appointment_type == 'virtual') echo 'checked="checked"'; ?>>
-                                    <label class="form-check-label h6" for="appointment_type_virtual">Virtual</label>
+                                    <input type="radio" name="appointment_type" id="appointment_type_virtual" value="virtual" <?php echo esc_attr($appointment_type === 'virtual' ? 'checked="checked"' : ''); ?>>
+                                    <label class="form-check-label h6" for="appointment_type_virtual">Virtual</label> 
                                     </div>
 
                                     <div class="form-check form-check-inline">
-                                    <input type="radio" name="appointment_type" id="appointment_type_physical" value="physical" <?php if ($appointment_type == 'physical') echo 'checked="checked"'; ?>>
+                                    <input type="radio" name="appointment_type" id="appointment_type_physical" value="physical" <?php echo esc_attr($appointment_type === 'physical' ? 'checked="checked"' : ''); ?>>
                                     <label class="form-check-label h6" for="appointment_type_physical">Physical</label>
                                     </div>
                                 </div>
@@ -548,7 +530,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
-                                    <?php echo $this->timezone_dropdown($post->ID); ?>
+                                    <?php echo esc_html($this->timezone_dropdown($post->ID)); ?>
+                                    
                                 </div> 
                                 <div class="form-group form-general-group">
                                     <label class="h6" for="bookemail-map">Map Booking Email:</label>
@@ -590,11 +573,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     <div class="form-row timeslot-row generatetimeslot">
                                         <div class="form-group col-md-3">
                                             <label>Start Time:</label>
-                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][start_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['start_time']); ?>">
+                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo esc_attr($index); ?>][start_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['start_time']); ?>">
                                         </div>
                                         <div class="form-group col-md-3"> 
                                             <label>End Time:</label>
-                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo $index; ?>][end_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
+                                            <input type="time" class="form-control" name="generatetimeslot[<?php echo esc_attr($index); ?>][end_time]" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$" value="<?php echo esc_attr($timeslot['end_time']); ?>">                            
                                         </div>
                                         
                                         <div class="form-group col-2 remove-generatetimeslot">
@@ -624,11 +607,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         </div>
                         <!-- waiting List -->
                         <div class="form-check ">
-                            <input type="checkbox" name="waiting_list" id="waiting_list" value="1" <?php echo checked(1, $enable_waiting, false); ?>>
+                            <input type="checkbox" name="waiting_list" id="waiting_list" value="1"<?php echo esc_attr(checked(1, $enable_waiting, false)); ?>>
                             <label class="form-check-label h6" for="waiting_list">Allow Waiting List</label>
                         </div>
                         <div class="form-check">
-                            <input type="checkbox" name="timeslot_BookAllow" id="timeslot_BookAllow" value="1" <?php echo checked(1, $timeslot_BookAllow, false); ?>>
+                            <input type="checkbox" name="timeslot_BookAllow" id="timeslot_BookAllow" value="1" <?php echo esc_attr(checked(1, $timeslot_BookAllow, false)); ?>>
                             <label class="form-check-label h6" for="timeslot_BookAllow">Allow bookings during running timeslot</label>
                         </div>
                         <div class="form-group ">
@@ -645,7 +628,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 <!-- Tabination 2 content  -->
                 <div id="tab3" class="tab-content">  
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" id="enable_recurring_apt_i" name="enable_recurring_apt" value="1" <?php echo checked(1, $enable_recurring_apt, false); ?>>
+                            <input type="checkbox" id="enable_recurring_apt_i" name="enable_recurring_apt" value="1" <?php echo esc_attr(checked(1, $enable_recurring_apt, false)); ?>>
                             <label class="form-check-label h6" for="waiting_list">Enable Recurring Bookings</label>
                         </div>
                         <!-- hide and show whole container on enable and disaable button -->
@@ -658,11 +641,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             <label class="h6" for="recurring_type">Repeat Recurring</label>
                             <div class="form-group form-general-group col-md-3 pl-md-0">
                                 <select class="form-control " name="recurring_type" id="recurring_type">
-                                    <option value="any" <?php echo selected('any', $recurring_type, false); ?>>Select Any</option>
-                                    <option value="daily" <?php echo selected('daily', $recurring_type, false); ?>>Daily</option>
-                                    <option value="weekend" <?php echo selected('weekend', $recurring_type, false); ?>>Every Weekend</option>
-                                    <option value="weekdays" <?php echo selected('weekdays', $recurring_type, false); ?>>Every Weekday</option>
-                                    <option value="certain_weekdays" <?php echo selected('certain_weekdays', $recurring_type, false); ?>>Certain Days</option>
+                                    <option value="any" <?php echo esc_attr(selected('any', $recurring_type, false)); ?>>Select Any</option>
+                                    <option value="daily" <?php echo esc_attr(selected('daily', $recurring_type, false)); ?>>Daily</option>
+                                    <option value="weekend" <?php echo esc_attr(selected('weekend', $recurring_type, false)); ?>>Every Weekend</option>
+                                    <option value="weekdays" <?php echo esc_attr(selected('weekdays', $recurring_type, false)); ?>>Every Weekday</option>
+                                    <option value="certain_weekdays" <?php echo esc_attr(selected('certain_weekdays', $recurring_type, false)); ?>>Certain Days</option>
                                 </select>
                             </div>
                             <div id="certain_weekdays_fields" class="form-group form-general-group" style="display: none;" >
@@ -741,7 +724,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         <div class="repeater-row border m-0 mb-2 p-3 row">
                             <div class="form-group col-md-3">
                                 <label class="h6" for="advance_date_<?php echo esc_attr($index); ?>">Advance Date:</label>
-                                <input type="date" class="form-control" id="advance_date_<?php echo esc_attr($index); ?>" name="advancedata[<?php echo $index; ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
+                                <input type="date" class="form-control" id="advance_date_<?php echo esc_attr($index); ?>" name="advancedata[<?php echo esc_attr($index); ?>][advance_date]" value="<?php echo esc_attr($data['advance_date']); ?>">
                             </div>
                             <div class="timeslot-repeater timeslot-container col-md-9 "  id="timeslot-repeater-<?php echo esc_attr($index); ?>">
                                 <div class="add-timeslot" id="add_timeslot_m">
@@ -902,7 +885,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             
              //Steps Duration
             if ( isset( $_POST['steps_duration'] ) ) {
-                $steps_duration = $_POST['steps_duration'];
+                $steps_duration = sanitize_text_field($_POST['steps_duration']);
                 $sanitized_steps_duration = array(
                     'hours' => sanitize_text_field( $steps_duration['hours'] ),
                     'minutes' => sanitize_text_field( $steps_duration['minutes'] )
@@ -913,7 +896,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //timeslot_duration
             if ( isset( $_POST['booking_stops_after'] ) ) {
-                $booking_stops_after_duration = $_POST['booking_stops_after'];
+                $booking_stops_after_duration = sanitize_text_field($_POST['booking_stops_after']);
                 $sanitized_booking_stops_after_duration = array(
                     'hours' => sanitize_text_field( $booking_stops_after_duration['hours'] ),
                     'minutes' => sanitize_text_field( $booking_stops_after_duration['minutes'] )
@@ -924,7 +907,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //timeslot_duration
             if ( isset( $_POST['timeslot_duration'] ) ) {
-                $timeslot_duration = $_POST['timeslot_duration'];
+                $timeslot_duration = sanitize_text_field($_POST['timeslot_duration']);
                 $sanitized_timeslot_duration = array(
                     'hours' => sanitize_text_field( $timeslot_duration['hours'] ),
                     'minutes' => sanitize_text_field( $timeslot_duration['minutes'] )
@@ -958,7 +941,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //multiple breaks
             if (isset($_POST['breaktimeslots'])) {
-                $breaktimeslots = $_POST['breaktimeslots'];
+                $breaktimeslots = sanitize_text_field($_POST['breaktimeslots']);
             
                 // Sanitize and save the values
                 $sanitized_breaktimeslots = array();
@@ -985,7 +968,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 }
             
             if (isset($_POST['generatetimeslot'])) {
-                $generatetimeslots = $_POST['generatetimeslot'];   
+                $generatetimeslots = sanitize_text_field($_POST['generatetimeslot']);   
                 // Sanitize and save the values
                 $sanitized_generatetimeslots = array();
                 foreach ($generatetimeslots as $generatetimeslot) {
@@ -1030,7 +1013,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'saab_recur_weekdays', $sanitized_recur_weekdays); 
             }
             if (isset($_POST['advancedata'])) {                
-                $advancedata = $_POST['advancedata'];                
+                $advancedata = sanitize_text_field($_POST['advancedata']);                
                 update_post_meta($post_id, 'saab_advancedata', $advancedata);
             }
             if (isset($_POST['holidays'])) {
@@ -1057,7 +1040,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
          * 
          */
         function saab_save_notes_data($post_id) {
-            if (!isset($_POST['notes_nonce']) || !wp_verify_nonce($_POST['notes_nonce'], 'save_notes')) {
+            if (!isset($_POST['notes_nonce']) || !wp_verify_nonce(sanitize_text_field( wp_unslash ( $_POST['notes_nonce'] ) ), 'save_notes')) {
                 return;
             }
 
@@ -1098,7 +1081,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'saab_timeslot', $timeslot);
             }
           
-            if (isset($_POST['manual_notification']) &&  $_POST['manual_notification']  !== 'any') {
+            if (isset($_POST['manual_notification']) &&  sanitize_text_field($_POST['manual_notification']  !== 'any')) {
                 $selected_action = isset($_POST['manual_notification']) ? sanitize_text_field($_POST['manual_notification']) : ''; 
                 $booking_status = isset($_POST['booking_status']) ? sanitize_text_field($_POST['booking_status']) : ''; 
                 // update_post_meta($post_id, 'saab_entry_status', $booking_status);                
@@ -1488,7 +1471,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $enable_booking = get_post_meta($form_id, 'saab_enable_booking', true);
             
             ?>
-            <select name="manual_notification" id="manual_notification" data-formid="<?php echo $form_id; ?>" data-postid="<?php echo $post_id; ?>" >
+            <select name="manual_notification" id="manual_notification" data-formid="<?php echo esc_attr($form_id); ?>" data-postid="<?php echo esc_attr($post_id); ?>" >
             <option value="any">Choose an action</option>
                 <?php 
                 if($enable_booking){
@@ -1547,7 +1530,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             submitButton.updateValue();
                         }
 
-                        var entryId = <?php echo $post->ID; ?>;
+                        var entryId = <?php echo esc_js($post->ID); ?>;
                         var updatedData = submission.data;
                         var nonce = ajax_object.nonce;
                         jQuery.ajax({

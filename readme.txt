@@ -60,6 +60,14 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 
 This plugin relies on an external service for Form.io. It is important to note that form is created is used to enhance the functionality of this plugin.
 
+## Google Maps API Integration
+
+We have integrated the Google Maps link functionality into Form.io.
+
+File Path : assets/js/formio/formio.full.min.js
+
+https://maps.googleapis.com/maps/api/js?v=quarterly&libraries=places&callback=googleMapsCallback
+
 ## Form.io Library Integration
 
 This plugin relies on the Form.io library for rendering form. 
@@ -67,6 +75,11 @@ This plugin relies on the Form.io library for rendering form.
 - [Learn more about the Form.io library](https://www.form.io)
 - [Form.io Library Terms of Use](https://www.form.io/terms)
 - [Form.io Library Privacy Policy](https://www.form.io/privacy)
+
+## Boostrap 
+
+This is used.
+- jquery-3.7. 0.min.js
 
 == Installation ==
 Installing the plugin is easy. Just follow these steps:
