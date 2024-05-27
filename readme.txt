@@ -6,7 +6,7 @@ Donate link: http://www.zealousweb.net/payment/
 Requires at least: 5.9
 Tested up to: 6.3
 License: GPL-3.0-or-later
-Version: 1.0.0
+Version: 1.1.0
 Stable tag: 1.0.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -111,6 +111,9 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 
 == Changelog ==
+
+= 1.1.0 =
+* Implementing a multi-step booking form in the plugin, allowing you to use the form for step-by-step bookings.
 
 = 1.0.0 =
 * Initial Release
