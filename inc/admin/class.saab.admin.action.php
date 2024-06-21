@@ -201,7 +201,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$get_notification_array = array();
 			if (isset($_POST['notification_data'])) {
 			
-				parse_str(wp_unslash(sanitize_text_field($_POST['notification_data']), $form_data));
+				parse_str($_POST['notification_data'], $form_data);
 				$post_id = $form_data['form_id'];
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
@@ -898,7 +898,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			if (isset($_POST['indexes'])) {
 				$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-				$indexesToDelete = isset($_POST['indexes']) ? sanitize_text_field($_POST['indexes']) : '';	
+				$indexesToDelete = isset($_POST['indexes']) ? $_POST['indexes'] : '';	
 				$notification_metadata = get_post_meta($post_id, 'saab_notification_data', true);
 				foreach ($indexesToDelete as $index) {
 					if (isset($notification_metadata[$index])) {
@@ -1069,37 +1069,35 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 
 				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
 
-				if (is_array($form_data)) {
+				// if (is_array($form_data)) {
 
-					foreach ($form_data as $field_name => &$field_value) {
-						
-						if (is_array($field_value)) {
-							foreach ($field_value as &$value) {
-								
-								if (is_email($value)) {
-									$value = sanitize_email($value);
-								} elseif (is_numeric($value)) {
-									$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-								} elseif (is_string($value)) {									
-									$value = sanitize_textarea_field($value);
-								} else {								
-									$value = sanitize_text_field($value);
-								}
-							}
-						} else {
+				// 	foreach ($form_data as $field_name => &$field_value) {						
+				// 		if (is_array($field_value)) {
+				// 			foreach ($field_value as &$value) {								
+				// 				if (is_email($value)) {
+				// 					$value = sanitize_email($value);
+				// 				} elseif (is_numeric($value)) {
+				// 					$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+				// 				} elseif (is_string($value)) {									
+				// 					$value = sanitize_textarea_field($value);
+				// 				} else {								
+				// 					$value = sanitize_text_field($value);
+				// 				}
+				// 			}
+				// 		} else {
 							
-							if (is_email($field_value)) {
-								$field_value = sanitize_email($field_value);
-							} elseif (is_numeric($field_value)) {
-								$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
-							} elseif (is_string($field_value)) {							
-								$field_value = sanitize_textarea_field($field_value);
-							} else {							
-								$field_value = sanitize_text_field($field_value);
-							}
-						}
-					}
-				}
+				// 			if (is_email($field_value)) {
+				// 				$field_value = sanitize_email($field_value);
+				// 			} elseif (is_numeric($field_value)) {
+				// 				$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
+				// 			} elseif (is_string($field_value)) {							
+				// 				$field_value = sanitize_textarea_field($field_value);
+				// 			} else {							
+				// 				$field_value = sanitize_text_field($field_value);
+				// 			}
+				// 		}
+				// 	}
+				// }
 				
 				update_post_meta($post_id, 'saab_formschema', $form_data );
 

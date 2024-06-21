@@ -294,28 +294,25 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
          * 
         */ 
         function formio_render_meta_box_content( $post ) {
-            
-            wp_nonce_field( 'myplugin_inner_custom_box', 'myplugin_inner_custom_box_nonce' );
+
             $fields = get_post_meta( $post->ID, 'saab_formschema', true );  
             $get_type = gettype($fields);
-            
-            if(!empty($fields) && $get_type === 'string') {
+            echo "<div id='builder'></div>";
+            echo '<form-builder form="form"></form-builder>';
+            if(!empty($fields)) {
+               
                 $myScriptData = $fields;
                 ?>
-            
-                <div id='builder'></div>
-                <form-builder form="form"></form-builder>
                 <script type='text/javascript'>
                     
-                    var myScriptData = <?php echo esc_js($myScriptData); ?>;
+                    var myScriptData = <?php echo $myScriptData; ?>;
                     window.onload = function() {
                         
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
                             components: myScriptData 
                         });
                                                     
-                        formioBuilder.then(function(builder) {
-                          
+                        formioBuilder.then(function(builder) {                          
                             builder.on('change', function(submission) {
                                 formdata = JSON.stringify(submission.components);
                                 var nonce = ajax_object.nonce;
@@ -332,11 +329,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                     };
                 </script>
                 <?php
-
             }else{
-                ?>
-                <div id='builder'></div>
-                <form-builder form="form"></form-builder>
+                ?>               
                 <script type='text/javascript'>  
                     window.onload = function() {
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {});
@@ -530,7 +524,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
-                                    <?php echo esc_html($this->timezone_dropdown($post->ID)); ?>
+                                    <?php echo $this->timezone_dropdown($post->ID); ?>
                                     
                                 </div> 
                                 <div class="form-group form-general-group">
@@ -896,7 +890,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //timeslot_duration
             if ( isset( $_POST['booking_stops_after'] ) ) {
-                $booking_stops_after_duration = sanitize_text_field($_POST['booking_stops_after']);
+                $booking_stops_after_duration = $_POST['booking_stops_after'];
                 $sanitized_booking_stops_after_duration = array(
                     'hours' => sanitize_text_field( $booking_stops_after_duration['hours'] ),
                     'minutes' => sanitize_text_field( $booking_stops_after_duration['minutes'] )
@@ -967,32 +961,32 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                     update_post_meta($post_id, 'saab_breaktimeslots', $sanitized_breaktimeslots);
                 }
             
-            if (isset($_POST['generatetimeslot'])) {
-                $generatetimeslots = sanitize_text_field($_POST['generatetimeslot']);   
-                // Sanitize and save the values
-                $sanitized_generatetimeslots = array();
-                foreach ($generatetimeslots as $generatetimeslot) {
-                    $generatestart_time = sanitize_text_field($generatetimeslot['start_time']);
-                    $generateend_time = sanitize_text_field($generatetimeslot['end_time']);
-                    $sanitized_generatetimeslots[] = array(
-                    'start_time' => $generatestart_time,
-                    'end_time' => $generateend_time,
-                    );
-                }            
-                update_post_meta($post_id, 'saab_generatetimeslot', $sanitized_generatetimeslots);
-            }else{
-                $generatetimeslots = get_post_meta($post_id, 'saab_generatetimeslot', true);
-                if (empty($timeslots)) {
-                    $sanitized_generatetimeslots = array(
-                        array(
-                        'start_time' => '',
-                        'end_time' => '',
-                        ),
-                    );
+                if (isset($_POST['generatetimeslot'])) {
+                    $generatetimeslots = $_POST['generatetimeslot'];   
+                    // Sanitize and save the values
+                    $sanitized_generatetimeslots = array();
+                    foreach ($generatetimeslots as $generatetimeslot) {
+                        $generatestart_time = $generatetimeslot['start_time'];
+                        $generateend_time = $generatetimeslot['end_time'];
+                        $sanitized_generatetimeslots[] = array(
+                        'start_time' => $generatestart_time,
+                        'end_time' => $generateend_time,
+                        );
+                    }            
+                    update_post_meta($post_id, 'saab_generatetimeslot', $sanitized_generatetimeslots);
+                }else{
+                    $generatetimeslots = get_post_meta($post_id, 'saab_generatetimeslot', true);
+                    if (empty($timeslots)) {
+                        $sanitized_generatetimeslots = array(
+                            array(
+                            'start_time' => '',
+                            'end_time' => '',
+                            ),
+                        );
+                    }
+                    update_post_meta($post_id, 'saab_generatetimeslot', $sanitized_generatetimeslots);
                 }
-                update_post_meta($post_id, 'saab_generatetimeslot', $sanitized_generatetimeslots);
-            }
-            
+                
             //Enable Recurring Events
             if (isset($_POST['enable_recurring_apt']) && filter_var($_POST['enable_recurring_apt'], FILTER_VALIDATE_BOOLEAN)) {
                 update_post_meta($post_id, 'saab_enable_recurring_apt', 1);
@@ -1013,8 +1007,10 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta($post_id, 'saab_recur_weekdays', $sanitized_recur_weekdays); 
             }
             if (isset($_POST['advancedata'])) {                
-                $advancedata = sanitize_text_field($_POST['advancedata']);                
+                $advancedata = $_POST['advancedata'];                
                 update_post_meta($post_id, 'saab_advancedata', $advancedata);
+            }else {
+                delete_post_meta($post_id, 'saab_advancedata');
             }
             if (isset($_POST['holidays'])) {
                 $holidays = array_map('sanitize_text_field', $_POST['holidays']);

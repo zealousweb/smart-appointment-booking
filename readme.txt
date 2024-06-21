@@ -1,16 +1,18 @@
 === Smart Appointment & Booking  ===
 
-Contributor: zealopensource
+Contributors: zealopensource
 Tags: Booking, Appointment, Scheduling form, forms, Booking Appointments
-Donate link: http://www.zealousweb.net/payment/
+Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
-Tested up to: 6.3
+Tested up to: 6.5
 License: GPL-3.0-or-later
-Version: 1.1.0
-Stable tag: 1.0.0
+Version: 1.0.1
+Stable tag: 1.0.1
+License: GPLv3 or later License
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users to specific pages after submission. and options to modify form entries.
+The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users
+
 == Description ==
 
 ZealousWeb Technologies has come up with a powerful solution - Smart Appointment & Booking. This all-in-one plugin efficiently manages appointments with customizable forms, seamless booking. It enhances customer experiences and streamlines processes for service-based businesses, appointment management, and booking services.
@@ -31,6 +33,20 @@ ZealousWeb Technologies has come up with a powerful solution - Smart Appointment
 * Update status, booking dates, and send manual notifications to stay in control.
 * Guest Check-In feature allow anyone to submit forms without the need for account creation.
 
+= Features of Smart Appointment & Booking Pro =
+
+We have released the PRO version of this plugin with extra advantageous features added. PRO Version 1.0.0 Released.
+
+* Stripe Payment Gateway: Secure payment processing.
+* Display to Logged-In Users: Show forms to registered users.
+* User Account Creation: Allow new user registration.
+* Send Username and Password: Automatically send login credentials.
+* Waitlist: Let users join a waitlist for fully booked slots.
+* Booking Management: Track and manage appointments in the admin backend.Physical and Virtual Appointments: Offer both types to customers.
+
+
+<strong>[Get more information of Pro version here](https://store.zealousweb.com/smart-appointment-booking-pro)</strong>
+
 == Plugin Requirement ==
 
 PHP version : 5.6 and latest
@@ -38,17 +54,17 @@ WordPress   : WordPress 5.9 and latest
 
 == OUR OTHER PLUGINS ==
 
-* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/generate-pdf-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-stripe-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-2checkout-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-sage-pay-opayo-payments-using-contact-form-7-pro)</strong>
-* <strong>[User Registration Using Contact Form 7 Pro](https://www.zealousweb.com/store/user-registration-using-contact-form-7-pro)</strong>
-* <strong>[Abandoned Contact Form 7 Pro](https://www.zealousweb.com/store/abandoned-contact-form-7-pro)</strong>
+* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-paypal-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-stripe-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-2checkout-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-sage-pay-opayo-payments-using-contact-form-7-pro)</strong>
+* <strong>[User Registration Using Contact Form 7 Pro](https://store.zealousweb.com/user-registration-using-contact-form-7-pro)</strong>
+* <strong>[Abandoned Contact Form 7 Pro](https://store.zealousweb.com/abandoned-contact-form-7-pro)</strong>
 
 = Getting Help With Wordpress =
 
-If you have any difficulties while using this Plugin, please feel free to contact us at https://zealousweb.com/support/
+If you have any difficulties while using this Plugin, please feel free to contact us at <a href="mailto::support@zealousweb.com">support@zealousweb.com</a>
 
 We also offer custom Wordpress extension development and Wordpress theme design services to fulfill your e-commerce objectives.
 
@@ -64,8 +80,6 @@ This plugin relies on an external service for Form.io. It is important to note t
 
 We have integrated the Google Maps link functionality into Form.io.
 
-File Path : assets/js/formio/formio.full.min.js
-
 https://maps.googleapis.com/maps/api/js?v=quarterly&libraries=places&callback=googleMapsCallback
 
 ## Form.io Library Integration
@@ -78,7 +92,6 @@ This plugin relies on the Form.io library for rendering form.
 
 ## Boostrap 
 
-This is used.
 - jquery-3.7. 0.min.js
 
 == Installation ==
@@ -90,7 +103,8 @@ Installing the plugin is easy. Just follow these steps:
 4. Follow the on-screen instructions and wait till the upload completes.
 5. When it's finished, activate the plugin via the prompt. A message will display confirming activation was successful.
 
-That's it! Just configure your settings as you see fit, and you're on your way to creating forms with Stripe in your style. Are you facing problems while installation? Need help getting things started? Check out the (documentation link)[https://www.zealousweb.com/documentation/smart-appointment-booking/] here.
+That's it! Just configure your settings as you see fit, and you're on your way to creating forms with Stripe in your style. Are you facing problems while installation? Need help getting things started? 
+Check out the [documentation link](https://www.zealousweb.com/documentation/wordpress-plugins/smart-appointment-booking/).
 
 == Frequently Asked Questions ==
 
@@ -112,8 +126,8 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Changelog ==
 
-= 1.1.0 =
-* Implementing a multi-step booking form in the plugin, allowing you to use the form for step-by-step bookings.
+= 1.0.1 =
+* Issue Fixed "Form Is not being saved"
 
 = 1.0.0 =
 * Initial Release

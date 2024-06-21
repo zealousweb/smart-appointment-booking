@@ -393,8 +393,8 @@ if (pageParam === "notification-settings") {
                contentType:false,        
                success: function (response) {
                    jQuery('.notifyform').trigger("reset");
-                   jQuery('.close').trigger('click');
-                                    
+                   jQuery('.close').trigger('click');                   
+                   jQuery('#notifytable').load(location.href + ' #notifytable');         
                }
                
            });
