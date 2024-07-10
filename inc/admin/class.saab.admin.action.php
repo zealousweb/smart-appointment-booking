@@ -49,7 +49,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			add_action( 'wp_ajax_saab_save_confirmation', array( $this, 'saab_save_confirmation' ));
 			add_action('wp_ajax_nopriv_saab_save_confirmation', array( $this, 'saab_save_confirmation' ) );
 
-			add_action('edit_form_after_title', array( $this, 'saab_disaable_title_editing_for__post_type' ) );
+			//add_action('edit_form_after_title', array( $this, 'saab_disaable_title_editing_for__post_type' ) );
 
 			add_action('wp_ajax_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
 			add_action('wp_ajax_nopriv_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
@@ -438,8 +438,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			// Add your page content here
 			echo "<div class='notification-page-main m-4 p-1 ' >";
 		
-			if (isset($_GET['post_type']) && isset($_GET['post_id']) && isset( $_GET['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['nonce'] ) ) , 'other_setting' )) {
-			
+			if (isset($_GET['post_type']) && isset($_GET['post_id'])  && ! wp_verify_nonce( sanitize_text_field( wp_unslash (isset($_POST['nonce'] )) ) , 'other_setting' )) {  
 				$post_type = sanitize_text_field($_GET['post_type']);
 				$post_id = absint( $_GET['post_id']);				
 			
@@ -676,7 +675,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 																</span>
 															</td>
 															<td>
-															<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo esc_attr( $notification_id ); ?>" data-notification-state="<?php echo esc_html( $state ); ?>">
+															<button type="button" class="btn btn-outline-dark enable-btn" data-notification-id="<?php echo esc_attr( $notification_id ); ?>" data-notification-state="<?php echo esc_attr( $state ); ?>">
 															<?php echo ($state === 'enabled') ? 'Enabled' : 'Disabled'; ?> </button></td>
 															<td> 
 																<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#notifyModal<?php echo esc_attr($index); ?>">
@@ -783,7 +782,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 										if ($selected_page_id == $page->ID) {
 											$selected = 'selected="selected"';
 										}
-										echo '<option value="' . esc_attr($page->ID) . '" ' . esc_html($selected) . '>' . esc_attr($page->post_title) . '</option>';
+										echo '<option value="' . esc_attr($page->ID) . '" ' . esc_attr($selected) . '>' . esc_html($page->post_title) . '</option>';
 									}
 									?>
 								</select>
@@ -972,7 +971,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 									</div>
 									<div class="form-group">
 										<label >Notification Name</label>
-										<input type="text" value="<?php echo esc_html($notificationName); ?>" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
+										<input type="text" value="<?php echo esc_attr($notificationName); ?>" id="notification-name" name="notification_name" class="form-control" placeholder="Enter Notification Title" required>
 									</div>
 									<div class="form-group">
 										<label >State</label>
@@ -992,7 +991,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 											$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','waiting','submitted');
 											foreach ($available_types as $avail_type) {
 												$selected = ($avail_type === $type) ? 'selected' : '';
-												echo '<option value="' . esc_html($avail_type) . '" ' . esc_attr($selected) . '>' . ucfirst(esc_html($avail_type)) . '</option>';
+												echo '<option value="' . esc_attr($avail_type) . '" ' . esc_attr($selected) . '>' . esc_html(ucfirst($avail_type)) . '</option>';
 
 											}
 											?>
@@ -1234,7 +1233,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			} else {
 				$error = 1;
 				$error_mess = "Something went wrong";
-				error_log("post_id not found while preview");
+				error_log("post_id not found while preview"); //phpcs:ignore
 			}
 		
 			if ($error == 1) {
@@ -1475,7 +1474,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				
 				foreach ($options as $value => $label) {
 					$selected = selected($status, $value, false);
-					echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+					echo '<option value="' . esc_attr($value) . '" ' . esc_attr($selected) . '>' . esc_html($label) . '</option>';
 				}
 				echo '</select>';
 

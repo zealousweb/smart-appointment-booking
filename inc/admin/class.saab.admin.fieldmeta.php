@@ -238,8 +238,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                  
                                     // Start a table row (tr) for each record.
                                     echo '<tr>';
-                                    echo '<td>' . esc_attr($i) . '</td>';
-                                    echo '<td>' . esc_attr($post_id) . '</td>';
+                                    echo '<td>' . esc_html($i) . '</td>';
+                                    echo '<td>' . esc_html($post_id) . '</td>';
                                     echo '<td>' . esc_html($post_title) . '</td>';
                                     echo '<td>' . esc_html($booking_status) . '</td>';
                                     echo '<td>' . esc_html($no_of_bookings) . '</td>';
@@ -264,7 +264,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
                             if ($total_pages > 1) {
                                 
-                                    echo '<select id="saabpage-number"  data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.wp_create_nonce('get_paginated_items_nonce').'">';
+                                    echo '<select id="saabpage-number"  data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.esc_attr(wp_create_nonce('get_paginated_items_nonce')).'">';
                                         for ($page = 1; $page <= $total_pages; $page++) {
                                             echo '<option value="' . esc_attr($page) . '"';
                                             if ($page == $current_page) {
@@ -305,7 +305,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 ?>
                 <script type='text/javascript'>
                     
-                    var myScriptData = <?php echo $myScriptData; ?>;
+                    var myScriptData = <?php echo wp_kses_post($myScriptData); ?>;
                     window.onload = function() {
                         
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
@@ -524,7 +524,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
-                                    <?php echo $this->timezone_dropdown($post->ID); ?>
+                                    <?php echo $this->timezone_dropdown($post->ID); //phpcs:ignore?>
                                     
                                 </div> 
                                 <div class="form-group form-general-group">
@@ -563,6 +563,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
                             <?php 
+                            if($generatetimeslots ){
                                 foreach ($generatetimeslots as $index => $timeslot) : ?>                                 
                                     <div class="form-row timeslot-row generatetimeslot">
                                         <div class="form-group col-md-3">
@@ -584,7 +585,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                         </div>
                                     </div>
                                 <?php
-                                endforeach;                            
+                                endforeach;    
+                            }                        
                             ?>
                         </div>
                        
@@ -1197,6 +1199,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $message = '';
             $get_notification_array = get_post_meta($form_id, 'saab_notification_data', true);  
             $notificationFound = false;
+            if($get_notification_array ){
             foreach ($get_notification_array as $notification) {
                 
                 if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
@@ -1239,14 +1242,15 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         $message = esc_html__('Email sent successfully','smart-appointment-booking');
                     } else {
                         $message = esc_html__('Failed to send email','smart-appointment-booking');
-                        error_log('Failed to send email');
+                        error_log('Failed to send email'); //phpcs:ignore
                     }
                 }
                         
             }
+        }
             if ($notificationFound === false) {
                 $message = esc_html__('Notification not found for the given status', 'smart-appointment-booking');
-                error_log('Notification not found for the given status');
+                error_log('Notification not found for the given status'); //phpcs:ignore
             }
             return $message;
         }
@@ -1496,7 +1500,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 ?>
                <div id="formio"></div>
                 <script>
-                    var myScriptData = <?php echo $form_schema; ?>;                                                          
+                    var myScriptData = <?php echo esc_html($form_schema); ?>;                                                          
                     var value = myScriptData;
                     var entryData = <?php echo wp_json_encode($form_data['data']); ?>;
 
@@ -2074,7 +2078,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="Africa">';
             foreach ($timezones_Africa as $value_Africa => $label_africa) {
                 $selected = ($value_Africa == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html( $value_Africa) . '" ' . esc_html( $selected ). '>' . esc_html($label_africa) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Africa) . '" ' . esc_attr( $selected ). '>' . esc_html($label_africa) . '</option>';
 
             }
             $dropdown_timezone .= '</optgroup>';
@@ -2082,47 +2086,47 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="America">';
             foreach ($timezones_America as $value_America => $label_America) {
                 $selected = ($value_America == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_America) . '" ' . esc_html($selected) . '>' . esc_html($label_America) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_America) . '" ' . esc_attr($selected) . '>' . esc_html($label_America) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Antarctica">';
             foreach ($timezones_Antarctica as $value_Antarctica => $label_Antarctica) {
                 $selected = ($value_Antarctica == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Antarctica) . '" ' . esc_html($selected ). '>' . esc_html($label_Antarctica) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Antarctica) . '" ' . esc_attr($selected ). '>' . esc_html($label_Antarctica) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Arctic">';
             $selected = ("Arctic" == $get_timezone_value) ? 'selected="selected"' : '';
-            $dropdown_timezone .= '<option value="Arctic/Longyearbyen"' . esc_html($selected ). '>Longyearbyen</option>';
+            $dropdown_timezone .= '<option value="Arctic/Longyearbyen"' . esc_attr($selected ). '>Longyearbyen</option>';
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Asia">';
             foreach ($timezones_Asia as $value_Asia => $label_Asia) {
                 $selected = ($value_Asia == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Asia) . '" ' . esc_html($selected) . '>' . esc_html($label_Asia) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Asia) . '" ' . esc_attr($selected) . '>' . esc_html($label_Asia) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Atlantic">';
             foreach ($timezones_Atlantic as $value_Atlantic => $label_Atlantic) {
                 $selected = ($value_Atlantic == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Atlantic) . '" ' . esc_html($selected) . '>' . esc_html($label_Atlantic) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Atlantic) . '" ' . esc_attr($selected) . '>' . esc_html($label_Atlantic) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Australia">';
             foreach ($timezones_Australia as $value_Australia => $label_Australia) {
                 $selected = ($value_Australia == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Australia) . '" ' . esc_html($selected). '>' . $label_Australia . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Australia) . '" ' . esc_attr($selected). '>' . $label_Australia . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Europe">';
             foreach ($timezones_Europe as $value_Europe => $label_Europe) {
                 $selected = ($value_Europe == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Australia) . '" ' . $selected . '>' . esc_html($label_Australia) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Australia) . '" ' . esc_attr($selected) . '>' . esc_html($label_Australia) . '</option>';
 
             }
             $dropdown_timezone .= '</optgroup>';
@@ -2130,13 +2134,13 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="Indian">';
             foreach ($timezones_Indian as $value_Indian => $label_Indian) {
                 $selected = ($value_Indian == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Europe) . '" ' . esc_html($selected) . '>' . esc_html($label_Europe) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Europe) . '" ' . esc_attr($selected) . '>' . esc_html($label_Europe) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
             $dropdown_timezone .= '<optgroup label="Pacific">';
             foreach ($timezones_Pacific as $value_Pacific => $label_Pacific) {
                 $selected = ($value_Pacific == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Pacific) . '" ' . esc_html($selected) . '>' . esc_html($label_Pacific) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_Pacific) . '" ' . esc_attr($selected) . '>' . esc_html($label_Pacific) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
@@ -2148,7 +2152,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="UTC">';
             foreach ($timezones_UTC as $value_UTC => $label_UTC) {
                 $selected = ($value_UTC == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_UTC) . '" ' . esc_html($selected) . '>' . esc_html($label_UTC) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr($value_UTC) . '" ' . esc_attr($selected) . '>' . esc_html($label_UTC) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
             $dropdown_timezone .= '</select>';

@@ -179,7 +179,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				wp_send_json_error('Invalid nonce');
 			}
 			
-			$form_id = absint($_POST['fid']);
+			$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;
 			$error = $mail_message = '';		
 
 			$booking_date = isset($_POST['booking_date']) ? sanitize_text_field($_POST['booking_date']) : '';
@@ -614,6 +614,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			$get_notification_array = get_post_meta($form_id, 'saab_notification_data', true);	
 			
 			$notificationFound = false;
+			if($get_notification_array){
 			foreach ($get_notification_array as $notification) {
 				
 				if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
@@ -654,14 +655,15 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						$message = esc_html__('Email sent successfully','smart-appointment-booking');
 					} else {
 						$message = esc_html__('Failed to send email','smart-appointment-booking');
-						error_log('Failed to send email');
+						error_log('Failed to send email'); //phpcs:ignore
 					}
 				}
 			
 			}
+		}
 			if ($notificationFound === false) {
 				$message = esc_html__('Notification not found for the given status', 'smart-appointment-booking');
-				error_log('Notification not found for the given status');
+				error_log('Notification not found for the given status'); //phpcs:ignore
 			}
 			return $message;
 		}
@@ -789,6 +791,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				$selected_date = get_post_meta($post_id, 'saab_selected_date', true);
 				if($enable_advance_setting && $enable_advance_setting){
 					$advancedata = get_post_meta($post_id, 'saab_advancedata', true);
+				if($advancedata){
 					foreach ($advancedata as $index => $data) {
 						
 						if (!in_array($data['advance_date'], $holiday_dates)) {
@@ -797,6 +800,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						
 					}
 				}
+			}
 				if ($check_type) {
 					
 					$weekdays_num = array();
@@ -880,11 +884,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
                         }elseif ($recurring_type == 'certain_weekdays') {
 							
                             $certain_weekdays_array = get_post_meta($post_id, 'saab_recur_weekdays', true);
-							
-                            foreach ($certain_weekdays_array as $wdays) {
-                                $weekdays_num[] = gmdate('N', strtotime($wdays));
-                            }
-							
+							if($certain_weekdays_array){
+								foreach ($certain_weekdays_array as $wdays) {
+									$weekdays_num[] = gmdate('N', strtotime($wdays));
+								}
+					       	}
 							$startDate = strtotime($date);
 							$endDate = strtotime($end_repeats_on_date);
 
@@ -948,10 +952,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					wp_timezone_override_offset(false, $get_timezone);
 				}
 				$current_time = time();
-				
-				foreach ($advancedata as $item) {
-					$advanceDates[] = $item['advance_date'];
-				}
+				if($advancedata){
+					foreach ($advancedata as $item) {
+						$advanceDates[] = $item['advance_date'];
+					}
+			    }
 				//get booking_stops_after duration
 				$timeslot_BookAllow = get_post_meta($post_id, 'saab_timeslot_BookAllow', true);
 				$booking_stops_after = get_post_meta( $post_id, 'saab_booking_stops_after', true );
@@ -1040,7 +1045,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 								} else {
 									$output_timeslot .= '<li class="saab_timeslot" onclick="selectTimeslot(this)" >';
 								}
-								$available_text = esc_html(__('Available seats: ', 'smart-appointment-booking')) . esc_html($available_seats);
+								$available_text = esc_html(__('Available seats: ', 'smart-appointment-booking')) . esc_attr($available_seats);
 
 							}else{
 								if ($current_time >= $start_timestamp) {
@@ -1468,7 +1473,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							$error = false;
 							$TodaysDate = gmdate('F d, Y');	
 							$todaysDate = gmdate('Y-m-d');
-							echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: " . esc_html($timezone) . "</span></h3>";
+							echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: " . esc_attr($timezone) . "</span></h3>";
 							echo "<h4 id='headtodays_date'>" . esc_html($TodaysDate) . "</h4>";								
 							// Get array of available dates 
 							$is_available = $this->saab_processDate($post_id,$todaysDate);							
@@ -1480,17 +1485,20 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									$enable_advance_setting = get_post_meta($post_id, 'saab_enable_advance_setting', true);
 									 
 									$advancedata = get_post_meta($post_id, 'saab_advancedata', true);
-									foreach ($advancedata as $item) {
-										$advanceDates[] = $item['advance_date'];
-									}
+									if($advancedata){
+										foreach ($advancedata as $item) {
+											$advanceDates[] = $item['advance_date'];
+										}
+								    }
 									if(in_array($todaysDate,$advanceDates)){
-									  echo esc_html($this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate));   
+									   echo wp_kses_post($this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate));   
+									
 									}else{
-										echo esc_html($this->saab_front_generate_timeslots($post_id,$lastdateid));                                
+										echo wp_kses_post($this->saab_front_generate_timeslots($post_id,$lastdateid));                                
 									}        
 								}else {
 									$error = true;
-									error_log('Check End date! Selected date exceed the selected end date');
+									error_log('Check End date! Selected date exceed the selected end date'); //phpcs:ignore
 								}
 									
 								?>
@@ -1505,9 +1513,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							?>
 						</div>
 						<div class="saab-cost-label">
-							<span class="saab-cost">Cost: <?php echo esc_html($prefix_label) . ' ' . esc_html($cost); ?></span>
+							<span class="saab-cost">Cost: <?php echo esc_attr($prefix_label) . ' ' . esc_attr($cost); ?></span>
 						</div>
-						<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('booking_form_nonce'); ?>">
+						<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('booking_form_nonce')); ?>">
 						<input type="hidden" id="booking_date" name="booking_date" value="<?php echo esc_attr($lastdateid); ?>" name="booking_date" >
 					</div>
 					<div class="step step2">
@@ -1527,7 +1535,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									if(isset($enable_booking) && !empty($enable_booking)){
 								?>
 									<script type='text/javascript'>								
-										var myScriptData = <?php echo esc_js($fields); ?>;															
+										var myScriptData = <?php echo wp_kses_post($fields); ?>;															
 										var value = myScriptData;
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
@@ -1762,7 +1770,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						<?php
 						$futureYear = gmdate("Y", strtotime("+10 years", strtotime("January 1, $currentYear")));
 						echo '<optgroup label="Current Year">';
-						echo "<option value='" . esc_html($running_year) . "'>" . esc_html($running_year). "</option>";
+						echo "<option value='" . esc_attr($running_year) . "'>" . esc_html($running_year). "</option>";
 						echo '</optgroup>';
 						echo '<optgroup label="Years">';
 						for ($year = $futureYear; $year >= $currentYear; $year--) {
@@ -1770,7 +1778,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							if ($year == $currentYear) {
 								echo " selected";
 							}
-							echo ">" . esc_attr($year) . "</option>";
+							echo ">" . esc_html($year) . "</option>";
 
 						}
 						echo '</optgroup>';
@@ -1807,16 +1815,16 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						for ($i = 1; $i <= 7; $i++) {
 							
 							if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
-								echo "<td id='saabid_" . esc_attr( $post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' data_day='saabid_" . esc_attr($post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' class='saab_cal_day' onclick='getClickedId(this)'>" . esc_attr($date) . "</td>";
+								echo "<td id='saabid_" . esc_attr( $post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' data_day='saabid_" . esc_attr($post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' class='saab_cal_day' onclick='getClickedId(this)'>" . esc_html($date) . "</td>";
 								$date++;
 							}
 							elseif ($dayCounter < $firstDayOfWeek) {
 								$prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);
-								echo "<td class='previous-month'>" . esc_attr($prevDate) . "</td>";
+								echo "<td class='previous-month'>" . esc_html($prevDate) . "</td>";
 							}
 							else {
 								$nextDate = $dayCounter - ($totalDays + $firstDayOfWeek) + 1;
-								echo "<td class='next-month'>" . esc_attr($nextDate) . "</td>";
+								echo "<td class='next-month'>" . esc_html($nextDate) . "</td>";
 							}
 
 							$dayCounter++;
@@ -1860,7 +1868,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				$TodaysDate_F = gmdate('F d, Y', strtotime("$current_year-$current_month-$current_day"));
 				echo "<h3 id='head_avail_time'>Available Time Slots</h3>";
 				echo "<h4 id='headtodays_date'>" . esc_html($TodaysDate_F) . "</h4>";
-				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="' . htmlspecialchars(esc_attr($clickedId), ENT_QUOTES, 'UTF-8') . '" >';
+				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="' . esc_attr($clickedId) . '" >';
 				echo "<ul id='saab-slot-list'>";
                     
 					$is_available = $this->saab_processDate($post_id,$todaysDate);				
@@ -1873,22 +1881,24 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							 
 							// if($enable_advance_setting && !empty($enable_advance_setting)){
 								$advancedata = get_post_meta($post_id, 'saab_advancedata', true);
-								foreach ($advancedata as $item) {
-									$advanceDates[] = $item['advance_date'];
-								}
+								if($advancedata){
+									foreach ($advancedata as $item) {
+										$advanceDates[] = $item['advance_date'];
+									}
+							    }
 								if(in_array($todaysDate,$advanceDates)){
-								   echo esc_html($this->saab_get_advanced_timeslots($post_id,$form_data,$todaysDate));
+								   echo wp_kses_post($this->saab_get_advanced_timeslots($post_id,$form_data,$todaysDate));
 								}else{
-								   echo esc_html($this->saab_front_generate_timeslots($post_id,$form_data));                                      
+								   echo wp_kses_post($this->saab_front_generate_timeslots($post_id,$form_data));                                      
 								}
 							// }         
 						}else {
 							$error = true;
-							error_log('Check End date! Selected date exceed the selected end date');
+							error_log('Check End date! Selected date exceed the selected end date'); //phpcs:ignore
 						}
                     } else {
 						$error = true;
-                        error_log('Array does not exist.');
+                        error_log('Array does not exist.'); //phpcs:ignore
                     }	
 				echo "</ul>";
 				if($error === true){
@@ -1900,7 +1910,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				wp_die();
 			}else{
 				$error = true;
-                error_log('Noonce is not set.');
+                error_log('Noonce is not set.'); //phpcs:ignore
 				wp_die();
 			}
 				
