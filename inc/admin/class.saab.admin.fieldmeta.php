@@ -1426,7 +1426,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         function saab_render_meta_box_shortcode($post){
             $post_id = $post->ID;    
             if ($post_id && get_post_status($post_id) === 'publish') {                  
-                echo "<p class='edit_preview_shortcode'>[booking_form form_id='" . esc_attr($post_id) . "']</p>";       
+                echo "<p class='edit_preview_shortcode'>[saab_booking_form form_id='" . esc_attr($post_id) . "']</p>";       
             }else{
                 echo "<p class='edit_preview_shortcode'>Publish Post to generate Shortcode. </p>";
             }           
