@@ -14,29 +14,29 @@ jQuery(document).ready(function($) {
 });
 
 function getClickedId(element) {
-var data_day = element.getAttribute("data_day");
-var getid = element.getAttribute("id");
-var clickedId = element.getAttribute("id");  
-jQuery('table td').removeClass('calselected_date');
-jQuery('#'+clickedId).addClass('calselected_date');
-  // Perform any further operations with the clicked ID as needed
-  jQuery.ajax({
-      url: myAjax.ajaxurl,
-      type : 'post',
-      data: { 
-      action: "action_display_available_timeslots",
-      form_data: data_day,
-      clickedId:clickedId
-      },
-      success: function (data) {
-         
-          jQuery('#zfb-timeslots-table-container').html(data);
-          jQuery('#booking_date').val(getid);
-          checkNextButtonState();
-      }
-      
-  });
-}
+  var data_day = element.getAttribute("data_day");
+  var getid = element.getAttribute("id");
+  var clickedId = element.getAttribute("id");  
+  jQuery('table td').removeClass('calselected_date');
+  jQuery('#'+clickedId).addClass('calselected_date');
+    // Perform any further operations with the clicked ID as needed
+    jQuery.ajax({
+        url: myAjax.ajaxurl,
+        type : 'post',
+        data: { 
+        action: "saab_action_display_available_timeslots",
+        form_data: data_day,
+        clickedId:clickedId
+        },
+        success: function (data) {
+           
+            jQuery('#saab-timeslots-table-container').html(data);
+            jQuery('#booking_date').val(getid);
+            checkNextButtonState();
+        }
+        
+    });
+  }
 function getClicked_next(element) {
 
   var currentMonth = document.getElementById('sab_month').value;
@@ -68,7 +68,7 @@ function reloadCalendar(currentMonth, currentYear) {
     url: myAjax.ajaxurl,
     type: 'post',
     data: {
-      action: "action_reload_calender",
+      action: "saab_action_reload_calender",
       currentMonth: currentMonth,
       currentYear: currentYear,
       // lastdateid:lastdateid,
@@ -76,7 +76,7 @@ function reloadCalendar(currentMonth, currentYear) {
     },
     success: function(data) {
       jQuery('#month-navigationid').html(data);
-      jQuery('#zfb-timeslots-table-container').html('');
+      jQuery('#saab-timeslots-table-container').html('');
      
     }
   });
@@ -100,36 +100,45 @@ function getMonthName(month) {
   return monthNames[month];
 }
 function selectTimeslot(element) {
-const selectedElements = $('.zfb_timeslot.selected');
-var message = $('#no-timeslots-message');
-message.hide();
-selectedElements.removeClass('selected');
-$(element).addClass('selected');
-var isEnabled = true; 
-$('.zfb-selected-capacity').prop('disabled', isEnabled);
-$('.zfb-selected-capacity').show();
-var seats = $(element).find('.zfb-tooltip-text').attr('data-seats');
-var waitingseats = $(element).find('.zfb-waiting').attr('data-seats');
-var datawaiting = $(element).find('.zfb-waiting').attr('data-waiting');
-if(seats == 0 || seats === 'not_available' ){
-  if(datawaiting == 0){
-    $('.zfb-selected-capacity').hide();
-    var isEnabled = true; 
-    $('.zfb-selected-capacity').prop('disabled', isEnabled);
-    message.show();
-    $('.zfb-selected-capacity').attr('max', seats);
-  }else{
-    var isEnabled = true; 
-    $('.zfb-selected-capacity').prop('disabled', !isEnabled); 
-    $('.zfb-selected-capacity').attr('max', 1);
-    
-  }   
-}else{    
-  var isEnabled = false;
-  $('.zfb-selected-capacity').prop('disabled', isEnabled);
-  $(element).find('.zfb-selected-capacity').show();
-  $('.zfb-selected-capacity').attr('max', seats);
-}
+  const selectedElements = $('.saab_timeslot.selected');
+  var message = $('#no-timeslots-message');
+  message.hide();
+  selectedElements.removeClass('selected');
+  $(element).addClass('selected');
+  var isEnabled = true; 
+  $('.saab-selected-capacity').prop('disabled', isEnabled);
+  $('.saab-selected-capacity').show();
+  var seats = $(element).find('.saab-tooltip-text').attr('data-seats');
+  var waitingseats = $(element).find('.saab-waiting').attr('data-seats');
+  var datawaiting = $(element).find('.saab-waiting').attr('data-waiting');
+   // // Find the element with the id "calender_reload"
+  var saabStripeElement = document.getElementById('calender_reload');
+
+  // Check if the element exists
+  if (saabStripeElement) {
+      // Use jQuery to set the "data-seats" attribute
+      $(saabStripeElement).attr('data-seats', seats);
+  }
+  if(seats == 0 || seats === 'not_available' ){
+    if(datawaiting == 0){
+      
+      $('.saab-selected-capacity').hide();
+      var isEnabled = true; 
+      $('.saab-selected-capacity').prop('disabled', isEnabled);
+      message.show();
+      $('.saab-selected-capacity').attr('max', seats);
+    }else{
+      var isEnabled = true; 
+      $('.saab-selected-capacity').prop('disabled', !isEnabled); 
+      $('.saab-selected-capacity').attr('max', 1);
+      
+    }   
+  }else{    
+    var isEnabled = false;
+    $('.saab-selected-capacity').prop('disabled', isEnabled);
+    $(element).find('.saab-selected-capacity').show();
+    $('.saab-selected-capacity').attr('max', seats);
+  }
 
 }
 
@@ -189,7 +198,7 @@ $('.booking-cancellation-buttons .btn-yes').on('click', function() {
             url: myAjax.ajaxurl,
             type: 'post',
             data: {
-                action: 'cancel_booking_shortcode',
+                action: 'saab_cancel_booking_shortcode',
                 bookingId: bookingId
             },
             success: function(response) {
@@ -211,12 +220,12 @@ $('.booking-cancellation-buttons .btn-yes').on('click', function() {
 });
 });
 function checkNextButtonState() {
-  var inputValue = parseInt($('.zfb-selected-capacity').val());
-  var maxValue = parseInt($('.zfb-selected-capacity').attr('max'));
-  var minValue = parseInt($('.zfb-selected-capacity').attr('min'));
+  var inputValue = parseInt($('.saab-selected-capacity').val());
+  var maxValue = parseInt($('.saab-selected-capacity').attr('max'));
+  var minValue = parseInt($('.saab-selected-capacity').attr('min'));
   var isInputValid = inputValue >= minValue && inputValue <= maxValue;
   //console.log(isInputValid);
-  var isSelected = $('#zfb-slot-list li').hasClass('selected');
+  var isSelected = $('#saab-slot-list li').hasClass('selected');
   var isButtonDisabled = !isInputValid || !isSelected;
 
   $('#nextButton').prop('disabled', isButtonDisabled);
@@ -227,16 +236,26 @@ jQuery(document).ready(function($) {
   $(window).on('load', function() {
     checkNextButtonState();
   });
-  $('.zfb-selected-capacity').change(function() {
+  $('.saab-selected-capacity').change(function() {
     checkNextButtonState();
   });
-  $('.zfb-selected-capacity').on('input', function() {
-    console.log("test");
+  $('.saab-selected-capacity').on('input', function() {
+   
+    var value = $(this).val();
+    // Remove any non-numeric characters except digits
+    value = value.replace(/[^\d]/g, '');
+    if (value === '') {
+      value = '1'; // Set to 1 if input is empty
+    }
+    $(this).val(value);     
     checkNextButtonState();
+    
   });
 
-  $(document).on('click', '#zfb-slot-list li', function() {  
+  $(document).on('click', '#saab-slot-list li', function() {  
     var isSelected = $(this).hasClass('selected');     
     $('#nextButton').prop('disabled', !isSelected);
   }); 
 });
+
+

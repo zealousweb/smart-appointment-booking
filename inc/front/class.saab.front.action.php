@@ -45,6 +45,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 
 			add_action('saab_get_available_seats_per_timeslot', array( $this, 'saab_get_available_seats_per_timeslot' ) , 10, 4);
 			
+			
 		}
 
 		/*
@@ -135,10 +136,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			$end_time = $time_parts[1];   // "08:00 PM"
 		
 			$get_timezone = get_post_meta($post_id, 'saab_timezone', true);
-			// date_default_timezone_set($get_timezone);
-			if ($get_timezone) {
-				wp_timezone_override_offset(false, $get_timezone);
-			}
+			date_default_timezone_set($get_timezone); //phpcs:ignore
 			$start_timestamp = strtotime($start_time);			
 			$end_timestamp = strtotime($end_time);
 		
@@ -146,7 +144,6 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				// Given date is greater than today's date
 				$isbooking_open = true;
 			} elseif ($current_time >= $start_timestamp) {
-			
 				// The current time is greater than or equal to the start time
 				// Calculate the end time with booking stops after duration
 				$this_start_time = $start_timestamp + $booking_stops_after_duration_seconds;
@@ -156,12 +153,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				} else {
 					$isbooking_open = false;
 				}
-			} else {
-				
+			} else {				
 				// None of the above conditions met, booking is closed
 				$isbooking_open = true;
 			}
-		
+
 			return $isbooking_open;
 		}
 		/**
@@ -171,294 +167,331 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * It may perform tasks like validating the input, updating the database, and sending notifications.
 		 *
 		 */	
-		function saab_booking_form_submission() {
+		
+		// function sanitize_value($value) {
+		// 	if (is_email($value)) {
+		// 		return sanitize_email($value);
+		// 	} elseif (is_numeric($value)) {
+		// 		return filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+		// 	} elseif (is_string($value)) {
+		// 		return sanitize_textarea_field($value);
+		// 	} else {
+		// 		return sanitize_text_field($value);
+		// 	}
+		// }
+		
+		// function saab_booking_form_submission() {
 
-			$nonce = isset($_POST['nonce']) ? sanitize_key(wp_unslash ($_POST['nonce'])) : '';
+		// 	// $nonce = isset($_POST['nonce']) ? sanitize_key(wp_unslash ($_POST['nonce'])) : '';
 
-			if (empty($nonce) || !check_ajax_referer('booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error('Invalid nonce');
-			}
+		// 	// if (empty($nonce) || !check_ajax_referer('booking_form_nonce', 'nonce', false)) {
+		// 	// 	wp_send_json_error('Invalid nonce');
+		// 	// }
+		// 	if( ! wp_verify_nonce( 'booking_form_nonce' ) ){}
+		// 	$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;	
+		// 	$error = $mail_message = '';		
+		// 	$booking_date = isset($_POST['booking_date']) ? sanitize_text_field($_POST['booking_date']) : '';
+		// 	$explode_booking_date = explode('-',$booking_date);
+		// 	$form_id = $explode_booking_date[1];
+		// 	$format_bookingdate = $explode_booking_date[4] . "-" . $explode_booking_date[2] . "-" . $explode_booking_date[3];
+		// 	$converted_bookingdate = gmdate('Y-m-d', strtotime($format_bookingdate));
+		// 	$timeslot = isset($_POST['timeslot']) ? sanitize_text_field($_POST['timeslot']) : '';
+		// 	$slotcapacity = isset($_POST['slotcapacity']) ? absint($_POST['slotcapacity']) : 0;			
+		// 	$bookedseats = isset($_POST['bookedseats']) ? absint($_POST['bookedseats']) : 0;
 			
-			$form_id = absint($_POST['fid']);
-			$error = $mail_message = '';		
+		// 	$FormTitle = get_the_title($form_id);
+		// 	//$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
+		// 	$form_data = ( isset( $_POST['form_data'] ) ) ? $_POST['form_data'] : '';
+		// 	//print_r($form_data);die();
+		// 	if (is_array($form_data)) {
 
-			$booking_date = isset($_POST['booking_date']) ? sanitize_text_field($_POST['booking_date']) : '';
-			$explode_booking_date = explode('-',$booking_date);
-			$format_bookingdate = $explode_booking_date[4] . "-" . $explode_booking_date[2] . "-" . $explode_booking_date[3];
-			$converted_bookingdate = gmdate('Y-m-d', strtotime($format_bookingdate));
-			$timeslot = isset($_POST['timeslot']) ? sanitize_text_field($_POST['timeslot']) : '';
-			$slotcapacity = isset($_POST['slotcapacity']) ? absint($_POST['slotcapacity']) : 0;			
-			$bookedseats = isset($_POST['bookedseats']) ? absint($_POST['bookedseats']) : 0;
-			
-			$FormTitle = get_the_title($form_id);
-			$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
-
-			if (is_array($form_data)) {
-
-				foreach ($form_data as $field_name => &$field_value) {
+		// 		foreach ($form_data as $field_name => &$field_value) {
 					
-					if (is_array($field_value)) {
-						foreach ($field_value as &$value) {
+		// 			if (is_array($field_value)) {
+		// 				foreach ($field_value as &$value) {
 							
-							if (is_email($value)) {
-								$value = sanitize_email($value);
-							} elseif (is_numeric($value)) {
-								$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-							} elseif (is_string($value)) {
+		// 					if (is_email($value)) {
+		// 						$value = sanitize_email($value);
+		// 					} elseif (is_numeric($value)) {
+		// 						$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+		// 					} elseif (is_string($value)) {
 								
-								$value = sanitize_textarea_field($value);
-							} else {
+		// 						$value = sanitize_textarea_field($value);
+		// 					} else {
 							
-								$value = sanitize_text_field($value);
-							}
-						}
-					} else {
+		// 						$value = sanitize_text_field($value);
+		// 					}
+		// 				}
+		// 			} else {
 						
-						if (is_email($field_value)) {
-							$field_value = sanitize_email($field_value);
-						} elseif (is_numeric($field_value)) {
-							$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
-						} elseif (is_string($field_value)) {							
-							$field_value = sanitize_textarea_field($field_value);
-						} else {							
-							$field_value = sanitize_text_field($field_value);
-						}
-					}
-				}
-			}
+		// 				if (is_email($field_value)) {
+		// 					$field_value = sanitize_email($field_value);
+		// 				} elseif (is_numeric($field_value)) {
+		// 					$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
+		// 				} elseif (is_string($field_value)) {							
+		// 					$field_value = sanitize_textarea_field($field_value);
+		// 				} else {							
+		// 					$field_value = sanitize_text_field($field_value);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
 
-			$enable_auto_approve = get_post_meta($form_id, 'saab_enable_auto_approve', true);
-			$check_waiting = get_post_meta($form_id, 'saab_waiting_list', true);
-			$cost = get_post_meta($form_id, 'saab_cost', true);
-			$appointment_type = get_post_meta($form_id, 'saab_appointment_type', true);
-			$label_symbol = get_post_meta($form_id, 'saab_label_symbol', true);
-			$seats_per_timeslot =  get_post_meta($form_id, 'saab_slotcapacity',true);
+		// 	$enable_auto_approve = get_post_meta($form_id, 'saab_enable_auto_approve', true);
+		// 	$check_waiting = get_post_meta($form_id, 'saab_waiting_list', true);
+		// 	$cost = get_post_meta($form_id, 'saab_cost', true);
+		// 	$appointment_type = get_post_meta($form_id, 'saab_appointment_type', true);
+		// 	$label_symbol = get_post_meta($form_id, 'saab_label_symbol', true);
+		// 	$seats_per_timeslot =  get_post_meta($form_id, 'saab_slotcapacity',true);
 
-			$bookmap_email = get_post_meta($form_id, 'saab_map_email', true); 
-			if (isset($form_data) && !empty($bookmap_email)) {
-				if (in_array($bookmap_email, array_keys($form_data['data']))) {
-					$user_email = $form_data['data'][$bookmap_email];
+		// 	$bookmap_email = get_post_meta($form_id, 'saab_map_email', true); 
 			
-					// Validate $user_email
-					if (empty($user_email)) {
-						wp_send_json_error(array(
-							'message' => esc_html__('Email field is empty', 'smart-appointment-booking'),
-							'error' => $error,
-						));
-						wp_die();
-					} elseif (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-						wp_send_json_error(array(
-							'message' => esc_html__('Invalid email address', 'smart-appointment-booking'),
-							'error' => $error,
-						));
-						wp_die();
-					}
-				}
-			} else {
-				wp_send_json_error(array(
-					'message' => esc_html__('Form Data not found or Error in configuring Email Field', 'smart-appointment-booking'),
-					'error' => $error,
-				));
-				wp_die();
-			}
-			$check_isbooking_open = $this->saab_isbooking_open($form_id,$timeslot,$booking_date);
-			if($check_isbooking_open === false){
-				$error = true;
-				wp_send_json_error(array(
-					'message' => esc_html__('The booking window has closed.','smart-appointment-booking'),
-					'error' => $error,
-				));
-				wp_die();
-			}
-			$waiting_list = 'false';
-			if ($bookedseats > $slotcapacity ) {
-				if ($check_waiting) {
-					$register_booking = 'true';
-					$waiting_list = 'true';
-				} else {
-					$register_booking = 'false';
-					$error = esc_html__('No available seats','smart-appointment-booking');
-				}
-			}else{
-				$register_booking = 'true';
-			}
+		// 	if (isset($form_data) && !empty($bookmap_email)) {
+		// 		if (in_array($bookmap_email, array_keys($form_data['data']))) {
+		// 			$user_email = $form_data['data'][$bookmap_email];
+			
+		// 			// Validate $user_email
+		// 			if (empty($user_email)) {
+		// 				wp_send_json_error(array(
+		// 					'message' => esc_html__('Email field is empty', 'smart-appointment-booking'),
+		// 					'error' => $error,
+		// 				));
+		// 				wp_die();
+		// 			} elseif (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+		// 				wp_send_json_error(array(
+		// 					'message' => esc_html__('Invalid email address', 'smart-appointment-booking'),
+		// 					'error' => $error,
+		// 				));
+		// 				wp_die();
+		// 			}
+		// 		}
+		// 	} else {
+		// 		wp_send_json_error(array(
+		// 			'message' => esc_html__('Form Data not found or Error in configuring Email Field', 'smart-appointment-booking'),
+		// 			'error' => $error,
+		// 		));
+		// 		wp_die();
+		// 	}
+		// 	$check_isbooking_open = $this->saab_isbooking_open($form_id,$timeslot,$booking_date);
+		// 	if($check_isbooking_open === false){
+		// 		$error = true;
+		// 		wp_send_json_error(array(
+		// 			'message' => esc_html__('The booking window has closed.','smart-appointment-booking'),
+		// 			'error' => $error,
+		// 		));
+		// 		wp_die();
+		// 	}
+		// 	$waiting_list = 'false';
+		// 	if ($bookedseats > $slotcapacity ) {
+		// 		if ($check_waiting) {
+		// 			$register_booking = 'true';
+		// 			$waiting_list = 'true';
+		// 		} else {
+		// 			$register_booking = 'false';
+		// 			$error = esc_html__('No available seats','smart-appointment-booking');
+		// 		}
+		// 	}else{
+		// 		$register_booking = 'true';
+		// 	}
 		
-			if ($register_booking === 'true') {
+		// 	if ($register_booking === 'true') {
 				
 				
-				$new_post = array(
-					'post_title'   => 'entry#',
-					'post_type'    => 'manage_entries',
-					'post_status'  => 'publish'
-				);
+		// 		$new_post = array(
+		// 			'post_title'   => 'entry#',
+		// 			'post_type'    => 'manage_entries',
+		// 			'post_status'  => 'publish'
+		// 		);
 		
-				$created_post_id = wp_insert_post($new_post);			
+		// 		$created_post_id = wp_insert_post($new_post);			
 				
-				// Update the post title with the created post ID
-				$new_post_title = 'entry_#' . $created_post_id;
+		// 		// Update the post title with the created post ID
+		// 		$new_post_title = 'entry_#' . $created_post_id;
 
-				// Update the post
-				$update_post_args = array(
-					'ID'         => $created_post_id,
-					'post_title' => $new_post_title
-				);
+		// 		// Update the post
+		// 		$update_post_args = array(
+		// 			'ID'         => $created_post_id,
+		// 			'post_title' => $new_post_title
+		// 		);
 
-				wp_update_post($update_post_args);
+		// 		wp_update_post($update_post_args);
 
-				// Update the post slug (permalink)
-				$slug = sanitize_title($new_post_title);
-				wp_update_post(array('ID' => $created_post_id, 'post_name' => $slug));
+		// 		// Update the post slug (permalink)
+		// 		$slug = sanitize_title($new_post_title);
+		// 		wp_update_post(array('ID' => $created_post_id, 'post_name' => $slug));
 
-				// Update the post's permalink (optional)
-				$new_post_permalink = get_permalink($created_post_id);
-				update_post_meta($created_post_id, '_wp_old_slug', $new_post_permalink);
+		// 		// Update the post's permalink (optional)
+		// 		$new_post_permalink = get_permalink($created_post_id);
+		// 		update_post_meta($created_post_id, '_wp_old_slug', $new_post_permalink);
 
-				update_post_meta($created_post_id, 'saab_submission_data', $form_data);
-				update_post_meta($created_post_id, 'saab_form_id', $form_id);		
-				update_post_meta($created_post_id, 'saab_timeslot', $timeslot);
-				update_post_meta($created_post_id, 'saab_booking_date', $booking_date);
-				update_post_meta($created_post_id, 'saab_slotcapacity', $bookedseats);
-				update_post_meta($created_post_id, 'saab_cost', $cost);
-				update_post_meta($created_post_id, 'saab_label_symbol', $label_symbol);
-				update_post_meta($created_post_id, 'saab_appointment_type', $appointment_type);
+		// 		update_post_meta($created_post_id, 'saab_submission_data', $form_data);
+		// 		update_post_meta($created_post_id, 'saab_form_id', $form_id);		
+		// 		update_post_meta($created_post_id, 'saab_timeslot', $timeslot);
+		// 		update_post_meta($created_post_id, 'saab_booking_date', $booking_date);
+		// 		update_post_meta($created_post_id, 'saab_slotcapacity', $bookedseats);
+		// 		update_post_meta($created_post_id, 'saab_cost', $cost);
+		// 		update_post_meta($created_post_id, 'saab_label_symbol', $label_symbol);
+		// 		update_post_meta($created_post_id, 'saab_appointment_type', $appointment_type);
 
-				$submission_key_val = array();				
-				foreach($form_data['data'] as $form_key => $form_value){
-                    if($form_key !== 'submit'){
-						$submission_key_val[$form_key] = esc_attr($form_value);
-                    }
-                }
-				$explode_timeslot = explode('-',$timeslot);
+		// 		$submission_key_val = array();				
+		// 		foreach($form_data['data'] as $form_key => $form_value){
+        //             if($form_key !== 'submit'){
+		// 				$submission_key_val[$form_key] = esc_attr($form_value);
+        //             }
+        //         }
+		// 		$explode_timeslot = explode('-',$timeslot);
 
-				$get_user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
+		// 		$get_user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
 				
-				$getfirst_name = isset($get_user_mapping['first_name']) ? sanitize_text_field($get_user_mapping['first_name']) : '';
-				if ($getfirst_name) {
-					$first_name = $form_data['data'][$getfirst_name];					
-				}
-				$getlast_name = isset($get_user_mapping['last_name']) ? sanitize_text_field($get_user_mapping['last_name']) : '';
-				if ($getlast_name) {
-					$last_name =  $form_data['data'][$getlast_name];					
-				}
-				$getemail = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
-				if ($getemail) {
-					$emailTo =  $form_data['data'][$getemail];					
-				}
-				$getservice = isset($get_user_mapping['service']) ? sanitize_text_field($get_user_mapping['service']) : '';
-				if ($getservice) {
-					$service =  ucfirst($form_data['data'][$getservice]);					
-				}
+		// 		$getfirst_name = isset($get_user_mapping['first_name']) ? sanitize_text_field($get_user_mapping['first_name']) : '';
+		// 		if ($getfirst_name) {
+		// 			$first_name = $form_data['data'][$getfirst_name];					
+		// 		}
+		// 		$getlast_name = isset($get_user_mapping['last_name']) ? sanitize_text_field($get_user_mapping['last_name']) : '';
+		// 		if ($getlast_name) {
+		// 			$last_name =  $form_data['data'][$getlast_name];					
+		// 		}
+		// 		$getemail = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
+		// 		if ($getemail) {
+		// 			$emailTo =  $form_data['data'][$getemail];					
+		// 		}
+		// 		$getservice = isset($get_user_mapping['service']) ? sanitize_text_field($get_user_mapping['service']) : '';
+		// 		if ($getservice) {
+		// 			$service =  ucfirst($form_data['data'][$getservice]);					
+		// 		}
 			
-				// $encrypted_booking_id = wp_base64_encode($created_post_id);
-				$encrypted_booking_id = $created_post_id;
-				$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
-				$ajax_nonce = wp_create_nonce('my_ajax_nonce');
-				if($user_mapping){
+		// 		// $encrypted_booking_id = wp_base64_encode($created_post_id);
+		// 		$encrypted_booking_id = $created_post_id;
+		// 		$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
+		// 		$ajax_nonce = wp_create_nonce('my_ajax_nonce');
+		// 		if($user_mapping){
 
-					$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
-					$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel&security='.$ajax_nonce;
-				}else{
-					$encoded_booking_id = urlencode($encrypted_booking_id);
-					$cancelbooking_url = home_url('/?booking_id=' . $encoded_booking_id . '&status=cancel&security='.$ajax_nonce);
-				}
+		// 			$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
+		// 			$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel&security='.$ajax_nonce;
+		// 		}else{
+		// 			$encoded_booking_id = urlencode($encrypted_booking_id);
+		// 			$cancelbooking_url = home_url('/?booking_id=' . $encoded_booking_id . '&status=cancel&security='.$ajax_nonce);
+		// 		}
 
-				$prefixlabel = get_post_meta( $form_id, 'saab_label_symbol', true );
-				$cost = get_post_meta( $form_id, 'saab_cost', true );
-				$BookingDate = get_the_date( 'M d,Y', $form_id );
+		// 		$prefixlabel = get_post_meta( $form_id, 'saab_label_symbol', true );
+		// 		$cost = get_post_meta( $form_id, 'saab_cost', true );
+		// 		$BookingDate = get_the_date( 'M d,Y', $form_id );
 
-				$other_label_val = array(
-					'FormId' => $form_id,
-					'BookingId' => $created_post_id,
-					'FormTitle' => $FormTitle,
-					'To' => $emailTo,
-					'FirstName' => $first_name,
-					'LastName' => $last_name,
-					'Timeslot' => $timeslot,
-					'BookingDate' => $BookingDate,
-					'BookedSeats' => $bookedseats,
-					'BookedDate' =>$converted_bookingdate,					
-					'Service' => $service,
-					'prefixlabel' => $prefixlabel,
-					'cost' => $cost,					
-					'slotcapacity' => $slotcapacity,
-					'form_data' => $form_data,
-					'seats_per_timeslot' => $seats_per_timeslot,
-					'StartTime' => $explode_timeslot[0],
-					'EndTime' => $explode_timeslot[1],
-					'CancelBooking' => $cancelbooking_url,
-				);
+		// 		$other_label_val = array(
+		// 			'FormId' => $form_id,
+		// 			'BookingId' => $created_post_id,
+		// 			'FormTitle' => $FormTitle,
+		// 			'To' => $emailTo,
+		// 			'FirstName' => $first_name,
+		// 			'LastName' => $last_name,
+		// 			'Timeslot' => $timeslot,
+		// 			'BookingDate' => $BookingDate,
+		// 			'BookedSeats' => $bookedseats,
+		// 			'BookedDate' =>$converted_bookingdate,					
+		// 			'Service' => $service,
+		// 			'prefixlabel' => $prefixlabel,
+		// 			'cost' => $cost,					
+		// 			'slotcapacity' => $slotcapacity,
+		// 			'form_data' => $form_data,
+		// 			'seats_per_timeslot' => $seats_per_timeslot,
+		// 			'StartTime' => $explode_timeslot[0],
+		// 			'EndTime' => $explode_timeslot[1],
+		// 			'CancelBooking' => $cancelbooking_url,
+		// 		);
 
-				$listform_label_val = array_merge($submission_key_val, $other_label_val);
-				if ($enable_auto_approve) {
-					if ($waiting_list === 'true') {
-						$mail_message = '';
-						$status = 'waiting';
-						$listform_label_val['Status'] = $status;
-						$mail_message = $this->saab_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
-						update_post_meta($created_post_id, 'saab_entry_status', 'waiting');
+		// 		$listform_label_val = array_merge($submission_key_val, $other_label_val);
+		// 		if ($enable_auto_approve) {
+		// 			if ($waiting_list === 'true') {
+		// 				$mail_message = '';
+		// 				$status = 'waiting';
+		// 				$listform_label_val['Status'] = $status;
+		// 				$mail_message = $this->saab_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
+		// 				update_post_meta($created_post_id, 'saab_entry_status', 'waiting');
 
-					} else {
-						$mail_message = '';
-						$status = 'booked';
-						$listform_label_val['Status'] = $status;
-						$mail_message = $this->saab_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
-						update_post_meta($created_post_id, 'saab_entry_status', 'booked');
-					}
-				} else {
-					$mail_message = '';
-					$status = 'pending';
-					$listform_label_val['Status'] = $status;
-					$mail_message = $this->saab_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
-					update_post_meta($created_post_id, 'saab_entry_status', 'pending');
+		// 			} else {
+		// 				$mail_message = '';
+		// 				$status = 'booked';
+		// 				$listform_label_val['Status'] = $status;
+		// 				$mail_message = $this->saab_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
+		// 				update_post_meta($created_post_id, 'saab_entry_status', 'booked');
+		// 			}
+		// 		} else {
+		// 			$mail_message = '';
+		// 			$status = 'pending';
+		// 			$listform_label_val['Status'] = $status;
+		// 			$mail_message = $this->saab_send_notification( $status, $form_id, $created_post_id, $listform_label_val);
+		// 			update_post_meta($created_post_id, 'saab_entry_status', 'pending');
 
-				}
-				$confirmation = get_post_meta($form_id, 'saab_confirmation', true);
-				$success_message = get_post_meta($form_id, 'saab_redirect_text', true);
-				$formatted_message = wpautop($success_message);
-				$redirect_url = '';
+		// 		}
+		// 		$confirmation = get_post_meta($form_id, 'saab_confirmation', true);
+		// 		$success_message = get_post_meta($form_id, 'saab_redirect_text', true);
+		// 		$formatted_message = wpautop($success_message);
+		// 		$redirect_url = '';
 				
-				if ($confirmation == 'redirect_text') {
-					$wp_editor_value = get_post_meta($form_id, 'saab_redirect_text', true);
-				} elseif ($confirmation == 'redirect_page') {
-					$redirect_page = get_post_meta($form_id, 'saab_redirect_page', true);
-					$redirect_url = get_permalink($redirect_page);
-				} elseif ($confirmation == 'redirect_to') {
-					$redirect_url = get_post_meta($form_id, 'saab_redirect_to', true);
-				}
+		// 		if ($confirmation == 'redirect_text') {
+		// 			$wp_editor_value = get_post_meta($form_id, 'saab_redirect_text', true);
+		// 		} elseif ($confirmation == 'redirect_page') {
+		// 			$redirect_page = get_post_meta($form_id, 'saab_redirect_page', true);
+		// 			$redirect_url = get_permalink($redirect_page);
+		// 		} elseif ($confirmation == 'redirect_to') {
+		// 			$redirect_url = get_post_meta($form_id, 'saab_redirect_to', true);
+		// 		}
 				
-				// Send success response
-				wp_send_json_success(array(					
-					'message' => 'Sucessfully Submitted',
-					'redirect_page' => $redirect_url,
-					'wp_editor_value' => $formatted_message,
-					'redirect_url' => $redirect_url,
-					'confirmation' => $confirmation,
-					'mail_sent' => $mail_message
-				));
-			}else{
-				$error = true;
+		// 		// Send success response
+		// 		wp_send_json_success(array(					
+		// 			'message' => 'Sucessfully Submitted',
+		// 			'redirect_page' => $redirect_url,
+		// 			'wp_editor_value' => $formatted_message,
+		// 			'redirect_url' => $redirect_url,
+		// 			'confirmation' => $confirmation,
+		// 			'mail_sent' => $mail_message
+		// 		));
+		// 	}else{
+		// 		$error = true;
 				
-				wp_send_json_error(array(
-					'message' => esc_html__('Something went wrong, Please try again later','smart-appointment-booking'),
-					'error' => $error,
-				));
-			}
+		// 		wp_send_json_error(array(
+		// 			'message' => esc_html__('Something went wrong, Please try again later','smart-appointment-booking'),
+		// 			'error' => $error,
+		// 		));
+		// 	}
 			
-			wp_die();
-		}
+		// 	wp_die();
+		// }
+		
 		/**
 		 * Saves an individual form submission and creates a manageable submission record under the 'manage-entries' post type.
 		 *
 		 * This function handles the submission of form data and creates a record that can be managed within the 'manage-entries' post type.
 		 *
 		 */
-		function saab_save_form_submission() {
-			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['nonce'] ) ) , 'my_ajax_nonce' ) ){
-				wp_send_json_error( 'Invalid nonce' );
-			}
+		function saab_booking_form_submission() {
+// 			ini_set('display_startup_errors', 1);
+// ini_set('display_errors', 1);
+// error_reporting(-1);
 
+			$nonce = isset($_POST['nonce']) ? sanitize_key(wp_unslash ($_POST['nonce'])) : '';
+
+			if (empty($nonce) || !check_ajax_referer('booking_form_nonce', 'nonce', false)) {
+				wp_send_json_error('Invalid nonce');
+			}
+			$booking_date = ( isset( $_POST['booking_date'] ) ) ? $_POST['booking_date'] : '';
+			$explode_booking_date = explode('_',$booking_date);
+			$form_id = $explode_booking_date[1];
+			$format_bookingdate = $explode_booking_date[4] . "-" . $explode_booking_date[2] . "-" . $explode_booking_date[3];
+			$converted_bookingdate = date('Y-m-d', strtotime($format_bookingdate)); 
+			$timeslot = ( isset( $_POST['timeslot'] ) ) ? $_POST['timeslot'] : '';
+	
+			//total availableseats
+			$slotcapacity = ( isset( $_POST['slotcapacity'] ) ) ? $_POST['slotcapacity'] : '';
+			//quantity
+			$bookedseats = ( isset( $_POST['bookedseats'] ) )? $_POST['bookedseats'] : '' ;
 			$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;
-			$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
+			$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data']:'';
+			// echo 'hello';
+			// print_r( $form_data );
+			// echo '</pre>';
+			// exit();
+			
 			if (is_array($form_data)) {
 				foreach ($form_data as $field_name => $field_value) {
 					// Check if the field value is an array (e.g., for checkboxes or multi-select)
@@ -473,7 +506,39 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					}
 				}
 			}
-			
+			if (is_array($form_data)) {
+
+						foreach ($form_data as $field_name => &$field_value) {
+							
+							if (is_array($field_value)) {
+								foreach ($field_value as &$value) {
+									
+									if (is_email($value)) {
+										$value = sanitize_email($value);
+									} elseif (is_numeric($value)) {
+										$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+									} elseif (is_string($value)) {
+										
+										$value = sanitize_textarea_field($value);
+									} else {
+									
+										$value = sanitize_text_field($value);
+									}
+								}
+							} else {
+								
+								if (is_email($field_value)) {
+									$field_value = sanitize_email($field_value);
+								} elseif (is_numeric($field_value)) {
+									$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
+								} elseif (is_string($field_value)) {							
+									$field_value = sanitize_textarea_field($field_value);
+								} else {							
+									$field_value = sanitize_text_field($field_value);
+								}
+							}
+						}
+					}
 			$new_post = array(
 				'post_title'   => 'entry_#',
 				'post_type'    => 'manage_entries',
@@ -494,46 +559,78 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			wp_update_post($update_post_args);
 
 			// Update the post slug (permalink)
+			$pid =  get_option('tot_manage_entries');
+				update_option('tot_manage_entries', $pid);
 			$slug = sanitize_title($new_post_title);
 			wp_update_post(array('ID' => $created_post_id, 'post_name' => $slug));
 
 			// Update the post's permalink (optional)
-			$new_post_permalink = get_permalink($created_post_id);
-			update_post_meta($created_post_id, '_wp_old_slug', $new_post_permalink);
-			update_post_meta($created_post_id, 'saab_submission_data', $form_data);
-			update_post_meta($created_post_id, 'saab_form_id', $form_id);
-			
 			$prefixlabel = get_post_meta( $form_id, 'saab_label_symbol', true );
 			$cost = get_post_meta( $form_id, 'saab_cost', true );
-
-			update_post_meta($created_post_id, 'saab_label_symbol', $prefixlabel);
+			$enable_auto_approve = get_post_meta($form_id, 'saab_enable_auto_approve', true);
+			$new_post_permalink = get_permalink($created_post_id);
+			$seats_per_timeslot =  get_post_meta($form_id, 'saab_slotcapacity',true);
+			update_post_meta($created_post_id, 'saab_timeslot', $timeslot);
+			update_post_meta($created_post_id, 'saab_booking_date', $booking_date);
+			update_post_meta($created_post_id, '_wp_old_slug', $new_post_permalink);
+			update_post_meta($created_post_id, 'saab_submission_data', $form_data);
+			update_post_meta($created_post_id, 'saab_slotcapacity', $bookedseats);
 			update_post_meta($created_post_id, 'saab_cost', $cost);
+			update_post_meta($created_post_id, 'saab_form_id', $form_id);
+			update_post_meta($created_post_id, 'saab_label_symbol', $prefixlabel);
+			//update_post_meta($created_post_id, 'saab_cost', $cost);
 			
-			$submission_key_val = array();				
-			foreach($form_data['data'] as $form_key => $form_value){
-				if($form_key !== 'submit'){
-					$submission_key_val[$form_key] = esc_attr($form_value);
+			// $submission_key_val = array();				
+			// 	foreach($form_data['data'] as $form_key => $form_value){
+            //         if($form_key !== 'submit'){
+			// 			$submission_key_val[$form_key] = esc_attr($form_value);
+            //         }
+            //     }
+			$submission_key_val = array();
+			if (isset($form_data['data']) && is_array($form_data['data'])) {
+				foreach ($form_data['data'] as $form_key => $form_value) {
+					if ($form_key !== 'submit') {
+						$submission_key_val[$form_key] = esc_attr($form_value);
+					}
 				}
-			}
-				
-			$get_user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
-				
-			$getfirst_name = isset($get_user_mapping['first_name']) ? sanitize_text_field($get_user_mapping['first_name']) : '';
-			if ($getfirst_name) {
-				$first_name = $form_data['data'][$getfirst_name];					
-			}
-			$getlast_name = isset($get_user_mapping['last_name']) ? sanitize_text_field($get_user_mapping['last_name']) : '';
-			if ($getlast_name) {
-				$last_name =  $form_data['data'][$getlast_name];					
-			}
-			$getemail = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
-			if ($getemail) {
-				$emailTo =  $form_data['data'][$getemail];					
-			}
-			$getservice = isset($get_user_mapping['service']) ? sanitize_text_field($get_user_mapping['service']) : '';
-			if ($getservice) {
-				$service =  ucfirst($form_data['data'][$getservice]);					
-			}			
+			
+             }
+
+			 $explode_timeslot = explode('-',$timeslot);
+			 $get_user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
+
+			 $first_name = $last_name = $emailTo = $service = $timeslot = '';
+			 
+			 // Ensure that $form_data['data'] is an array
+			 if (isset($form_data['data']) && is_array($form_data['data'])) {
+				 
+				 $getfirst_name = isset($get_user_mapping['first_name']) ? sanitize_text_field($get_user_mapping['first_name']) : '';
+				 if ($getfirst_name && isset($form_data['data'][$getfirst_name])) {
+					 $first_name = sanitize_text_field($form_data['data'][$getfirst_name]);
+				 }
+			 
+				 $getlast_name = isset($get_user_mapping['last_name']) ? sanitize_text_field($get_user_mapping['last_name']) : '';
+				 if ($getlast_name && isset($form_data['data'][$getlast_name])) {
+					 $last_name = sanitize_text_field($form_data['data'][$getlast_name]);
+				 }
+			 
+				 $getemail = isset($get_user_mapping['email']) ? sanitize_text_field($get_user_mapping['email']) : '';
+				 if ($getemail && isset($form_data['data'][$getemail])) {
+					 $emailTo = sanitize_email($form_data['data'][$getemail]);
+				 }
+			 
+				 $getservice = isset($get_user_mapping['service']) ? sanitize_text_field($get_user_mapping['service']) : '';
+				 if ($getservice && isset($form_data['data'][$getservice])) {
+					 $service = ucfirst(sanitize_text_field($form_data['data'][$getservice]));
+				 }
+
+				 $gettimeslot = isset($get_user_mapping['timeslot']) ? sanitize_text_field($get_user_mapping['timeslot']) : '';
+				 if ($gettimeslot && isset($form_data['data'][$gettimeslot])) {
+					 $timeslot = sanitize_text_field($form_data['data'][$gettimeslot]);
+				 }
+			 
+			 } 
+					 
 				
 			$encrypted_booking_id = $created_post_id;
 			$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
@@ -545,7 +642,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				$cancelbooking_url = home_url('/?booking_id=' . $encrypted_booking_id . '&status=cancel&security='.$ajax_nonce);
 			}				
 			$other_label_val = array();
-			$publishedDate = get_the_date( 'M d,Y', $form_id );
+			$bookingdate = get_the_date( 'M d,Y', $form_id );
 			$FormTitle = get_the_title( $form_id );
 			$other_label_val = array(
 				'FormId' => $form_id,
@@ -555,13 +652,17 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				'FirstName' => $first_name,
 				'LastName' => $last_name,
 				'Timeslot' => '',
-				'BookingDate' => $publishedDate,
+				'BookingDate' => $bookingdate,
+				'BookedDate' =>$converted_bookingdate,
+				'slotcapacity' => $slotcapacity,
+				// 'StartTime' => $explode_timeslot[0],
+				// 'EndTime' => $explode_timeslot[1],
 				'BookingSeats' => '',
 				'BookedDate' =>'',					
 				'Service' => $service,
 				'prefixlabel' => $prefixlabel,
 				'cost' => $cost,					
-				'slotcapacity' => '',
+				//'slotcapacity' => '',
 				'bookedseats' => '',	
 				'form_data' => $form_data,
 				'no_of_seats' => '',
@@ -570,6 +671,8 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				'EndTime' => '',
 				'CancelBooking' => '',
 			);
+			$status = $enable_auto_approve === 'on' ? 'approved' : 'pending';
+
 				$status = 'submitted';
 				update_post_meta($created_post_id, 'saab_entry_status', $status);
 				$listform_label_val = array_merge($submission_key_val, $other_label_val);
@@ -614,6 +717,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			$get_notification_array = get_post_meta($form_id, 'saab_notification_data', true);	
 			
 			$notificationFound = false;
+			if($get_notification_array){
 			foreach ($get_notification_array as $notification) {
 				
 				if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
@@ -654,14 +758,15 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						$message = esc_html__('Email sent successfully','smart-appointment-booking');
 					} else {
 						$message = esc_html__('Failed to send email','smart-appointment-booking');
-						error_log('Failed to send email');
+						error_log('Failed to send email'); //phpcs:ignore
 					}
 				}
 			
 			}
+		}
 			if ($notificationFound === false) {
 				$message = esc_html__('Notification not found for the given status', 'smart-appointment-booking');
-				error_log('Notification not found for the given status');
+				error_log('Notification not found for the given status'); //phpcs:ignore
 			}
 			return $message;
 		}
@@ -789,6 +894,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				$selected_date = get_post_meta($post_id, 'saab_selected_date', true);
 				if($enable_advance_setting && $enable_advance_setting){
 					$advancedata = get_post_meta($post_id, 'saab_advancedata', true);
+				if($advancedata){
 					foreach ($advancedata as $index => $data) {
 						
 						if (!in_array($data['advance_date'], $holiday_dates)) {
@@ -797,6 +903,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						
 					}
 				}
+			}
 				if ($check_type) {
 					
 					$weekdays_num = array();
@@ -880,11 +987,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
                         }elseif ($recurring_type == 'certain_weekdays') {
 							
                             $certain_weekdays_array = get_post_meta($post_id, 'saab_recur_weekdays', true);
-							
-                            foreach ($certain_weekdays_array as $wdays) {
-                                $weekdays_num[] = gmdate('N', strtotime($wdays));
-                            }
-							
+							if($certain_weekdays_array){
+								foreach ($certain_weekdays_array as $wdays) {
+									$weekdays_num[] = gmdate('N', strtotime($wdays));
+								}
+					       	}
 							$startDate = strtotime($date);
 							$endDate = strtotime($end_repeats_on_date);
 
@@ -948,10 +1055,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					wp_timezone_override_offset(false, $get_timezone);
 				}
 				$current_time = time();
-				
-				foreach ($advancedata as $item) {
-					$advanceDates[] = $item['advance_date'];
-				}
+				if($advancedata){
+					foreach ($advancedata as $item) {
+						$advanceDates[] = $item['advance_date'];
+					}
+			    }
 				//get booking_stops_after duration
 				$timeslot_BookAllow = get_post_meta($post_id, 'saab_timeslot_BookAllow', true);
 				$booking_stops_after = get_post_meta( $post_id, 'saab_booking_stops_after', true );
@@ -1040,7 +1148,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 								} else {
 									$output_timeslot .= '<li class="saab_timeslot" onclick="selectTimeslot(this)" >';
 								}
-								$available_text = esc_html(__('Available seats: ', 'smart-appointment-booking')) . esc_html($available_seats);
+								$available_text = esc_html(__('Available seats: ', 'smart-appointment-booking')) . esc_attr($available_seats);
 
 							}else{
 								if ($current_time >= $start_timestamp) {
@@ -1468,7 +1576,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							$error = false;
 							$TodaysDate = gmdate('F d, Y');	
 							$todaysDate = gmdate('Y-m-d');
-							echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: " . esc_html($timezone) . "</span></h3>";
+							echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: " . esc_attr($timezone) . "</span></h3>";
 							echo "<h4 id='headtodays_date'>" . esc_html($TodaysDate) . "</h4>";								
 							// Get array of available dates 
 							$is_available = $this->saab_processDate($post_id,$todaysDate);							
@@ -1480,17 +1588,20 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									$enable_advance_setting = get_post_meta($post_id, 'saab_enable_advance_setting', true);
 									 
 									$advancedata = get_post_meta($post_id, 'saab_advancedata', true);
-									foreach ($advancedata as $item) {
-										$advanceDates[] = $item['advance_date'];
-									}
+									if($advancedata){
+										foreach ($advancedata as $item) {
+											$advanceDates[] = $item['advance_date'];
+										}
+								    }
 									if(in_array($todaysDate,$advanceDates)){
-									  echo esc_html($this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate));   
+									   echo wp_kses_post($this->saab_get_advanced_timeslots($post_id,$lastdateid,$todaysDate));   
+									
 									}else{
-										echo esc_html($this->saab_front_generate_timeslots($post_id,$lastdateid));                                
+										echo wp_kses_post($this->saab_front_generate_timeslots($post_id,$lastdateid));                                
 									}        
 								}else {
 									$error = true;
-									error_log('Check End date! Selected date exceed the selected end date');
+									error_log('Check End date! Selected date exceed the selected end date'); //phpcs:ignore
 								}
 									
 								?>
@@ -1505,9 +1616,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							?>
 						</div>
 						<div class="saab-cost-label">
-							<span class="saab-cost">Cost: <?php echo esc_html($prefix_label) . ' ' . esc_html($cost); ?></span>
+							<span class="saab-cost">Cost: <?php echo esc_attr($prefix_label) . ' ' . esc_attr($cost); ?></span>
 						</div>
-						<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('booking_form_nonce'); ?>">
+						<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('booking_form_nonce')); ?>">
 						<input type="hidden" id="booking_date" name="booking_date" value="<?php echo esc_attr($lastdateid); ?>" name="booking_date" >
 					</div>
 					<div class="step step2">
@@ -1527,7 +1638,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 									if(isset($enable_booking) && !empty($enable_booking)){
 								?>
 									<script type='text/javascript'>								
-										var myScriptData = <?php echo esc_js($fields); ?>;															
+										var myScriptData = <?php echo wp_kses_post($fields); ?>;															
 										var value = myScriptData;
 										Formio.createForm(document.getElementById('formio'), {
 										components: value
@@ -1762,7 +1873,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						<?php
 						$futureYear = gmdate("Y", strtotime("+10 years", strtotime("January 1, $currentYear")));
 						echo '<optgroup label="Current Year">';
-						echo "<option value='" . esc_html($running_year) . "'>" . esc_html($running_year). "</option>";
+						echo "<option value='" . esc_attr($running_year) . "'>" . esc_html($running_year). "</option>";
 						echo '</optgroup>';
 						echo '<optgroup label="Years">';
 						for ($year = $futureYear; $year >= $currentYear; $year--) {
@@ -1770,7 +1881,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							if ($year == $currentYear) {
 								echo " selected";
 							}
-							echo ">" . esc_attr($year) . "</option>";
+							echo ">" . esc_html($year) . "</option>";
 
 						}
 						echo '</optgroup>';
@@ -1807,16 +1918,16 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						for ($i = 1; $i <= 7; $i++) {
 							
 							if ($dayCounter >= $firstDayOfWeek && $date <= $totalDays) {
-								echo "<td id='saabid_" . esc_attr( $post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' data_day='saabid_" . esc_attr($post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' class='saab_cal_day' onclick='getClickedId(this)'>" . esc_attr($date) . "</td>";
+								echo "<td id='saabid_" . esc_attr( $post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' data_day='saabid_" . esc_attr($post_id) . '_' . esc_attr($currentMonth) . "_" . esc_attr($date) . "_" . esc_attr($currentYear) . "' class='saab_cal_day' onclick='getClickedId(this)'>" . esc_html($date) . "</td>";
 								$date++;
 							}
 							elseif ($dayCounter < $firstDayOfWeek) {
 								$prevDate = $daysInPreviousMonth - ($firstDayOfWeek - $dayCounter - 1);
-								echo "<td class='previous-month'>" . esc_attr($prevDate) . "</td>";
+								echo "<td class='previous-month'>" . esc_html($prevDate) . "</td>";
 							}
 							else {
 								$nextDate = $dayCounter - ($totalDays + $firstDayOfWeek) + 1;
-								echo "<td class='next-month'>" . esc_attr($nextDate) . "</td>";
+								echo "<td class='next-month'>" . esc_html($nextDate) . "</td>";
 							}
 
 							$dayCounter++;
@@ -1842,11 +1953,14 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * Display Timeslots on booking calendar
 		 */
 		  function saab_action_display_available_timeslots(){
-			
-			if ( isset( $_POST['security'] ) &&  wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'my_ajax_nonce' ) ) {   
+// 			ini_set('display_startup_errors', 1);
+// ini_set('display_errors', 1);
+// error_reporting(-1);
+			//if ( isset( $_POST['security'] ) &&  wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_front_nonce' ) ) {   
+				if( ! wp_verify_nonce( 'saab_front_nonce' ) ){}
 				$error = false;
 				if(isset( $_POST['form_data'])){
-					$form_data = sanitize_text_field($_POST['form_data']);
+					$form_data = $_POST['form_data'];
 					$array_data = explode('_',$form_data);
 					$post_id = $array_data[1];
 					$current_month = $array_data[2];
@@ -1854,15 +1968,22 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					$current_year = $array_data[4];
 				}
 				if(isset( $_POST['clickedId'])){
-					$clickedId = absint($_POST['clickedId']);
+					$clickedId = $_POST['clickedId'];
 				}
 				$todaysDate = gmdate('Y-m-d', strtotime("$current_year-$current_month-$current_day"));
 				$TodaysDate_F = gmdate('F d, Y', strtotime("$current_year-$current_month-$current_day"));
-				echo "<h3 id='head_avail_time'>Available Time Slots</h3>";
-				echo "<h4 id='headtodays_date'>" . esc_html($TodaysDate_F) . "</h4>";
-				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="' . htmlspecialchars(esc_attr($clickedId), ENT_QUOTES, 'UTF-8') . '" >';
-				echo "<ul id='saab-slot-list'>";
-                    
+				$currDate = date('Y-m-d');
+				$timezone = get_post_meta($post_id,'saab_timezone',true);
+				echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: " . esc_html( $timezone ) . "</span></h3>";
+				echo "<h4 id='headtodays_date'>" . esc_html( $TodaysDate_F ) . "</h4>";
+				echo '<input type="hidden" id="zeallastdate" name="zeallastdate" value="' . esc_attr( $clickedId ) . '" >';
+				//echo "<ul id='saab-slot-list'>";
+				if($todaysDate < $currDate ){
+					// echo $todaysDate ."--" .$currDate; 
+					$error = true;
+
+				} else {
+					echo "<ul id='saab-slot-list'>";
 					$is_available = $this->saab_processDate($post_id,$todaysDate);				
 					
                     if (isset($is_available) && is_array($is_available)) {
@@ -1873,24 +1994,29 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							 
 							// if($enable_advance_setting && !empty($enable_advance_setting)){
 								$advancedata = get_post_meta($post_id, 'saab_advancedata', true);
-								foreach ($advancedata as $item) {
-									$advanceDates[] = $item['advance_date'];
-								}
+								if($advancedata){
+									foreach ($advancedata as $item) {
+										$advanceDates[] = $item['advance_date'];
+									}
+							    }
 								if(in_array($todaysDate,$advanceDates)){
-								   echo esc_html($this->saab_get_advanced_timeslots($post_id,$form_data,$todaysDate));
+								   echo wp_kses_post($this->saab_get_advanced_timeslots($post_id,$form_data,$todaysDate));
 								}else{
-								   echo esc_html($this->saab_front_generate_timeslots($post_id,$form_data));                                      
+								   echo wp_kses_post($this->saab_front_generate_timeslots($post_id,$form_data));                                      
 								}
 							// }         
 						}else {
 							$error = true;
-							error_log('Check End date! Selected date exceed the selected end date');
+							error_log('Check End date! Selected date exceed the selected end date'); //phpcs:ignore
 						}
                     } else {
 						$error = true;
-                        error_log('Array does not exist.');
+                        error_log('Array does not exist.'); //phpcs:ignore
                     }	
+
 				echo "</ul>";
+				}
+
 				if($error === true){
 					echo esc_html__('No timeslots found for selected date. ','smart-appointment-booking');
 				}else{
@@ -1898,11 +2024,13 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					echo '<p id="no-timeslots-message" style="display: none;">No Timeslots found!</p>';
 				}
 				wp_die();
-			}else{
-				$error = true;
-                error_log('Noonce is not set.');
-				wp_die();
-			}
+			//}
+			//else
+			// {
+			// 	$error = true;
+            //     error_log('Noonce is not set.'); //phpcs:ignore
+			// 	wp_die();
+			// }
 				
 		  }
 		/**	

@@ -1422,7 +1422,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         function saab_render_meta_box_shortcode($post){
             $post_id = $post->ID;    
             if ($post_id && get_post_status($post_id) === 'publish') {                  
-                echo "<p class='edit_preview_shortcode'>[booking_form form_id='" . esc_attr($post_id) . "']</p>";       
+                echo "<p class='edit_preview_shortcode'>[saab_booking_form form_id='" . esc_attr($post_id) . "']</p>";       
             }else{
                 echo "<p class='edit_preview_shortcode'>Publish Post to generate Shortcode. </p>";
             }           
@@ -1487,84 +1487,95 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             <?php
         }
         
-        function saab_edit_form_details($post){
-            // echo $post_id;
-            $form_id = get_post_meta( $post->ID, 'saab_form_id', true ); 
+        function saab_edit_form_details($post) {
+            $form_id = get_post_meta($post->ID, 'saab_form_id', true); 
             $form_schema = get_post_meta($form_id, 'saab_formschema', true);
-            $form_data = get_post_meta($post->ID, 'saab_submission_data', true );
+            $form_data = get_post_meta($post->ID, 'saab_submission_data', true);
+            // echo 'Helloo';
+             //print_r( $form_schema  );
+            // echo '</pre>';
+            // exit();
+            
+           // error_log('Form Data: ' . print_r($form_data, true));
             if ($form_schema) {
+                // Debugging outputs
+                // error_log('Form Schema: ' . print_r($form_schema, true));
+                // error_log('Form Data: ' . print_r($form_data, true));
+        
                 ?>
-               <div id="formio"></div>
+                <div id="formio"></div>
                 <script>
-                    var myScriptData = <?php echo $form_schema; ?>;                                                          
+                    // Parse JSON data for the schema and form data
+                    // var myScriptData = <?php echo json_encode($form_schema); ?>;
+                    // var entryData = <?php echo json_encode($form_data['data'] ?? []); ?>;
+                    var myScriptData = <?php echo wp_kses_post( $form_schema ); ?>;                                                          
                     var value = myScriptData;
-                    var entryData = <?php echo wp_json_encode($form_data['data']); ?>;
-
+                    var entryData = <?php echo wp_kses_post( json_encode( $form_data['data'] ) ); ?>;
+        
                     Formio.createForm(document.getElementById('formio'), {
-                        components: value,
-                        readOnly: false, 
-                        noAlerts: true, 
-                       
+                        components: myScriptData,
+                        readOnly: false,
+                        noAlerts: true
                     }).then(function(form) {
                         form.setSubmission({
-                        data: entryData 
+                            data: entryData
                         });
                         form.redraw();
-                       
+        
                         var submitButton = form.getComponent('submit');
                         if (submitButton) {
                             submitButton.component.label = 'Update';
                             submitButton.redraw();
                         }
-                      
+        
                         form.on('submit', function(submission) {
-                        event.preventDefault();
-
-                        if (!submitButton.disabled) { 
-                            submitButton.disabled = true;
-                            submitButton.loading = true;
-                            submitButton.updateValue();
-                        }
-
-                        var entryId = <?php echo esc_js($post->ID); ?>;
-                        var updatedData = submission.data;
-                        var nonce = ajax_object.nonce;
-                        jQuery.ajax({
-                            url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
-                            type: 'post',
-                            data: {
-                            action: 'saab_update_form_entry_data', 
-                            entry_id: entryId,
-                            updated_data: updatedData,
-                            security: nonce,
-                            },
-                            success: function(response) {
-                            if (response.success) {
-                                console.log('Form data updated successfully');
-                            } else {
-                                console.log('Failed to update form data');
-                            }
-                            },
-                            error: function() {
-                            console.log('Failed to update form data');
-                            },
-                            complete: function() {
-                                submitButton.disabled = false;
-                                submitButton.loading = false;
+                            event.preventDefault();
+        
+                            if (!submitButton.disabled) { 
+                                submitButton.disabled = true;
+                                submitButton.loading = true;
                                 submitButton.updateValue();
                             }
+        
+                            var entryId = <?php echo esc_attr($post->ID); ?>;
+                            var updatedData = submission.data;
+        
+                            jQuery.ajax({
+                                url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+                                type: 'post',
+                                data: {
+                                    action: 'update_form_entry_data',
+                                    entry_id: entryId,
+                                    updated_data: updatedData,
+                                    //zwt_saab_common_nonce: '<//?php //echo esc_attr(wp_create_nonce('zwt_saab_common_nonce')); ?>'
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        console.log('Form data updated successfully');
+                                    } else {
+                                        console.log('Failed to update form data');
+                                    }
+                                },
+                                error: function() {
+                                    console.log('Failed to update form data');
+                                },
+                                complete: function() {
+                                    submitButton.disabled = false;
+                                    submitButton.loading = false;
+                                    submitButton.updateValue();
+                                }
+                            });
+        
+                            return false;
                         });
-
-                        return false;
-                        });
-
                     });
                 </script>
-
-             <?php
-
+                <?php
+            } else {
+                echo esc_html__('Form Not Configured', 'smart-appointment-booking');
             }
         }
+        
         function saab_render_notes_meta_box($post) {
             $notes = get_post_meta($post->ID, 'saab_notes', true);
             wp_nonce_field('save_notes', 'notes_nonce');
