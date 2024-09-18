@@ -454,3 +454,7 @@ div#heading-premium {
 div#group-premium {
     display: none;
 }
+
+.post-type-saab_form_builder .notice-success a {
+    display: none;
+}

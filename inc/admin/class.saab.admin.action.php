@@ -58,6 +58,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			add_action('post_submitbox_misc_actions', array( $this, 'saab_modify_submitdiv_content' ) );			
 			add_action('wp_ajax_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
 			add_action('wp_ajax_nopriv_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
+			
 
 		}
 	
@@ -77,7 +78,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		*/	
 		function saab_action_init(){
 			wp_register_style( SAAB_PREFIX . '_admin_min_css', SAAB_URL . 'assets/css/admin.min.css', array(), SAAB_VERSION );
-			wp_register_style( SAAB_PREFIX . '_admin_css', SAAB_URL . 'assets/css/admin.css', array(), SAAB_VERSION );
+			wp_register_style( SAAB_PREFIX . '_admin_css', SAAB_URL . 'assets/css/admin.css', array(), 1.2 );
 		}
 
 		function saab_enqueue_styles() {
@@ -93,7 +94,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				is_singular('zeal_formbuilder') || 
 				(isset($post_type) && ($post_type == 'saab_form_builder' || $post_type == 'manage_entries')) 
 			) {
-				wp_enqueue_style( '_admin_css',SAAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( '_admin_css',SAAB_URL.'assets/css/admin.css', array(), 1.2, 'all' );	
 				wp_enqueue_style( 'saab_font-awesomev1',SAAB_URL.'assets/css/font-awesome.css', array(), 1.1, 'all' );
 				//formio
 				wp_enqueue_style( 'saab_formio_full_min',SAAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
@@ -179,6 +180,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$role = get_role('administrator'); 
 			$role->add_cap('edit_notifications'); 
 		}
+		
 		/**
 		 * save new notification
 		*/
@@ -280,6 +282,11 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$labels_form = array(
 				'name' => esc_html__('Generate Appointment and Booking Forms','smart-appointment-booking'),
 				'singular_name' => esc_html__('Generate Appointment and Booking Form','smart-appointment-booking'),
+				'add_new'            => 'Add New Form',
+				'add_new_item'       => 'Add New Form',
+				'edit_item'          => 'Edit Form',
+				'view_item'          => 'View Form',
+				'search_items'       => 'Search Form',
 			);
 		
 			$args_form = array(
@@ -628,8 +635,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 														echo '<option value="' . $fieldKey . '" ' . $selected . '>' . $fieldLabel . '</option>';
 													}
 												?>
-											<!-- saab_booking_form_submission -->
-
 											</select>
 										</div>
 										<div class="form-group col-md-6">
@@ -713,7 +718,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 																
 								<?php
 								$form_data = $this->saab_admin_get_shortcodes($post_id);
-								echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Form shortcodes', 'smart-appointment-booking') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Publish Form to generate Shortcode.', 'smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['form'] as $objform) {
 									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' .  esc_attr($objform) . ']</span>';
 								}
@@ -1200,36 +1205,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
 				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
-
-				// if (is_array($form_data)) {
-
-				// 	foreach ($form_data as $field_name => &$field_value) {						
-				// 		if (is_array($field_value)) {
-				// 			foreach ($field_value as &$value) {								
-				// 				if (is_email($value)) {
-				// 					$value = sanitize_email($value);
-				// 				} elseif (is_numeric($value)) {
-				// 					$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-				// 				} elseif (is_string($value)) {									
-				// 					$value = sanitize_textarea_field($value);
-				// 				} else {								
-				// 					$value = sanitize_text_field($value);
-				// 				}
-				// 			}
-				// 		} else {
-							
-				// 			if (is_email($field_value)) {
-				// 				$field_value = sanitize_email($field_value);
-				// 			} elseif (is_numeric($field_value)) {
-				// 				$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
-				// 			} elseif (is_string($field_value)) {							
-				// 				$field_value = sanitize_textarea_field($field_value);
-				// 			} else {							
-				// 				$field_value = sanitize_text_field($field_value);
-				// 			}
-				// 		}
-				// 	}
-				// }
 				
 				update_post_meta($post_id, 'saab_formschema', $form_data );
 
