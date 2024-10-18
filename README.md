@@ -16,6 +16,9 @@ Smart Appointment & Booking all-in-one plugin efficiently manages appointments w
 - View and Edit Booking Entries and Form Entries.
 - Update status, booking dates, and send manual notifications to stay in control.
 - Guest Check-In feature allow anyone to submit forms without the need for account creation.
+
+ [Learn more about the Pro version](https://store.zealousweb.com/smart-appointment-booking-pro)
+
 # How To Use
 
 **Add New Booking Form and Configure fields and Hit save. Form will be automatically updated and  saved**
