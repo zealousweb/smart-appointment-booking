@@ -19,6 +19,17 @@ Smart Appointment & Booking all-in-one plugin efficiently manages appointments w
 
  [Learn more about the Pro version](https://store.zealousweb.com/smart-appointment-booking-pro)
 
+ **Features of Smart Appointment & Booking Pro**
+ 
+We have released the PRO version of this plugin with extra advantageous features added. PRO Version 1.0.0 Released.
+
+- Stripe Payment Gateway: Secure payment processing.
+- Display to Logged-In Users: Show forms to registered users.
+- User Account Creation: Allow new user registration.
+- Send Username and Password: Automatically send login credentials.
+- Waitlist: Let users join a waitlist for fully booked slots.
+- Booking Management: Track and manage appointments in the admin backend.Physical and Virtual Appointments: Offer both types to customers.
+
 # How To Use
 
 **Add New Booking Form and Configure fields and Hit save. Form will be automatically updated and  saved**
