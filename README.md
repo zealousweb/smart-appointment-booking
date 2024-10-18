@@ -30,6 +30,12 @@ We have released the PRO version of this plugin with extra advantageous features
 - Waitlist: Let users join a waitlist for fully booked slots.
 - Booking Management: Track and manage appointments in the admin backend.Physical and Virtual Appointments: Offer both types to customers.
 
+**Plugin Requirement**
+
+PHP version : 5.6 and latest
+
+WordPress : WordPress 5.9 and latest
+
 # How To Use
 
 **Add New Booking Form and Configure fields and Hit save. Form will be automatically updated and  saved**
