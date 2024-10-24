@@ -1,6 +1,9 @@
 # smart-appointment-booking
-Smart Appointment & Booking all-in-one plugin efficiently manages appointments with customizable forms, seamless booking, and waitlist management.
 
+**Description**
+
+Smart Appointment & Booking all-in-one plugin efficiently manages appointments with customizable forms, seamless booking, and waitlist management.
+ZealousWeb Technologies has come up with a powerful solution – Smart Appointment & Booking. This all-in-one plugin efficiently manages appointments with customizable forms, seamless booking. It enhances customer experiences and streamlines processes for service-based businesses, appointment management, and booking services.
 # Features of Smart Appointment & Booking 
 
 - Create and Configure Forms and customize them as needed, and configure the thank-you message.
