@@ -1,55 +1,21 @@
 # smart-appointment-booking
-
-**Description**
-
 Smart Appointment & Booking all-in-one plugin efficiently manages appointments with customizable forms, seamless booking, and waitlist management.
-ZealousWeb Technologies has come up with a powerful solution – Smart Appointment & Booking. This all-in-one plugin efficiently manages appointments with customizable forms, seamless booking. It enhances customer experiences and streamlines processes for service-based businesses, appointment management, and booking services.
+
 # Features of Smart Appointment & Booking 
 
-- Create and Configure Forms and customize them as needed, and configure the thank-you message.
-- You can also set page redirection upon form submission.
-- Its not just ordinary forms! You can create specialized booking forms tailored to your unique requirements.
-- Set up booking calendar settings, and customize the thank-you message or redirection upon successful bookings.
-- In admin you can manage and track booking entries in the backend effortlessly.
-- We are Offer both physical and virtual appointments to your customers.
-- Share Google links or Zoom links via email to facilitate seamless virtual interactions.
-- The waitlist feature enables customers to join a waitlist for full bookings. You can later approve the booking and send notification.
-- From admin you can Modifications and Cancellations the Bookings.
-- Additionally, your staff can efficiently reschedule or cancel bookings as necessary.
-- View and Edit Booking Entries and Form Entries.
-- Update status, booking dates, and send manual notifications to stay in control.
-- Guest Check-In feature allow anyone to submit forms without the need for account creation.
-
- [Learn more about the Pro version](https://store.zealousweb.com/smart-appointment-booking-pro)
-
- **Features of Smart Appointment & Booking Pro**
- 
-We have released the PRO version of this plugin with extra advantageous features added. PRO Version 1.0.0 Released.
-
-- Stripe Payment Gateway: Secure payment processing.
-- Display to Logged-In Users: Show forms to registered users.
-- User Account Creation: Allow new user registration.
-- Send Username and Password: Automatically send login credentials.
-- Waitlist: Let users join a waitlist for fully booked slots.
-- Booking Management: Track and manage appointments in the admin backend.Physical and Virtual Appointments: Offer both types to customers.
-
-<strong>[Demo for Smart Appointment & Booking Pro](https://demo.zealousweb.com/wordpress-plugins/smart-appointment-booking-pro/))</strong>
-
-**OUR OTHER PLUGINS**
-
-* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-paypal-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-stripe-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-2checkout-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-sage-pay-opayo-payments-using-contact-form-7-pro)</strong>
-* <strong>[User Registration Using Contact Form 7 Pro](https://store.zealousweb.com/user-registration-using-contact-form-7-pro)</strong>
-* <strong>[Abandoned Contact Form 7 Pro](https://store.zealousweb.com/abandoned-contact-form-7-pro)</strong>
-
-**Plugin Requirement**
-
-PHP version : 5.6 and latest
-
-WordPress : WordPress 5.9 and latest
+* Create and Configure Forms and customize them as needed, and configure the thank-you message.
+* You can also set page redirection upon form submission.
+* Its not just ordinary forms! You can create specialized booking forms tailored to your unique requirements. 
+* Set up booking calendar settings, and customize the thank-you message or redirection upon successful bookings. 
+* In admin you can manage and track booking entries in the backend effortlessly.
+* We are Offer both physical and virtual appointments to your customers. 
+* Share Google links or Zoom links via email to facilitate seamless virtual interactions.
+* The waitlist feature enables customers to join a waitlist for full bookings. You can later approve the booking and send notification.
+* From admin you can Modifications and Cancellations the Bookings.
+* Additionally, your staff can efficiently reschedule or cancel bookings as necessary.
+* View and Edit Booking Entries and Form Entries.
+* Update status, booking dates, and send manual notifications to stay in control.
+* Guest Check-In feature allow anyone to submit forms without the need for account creation.
 
 # How To Use
 

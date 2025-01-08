@@ -64,11 +64,14 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
 
             $form_data = get_post_meta( $post->ID, 'saab_submission_data', true );   
             $form_id = get_post_meta( $post->ID, 'saab_form_id', true ); 
+            $enable_booking = get_post_meta($form_id, 'saab_enable_booking', true);
             $timeslot = get_post_meta( $post->ID, 'saab_timeslot', true );
             if(isset($timeslot) && !empty($timeslot)){
                 $times = explode("-", $timeslot);
-                $start_time = trim(gmdate("h:i", strtotime($times[0])));
-                $end_time = trim(gmdate("h:i", strtotime($times[1])));
+                $time_obj_0 = DateTime::createFromFormat('h:i A', $times[0]);
+                $start_time = $time_obj_0->format('H:i');
+                $time_obj_1 = DateTime::createFromFormat('h:i A', $times[1]);
+                $end_time = $time_obj_1->format('H:i');
               
             }
            
@@ -76,7 +79,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             if($booking_date && !empty($booking_date)){
                 $array_of_date = explode('_', $booking_date);
             }
-           
+            $slotcapacity = '';
             if(isset($array_of_date) && !empty($array_of_date[2]) && !empty($array_of_date[3]) && !empty($array_of_date[4])){
                 $bookedmonth = $array_of_date[2];
                 $bookedday = $array_of_date[3];
@@ -105,15 +108,36 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 <span style="font-size:20px;"  class="h6" style="font-weight: 800;">Form  </span> 
                 <div class="value" style="font-size:18px;"><?php echo esc_html($booking_form_title); ?></div>
             </div>
-            <?php
-            $enable_booking = get_post_meta($form_id, 'saab_enable_booking', true);
-            if( $enable_booking ){
-                ?>
-                <div class="saab-entry-details">
-                
-                    <div class="row">
-                        <div class="col-4">                       
-                            <div class="group-pair">
+            <div class="group-pair mb-2">
+                <p class="h6">User</p>
+                <div class="value">
+                    <?php
+                        $args = array(
+                        'blog_id' => 1,
+                        'orderby' => 'display_name',
+                        'order' => 'ASC',
+                        
+                        );
+                        // update_post_meta($post_id, 'saab_user_mapped', '');
+                        $current_role_users = get_users($args);
+                        $user_mapping = get_post_meta( $post_id,'saab_user_mapped', true );
+                       
+                        ?>
+                        <select name="user_mapped" class="form-control col-4" id="user_mapped_i" style="max-width: 32%;">
+                        <option value="guest">Guest</option>
+                        <?php
+                        foreach($current_role_users as $user){
+                            if($user_mapping){
+                                $selected = '';
+                                if($user_mapping == $user->ID){
+                                    $selected = 'selected';
+                                }
+                            }
+                            echo '<option value="'.esc_attr($user->ID).'" '. esc_attr($selected).'>'.esc_html($user->user_email).'</option>';
+                        }
+                        ?>
+                    </select>
+                    <div class="group-pair">
                                 <p  class="h6">Status</p>
                                 <div class="value">
                                     <select name="booking_status" class="form-control" id="custom_status">
@@ -135,31 +159,50 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     <input type="hidden" name="form_id" value="<?php echo esc_attr($form_id); ?>">
                                 </div>
                             </div>
-                            <div class="group-pair">
-                                <p class="h6">No of Bookings</p>
-                                <div class="value">
-                                    <input type="number" class="form-control" name="no_of_bookings" id="no_of_bookings" value="<?php echo esc_attr($slotcapacity); ?>">
-                                </div>
-                            </div>
                             <?php 
                              $symbol = get_post_meta($post->ID, 'saab_label_symbol', true);
                              $cost = get_post_meta($post->ID, 'saab_cost', true);
-                             
-                            if ($cost || $symbol) {                               
-                            ?>
+                             if( $enable_booking ){
+                                if ($cost || $symbol) {                               
+                                    ?>
+                                    <div class="group-pair">
+                                        <p class="h6">Cost: <?php echo esc_html($symbol) . ' ' . esc_html($cost);?> </p>
+                                    </div>
+                                    <?php  } ?>
+                         <?php } ?>
+                          
+                    </div>
+            </div>
+            <?php
+            //$enable_booking = get_post_meta($form_id, 'saab_enable_booking', true);
+            if( $enable_booking ){
+                ?>
+                <div class="saab-entry-details">
+                    <div class="row">
+                        <div class="col-4">                       
                             <div class="group-pair">
-                                <p class="h6">Cost: <?php echo esc_html($symbol) . ' ' . esc_html($cost);?> </p>
-                            </div>
-                            <?php  } ?>
                             <?php 
                             $appointment_type = get_post_meta($post->ID, 'saab_appointment_type', true);                            
                             if ($appointment_type) {                               
-                            ?>
-                            <div class="group-pair">
-                                <p  class="h6">Appointment Type: <?php echo esc_html($appointment_type);?> </p>
-                               
+                                ?>
+                                <div class="group-pair">
+                                    <p  class="h6">Appointment Type: <?php echo esc_html($appointment_type);?> </p>
+                                
+                                </div>
+                                <?php  
+                            } 
+                            ?>  
+                                <p class="h6">No of Bookings</p>
+                                <div class="value">
+                                <?php
+                                        if ($status === 'waiting') {
+                                            echo '<input type="number" class="form-control" id="no_of_bookings" value="'.esc_attr($slotcapacity).'" disabled>';
+                                        }else{
+                                            echo '<input type="number" class="form-control" name="no_of_bookings" id="no_of_bookings" value="'.esc_attr($slotcapacity).'">';
+                                        }
+                                    ?>
+                                </div>
                             </div>
-                            <?php  } ?>
                         </div>
                         <div class="col-4">
                             <div class="group-pair">
@@ -171,45 +214,52 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
 
                             </div>
                             <div class="group-pair">
-                                <p class="h6">Booked Timeslot</p>
-                                <div class="form-row">
-                                    <div class="form-group col-md-4">
-                                        <p  for="start_time" class="h6"><?php echo esc_html__('From: ', 'smart-appointment-booking'); ?></p>
-                                        <input type="time" class="form-control" id="start_time" name="start_time" value="<?php echo isset($start_time) ? esc_attr($start_time) : ''; ?>" >
+                                    <p class="h6">Booked Timeslots</p>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <p  for="start_time" class="h6"><?php echo esc_html__('From: ', 'smart-appointment-booking'); ?></p>
+                                            <input type="time" class="form-control" name="start_time"  value="<?php echo esc_attr(isset($start_time)) ? esc_attr($start_time) : ''; ?>" >
+                                            
+                                        </div>
                                         
+                                        <div class="form-group col-md-6">
+                                            <p for="end_time" class="h6"><?php echo esc_html__('To: ', 'smart-appointment-booking'); ?></p>
+                                            <input type="time" class="form-control" name="end_time"  value="<?php echo esc_attr(isset($end_time)) ? esc_attr($end_time) : ''; ?>" >
+                                        </div>
+                                        <span class="validation-message" style="color: red;"></span>
                                     </div>
-                                    
-                                    <div class="form-group col-md-4">
-                                        <p for="end_time" class="h6"><?php echo esc_html__('To: ', 'smart-appointment-booking'); ?></p>
-                                        <input type="time" class="form-control" name="end_time" value="<?php echo isset($end_time) ? esc_attr($end_time) : ''; ?>" >
-                                    </div>
-                                    <span class="validation-message" style="color: red;"></span>
-                                </div>
-                            </div>
+                            </div> 
                         </div>
                     </div>
                     <div id="waitinglist_main">
                     <?php
                        
-                        $current_page =  1;
-                        $args = array(
-                            'post_type' => 'manage_entries',
-                            'posts_per_page' => 5, 
-                            'paged' => $current_page,
-                            'meta_query' => array(
-                                'relation' => 'AND',
-                                array(
-                                    'key' => 'timeslot',
-                                    'value' => $timeslot,
-                                    'compare' => '='
-                                ),
-                                array(
-                                    'key' => 'booking_date',
-                                    'value' => $booking_date,
-                                    'compare' => '='
-                                )
+                       $current_page = isset($_GET['page']) ? absint($_GET['page']) : 1;
+                       $args = array(
+                        'post_type' => 'manage_entries',
+                        'posts_per_page' => 5, 
+                        'paged' => $current_page,
+                        'orderby'   => 'date',
+                        'order'     => 'ASC',
+                        'meta_query' => array(
+                            'relation' => 'AND',
+                            array(
+                                'key' => 'timeslot',
+                                'value' => $timeslot,
+                                'compare' => '='
+                            ),
+                            array(
+                                'key' => 'entry_status',
+                                'value' => 'waiting',
+                                'compare' => 'LIKE'
+                            ),
+                            array(
+                                'key' => 'booking_date',
+                                'value' => $booking_date,
+                                'compare' => '='
                             )
-                        );
+                        )
+                    );
 
                         $query = new WP_Query($args);
 
@@ -243,18 +293,14 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     echo '<td>' . esc_html($post_title) . '</td>';
                                     echo '<td>' . esc_html($booking_status) . '</td>';
                                     echo '<td>' . esc_html($no_of_bookings) . '</td>';
-                                    echo '<td>' . esc_html(get_the_date('F j, Y @ h:i a', $post_id)) . '</td>';
+                                    echo '<td>' . esc_html($published_date = get_the_date('F j, Y @ h:i a',$post_id)). '</td>';
                                     echo '<td><a href="' . esc_url(get_edit_post_link($post_id)) . '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>';
-                                    echo '</tr>';
-                                   
-                                    
+                                    echo '</tr>'; 
                                 }
                                 $i++;
                             }
 
                             echo '</table>';
-
-                           
                             wp_reset_postdata();
                         }
                         if ($query->have_posts()) {
@@ -428,14 +474,13 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                     <li class="nav-link"><a href="#tab3">Recurring Appointment</a></li>
                 </ul>
                 <!-- Tabination 1 content  -->            
-                
                 <div id="tab1" class="tab-content">
                     <div class="row">
                         <div class="col-6">
                             <!-- <div class=""> -->
-                                <div class="form-check form-check-inline">
-                                    <input type="checkbox" name="enable_booking" id="enable_booking" value="1" <?php echo esc_attr(checked(1, $enable_booking, false)); ?>>
-                                    <label class="form-check-label h6" for="enable_booking"> Enable or disaable booking form</label>
+                            <div class="form-check form-check-inline">
+                                    <input type="checkbox" name="enable_booking" value="1" <?php echo esc_attr(checked(1, $enable_booking, false)); ?>>
+                                    <label class="form-check-label h6" for="enable_booking">Enable or Disable Booking Form</label>
                                 </div>
                                 <div class="form-group form-general-group">
                                     <label  for="cal_title" class="h6">Enter Calender Title</label>
@@ -524,6 +569,23 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                 <div class="form-group form-general-group">
                                     <!--Timezone -->
                                     <label  for="timezone" class="h6">Timezone</label>
+                                    <?php
+                                        $allow_time_dropdown = array(
+                                            'select' => array(
+                                                'class' => array(),
+                                                'name'  => array(),
+                                                'id'   => array(),
+                                            ),
+                                            'optgroup' => array(
+                                                'label' => array(),
+                                            ),
+                                            'option' => array(
+                                                'value' => array(),
+                                                'selected' => array()
+                                            ),
+                                        );
+                                        //echo wp_kses( $this->timezone_dropdown($post->ID), $allow_time_dropdown );
+                                    ?>
                                     <?php echo $this->timezone_dropdown($post->ID); ?>
                                     
                                 </div> 
@@ -1382,7 +1444,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
              
                 add_meta_box(
                     'form_shortcode_data',
-                    esc_html__('Form Shortcode','smart-appointment-booking'), 
+                    esc_html__('Publish Form to generate Shortcode.','smart-appointment-booking'), 
                     array( $this, 'saab_render_meta_box_shortcode' ),
                     $post_type,
                     'normal',
@@ -1422,9 +1484,9 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         function saab_render_meta_box_shortcode($post){
             $post_id = $post->ID;    
             if ($post_id && get_post_status($post_id) === 'publish') {                  
-                echo "<p class='edit_preview_shortcode'>[booking_form form_id='" . esc_attr($post_id) . "']</p>";       
+                echo "<p class='edit_preview_shortcode'>[saab_booking_form form_id='" . esc_attr($post_id) . "']</p>";       
             }else{
-                echo "<p class='edit_preview_shortcode'>Publish Post to generate Shortcode. </p>";
+                echo "<p class='edit_preview_shortcode'>Publish Form to generate Shortcode. </p>";
             }           
         }
         /**
@@ -1487,84 +1549,83 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             <?php
         }
         
-        function saab_edit_form_details($post){
-            // echo $post_id;
-            $form_id = get_post_meta( $post->ID, 'saab_form_id', true ); 
+        function saab_edit_form_details($post) {
+            $form_id = get_post_meta($post->ID, 'saab_form_id', true); 
             $form_schema = get_post_meta($form_id, 'saab_formschema', true);
-            $form_data = get_post_meta($post->ID, 'saab_submission_data', true );
+            $form_data = get_post_meta($post->ID, 'saab_submission_data', true);
             if ($form_schema) {
                 ?>
-               <div id="formio"></div>
+                <div id="formio"></div>
                 <script>
-                    var myScriptData = <?php echo $form_schema; ?>;                                                          
+                    // Parse JSON data for the schema and form data
+                    var myScriptData = <?php echo wp_kses_post( $form_schema ); ?>;                                                          
                     var value = myScriptData;
-                    var entryData = <?php echo wp_json_encode($form_data['data']); ?>;
-
+                    var entryData = <?php echo wp_kses_post( json_encode( $form_data['data'] ) ); ?>;
+        
                     Formio.createForm(document.getElementById('formio'), {
-                        components: value,
-                        readOnly: false, 
-                        noAlerts: true, 
-                       
+                        components: myScriptData,
+                        readOnly: false,
+                        noAlerts: true
                     }).then(function(form) {
                         form.setSubmission({
-                        data: entryData 
+                            data: entryData
                         });
                         form.redraw();
-                       
+        
                         var submitButton = form.getComponent('submit');
                         if (submitButton) {
                             submitButton.component.label = 'Update';
                             submitButton.redraw();
                         }
-                      
+        
                         form.on('submit', function(submission) {
-                        event.preventDefault();
-
-                        if (!submitButton.disabled) { 
-                            submitButton.disabled = true;
-                            submitButton.loading = true;
-                            submitButton.updateValue();
-                        }
-
-                        var entryId = <?php echo esc_js($post->ID); ?>;
-                        var updatedData = submission.data;
-                        var nonce = ajax_object.nonce;
-                        jQuery.ajax({
-                            url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
-                            type: 'post',
-                            data: {
-                            action: 'saab_update_form_entry_data', 
-                            entry_id: entryId,
-                            updated_data: updatedData,
-                            security: nonce,
-                            },
-                            success: function(response) {
-                            if (response.success) {
-                                console.log('Form data updated successfully');
-                            } else {
-                                console.log('Failed to update form data');
-                            }
-                            },
-                            error: function() {
-                            console.log('Failed to update form data');
-                            },
-                            complete: function() {
-                                submitButton.disabled = false;
-                                submitButton.loading = false;
+                            event.preventDefault();
+        
+                            if (!submitButton.disabled) { 
+                                submitButton.disabled = true;
+                                submitButton.loading = true;
                                 submitButton.updateValue();
                             }
+        
+                            var entryId = <?php echo esc_attr($post->ID); ?>;
+                            var updatedData = submission.data;
+        
+                            jQuery.ajax({
+                                url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+                                type: 'post',
+                                data: {
+                                    action: 'update_form_entry_data',
+                                    entry_id: entryId,
+                                    updated_data: updatedData,
+                                    //zwt_saab_common_nonce: '<//?php //echo esc_attr(wp_create_nonce('zwt_saab_common_nonce')); ?>'
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        console.log('Form data updated successfully');
+                                    } else {
+                                        console.log('Failed to update form data');
+                                    }
+                                },
+                                error: function() {
+                                    console.log('Failed to update form data');
+                                },
+                                complete: function() {
+                                    submitButton.disabled = false;
+                                    submitButton.loading = false;
+                                    submitButton.updateValue();
+                                }
+                            });
+        
+                            return false;
                         });
-
-                        return false;
-                        });
-
                     });
                 </script>
-
-             <?php
-
+                <?php
+            } else {
+                echo esc_html__('Form Not Configured', 'smart-appointment-booking');
             }
         }
+        
         function saab_render_notes_meta_box($post) {
             $notes = get_post_meta($post->ID, 'saab_notes', true);
             wp_nonce_field('save_notes', 'notes_nonce');

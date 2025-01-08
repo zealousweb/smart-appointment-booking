@@ -280,7 +280,7 @@ ul#saab-slot-list {
     background: red;
     color: #fff;
 }
-#formio_res_msg {
+/* #formio_res_msg {
     background-color: #f8f9fa;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -290,7 +290,7 @@ ul#saab-slot-list {
 }
 #formio_res_msg > * {
     margin-top: 10px;
-}
+} */
 #preloader {
     position: fixed;
     top: 0;
@@ -339,3 +339,7 @@ ul#saab-slot-list {
 .dc_backButton.alignwide button {
     border: 1px solid;
 }
+
+/* .post-type-saab_form_builder .notice-success a {
+    display: none;
+} */

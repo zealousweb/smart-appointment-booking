@@ -49,8 +49,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			add_action( 'wp_ajax_saab_save_confirmation', array( $this, 'saab_save_confirmation' ));
 			add_action('wp_ajax_nopriv_saab_save_confirmation', array( $this, 'saab_save_confirmation' ) );
 
-			add_action('edit_form_after_title', array( $this, 'saab_disaable_title_editing_for__post_type' ) );
-
 			add_action('wp_ajax_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
 			add_action('wp_ajax_nopriv_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
 			
@@ -60,6 +58,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			add_action('post_submitbox_misc_actions', array( $this, 'saab_modify_submitdiv_content' ) );			
 			add_action('wp_ajax_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
 			add_action('wp_ajax_nopriv_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
+			
 
 		}
 	
@@ -79,7 +78,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		*/	
 		function saab_action_init(){
 			wp_register_style( SAAB_PREFIX . '_admin_min_css', SAAB_URL . 'assets/css/admin.min.css', array(), SAAB_VERSION );
-			wp_register_style( SAAB_PREFIX . '_admin_css', SAAB_URL . 'assets/css/admin.css', array(), SAAB_VERSION );
+			wp_register_style( SAAB_PREFIX . '_admin_css', SAAB_URL . 'assets/css/admin.css', array(), 1.2 );
 		}
 
 		function saab_enqueue_styles() {
@@ -95,7 +94,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				is_singular('zeal_formbuilder') || 
 				(isset($post_type) && ($post_type == 'saab_form_builder' || $post_type == 'manage_entries')) 
 			) {
-				wp_enqueue_style( '_admin_css',SAAB_URL.'assets/css/admin.css', array(), 1.1, 'all' );	
+				wp_enqueue_style( '_admin_css',SAAB_URL.'assets/css/admin.css', array(), 1.2, 'all' );	
 				wp_enqueue_style( 'saab_font-awesomev1',SAAB_URL.'assets/css/font-awesome.css', array(), 1.1, 'all' );
 				//formio
 				wp_enqueue_style( 'saab_formio_full_min',SAAB_URL.'assets/css/formio/formio.full.min.css', array(), 1.1, 'all' );
@@ -181,6 +180,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$role = get_role('administrator'); 
 			$role->add_cap('edit_notifications'); 
 		}
+		
 		/**
 		 * save new notification
 		*/
@@ -282,6 +282,11 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$labels_form = array(
 				'name' => esc_html__('Generate Appointment and Booking Forms','smart-appointment-booking'),
 				'singular_name' => esc_html__('Generate Appointment and Booking Form','smart-appointment-booking'),
+				'add_new'            => 'Add New Form',
+				'add_new_item'       => 'Add New Form',
+				'edit_item'          => 'Edit Form',
+				'view_item'          => 'View Form',
+				'search_items'       => 'Search Form',
 			);
 		
 			$args_form = array(
@@ -387,25 +392,156 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		/**
 		 * Update booking form entries in backend
 		 */
-		function saab_update_form_entry_data(){
-			
-			if ( !isset( $_POST['security'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' ) ) {   
-				return;
+		function view_booking_entry( $post ){
+			if( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], '_wpnonce' ) ){
+				//wp_die( 'Security check failed. Refresh the page and retry again!' );
 			}
+            $post_id = ( isset( $_GET['post_id'] ) ) ? $_GET['post_id'] : '';
+            $form_data = get_post_meta( $post_id, 'saab_submission_data', true );	
+            $form_id = get_post_meta( $post_id, 'saab_form_id', true );	
+            $timeslot = get_post_meta( $post_id, 'saab_timeslot', true );
+            $booking_date = get_post_meta( $post_id, 'saab_booking_date', true );
+            $array_of_date = explode('_',$booking_date);
+            $bookedmonth = $array_of_date[2];
+            $bookedday =$array_of_date[3];
+            $bookedyear =$array_of_date[4];
+            $booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
+			$booked_date = date('F j, Y', strtotime($booked_date));	 //phpcs:ignore
+            $slotcapacity = get_post_meta( $post_id, 'saab_slotcapacity', true );	
 
-			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) {
+            if(!empty($form_id)){ 
+               $booking_form_title = get_the_title($form_id);               
+            }
+            $date_generated = get_the_date('d/m/Y',$post_id);
+            $status = get_post_meta( $post_id, 'saab_entry_status', true );
+            if(empty($status)){
+                $status = "Approval Pending";
+            }elseif($status == 'completed'){
+                $status = "Completed";
+            }elseif($status == 'pending'){
+                $status = "Approval Pending";
+            }elseif($status == 'cancelled'){
+                $status = "Cancelled";
+            }elseif($status == 'manual'){
+                $status = "Manual";
+            }elseif($status == 'expired'){
+                $status = "Expired";
+            }elseif($status == 'waiting'){
+                $status = "Waiting";
+            }
+            ?>
+			
+			<div class="entry_title">
+				<div class="entries_title_main">
+					<?php
+					if (isset($_GET['post_id'])) {
+						$post_id = absint($_GET['post_id']); 
+						$title = get_the_title($post_id);
+						echo '<p class="entry-title h5">' . esc_html($title) . '</p>';
 
-				$entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '';
+						if (current_user_can('edit_post', $post_id)) {
+							$edit_post_link = get_edit_post_link($post_id);
+							if ($edit_post_link) {
+								?>
+								<a href="<?php echo esc_url($edit_post_link); ?>" class="edit-link">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+										<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+										<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+									</svg>
+									Edit
+								</a>
+								<?php
+							}
+						} else {
+							if( defined('WP_DEBUG') && true === WP_DEBUG ){
+								error_log('You do not have permission to edit this post.'); //phpcs:ignore
+							}
+						}
+						
+						$published_date = get_the_date( 'F j, Y @ h:i a', $post_id );
+						echo '<p class="published_on">Published on ' . esc_html($published_date). '</p>';
+					} else {
+						if( defined('WP_DEBUG') && true === WP_DEBUG ){
+							error_log('Invalid post ID.'); //phpcs:ignore
+						}
+					}
+					?>
+				</div>
+			</div>
+
+			<div class="main-entries-section" id="main_entries_section1">
+				<table id="main_entries_table1">
+					<tr>
+						<th class="h6"><?php echo esc_html__('Form Title', 'smart-appointment-booking'); ?></th>
+						<td><?php echo esc_html($booking_form_title); ?></td>
+					</tr>
+					
+					<tr>
+						<th class="h6"><?php echo esc_html__('Status', 'smart-appointment-booking'); ?></th>
+						<td><?php echo esc_html($status); ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo esc_html__('Customer', 'smart-appointment-booking'); ?></th>
+						<td><?php echo esc_html__('Guest', 'smart-appointment-booking'); ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo esc_html__('Booked Date', 'smart-appointment-booking'); ?></th>
+						<td><?php echo esc_html($booked_date); ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo esc_html__('Timeslot', 'smart-appointment-booking'); ?></th>
+						<td><?php echo esc_html($timeslot); ?></td>
+					</tr>
+					<tr>
+						<th class="h6"><?php echo esc_html__('No of Slots Booked', 'smart-appointment-booking'); ?></th>
+						<td><?php echo esc_html($slotcapacity); ?></td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="main-entries-section" id="main_entries_section2">
+				
+				<table id="main_entries_table2">
+					<?php
+					if( !empty( $form_data ) ){
+						foreach($form_data['data'] as $form_key => $form_value){ //phpcs:ignore
+							if($form_key !== 'submit'){
+								echo "<tr>"
+								. "<th class='h6'>" . esc_html(ucfirst($form_key)) . "</th>"
+								. "<td>" . esc_html(htmlspecialchars($form_value)) . "</td>"
+								. "</tr>";
+							
+							}
+						}
+					}
+					?>
+				</table>
+			</div>
+
+			<div class="main-entries-section" id="main_entries_section3">
+				<h6>Notes</h6>
+				<?php 
+				$notes = get_post_meta($post_id, 'saab_notes', true);
+				echo esc_textarea($notes);
+				?>
+			</div>
+            <?php
+        }
+		function update_form_entry_data(){
+			// if( ! isset( $_POST['zwt_saab_common_nonce'] ) || ! wp_verify_nonce( $_POST['zwt_saab_common_nonce'], 'zwt_saab_common_nonce' ) ){
+			// 	wp_die( 'Security check failed. Refresh the page and retry again!' );
+			// }
+			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) { 
+				$entry_id = ( isset( $_POST['entry_id'] ) ) ? $_POST['entry_id'] : ''; 
 				$get_submitted_data = get_post_meta($entry_id, 'saab_submission_data', true);
-				$updated_data = sanitize_text_field($_POST['updated_data']);	
+				$updated_data = ( isset( $_POST['updated_data'] ) ) ? $_POST['updated_data'] : ''; 
 				foreach ($updated_data as $key => $value) {
-					$sanitized_value = sanitize_text_field($value);
 					if (isset($get_submitted_data['data'][$key])) {
-						$get_submitted_data['data'][$key] = $sanitized_value;
+						$get_submitted_data['data'][$key] = $value;
 					}
 				}
-				
 				update_post_meta($entry_id, 'saab_submission_data', $get_submitted_data);
+				wp_send_json( $updated_data );
 			}
             wp_die();
         }
@@ -441,6 +577,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			if (isset($_GET['post_type']) && isset($_GET['post_id']) && isset( $_GET['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['nonce'] ) ) , 'other_setting' )) {
 			
 				$post_type = sanitize_text_field($_GET['post_type']);
+				
 				$post_id = absint( $_GET['post_id']);				
 			
 				?>
@@ -495,7 +632,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 														$fieldKey = $option['fieldkey'];
 														$fieldLabel = $option['fieldlabel'];
 														$selected = ($fieldKey == $first_name) ? 'selected' : '';
-														echo '<option value="' . esc_attr($fieldKey) . '" ' . esc_html($selected) . '>' . esc_html($fieldLabel) . '</option>';
+														echo '<option value="' . $fieldKey . '" ' . $selected . '>' . $fieldLabel . '</option>';
 													}
 												?>
 											</select>
@@ -581,7 +718,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 																
 								<?php
 								$form_data = $this->saab_admin_get_shortcodes($post_id);
-								echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Form shortcodes', 'smart-appointment-booking') . '</label></div>';
+								echo '<div class=""><label style="font-weight: bold;">' . esc_html__('Publish Form to generate Shortcode.', 'smart-appointment-booking') . '</label></div>';
 								foreach ($form_data['form'] as $objform) {
 									echo '<span class="copy-text" style="margin-right: 5px; font-family: Arial; font-size: 14px;">[' .  esc_attr($objform) . ']</span>';
 								}
@@ -1068,36 +1205,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
 				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
-
-				// if (is_array($form_data)) {
-
-				// 	foreach ($form_data as $field_name => &$field_value) {						
-				// 		if (is_array($field_value)) {
-				// 			foreach ($field_value as &$value) {								
-				// 				if (is_email($value)) {
-				// 					$value = sanitize_email($value);
-				// 				} elseif (is_numeric($value)) {
-				// 					$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-				// 				} elseif (is_string($value)) {									
-				// 					$value = sanitize_textarea_field($value);
-				// 				} else {								
-				// 					$value = sanitize_text_field($value);
-				// 				}
-				// 			}
-				// 		} else {
-							
-				// 			if (is_email($field_value)) {
-				// 				$field_value = sanitize_email($field_value);
-				// 			} elseif (is_numeric($field_value)) {
-				// 				$field_value = filter_var($field_value, FILTER_SANITIZE_NUMBER_INT);
-				// 			} elseif (is_string($field_value)) {							
-				// 				$field_value = sanitize_textarea_field($field_value);
-				// 			} else {							
-				// 				$field_value = sanitize_text_field($field_value);
-				// 			}
-				// 		}
-				// 	}
-				// }
 				
 				update_post_meta($post_id, 'saab_formschema', $form_data );
 

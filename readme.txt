@@ -4,10 +4,10 @@ Contributors: zealopensource
 Tags: Booking, Appointment, Scheduling form, forms, Booking Appointments
 Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
-Tested up to: 6.5
+Tested up to: 6.6
 License: GPL-3.0-or-later
-Version: 1.0.1
-Stable tag: 1.0.1
+Version: 1.0.4
+Stable tag: 1.0.4
 License: GPLv3 or later License
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -125,6 +125,30 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 
 == Changelog ==
+
+= 1.0.4 =
+* Fix: Issue with enabling or disabling the booking form
+* Fix: Calendar not displaying when clicking arrows
+* Fix: Calendar not displaying when selecting a month
+* Fix: Calendar not displaying when selecting a year
+* Fix: Timeslot issue in the 'Manage Entry' section
+* Fix: Display of booked timeslots in the form
+* Fix: Change button name for "Add New Form (Booking Form)"
+* Fix: Remove "View Post" link after form is published
+* Fix: Generate shortcode when publishing the form
+* Add: List of added users
+* Add: List of added statuses
+* Add: "Appointment Type: Virtual" option
+
+= 1.0.3 =
+* Fix: Date being selected in calendar issue
+* Fix: Time being selected issue
+* Fix: Available seat count issue
+* Fix: Data listing issue
+* Fix: Manage Entry issue
+
+= 1.0.2 =
+* The issue on the backend has been fixed.
 
 = 1.0.1 =
 * Issue Fixed "Form Is not being saved"
