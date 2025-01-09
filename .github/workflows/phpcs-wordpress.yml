@@ -1,0 +1,36 @@
+name: PHPCS WordPress Coding Standards
+
+on:
+  push:
+    branches:
+      - '**'  # Trigger on any branch
+  pull_request:
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'  # Specify your desired PHP version
+          extensions: mbstring, xml, tokenizer
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Install WordPress Coding Standards
+        run: |
+          composer global require "squizlabs/php_codesniffer=*"
+          phpcs --config-set installed_paths "$(composer global config home)/vendor/wp-coding-standards/wpcs"
+          phpcs --config-set default_standard WordPress
+
+      - name: Run PHPCS
+        run: phpcs --standard=WordPress --ignore=vendor,node_modules .
+
+      - name: Display Results
+        if: failure()
+        run: echo "PHPCS found code standard violations."
