@@ -1,9 +1,0 @@
-node_modules/
-tests/
-.git/
-.github/
-README.md
-composer.json
-package-lock.json
-LICENSE
-resource/
