@@ -6,8 +6,8 @@ Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
 Tested up to: 6.6
 License: GPL-3.0-or-later
-Version: 1.0.5
-Stable tag: 1.0.5
+Version: 1.0.6
+Stable tag: 1.0.6
 License: GPLv3 or later License
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -54,13 +54,17 @@ WordPress   : WordPress 5.9 and latest
 
 == OUR OTHER PLUGINS ==
 
-* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-paypal-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-paypal-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-stripe-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-2checkout-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-sage-pay-opayo-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Sagepay(Opayo) Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-sage-pay-opayo-payments-using-contact-form-7-pro)</strong>
 * <strong>[User Registration Using Contact Form 7 Pro](https://store.zealousweb.com/user-registration-using-contact-form-7-pro)</strong>
 * <strong>[Abandoned Contact Form 7 Pro](https://store.zealousweb.com/abandoned-contact-form-7-pro)</strong>
+* <strong>[Smart Appointment & Booking Pro](https://store.zealousweb.com/smart-appointment-booking-pro)</strong>
+* <strong>[Custom Product Options WooCommerce Pro](https://store.zealousweb.com/custom-product-options-woocommerce-pro)</strong>
+* <strong>[Generate PDF Using Contact Form 7 Pro](https://store.zealousweb.com/generate-pdf-using-contact-form-7-pro)</strong>
+* <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-elavon-payments-using-contact-form-7-pro)</strong>
 
 = Getting Help With Wordpress =
 
@@ -125,6 +129,9 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 
 == Changelog ==
+
+= 1.0.6 =
+* Issue Fixed
 
 = 1.0.5 =
 * Issue Fixed

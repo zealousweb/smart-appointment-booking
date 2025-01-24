@@ -3,7 +3,7 @@
  * Plugin Name: Smart Appointment & Booking
  * Plugin URL: https://wordpress.org/plugins/smart-appointment-booking/
  * Description: This is the all-in-one solution for efficient appointment management, offering customizable forms, seamless booking and modifications waitlist management.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: ZealousWeb
  * Author URI: https://www.zealousweb.com
  * Developer: The Zealousweb Team
@@ -27,7 +27,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 
 if ( ! defined( 'SAAB_VERSION' ) ) {
-	define( 'SAAB_VERSION', '1.0.5' ); // Version of the plugin
+	define( 'SAAB_VERSION', '1.0.6' ); // Version of the plugin
 }
 
 if ( ! defined( 'SAAB_FILE' ) ) {
