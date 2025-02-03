@@ -53,4 +53,4 @@ jobs:
       # The results of the CS check will be shown inline in the PR via the CS2PR tool.
       # @link https://github.com/staabm/annotate-pull-request-from-checkstyle/
       - name: Run PHP CodeSniffer
-        run: vendor/bin/phpcs --standard=WordPress --extensions=php ./smart-appointment-booking
+        run: vendor/bin/phpcs --standard=WordPress --extensions=php .
