@@ -22,3 +22,5 @@ smart-appointment-booking/
 *.log
 *.sql
 *.sqlite
+
+/vender/
