@@ -1,4 +1,4 @@
-name: CS
+name: PHPCS
 
 on:
   # Run on all relevant pushes (except to main) and on all relevant pull requests.
@@ -7,16 +7,12 @@ on:
       - '**.php'
       - 'composer.json'
       - 'composer.lock'
-      - '.phpcs.xml.dist'
-      - 'phpcs.xml.dist'
       - '.github/workflows/cs.yml'
   pull_request:
     paths:
       - '**.php'
       - 'composer.json'
       - 'composer.lock'
-      - '.phpcs.xml.dist'
-      - 'phpcs.xml.dist'
       - '.github/workflows/cs.yml'
   # Allow manually triggering the workflow.
   workflow_dispatch:
@@ -41,7 +37,7 @@ jobs:
         with:
           php-version: '7.4'
           coverage: none
-          tools: cs2pr
+          tools: composer, php-cs-fixer
 
       # Validate the composer.json file.
       # @link https://getcomposer.org/doc/03-cli.md#validate
@@ -50,19 +46,11 @@ jobs:
 
       # Install dependencies and handle caching in one go.
       # @link https://github.com/marketplace/actions/install-composer-dependencies
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v2
-        with:
-          # Bust the cache at least once a month - output format: YYYY-MM.
-          custom-cache-suffix: $(date -u "+%Y-%m")
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist
 
       # Check the codestyle of the files.
       # The results of the CS check will be shown inline in the PR via the CS2PR tool.
       # @link https://github.com/staabm/annotate-pull-request-from-checkstyle/
-      - name: Check PHP code style
-        id: phpcs
-        run: composer check-cs -- --no-cache --report-full --report-checkstyle=./phpcs-report.xml
-
-      - name: Show PHPCS results in PR
-        if: ${{ always() && steps.phpcs.outcome == 'failure' }}
-        run: cs2pr ./phpcs-report.xml
+      - name: Run PHP CodeSniffer
+        run: vendor/bin/phpcs --standard=WordPress --extensions=php ./smart-appointment-booking
