@@ -23,7 +23,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * Basic plugin definitions
  *
  * @package Smart Appointment & Booking
- * @since 1.0.2
+ * @since 1.0.6
  */
 
 if ( ! defined( 'SAAB_VERSION' ) ) {
