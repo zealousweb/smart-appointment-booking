@@ -26,6 +26,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @since 1.0.6
  */
 
+/* Start of Code */
 if ( ! defined( 'SAAB_VERSION' ) ) {
 	define( 'SAAB_VERSION', '1.0.6' ); // Version of the plugin
 }
