@@ -1,4 +1,4 @@
-# smart-appointment-booking
+# Smart Appointment & Booking
 Smart Appointment & Booking all-in-one plugin efficiently manages appointments with customizable forms, seamless booking, and waitlist management.
 
 # Features of Smart Appointment & Booking 
