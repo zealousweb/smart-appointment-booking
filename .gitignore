@@ -24,4 +24,4 @@ smart-appointment-booking/
 *.sqlite
 .DS_Store
 .github/
-vender/ 
+vendor/ 
