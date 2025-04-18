@@ -22,5 +22,6 @@ smart-appointment-booking/
 *.log
 *.sql
 *.sqlite
-
-/vender/ 
+.DS_Store
+.github/
+vender/ 
