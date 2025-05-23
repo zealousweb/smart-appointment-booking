@@ -4,10 +4,10 @@ Contributors: zealopensource
 Tags: Booking, Appointment, Scheduling form, forms, Booking Appointments
 Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
-Tested up to: 6.6
+Tested up to: 6.8
 License: GPL-3.0-or-later
-Version: 1.0.6
-Stable tag: 1.0.6
+Version: 1.0.7
+Stable tag: 1.0.7
 License: GPLv3 or later License
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -33,6 +33,8 @@ ZealousWeb Technologies has come up with a powerful solution - Smart Appointment
 * Update status, booking dates, and send manual notifications to stay in control.
 * Guest Check-In feature allow anyone to submit forms without the need for account creation.
 
+<strong>[Demo for Smart Appointment & Booking](https://demo.zealousweb.com/wordpress-plugins/smart-appointment-booking/)</strong>
+
 = Features of Smart Appointment & Booking Pro =
 
 We have released the PRO version of this plugin with extra advantageous features added. PRO Version 1.0.0 Released.
@@ -46,6 +48,22 @@ We have released the PRO version of this plugin with extra advantageous features
 
 
 <strong>[Get more information of Pro version here](https://store.zealousweb.com/smart-appointment-booking-pro)</strong>
+<strong>[Demo for Smart Appointment & Booking Pro](https://demo.zealousweb.com/wordpress-plugins/smart-appointment-booking-pro/)</strong>
+
+== OUR OTHER PLUGINS ==
+
+* <strong>[Abandoned Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/abandoned-contact-form-7-pro)</strong>
+* <strong>[Accept 2 Checkout Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-2checkout-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-elavon-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-paypal-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Sagepay(Opayo) Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-sage-pay-opayo-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-stripe-payments-using-contact-form-7-pro)</strong>
+* <strong>[Custom Product Options WooCommerce Pro](https://store.zealousweb.com/wordpress-plugins/custom-product-options-woocommerce-pro)</strong>
+* <strong>[Generate PDF Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7-pro)</strong>
+* <strong>[Smart Appointment & Booking Pro](https://store.zealousweb.com/wordpress-plugins/smart-appointment-booking-pro)</strong>
+* <strong>[Smart Showcase for Google Reviews Pro](https://store.zealousweb.com/wordpress-plugins/smart-showcase-for-google-reviews-pro)</strong>
+* <strong>[User Registration Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/user-registration-using-contact-form-7-pro)</strong>
 
 == Plugin Requirement ==
 
@@ -129,6 +147,9 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 
 == Changelog ==
+
+= 1.0.7 =
+* Minor changes - Doc update
 
 = 1.0.6 =
 * Issue Fixed
