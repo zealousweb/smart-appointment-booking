@@ -58,3 +58,6 @@ And admin wil receive notification on cancelling appointment.
 **Filter booking entries according status,forms**
 ![Screenshot](resource/img/Screenshot_10.png)
 
+
+
+<!-- Security scan triggered at 2025-09-28 15:22:17 -->
