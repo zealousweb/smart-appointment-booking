@@ -1611,26 +1611,27 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$booking_status = isset( $_GET['booking_status'] ) ? sanitize_text_field( wp_unslash( $_GET['booking_status'] ) ) : '';
 				$form_filter = isset( $_GET['form_filter'] ) ? absint( wp_unslash( $_GET['form_filter'] ) ) : 0;
 
-				if (!empty($booking_status) || !empty($form_filter)) {
-					$meta_query = array('relation' => 'and');
+				if ( ! empty( $booking_status ) || ! empty( $form_filter ) ) {
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Filtering entries by status/form requires meta_query.
+					$meta_query = array( 'relation' => 'and' );
 
-					if (!empty($booking_status) && in_array($booking_status, array('booked', 'approved', 'cancelled', 'pending', 'waiting', 'submitted'))) {
+					if ( ! empty( $booking_status ) && in_array( $booking_status, array( 'booked', 'approved', 'cancelled', 'pending', 'waiting', 'submitted' ), true ) ) {
 						$meta_query[] = array(
-							'key' => 'entry_status',
-							'value' => $booking_status,
-							'compare' => '='
+							'key'     => 'entry_status',
+							'value'   => $booking_status,
+							'compare' => '=',
 						);
 					}
 
-					if (!empty($form_filter)) {
+					if ( ! empty( $form_filter ) ) {
 						$meta_query[] = array(
-							'key' => 'saab_form_id',
-							'value' => $form_filter,
-							'compare' => '='
+							'key'     => 'saab_form_id',
+							'value'   => $form_filter,
+							'compare' => '=',
 						);
 					}
 
-					$query->set('meta_query', $meta_query);
+					$query->set( 'meta_query', $meta_query );
 				}
 			}
 		}
@@ -1689,26 +1690,27 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$timeslot = isset( $_POST['timeslot'] ) ? sanitize_text_field( wp_unslash( $_POST['timeslot'] ) ) : '';
 			$booking_date = isset( $_POST['booking_date'] ) ? sanitize_text_field( wp_unslash( $_POST['booking_date'] ) ) : '';
 
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/booking_date.
 			$args = array(
-				'post_type' => 'manage_entries',
-				'posts_per_page' => 5, // Show 5 entries per page
-				'paged' => $current_page, // Use the current page number for pagination
-				'meta_query' => array(
+				'post_type'      => 'manage_entries',
+				'posts_per_page' => 5,
+				'paged'          => $current_page,
+				'meta_query'     => array(
 					'relation' => 'AND',
 					array(
-						'key' => 'timeslot',
-						'value' => $timeslot,
-						'compare' => '='
+						'key'     => 'timeslot',
+						'value'   => $timeslot,
+						'compare' => '=',
 					),
 					array(
-						'key' => 'booking_date',
-						'value' => $booking_date,
-						'compare' => '='
-					)
-				)
-			);		
+						'key'     => 'booking_date',
+						'value'   => $booking_date,
+						'compare' => '=',
+					),
+				),
+			);
 
-			$query = new WP_Query($args);
+			$query = new WP_Query( $args );
 			ob_start();
 			if ($query->have_posts()) {
 				echo '<div class="border-top border-dark mb-2"></div>';

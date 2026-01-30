@@ -25,11 +25,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         }
 
         function saab_get_available_seats_per_timeslot($checktimeslot,$date){
-            
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Seats count filtered by timeslot/booking_date.
             $args = array(
-                'post_type' => 'manage_entries',
+                'post_type'      => 'manage_entries',
                 'posts_per_page' => -1,
-                'meta_query' => array(
+                'meta_query'     => array(
                     'relation' => 'AND',
                     array(
                         'key' => 'timeslot',
@@ -236,13 +236,14 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                        // Pagination; nonce not used for GET page parameter in admin list.
                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                        $current_page = isset( $_GET['page'] ) ? absint( wp_unslash( $_GET['page'] ) ) : 1;
+                       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/status/booking_date.
                        $args = array(
-                        'post_type' => 'manage_entries',
-                        'posts_per_page' => 5, 
-                        'paged' => $current_page,
-                        'orderby'   => 'date',
-                        'order'     => 'ASC',
-                        'meta_query' => array(
+                        'post_type'      => 'manage_entries',
+                        'posts_per_page' => 5,
+                        'paged'          => $current_page,
+                        'orderby'        => 'date',
+                        'order'          => 'ASC',
+                        'meta_query'     => array(
                             'relation' => 'AND',
                             array(
                                 'key' => 'timeslot',

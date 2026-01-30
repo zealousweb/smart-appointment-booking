@@ -109,16 +109,17 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		function saab_summary() {
 			ob_start();
 			$user_id = get_current_user_id();
-			$post_ids = array(); 
+			$post_ids = array();
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- User's bookings filtered by user_mapped meta.
 			$args = array(
-				'post_type' => 'manage_entries',
-				'meta_key' => 'user_mapped',
-				'meta_value' => $user_id,
-				'fields' => 'ids',
+				'post_type'      => 'manage_entries',
+				'meta_key'       => 'user_mapped',
+				'meta_value'     => $user_id,
+				'fields'         => 'ids',
 				'posts_per_page' => 55,
 			);
-		
-			$query = new WP_Query($args);
+
+			$query = new WP_Query( $args );
 		
 			if ($query->have_posts()) {
 				while ($query->have_posts()) {
