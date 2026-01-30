@@ -344,7 +344,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							
 								$usererror = true;
 								wp_send_json_error(array(
-									'message' => __('Error creating user '. $user_id->get_error_message(),'smart-appointment-booking'),
+									'message' => sprintf(
+										/* translators: %s: error message from user creation */
+										__( 'Error creating user %s', 'smart-appointment-booking' ),
+										$user_id->get_error_message()
+									),
 									'error' => $usererror,
 								));
 
@@ -585,10 +589,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			// 	}
 			// }
 			if(empty($saab_amount)){
-				$error_message = "Amount configuration Error";
 				wp_delete_post($created_post_id, true); 
 				wp_send_json_error(array(
-					'message' => __($error_message, 'smart-appointment-booking'),
+					'message' => __( 'Amount configuration Error', 'smart-appointment-booking' ),
 					'error' => true,
 				));
 			}
@@ -636,10 +639,13 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				// $payment_response = ( is_array( $paymentIntent ) || is_object( $paymentIntent ) ) ?  print_r( $paymentIntent, true ) : $paymentIntent;
 
 			}catch ( Exception $e ) {
-				$error_message = $e->getMessage();
 				wp_delete_post($created_post_id, true);
 				wp_send_json_error(array(
-					'message' => __($error_message, 'smart-appointment-booking'),
+					'message' => sprintf(
+						/* translators: %s: payment exception error message */
+						__( 'Payment error: %s', 'smart-appointment-booking' ),
+						$e->getMessage()
+					),
 					'error' => true,
 				));
 			}
@@ -1208,7 +1214,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		
 			// If no notification was found, log an error
 			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status: ' . $status, 'smart-appointment-booking');
+				$message = sprintf(
+					/* translators: %s: notification status (e.g. booked, approved, cancelled) */
+					__( 'Notification not found for the given status: %s', 'smart-appointment-booking' ),
+					$status
+				);
 				if (defined('WP_DEBUG') && WP_DEBUG) {
 					error_log('Notification not found for the given status: ' . $status); // Debug logging
 				}
@@ -1283,9 +1293,19 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							$message = __('Email sent successfully', 'smart-appointment-booking');
 						} else {
 							// Log details if email sending fails
-							$message = __('Failed to send email. Details: to-' . $to . ', from-' . $from . ', Bcc-' . $bcc . ', Cc-' . $cc . ', subject-' . $subject . ', body-' . $check_body . ', headers-' . json_encode($headers), 'smart-appointment-booking');
+							$message = sprintf(
+								/* translators: 1: to address, 2: from address, 3: Bcc, 4: Cc, 5: subject, 6: body, 7: headers */
+								__( 'Failed to send email. Details: to-%1$s, from-%2$s, Bcc-%3$s, Cc-%4$s, subject-%5$s, body-%6$s, headers-%7$s', 'smart-appointment-booking' ),
+								$to,
+								$from,
+								$bcc,
+								$cc,
+								$subject,
+								$check_body,
+								wp_json_encode( $headers )
+							);
 							if (defined('WP_DEBUG') && WP_DEBUG) {
-								error_log('Failed to send email. Details: to-' . $to . ', from-' . $from . ', Bcc-' . $bcc . ', Cc-' . $cc . ', subject-' . $subject . ', body-' . $check_body . ', headers-' . json_encode($headers));
+								error_log('Failed to send email. Details: to-' . $to . ', from-' . $from . ', Bcc-' . $bcc . ', Cc-' . $cc . ', subject-' . $subject . ', body-' . $check_body . ', headers-' . wp_json_encode( $headers ));
 							}
 						}
 					}
@@ -1294,7 +1314,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		
 			// Handle case where no matching notification is found
 			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status: ' . $status, 'smart-appointment-booking');
+				$message = sprintf(
+					/* translators: %s: notification status (e.g. booked, approved, cancelled) */
+					__( 'Notification not found for the given status: %s', 'smart-appointment-booking' ),
+					$status
+				);
 				if (defined('WP_DEBUG') && WP_DEBUG) {
 					error_log('Notification not found for the given status: ' . $status);
 				}
@@ -2624,7 +2648,7 @@ error_reporting(-1);
 		 */
 		function saab_cancel_booking_shortcode() {
 			$response = array(					
-				'message' => esc_html__('','smart-appointment-booking'),
+				'message' => '',
 				'mail_message' => '',
 				
 			);

@@ -1129,7 +1129,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 											$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','waiting','submitted');
 											foreach ($available_types as $avail_type) {
 												$selected = ($avail_type === $type) ? 'selected' : '';
-												echo '<option value="' . esc_html($avail_type) . '" ' . esc_attr($selected) . '>' . ucfirst(esc_html($avail_type)) . '</option>';
+												echo '<option value="' . esc_html($avail_type) . '" ' . esc_attr($selected) . '>' . esc_html( ucfirst( $avail_type ) ) . '</option>';
 
 											}
 											?>
