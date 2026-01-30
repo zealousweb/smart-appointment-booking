@@ -1228,10 +1228,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$form_title = get_the_title($form_id);	
 				
 				if (isset($form_title)) {
-					echo sprintf(
-						esc_html__('%s', 'smart-appointment-booking'),
-						esc_html($form_title)
-					);
+					echo esc_html( $form_title );
 				
 				}else{
 					echo '-';
@@ -1241,10 +1238,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$booking_status = get_post_meta($post_id,'saab_entry_status',true);
 			
 				if (isset($booking_status) && !empty($booking_status)) {
-					echo sprintf(
-						esc_html__('%s', 'smart-appointment-booking'),
-						esc_html(ucfirst($booking_status))
-					);	
+					echo esc_html( ucfirst( $booking_status ) );
 				}else{
 					echo '-';
 				}
@@ -1262,11 +1256,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
 				$booked_date = gmdate('d F, Y', strtotime($booked_date));	
 					if (isset($booking_date) && !empty($booking_date)) {	
-						echo sprintf(
-							esc_html__('%s', 'smart-appointment-booking'),
-							esc_html($booked_date)
-						);
-						
+						echo esc_html( $booked_date );
 					}
 				}else{
 					echo '-';
@@ -1276,10 +1266,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$timeslot = get_post_meta($post_id, 'saab_timeslot', true );						
 			
 				if (isset($timeslot) && !empty($timeslot)) {
-					echo sprintf(
-						esc_html__('%s', 'smart-appointment-booking'),
-						esc_html($timeslot)
-					);	
+					echo esc_html( $timeslot );	
 				}else{
 					echo '-';
 				}
