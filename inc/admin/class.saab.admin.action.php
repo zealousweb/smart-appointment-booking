@@ -1468,7 +1468,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			if (isset($_POST['confirmation_data'])) {
 
-				parse_str(wp_unslash(sanitize_text_field($_POST['confirmation_data'])), $formdata);
+				parse_str( sanitize_text_field( wp_unslash( $_POST['confirmation_data'] ) ), $formdata );
 				
 				$post_id = $formdata['post_id'];
 				if (isset($formdata['confirmation'])) {

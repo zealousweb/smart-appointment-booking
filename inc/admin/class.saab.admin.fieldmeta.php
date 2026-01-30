@@ -882,8 +882,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }
             //Weekdays
             if ( isset( $_POST['weekdays'] ) ) {
-                $selected_weekdays = array_map( 'sanitize_text_field', array_map( 'wp_unslash', (array) $_POST['weekdays'] ) );
-                update_post_meta($post_id, 'saab_weekdays', $selected_weekdays);
+                $selected_weekdays = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['weekdays'] ) );
+                update_post_meta( $post_id, 'saab_weekdays', $selected_weekdays );
             } else {
                 update_post_meta($post_id, 'saab_weekdays', array());
             }
@@ -952,9 +952,10 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta( $post_id, 'saab_steps_duration', $sanitized_steps_duration );
             }
             //timeslot_duration
-            $raw_booking_stops_after = isset( $_POST['booking_stops_after'] ) ? wp_unslash( $_POST['booking_stops_after'] ) : array();
-            if ( is_array( $raw_booking_stops_after ) && ! empty( $raw_booking_stops_after ) ) {
-                $booking_stops_after_duration = map_deep( $raw_booking_stops_after, 'sanitize_text_field' );
+            $booking_stops_after_duration = ( isset( $_POST['booking_stops_after'] ) && is_array( $_POST['booking_stops_after'] ) )
+                ? map_deep( wp_unslash( $_POST['booking_stops_after'] ), 'sanitize_text_field' )
+                : array();
+            if ( ! empty( $booking_stops_after_duration ) ) {
                 $sanitized_booking_stops_after_duration = array(
                     'hours' => isset( $booking_stops_after_duration['hours'] ) ? $booking_stops_after_duration['hours'] : '',
                     'minutes' => isset( $booking_stops_after_duration['minutes'] ) ? $booking_stops_after_duration['minutes'] : '',
@@ -980,8 +981,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta( $post_id, 'saab_no_of_booking', $selected_date );
             }
             //waiting List
-            if (isset($_POST['waiting_list']) && filter_var($_POST['waiting_list'], FILTER_VALIDATE_BOOLEAN)) {
-                update_post_meta($post_id, 'saab_waiting_list', 1);
+            if ( isset( $_POST['waiting_list'] ) && filter_var( wp_unslash( $_POST['waiting_list'] ), FILTER_VALIDATE_BOOLEAN ) ) {
+                update_post_meta( $post_id, 'saab_waiting_list', 1 );
             } else {
                 delete_post_meta($post_id, 'saab_waiting_list');
             }
@@ -992,7 +993,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 delete_post_meta($post_id, 'saab_timeslot_BookAllow');
             }
             //enable_auto_approve
-            if (isset($_POST['enable_auto_approve']) && filter_var($_POST['enable_auto_approve'], FILTER_VALIDATE_BOOLEAN)) {
+            if ( isset( $_POST['enable_auto_approve'] ) && filter_var( wp_unslash( $_POST['enable_auto_approve'] ), FILTER_VALIDATE_BOOLEAN ) ) {
                 update_post_meta($post_id, 'saab_enable_auto_approve', 1);
             } else {
                 delete_post_meta($post_id, 'saab_enable_auto_approve');
@@ -1024,9 +1025,10 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                     update_post_meta($post_id, 'saab_breaktimeslots', $sanitized_breaktimeslots);
                 }
             
-                $raw_generatetimeslot = isset( $_POST['generatetimeslot'] ) ? wp_unslash( $_POST['generatetimeslot'] ) : array();
-                if ( is_array( $raw_generatetimeslot ) && ! empty( $raw_generatetimeslot ) ) {
-                    $generatetimeslots = map_deep( $raw_generatetimeslot, 'sanitize_text_field' );
+                $generatetimeslots = ( isset( $_POST['generatetimeslot'] ) && is_array( $_POST['generatetimeslot'] ) )
+                    ? map_deep( wp_unslash( $_POST['generatetimeslot'] ), 'sanitize_text_field' )
+                    : array();
+                if ( ! empty( $generatetimeslots ) ) {
                     $sanitized_generatetimeslots = array();
                     foreach ( $generatetimeslots as $generatetimeslot ) {
                         $sanitized_generatetimeslots[] = array(
@@ -1064,8 +1066,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 update_post_meta( $post_id, 'saab_recurring_type', $recurring_type );
             }
             if ( isset( $_POST['recur_weekdays'] ) ) {
-                $sanitized_recur_weekdays = array_map( 'sanitize_text_field', array_map( 'wp_unslash', (array) $_POST['recur_weekdays'] ) );
-                update_post_meta($post_id, 'saab_recur_weekdays', $sanitized_recur_weekdays); 
+                $sanitized_recur_weekdays = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['recur_weekdays'] ) );
+                update_post_meta( $post_id, 'saab_recur_weekdays', $sanitized_recur_weekdays );
             }
             if ( isset( $_POST['advancedata'] ) ) {
                 $advancedata = is_array( $_POST['advancedata'] )
@@ -1075,8 +1077,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             }else {
                 delete_post_meta($post_id, 'saab_advancedata');
             }
-            if (isset($_POST['holidays'])) {
-                $holidays = array_map('sanitize_text_field', $_POST['holidays']);
+            if ( isset( $_POST['holidays'] ) ) {
+                $holidays = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['holidays'] ) );
                 update_post_meta($post_id, 'saab_holiday_dates', $holidays);
             }
             if ( isset( $_POST['end_repeats'] ) ) {
@@ -1111,8 +1113,8 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 return;
             }
 
-            if (isset($_POST['notes'])) {
-                $notes = sanitize_textarea_field($_POST['notes']);
+            if ( isset( $_POST['notes'] ) ) {
+                $notes = sanitize_textarea_field( wp_unslash( $_POST['notes'] ) );
                 update_post_meta($post_id, 'saab_notes', $notes);
             }
             
@@ -1133,9 +1135,9 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 $booking_date = 'saabid_'.$form_id.'_'.$currentMonth.'_'.$currentday.'_'.$currentYear;
                 update_post_meta($post_id, 'saab_booking_date', $booking_date);
             }
-            if (isset($_POST['start_time']) && isset($_POST['end_time'])) {
-                $start_time = trim(gmdate("h:i A", strtotime( sanitize_text_field($_POST['start_time']) )));
-                $end_time = trim(gmdate("h:i A", strtotime( sanitize_text_field($_POST['end_time']) )));
+            if ( isset( $_POST['start_time'] ) && isset( $_POST['end_time'] ) ) {
+                $start_time = trim( gmdate( 'h:i A', strtotime( sanitize_text_field( wp_unslash( $_POST['start_time'] ) ) ) ) );
+                $end_time  = trim( gmdate( 'h:i A', strtotime( sanitize_text_field( wp_unslash( $_POST['end_time'] ) ) ) ) );
                 $timeslot = $start_time.'-'.$end_time;
                 update_post_meta($post_id, 'saab_timeslot', $timeslot);
             }
@@ -1153,9 +1155,9 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 $send_notification =$this->saab_admin_send_notification($selected_action,$form_id, $post_id, $listform_label_val);
                 update_post_meta($post_id, 'saab_manual_notification', $selected_action);
                 
-            }else{
-                $booking_status = isset($_POST['booking_status']) ? sanitize_text_field($_POST['booking_status']) : ''; 
-                update_post_meta($post_id, 'saab_entry_status', $booking_status);
+            } else {
+                $booking_status = isset( $_POST['booking_status'] ) ? sanitize_text_field( wp_unslash( $_POST['booking_status'] ) ) : '';
+                update_post_meta( $post_id, 'saab_entry_status', $booking_status );
                 $formdata = get_post_meta($post_id,'saab_submission_data',true);
                 $listform_label_val =$this->saab_admin_getkey_value_formshortcodes($post_id,$formdata);
                 $listform_label_val['Status'] = $booking_status; 

@@ -997,7 +997,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		}
 		function saab_add_event_to_calender(){
 			// OAuth callback from Google; code/state are from redirect, not form POST. Nonce not applicable.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			ob_start();
 
 			if ( isset( $_GET['code'] ) ) {
@@ -1111,6 +1111,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					}
 				}
 			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			return ob_get_clean();
 		}
 		/**
@@ -1124,23 +1125,26 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * @return string             A message indicating the result of the email sending process.
 		 */
 		function saab_send_notification($status, $form_id, $post_id, $form_data) {
-			// Sanitize the status value from $_POST, if applicable
+			// Status may be overridden from POST; nonce verified in calling AJAX handler.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$status = ( isset( $_POST['status'] ) && ! empty( $_POST['status'] ) ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : $status;
-			
-			// Log status to ensure it's being received correctly
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('Status received: ' . $status);
+
+			// Log status to ensure it's being received correctly.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Status received: ' . $status );
 			}
-		
+
 			$message = '';
 			$notificationFound = false;
-		
+
 			// Get notification data
-			$get_notification_array = get_post_meta($form_id, 'saab_notification_data', true);
-			
-			// Log the retrieved notification data for debugging
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('Notification array: ' . print_r($get_notification_array, true));
+			$get_notification_array = get_post_meta( $form_id, 'saab_notification_data', true );
+
+			// Log the retrieved notification data for debugging.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				error_log( 'Notification array: ' . print_r( $get_notification_array, true ) );
 			}
 		
 			// Check if the notification data exists and is an array
@@ -1175,11 +1179,12 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						$cc = $this->saab_check_shortcode_exist($check_cc, $form_id, $form_data, $shortcodesArray);
 						$check_body = $this->saab_check_shortcodes_exist_in_editor($check_body, $form_id, $form_data, $shortcodesArray);
 		
-						// Log email details for debugging
-						if (defined('WP_DEBUG') && WP_DEBUG) {
-							error_log('Email details: to: ' . $to . ', from: ' . $from . ', subject: ' . $subject . ', body: ' . $check_body);
+						// Log email details for debugging.
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							error_log( 'Email details: to: ' . $to . ', from: ' . $from . ', subject: ' . $subject . ', body: ' . $check_body );
 						}
-		
+
 						// Set email headers
 						$headers = array(
 							'From: ' . sanitize_email($from),
@@ -1210,23 +1215,25 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					}
 				}
 			} else {
-				// Log an error if no notification data was found for the form
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log('No notification data found for form ID: ' . $form_id);
+				// Log an error if no notification data was found for the form.
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( 'No notification data found for form ID: ' . $form_id );
 				}
 			}
-		
-			// If no notification was found, log an error
-			if ($notificationFound === false) {
+
+			// If no notification was found, log an error.
+			if ( $notificationFound === false ) {
 				$message = sprintf(
 					/* translators: %s: notification status (e.g. booked, approved, cancelled) */
 					__( 'Notification not found for the given status: %s', 'smart-appointment-booking' ),
 					$status
 				);
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log('Notification not found for the given status: ' . $status); // Debug logging
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( 'Notification not found for the given status: ' . $status );
 				}
-				wp_send_json_error(array('message' => $message));
+				wp_send_json_error( array( 'message' => $message ) );
 				wp_die();
 			}
 		
@@ -2356,10 +2363,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				11 => 'November',
 				12 => 'December'
 				);
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Calendar month/year from AJAX; nonce verified in caller or optional display.
+				// phpcs:disable WordPress.Security.NonceVerification.Missing -- Calendar month/year/form_id from AJAX; nonce verified in caller or optional display.
 				$currentMonth = isset( $_POST['currentMonth'] ) ? max( 1, min( 12, intval( wp_unslash( $_POST['currentMonth'] ) ) ) ) : (int) gmdate( 'n' );
 				$currentYear  = isset( $_POST['currentYear'] ) ? absint( wp_unslash( $_POST['currentYear'] ) ) : (int) gmdate( 'Y' );
 				$post_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
+				// phpcs:enable WordPress.Security.NonceVerification.Missing
 				$running_year = date("Y"); //phpcs:ignore
 				ob_start();
 			?>
