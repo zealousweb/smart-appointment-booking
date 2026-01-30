@@ -199,9 +199,8 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				'message' => 'Invalid request.',
 			);
 			$get_notification_array = array();
-			if (isset($_POST['notification_data'])) {
-			
-				parse_str($_POST['notification_data'], $form_data);
+			if ( isset( $_POST['notification_data'] ) ) {
+				parse_str( sanitize_text_field( wp_unslash( $_POST['notification_data'] ) ), $form_data );
 				$post_id = $form_data['form_id'];
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
@@ -393,10 +392,10 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * Update booking form entries in backend
 		 */
 		function view_booking_entry( $post ){
-			if( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], '_wpnonce' ) ){
+			if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), '_wpnonce' ) ) {
 				//wp_die( 'Security check failed. Refresh the page and retry again!' );
 			}
-            $post_id = ( isset( $_GET['post_id'] ) ) ? $_GET['post_id'] : '';
+            $post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
             $form_data = get_post_meta( $post_id, 'saab_submission_data', true );	
             $form_id = get_post_meta( $post_id, 'saab_form_id', true );	
             $timeslot = get_post_meta( $post_id, 'saab_timeslot', true );
@@ -528,13 +527,14 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
             <?php
         }
 		function update_form_entry_data(){
-			// if( ! isset( $_POST['zwt_saab_common_nonce'] ) || ! wp_verify_nonce( $_POST['zwt_saab_common_nonce'], 'zwt_saab_common_nonce' ) ){
-			// 	wp_die( 'Security check failed. Refresh the page and retry again!' );
-			// }
-			if (isset($_POST['entry_id']) && isset($_POST['updated_data']) ) { 
-				$entry_id = ( isset( $_POST['entry_id'] ) ) ? $_POST['entry_id'] : ''; 
-				$get_submitted_data = get_post_meta($entry_id, 'saab_submission_data', true);
-				$updated_data = ( isset( $_POST['updated_data'] ) ) ? $_POST['updated_data'] : ''; 
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
+				wp_send_json_error( array( 'message' => __( 'Security check failed.', 'smart-appointment-booking' ) ) );
+				wp_die();
+			}
+			if ( isset( $_POST['entry_id'] ) && isset( $_POST['updated_data'] ) ) {
+				$entry_id = isset( $_POST['entry_id'] ) ? absint( wp_unslash( $_POST['entry_id'] ) ) : 0;
+				$get_submitted_data = get_post_meta( $entry_id, 'saab_submission_data', true );
+				$updated_data = isset( $_POST['updated_data'] ) && is_array( $_POST['updated_data'] ) ? map_deep( wp_unslash( $_POST['updated_data'] ), 'sanitize_text_field' ) : array(); 
 				foreach ($updated_data as $key => $value) {
 					if (isset($get_submitted_data['data'][$key])) {
 						$get_submitted_data['data'][$key] = $value;
@@ -574,11 +574,9 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			// Add your page content here
 			echo "<div class='notification-page-main m-4 p-1 ' >";
 		
-			if (isset($_GET['post_type']) && isset($_GET['post_id']) && isset( $_GET['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['nonce'] ) ) , 'other_setting' )) {
-			
-				$post_type = sanitize_text_field($_GET['post_type']);
-				
-				$post_id = absint( $_GET['post_id']);				
+			if ( isset( $_GET['post_type'] ) && isset( $_GET['post_id'] ) && isset( $_GET['nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'other_setting' ) ) {
+				$post_type = sanitize_text_field( wp_unslash( $_GET['post_type'] ) );
+				$post_id = absint( wp_unslash( $_GET['post_id'] ) );				
 			
 				?>
 				<ul class="nav nav-tabs" id="myTabs" role="tablist">
@@ -632,7 +630,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 														$fieldKey = $option['fieldkey'];
 														$fieldLabel = $option['fieldlabel'];
 														$selected = ($fieldKey == $first_name) ? 'selected' : '';
-														echo '<option value="' . $fieldKey . '" ' . $selected . '>' . $fieldLabel . '</option>';
+														echo '<option value="' . esc_attr( $fieldKey ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $fieldLabel ) . '</option>';
 													}
 												?>
 											</select>
@@ -994,12 +992,12 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 				wp_send_json($response);
 			}else{
-				if (null !== ($_POST['post_id'] ?? null) && null !== absint($_POST['notification_id'] ?? null) && null !== sanitize_text_field($_POST['new_state'] ?? null)) {
-					$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-					$notification_id = isset($_POST['notification_id']) ? absint($_POST['notification_id']) : 0;
+				if ( isset( $_POST['post_id'] ) && isset( $_POST['notification_id'] ) && isset( $_POST['new_state'] ) ) {
+					$post_id = absint( wp_unslash( $_POST['post_id'] ) );
+					$notification_id = absint( wp_unslash( $_POST['notification_id'] ) );
 
-					$index = ltrim($notification_id, "notify_");
-					$new_state = isset($_POST['new_state']) ? sanitize_text_field($_POST['new_state']) : '';
+					$index = ltrim( (string) $notification_id, 'notify_' );
+					$new_state = sanitize_text_field( wp_unslash( $_POST['new_state'] ) );
 					
 					// Get the existing notification metadata
 					$notification_data = get_post_meta($post_id, 'saab_notification_data', true);
@@ -1033,9 +1031,10 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				wp_send_json_error('Invalid request.');
 				wp_die();
 			}
-			if (isset($_POST['indexes'])) {
-				$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-				$indexesToDelete = isset($_POST['indexes']) ? $_POST['indexes'] : '';	
+			if ( isset( $_POST['indexes'] ) && is_array( $_POST['indexes'] ) ) {
+				$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+				$indexes_raw = wp_unslash( $_POST['indexes'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via map_deep below
+				$indexesToDelete = map_deep( $indexes_raw, 'sanitize_text_field' );	
 				$notification_metadata = get_post_meta($post_id, 'saab_notification_data', true);
 				foreach ($indexesToDelete as $index) {
 					if (isset($notification_metadata[$index])) {
@@ -1129,7 +1128,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 											$available_types = array('any', 'booked', 'pending', 'cancelled', 'approved','waiting','submitted');
 											foreach ($available_types as $avail_type) {
 												$selected = ($avail_type === $type) ? 'selected' : '';
-												echo '<option value="' . esc_html($avail_type) . '" ' . esc_attr($selected) . '>' . ucfirst(esc_html($avail_type)) . '</option>';
+												echo '<option value="' . esc_html($avail_type) . '" ' . esc_attr($selected) . '>' . esc_html( ucfirst( $avail_type ) ) . '</option>';
 
 											}
 											?>
@@ -1204,7 +1203,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			
 				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
-				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field($_POST['form_data']) : array();
+				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field( wp_unslash( $_POST['form_data'] ) ) : '';
 				
 				update_post_meta($post_id, 'saab_formschema', $form_data );
 
@@ -1228,10 +1227,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$form_title = get_the_title($form_id);	
 				
 				if (isset($form_title)) {
-					echo sprintf(
-						esc_html__('%s', 'smart-appointment-booking'),
-						esc_html($form_title)
-					);
+					echo esc_html( $form_title );
 				
 				}else{
 					echo '-';
@@ -1241,10 +1237,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$booking_status = get_post_meta($post_id,'saab_entry_status',true);
 			
 				if (isset($booking_status) && !empty($booking_status)) {
-					echo sprintf(
-						esc_html__('%s', 'smart-appointment-booking'),
-						esc_html(ucfirst($booking_status))
-					);	
+					echo esc_html( ucfirst( $booking_status ) );
 				}else{
 					echo '-';
 				}
@@ -1262,11 +1255,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$booked_date = $bookedday."-".$bookedmonth."-".$bookedyear;
 				$booked_date = gmdate('d F, Y', strtotime($booked_date));	
 					if (isset($booking_date) && !empty($booking_date)) {	
-						echo sprintf(
-							esc_html__('%s', 'smart-appointment-booking'),
-							esc_html($booked_date)
-						);
-						
+						echo esc_html( $booked_date );
 					}
 				}else{
 					echo '-';
@@ -1276,10 +1265,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				$timeslot = get_post_meta($post_id, 'saab_timeslot', true );						
 			
 				if (isset($timeslot) && !empty($timeslot)) {
-					echo sprintf(
-						esc_html__('%s', 'smart-appointment-booking'),
-						esc_html($timeslot)
-					);	
+					echo esc_html( $timeslot );	
 				}else{
 					echo '-';
 				}
@@ -1341,7 +1327,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			} else {
 				$error = 1;
 				$error_mess = "Something went wrong";
-				error_log("post_id not found while preview");
+				error_log( "post_id not found while preview" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		
 			if ($error == 1) {
@@ -1450,7 +1436,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				wp_send_json_error(array('message' => 'Nonce verification failed'));
 				wp_die();
 			}
-			$user_mapping = isset($_POST['saabuser_mapping']) ? sanitize_text_field($_POST['saabuser_mapping']) : '';
+			$user_mapping = isset( $_POST['saabuser_mapping'] ) ? sanitize_text_field( wp_unslash( $_POST['saabuser_mapping'] ) ) : '';
 		
 			parse_str($user_mapping, $user_mapping_array);
 		
@@ -1482,7 +1468,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			if (isset($_POST['confirmation_data'])) {
 
-				parse_str(wp_unslash(sanitize_text_field($_POST['confirmation_data'])), $formdata);
+				parse_str( sanitize_text_field( wp_unslash( $_POST['confirmation_data'] ) ), $formdata );
 				
 				$post_id = $formdata['post_id'];
 				if (isset($formdata['confirmation'])) {
@@ -1582,11 +1568,11 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				
 				foreach ($options as $value => $label) {
 					$selected = selected($status, $value, false);
-					echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+					echo '<option value="' . esc_attr($value) . '" ' . esc_attr( $selected ) . '>' . esc_html($label) . '</option>';
 				}
 				echo '</select>';
 
-				$selected_form_id = isset($_GET['form_filter']) ? sanitize_text_field($_GET['form_filter']) : '';
+				$selected_form_id = isset( $_GET['form_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['form_filter'] ) ) : '';
 		
 				$forms_query = new WP_Query($args);
 		
@@ -1621,30 +1607,31 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				return;
 			}
 			
-			if ('edit.php' === $pagenow && 'manage_entries' === $typenow) {
-				$booking_status = isset($_GET['booking_status']) ? sanitize_text_field($_GET['booking_status']) : '';
-				$form_filter = isset($_GET['form_filter']) ? intval($_GET['form_filter']) : 0;
+			if ( 'edit.php' === $pagenow && 'manage_entries' === $typenow ) {
+				$booking_status = isset( $_GET['booking_status'] ) ? sanitize_text_field( wp_unslash( $_GET['booking_status'] ) ) : '';
+				$form_filter = isset( $_GET['form_filter'] ) ? absint( wp_unslash( $_GET['form_filter'] ) ) : 0;
 
-				if (!empty($booking_status) || !empty($form_filter)) {
-					$meta_query = array('relation' => 'and');
+				if ( ! empty( $booking_status ) || ! empty( $form_filter ) ) {
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Filtering entries by status/form requires meta_query.
+					$meta_query = array( 'relation' => 'and' );
 
-					if (!empty($booking_status) && in_array($booking_status, array('booked', 'approved', 'cancelled', 'pending', 'waiting', 'submitted'))) {
+					if ( ! empty( $booking_status ) && in_array( $booking_status, array( 'booked', 'approved', 'cancelled', 'pending', 'waiting', 'submitted' ), true ) ) {
 						$meta_query[] = array(
-							'key' => 'entry_status',
-							'value' => $booking_status,
-							'compare' => '='
+							'key'     => 'entry_status',
+							'value'   => $booking_status,
+							'compare' => '=',
 						);
 					}
 
-					if (!empty($form_filter)) {
+					if ( ! empty( $form_filter ) ) {
 						$meta_query[] = array(
-							'key' => 'saab_form_id',
-							'value' => $form_filter,
-							'compare' => '='
+							'key'     => 'saab_form_id',
+							'value'   => $form_filter,
+							'compare' => '=',
 						);
 					}
 
-					$query->set('meta_query', $meta_query);
+					$query->set( 'meta_query', $meta_query );
 				}
 			}
 		}
@@ -1699,30 +1686,31 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			// Define the current page number
 			
-			$current_page = isset($_POST['page']) ? absint($_POST['page']) : 1;
-			$timeslot = isset($_POST['timeslot']) ? sanitize_text_field($_POST['timeslot']) : '';
-			$booking_date = isset($_POST['booking_date']) ? sanitize_text_field($_POST['booking_date']) : '';
+			$current_page = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : 1;
+			$timeslot = isset( $_POST['timeslot'] ) ? sanitize_text_field( wp_unslash( $_POST['timeslot'] ) ) : '';
+			$booking_date = isset( $_POST['booking_date'] ) ? sanitize_text_field( wp_unslash( $_POST['booking_date'] ) ) : '';
 
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/booking_date.
 			$args = array(
-				'post_type' => 'manage_entries',
-				'posts_per_page' => 5, // Show 5 entries per page
-				'paged' => $current_page, // Use the current page number for pagination
-				'meta_query' => array(
+				'post_type'      => 'manage_entries',
+				'posts_per_page' => 5,
+				'paged'          => $current_page,
+				'meta_query'     => array(
 					'relation' => 'AND',
 					array(
-						'key' => 'timeslot',
-						'value' => $timeslot,
-						'compare' => '='
+						'key'     => 'timeslot',
+						'value'   => $timeslot,
+						'compare' => '=',
 					),
 					array(
-						'key' => 'booking_date',
-						'value' => $booking_date,
-						'compare' => '='
-					)
-				)
-			);		
+						'key'     => 'booking_date',
+						'value'   => $booking_date,
+						'compare' => '=',
+					),
+				),
+			);
 
-			$query = new WP_Query($args);
+			$query = new WP_Query( $args );
 			ob_start();
 			if ($query->have_posts()) {
 				echo '<div class="border-top border-dark mb-2"></div>';

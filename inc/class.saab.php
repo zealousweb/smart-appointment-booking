@@ -52,10 +52,6 @@ if ( ! class_exists( 'SAAB' ) ) {
 			
 			global $wp_version;
 
-			# Set filter for plugin's languages directory
-			$SAAB_lang_dir = dirname( SAAB_PLUGIN_BASENAME ) . '/languages/';
-			$SAAB_lang_dir = apply_filters( 'SAAB_languages_directory', $SAAB_lang_dir );
-
 			# Traditional WordPress plugin locale filter.
 			$get_locale = get_locale();
 
@@ -73,10 +69,8 @@ if ( ! class_exists( 'SAAB' ) ) {
 			if ( file_exists( $mofile_global ) ) {
 				# Look in global /wp-content/languages/plugin-name folder
 				load_textdomain( 'smart-appointment-booking', $mofile_global );
-			} else {
-				# Load the default language files
-				load_plugin_textdomain( 'smart-appointment-booking', false, $SAAB_lang_dir );
 			}
+			# When hosted on WordPress.org, translations are loaded automatically; no load_plugin_textdomain() needed.
         }
     }
 }

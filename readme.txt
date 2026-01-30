@@ -6,8 +6,8 @@ Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
 Tested up to: 6.9
 License: GPL-3.0-or-later
-Version: 1.0.7
-Stable tag: 1.0.7
+Version: 1.0.8
+Stable tag: 1.0.8
 License: GPLv3 or later License
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -130,6 +130,12 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Changelog ==
 
+= 1.0.8 =
+* Security: Nonce verification and input sanitization improvements across admin and front forms.
+* Security: Proper use of wp_unslash() before sanitization for POST/GET data.
+* Code quality: Addressed WordPress PHPCS warnings (escaping, validated input, slow query notices).
+* Tested with the latest version of WordPress (6.9).
+
 = 1.0.7 =
 * Tested with the latest version of WordPress (6.9).
 
@@ -171,5 +177,47 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Upgrade Notice ==
 
+= 1.0.8 =
+* Security: Nonce verification and input sanitization improvements across admin and front forms.
+* Security: Proper use of wp_unslash() before sanitization for POST/GET data.
+* Code quality: Addressed WordPress PHPCS warnings (escaping, validated input, slow query notices).
+* Tested with the latest version of WordPress (6.9).
+
+= 1.0.7 =
+* Tested with the latest version of WordPress (6.9).
+
+= 1.0.6 =
+* Issue Fixed
+
+= 1.0.5 =
+* Issue Fixed
+
+= 1.0.4 =
+* Fix: Issue with enabling or disabling the booking form
+* Fix: Calendar not displaying when clicking arrows
+* Fix: Calendar not displaying when selecting a month
+* Fix: Calendar not displaying when selecting a year
+* Fix: Timeslot issue in the 'Manage Entry' section
+* Fix: Display of booked timeslots in the form
+* Fix: Change button name for "Add New Form (Booking Form)"
+* Fix: Remove "View Post" link after form is published
+* Fix: Generate shortcode when publishing the form
+* Add: List of added users
+* Add: List of added statuses
+* Add: "Appointment Type: Virtual" option
+
+= 1.0.3 =
+* Fix: Date being selected in calendar issue
+* Fix: Time being selected issue
+* Fix: Available seat count issue
+* Fix: Data listing issue
+* Fix: Manage Entry issue
+
+= 1.0.2 =
+* The issue on the backend has been fixed.
+
+= 1.0.1 =
+* Issue Fixed "Form Is not being saved"
+
 = 1.0.0 =
-1.0 is Initial Release.
+* Initial Release

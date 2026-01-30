@@ -109,16 +109,17 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		function saab_summary() {
 			ob_start();
 			$user_id = get_current_user_id();
-			$post_ids = array(); 
+			$post_ids = array();
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- User's bookings filtered by user_mapped meta.
 			$args = array(
-				'post_type' => 'manage_entries',
-				'meta_key' => 'user_mapped',
-				'meta_value' => $user_id,
-				'fields' => 'ids',
+				'post_type'      => 'manage_entries',
+				'meta_key'       => 'user_mapped',
+				'meta_value'     => $user_id,
+				'fields'         => 'ids',
 				'posts_per_page' => 55,
 			);
-		
-			$query = new WP_Query($args);
+
+			$query = new WP_Query( $args );
 		
 			if ($query->have_posts()) {
 				while ($query->have_posts()) {
@@ -268,13 +269,15 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			return $isbooking_open;
 		}
 
-		function saab_save_form_submission() {	
-			// ini_set('display_startup_errors', 1);
-			// ini_set('display_errors', 1);
-			// error_reporting(-1);
-		//if( ! wp_verify_nonce( 'saab_front_nonce' ) ){} // ignoring nonce validation error in the front form		
-		$form_id = ( isset( $_POST['fid'] ) ) ? $_POST['fid'] : '';
-		$form_data = ( isset( $_POST['form_data'] ) ) ? $_POST['form_data'] : '';
+		function saab_save_form_submission() {
+			$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : ( isset( $_POST['security'] ) ? 'security' : '' );
+			$nonce_val = ( $nonce_key && isset( $_POST[ $nonce_key ] ) ) ? sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ) : '';
+			if ( ! $nonce_val || ! wp_verify_nonce( $nonce_val, 'my_ajax_nonce' ) ) {
+				wp_send_json_error( array( 'message' => __( 'Security check failed.', 'smart-appointment-booking' ) ) );
+				wp_die();
+			}
+			$form_id = isset( $_POST['fid'] ) ? absint( wp_unslash( $_POST['fid'] ) ) : 0;
+			$form_data = isset( $_POST['form_data'] ) && is_array( $_POST['form_data'] ) ? map_deep( wp_unslash( $_POST['form_data'] ), 'sanitize_text_field' ) : array();
 		// User 
 		$is_user_logged_in = is_user_logged_in();
 		$userLoginRequired = get_post_meta($form_id, 'saab_userLoginRequired', true);
@@ -344,7 +347,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							
 								$usererror = true;
 								wp_send_json_error(array(
-									'message' => __('Error creating user '. $user_id->get_error_message(),'smart-appointment-booking'),
+									'message' => sprintf(
+										/* translators: %s: error message from user creation */
+										__( 'Error creating user %s', 'smart-appointment-booking' ),
+										$user_id->get_error_message()
+									),
 									'error' => $usererror,
 								));
 
@@ -585,14 +592,13 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			// 	}
 			// }
 			if(empty($saab_amount)){
-				$error_message = "Amount configuration Error";
 				wp_delete_post($created_post_id, true); 
 				wp_send_json_error(array(
-					'message' => __($error_message, 'smart-appointment-booking'),
+					'message' => __( 'Amount configuration Error', 'smart-appointment-booking' ),
 					'error' => true,
 				));
 			}
-			$stripetoken = ( isset( $_POST['token'] ) ) ? $_POST['token'] : '';
+			$stripetoken = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
 			// Set your Stripe Publishable key
 			SabStripe::setApiKey($secretKey); // Replace with your Stripe API key
 
@@ -636,10 +642,13 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				// $payment_response = ( is_array( $paymentIntent ) || is_object( $paymentIntent ) ) ?  print_r( $paymentIntent, true ) : $paymentIntent;
 
 			}catch ( Exception $e ) {
-				$error_message = $e->getMessage();
 				wp_delete_post($created_post_id, true);
 				wp_send_json_error(array(
-					'message' => __($error_message, 'smart-appointment-booking'),
+					'message' => sprintf(
+						/* translators: %s: payment exception error message */
+						__( 'Payment error: %s', 'smart-appointment-booking' ),
+						$e->getMessage()
+					),
 					'error' => true,
 				));
 			}
@@ -744,24 +753,24 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 */	
 			
 		function saab_booking_form_submission() {
-// 			ini_set('display_startup_errors', 1);
-// ini_set('display_errors', 1);
-// error_reporting(-1);
-            $error ='';	
-           // if( ! wp_verify_nonce( 'saab_front_nonce' ) ){}
-			$booking_date = ( isset( $_POST['booking_date'] ) ) ? $_POST['booking_date'] : '';
-			$explode_booking_date = explode('_',$booking_date);
-			$form_id = $explode_booking_date[1];
-			$format_bookingdate = $explode_booking_date[4] . "-" . $explode_booking_date[2] . "-" . $explode_booking_date[3];
-			$converted_bookingdate = date('Y-m-d', strtotime($format_bookingdate)); 
-			$timeslot = ( isset( $_POST['timeslot'] ) ) ? $_POST['timeslot'] : '';
-			//total availableseats
-			$slotcapacity = ( isset( $_POST['slotcapacity'] ) ) ? $_POST['slotcapacity'] : '';
-			//quantity
-			$bookedseats = ( isset( $_POST['bookedseats'] ) )? $_POST['bookedseats'] : '' ;
-			$form_id = isset($_POST['fid']) ? absint($_POST['fid']) : 0;
-			$form_data = isset( $_POST['form_data'] ) ? $_POST['form_data']:'';
-			if (is_array($form_data)) {
+			$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : ( isset( $_POST['security'] ) ? 'security' : '' );
+			$nonce_val = ( $nonce_key && isset( $_POST[ $nonce_key ] ) ) ? sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ) : '';
+			if ( ! $nonce_val || ! wp_verify_nonce( $nonce_val, 'my_ajax_nonce' ) ) {
+				wp_send_json_error( array( 'message' => __( 'Security check failed.', 'smart-appointment-booking' ) ) );
+				wp_die();
+			}
+			$error = '';
+			$booking_date = isset( $_POST['booking_date'] ) ? sanitize_text_field( wp_unslash( $_POST['booking_date'] ) ) : '';
+			$explode_booking_date = explode( '_', $booking_date );
+			$form_id = isset( $explode_booking_date[1] ) ? absint( $explode_booking_date[1] ) : 0;
+			$format_bookingdate = ( isset( $explode_booking_date[4], $explode_booking_date[2], $explode_booking_date[3] ) ) ? $explode_booking_date[4] . '-' . $explode_booking_date[2] . '-' . $explode_booking_date[3] : '';
+			$converted_bookingdate = $format_bookingdate ? gmdate( 'Y-m-d', strtotime( $format_bookingdate ) ) : '';
+			$timeslot = isset( $_POST['timeslot'] ) ? sanitize_text_field( wp_unslash( $_POST['timeslot'] ) ) : '';
+			$slotcapacity = isset( $_POST['slotcapacity'] ) ? sanitize_text_field( wp_unslash( $_POST['slotcapacity'] ) ) : '';
+			$bookedseats = isset( $_POST['bookedseats'] ) ? sanitize_text_field( wp_unslash( $_POST['bookedseats'] ) ) : '';
+			$form_id = isset( $_POST['fid'] ) ? absint( wp_unslash( $_POST['fid'] ) ) : $form_id;
+			$form_data = isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized in loop below
+			if ( is_array( $form_data ) ) {
 				foreach ($form_data as $field_name => $field_value) {
 					// Check if the field value is an array (e.g., for checkboxes or multi-select)
 					if (is_array($field_value)) {
@@ -988,13 +997,13 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			wp_die();
 		}
 		function saab_add_event_to_calender(){
-
+			// OAuth callback from Google; code/state are from redirect, not form POST. Nonce not applicable.
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			ob_start();
 
-			if(isset($_GET['code'])){ 
-
-				require_once SAAB_DIR . '/inc/lib/google-library/vendor/autoload.php';				
-				$stateParameter = ( isset( $_GET['state'] ) ) ? $_GET['state'] : '';
+			if ( isset( $_GET['code'] ) ) {
+				require_once SAAB_DIR . '/inc/lib/google-library/vendor/autoload.php';
+				$stateParameter = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : '';
 				$mystate = explode('T', $stateParameter);
 				$form_id = $mystate[0];
 				$post_id = $mystate[1];
@@ -1039,9 +1048,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 
 				$client_new->setAccessType('offline');
 
-				if (isset($_GET['code'])) {
-
-					$token = $client_new->fetchAccessTokenWithAuthCode($_GET['code']);   
+				if ( isset( $_GET['code'] ) ) {
+					$auth_code = sanitize_text_field( wp_unslash( $_GET['code'] ) );
+					$token = $client_new->fetchAccessTokenWithAuthCode( $auth_code );   
 					$client_new->setAccessToken($token);    
 					$service = new Google_Service_Calendar($client_new);
 					
@@ -1103,6 +1112,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					}
 				}
 			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			return ob_get_clean();
 		}
 		/**
@@ -1116,23 +1126,26 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * @return string             A message indicating the result of the email sending process.
 		 */
 		function saab_send_notification($status, $form_id, $post_id, $form_data) {
-			// Sanitize the status value from $_POST, if applicable
-			$status = (isset($_POST['status']) && !empty($_POST['status'])) ? sanitize_text_field($_POST['status']) : $status;
-			
-			// Log status to ensure it's being received correctly
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('Status received: ' . $status);
+			// Status may be overridden from POST; nonce verified in calling AJAX handler.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$status = ( isset( $_POST['status'] ) && ! empty( $_POST['status'] ) ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : $status;
+
+			// Log status to ensure it's being received correctly.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Status received: ' . $status );
 			}
-		
+
 			$message = '';
 			$notificationFound = false;
-		
+
 			// Get notification data
-			$get_notification_array = get_post_meta($form_id, 'saab_notification_data', true);
-			
-			// Log the retrieved notification data for debugging
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('Notification array: ' . print_r($get_notification_array, true));
+			$get_notification_array = get_post_meta( $form_id, 'saab_notification_data', true );
+
+			// Log the retrieved notification data for debugging.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				error_log( 'Notification array: ' . print_r( $get_notification_array, true ) );
 			}
 		
 			// Check if the notification data exists and is an array
@@ -1142,9 +1155,10 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 					if ($notification['state'] === 'enabled' && $notification['type'] === $status) {
 						$notificationFound = true; // Mark notification as found
 		
-						// Log notification for debugging
-						if (defined('WP_DEBUG') && WP_DEBUG) {
-							error_log('Notification found: ' . print_r($notification, true));
+						// Log notification for debugging.
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
+							error_log( 'Notification found: ' . print_r( $notification, true ) );
 						}
 						
 						$check_to = $notification['to'];
@@ -1166,11 +1180,12 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						$cc = $this->saab_check_shortcode_exist($check_cc, $form_id, $form_data, $shortcodesArray);
 						$check_body = $this->saab_check_shortcodes_exist_in_editor($check_body, $form_id, $form_data, $shortcodesArray);
 		
-						// Log email details for debugging
-						if (defined('WP_DEBUG') && WP_DEBUG) {
-							error_log('Email details: to: ' . $to . ', from: ' . $from . ', subject: ' . $subject . ', body: ' . $check_body);
+						// Log email details for debugging.
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							error_log( 'Email details: to: ' . $to . ', from: ' . $from . ', subject: ' . $subject . ', body: ' . $check_body );
 						}
-		
+
 						// Set email headers
 						$headers = array(
 							'From: ' . sanitize_email($from),
@@ -1192,27 +1207,34 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 						if ($result) {
 							$message = esc_html__('Email sent successfully', 'smart-appointment-booking');
 						} else {
-							$message = esc_html__('Failed to send email', 'smart-appointment-booking');
-							if (defined('WP_DEBUG') && WP_DEBUG) {
-								error_log('Failed to send email to: ' . $to); // Debug logging
+							$message = esc_html__( 'Failed to send email', 'smart-appointment-booking' );
+							if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+								// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+								error_log( 'Failed to send email to: ' . $to );
 							}
 						}
 					}
 				}
 			} else {
-				// Log an error if no notification data was found for the form
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log('No notification data found for form ID: ' . $form_id);
+				// Log an error if no notification data was found for the form.
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( 'No notification data found for form ID: ' . $form_id );
 				}
 			}
-		
-			// If no notification was found, log an error
-			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status: ' . $status, 'smart-appointment-booking');
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log('Notification not found for the given status: ' . $status); // Debug logging
+
+			// If no notification was found, log an error.
+			if ( $notificationFound === false ) {
+				$message = sprintf(
+					/* translators: %s: notification status (e.g. booked, approved, cancelled) */
+					__( 'Notification not found for the given status: %s', 'smart-appointment-booking' ),
+					$status
+				);
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( 'Notification not found for the given status: ' . $status );
 				}
-				wp_send_json_error(array('message' => $message));
+				wp_send_json_error( array( 'message' => $message ) );
 				wp_die();
 			}
 		
@@ -1224,8 +1246,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		
 		
 		function saab_send_post_update_notification($status, $form_id, $post_id, $form_data) {
-			// Sanitize status and other input data
-			$status = (isset($_POST['status']) && !empty($_POST['status'])) ? sanitize_text_field($_POST['status']) : sanitize_text_field($status);
+			// Status may be overridden from POST; nonce verified in calling AJAX handler.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$status = ( isset( $_POST['status'] ) && ! empty( $_POST['status'] ) ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : sanitize_text_field( $status );
 			$message = '';
 		
 			// Get notification data from post meta
@@ -1283,9 +1306,20 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							$message = __('Email sent successfully', 'smart-appointment-booking');
 						} else {
 							// Log details if email sending fails
-							$message = __('Failed to send email. Details: to-' . $to . ', from-' . $from . ', Bcc-' . $bcc . ', Cc-' . $cc . ', subject-' . $subject . ', body-' . $check_body . ', headers-' . json_encode($headers), 'smart-appointment-booking');
-							if (defined('WP_DEBUG') && WP_DEBUG) {
-								error_log('Failed to send email. Details: to-' . $to . ', from-' . $from . ', Bcc-' . $bcc . ', Cc-' . $cc . ', subject-' . $subject . ', body-' . $check_body . ', headers-' . json_encode($headers));
+							$message = sprintf(
+								/* translators: 1: to address, 2: from address, 3: Bcc, 4: Cc, 5: subject, 6: body, 7: headers */
+								__( 'Failed to send email. Details: to-%1$s, from-%2$s, Bcc-%3$s, Cc-%4$s, subject-%5$s, body-%6$s, headers-%7$s', 'smart-appointment-booking' ),
+								$to,
+								$from,
+								$bcc,
+								$cc,
+								$subject,
+								$check_body,
+								wp_json_encode( $headers )
+							);
+							if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+								// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+								error_log( 'Failed to send email. Details: to-' . $to . ', from-' . $from . ', Bcc-' . $bcc . ', Cc-' . $cc . ', subject-' . $subject . ', body-' . $check_body . ', headers-' . wp_json_encode( $headers ) );
 							}
 						}
 					}
@@ -1293,16 +1327,21 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			}
 		
 			// Handle case where no matching notification is found
-			if ($notificationFound === false) {
-				$message = __('Notification not found for the given status: ' . $status, 'smart-appointment-booking');
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log('Notification not found for the given status: ' . $status);
+			if ( $notificationFound === false ) {
+				$message = sprintf(
+					/* translators: %s: notification status (e.g. booked, approved, cancelled) */
+					__( 'Notification not found for the given status: %s', 'smart-appointment-booking' ),
+					$status
+				);
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( 'Notification not found for the given status: ' . $status );
 				}
 			}
-		
+
 			return $message;
 		}
-		
+
 		/**
 		 * Process the given field value containing shortcodes and replace them with actual values.
 		 *
@@ -2112,8 +2151,8 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 							<?php
 							$timezone = get_post_meta($post_id,'saab_timezone',true);
 							$error = false;
-							$TodaysDate = date('F d, Y');	
-							$todaysDate = date('Y-m-d');
+							$TodaysDate = gmdate( 'F d, Y' );
+							$todaysDate = gmdate( 'Y-m-d' );
 							echo "<h3 id='head_avail_time'><span class='gfb-timezone'>Timezone: " . esc_attr($timezone) . "</span></h3>";
 							echo "<h4 id='headtodays_date'>" . esc_html($TodaysDate) . "</h4>";								
 							// Get array of available dates 
@@ -2325,10 +2364,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				11 => 'November',
 				12 => 'December'
 				);
-				$currentMonth = isset($_POST['currentMonth']) ? intval($_POST['currentMonth']) : date('n'); //phpcs:ignore
-				$currentMonth = max(1, min(12, $currentMonth)); // Ensure currentMonth is between 1 and 12
-				$currentYear = isset($_POST['currentYear']) ? intval($_POST['currentYear']) : date('Y'); //phpcs:ignore
-				$post_id = isset($_POST['form_id']) ? $_POST['form_id'] : '';
+				// phpcs:disable WordPress.Security.NonceVerification.Missing -- Calendar month/year/form_id from AJAX; nonce verified in caller or optional display.
+				$currentMonth = isset( $_POST['currentMonth'] ) ? max( 1, min( 12, intval( wp_unslash( $_POST['currentMonth'] ) ) ) ) : (int) gmdate( 'n' );
+				$currentYear  = isset( $_POST['currentYear'] ) ? absint( wp_unslash( $_POST['currentYear'] ) ) : (int) gmdate( 'Y' );
+				$post_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
+				// phpcs:enable WordPress.Security.NonceVerification.Missing
 				$running_year = date("Y"); //phpcs:ignore
 				ob_start();
 			?>
@@ -2426,21 +2466,28 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * Display Timeslots on booking calendar
 		 */
 		  function saab_action_display_available_timeslots(){
-			ini_set('display_startup_errors', 1);
-ini_set('display_errors', 1);
-error_reporting(-1);		
-				//if( ! wp_verify_nonce( 'saab_front_nonce' ) ){}
+			$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : ( isset( $_POST['security'] ) ? 'security' : '' );
+			$nonce_val = ( $nonce_key && isset( $_POST[ $nonce_key ] ) ) ? sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ) : '';
+			if ( ! $nonce_val || ! wp_verify_nonce( $nonce_val, 'my_ajax_nonce' ) ) {
+				wp_send_json_error( array( 'message' => __( 'Security check failed.', 'smart-appointment-booking' ) ) );
+				wp_die();
+			}
 				$error = false;
-				if(isset( $_POST['form_data'])){
-					$form_data = $_POST['form_data'];
-					$array_data = explode('_',$form_data);
-					$post_id = $array_data[1];
-					$current_month = $array_data[2];
-					$current_day = $array_data[3];
-					$current_year = $array_data[4];
+				$post_id = 0;
+				$current_month = '';
+				$current_day = '';
+				$current_year = '';
+				$clickedId = '';
+				if ( isset( $_POST['form_data'] ) ) {
+					$form_data = sanitize_text_field( wp_unslash( $_POST['form_data'] ) );
+					$array_data = explode( '_', $form_data );
+					$post_id = isset( $array_data[1] ) ? absint( $array_data[1] ) : 0;
+					$current_month = isset( $array_data[2] ) ? sanitize_text_field( $array_data[2] ) : '';
+					$current_day = isset( $array_data[3] ) ? sanitize_text_field( $array_data[3] ) : '';
+					$current_year = isset( $array_data[4] ) ? sanitize_text_field( $array_data[4] ) : '';
 				}
-				if(isset( $_POST['clickedId'])){
-					$clickedId = $_POST['clickedId'];
+				if ( isset( $_POST['clickedId'] ) ) {
+					$clickedId = sanitize_text_field( wp_unslash( $_POST['clickedId'] ) );
 				}
 				$todaysDate = date('Y-m-d', strtotime("$current_year-$current_month-$current_day")); //phpcs:ignore
 				$TodaysDate_F = date('F d, Y', strtotime("$current_year-$current_month-$current_day")); //phpcs:ignore
@@ -2522,14 +2569,14 @@ error_reporting(-1);
 			
 			$response = array();
 		
-			if (isset($_POST['bookingId']) && isset($_POST['bookingstatus'])) {
+			if ( isset( $_POST['bookingId'] ) && isset( $_POST['bookingstatus'] ) ) {
 				// $booking_id = wp_base64_decode($encrypt_bookingId);
-				$booking_id = $encrypt_bookingId;
-				$bookingstatus = isset($_POST['bookingstatus']) ? sanitize_text_field($_POST['bookingstatus']) : '';
-		
-				if ($bookingstatus === 'cancel') {
-					if (isset($_POST['status'])) {
-						$status = sanitize_text_field($_POST['status']);
+				$booking_id    = $encrypt_bookingId;
+				$bookingstatus = isset( $_POST['bookingstatus'] ) ? sanitize_text_field( wp_unslash( $_POST['bookingstatus'] ) ) : '';
+
+				if ( $bookingstatus === 'cancel' ) {
+					if ( isset( $_POST['status'] ) ) {
+						$status = sanitize_text_field( wp_unslash( $_POST['status'] ) );
 						if ($status === 'check') {
 							$get_current_status = get_post_meta($booking_id, 'saab_entry_status', true);
 							if ($get_current_status === 'cancelled') {
@@ -2586,12 +2633,12 @@ error_reporting(-1);
 				return ob_get_clean();
 			}
 			echo '<div class="booking-cancellation-card">';
-			$encrypt_bookingId = isset($_REQUEST['booking_id']) ? sanitize_text_field($_REQUEST['booking_id']) : '';
+			$encrypt_bookingId = isset( $_REQUEST['booking_id'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['booking_id'] ) ) : '';
 
-			if (isset($_REQUEST['booking_id']) && isset($_REQUEST['status'])) {
+			if ( isset( $_REQUEST['booking_id'] ) && isset( $_REQUEST['status'] ) ) {
 				// $booking_id = wp_base64_decode($encrypt_bookingId);
 				$booking_id = $encrypt_bookingId;
-				$bookingstatus = sanitize_text_field( $_REQUEST['status'] );
+				$bookingstatus = sanitize_text_field( wp_unslash( $_REQUEST['status'] ) );
 
 				if ($bookingstatus === 'cancel' ) {
 
@@ -2624,7 +2671,7 @@ error_reporting(-1);
 		 */
 		function saab_cancel_booking_shortcode() {
 			$response = array(					
-				'message' => esc_html__('','smart-appointment-booking'),
+				'message' => '',
 				'mail_message' => '',
 				
 			);
