@@ -92,7 +92,8 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			if (
 				is_singular('saab_form_builder') || 
 				is_singular('zeal_formbuilder') || 
-				(isset($post_type) && ($post_type == 'saab_form_builder' || $post_type == 'manage_entries')) 
+				(isset($post_type) && ($post_type == 'saab_form_builder' || $post_type == 'manage_entries')) ||
+				(is_admin() && isset($_GET['page']) && $_GET['page'] === 'saab_help_support') 
 			) {
 				wp_enqueue_style( '_admin_css',SAAB_URL.'assets/css/admin.css', array(), 1.2, 'all' );	
 				wp_enqueue_style( 'saab_font-awesomev1',SAAB_URL.'assets/css/font-awesome.css', array(), 1.1, 'all' );
@@ -298,7 +299,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				'show_in_rest' => false,
 				'rest_base' => '',
 				'has_archive' => false,
-				'show_in_menu' => true, 
+				'show_in_menu' => 'saab_dashboard', 
 				'show_in_nav_menus' => false,
 				'exclude_from_search' => true,
 				'capability_type' => 'post',
@@ -347,41 +348,70 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		
 			register_post_type('manage_entries', $args);
 		
-			$menu_hook_suffix = add_menu_page(
+			$parent_slug = 'saab_dashboard';
+
+			add_menu_page(
 				'WP Smart A&B',
 				'WP Smart A&B',
 				'manage_options',
-				'edit.php?post_type=saab_form_builder',
-				'',
-				'dashicons-twitter',
+				$parent_slug,
+				function () {
+					wp_redirect(admin_url('edit.php?post_type=saab_form_builder'));
+					exit;
+				},
+				'dashicons-calendar',
 				20
 			);
 			
 			add_submenu_page(
-				'edit.php?post_type=saab_form_builder', 
-				'Add New Form', 
-				'Add New Form', 
-				'manage_options', 
-				admin_url('post-new.php?post_type=saab_form_builder')
+				$parent_slug,
+				'All Forms',
+				'All Forms',
+				'manage_options',
+				'edit.php?post_type=saab_form_builder'
 			);
 		
 			add_submenu_page(
-				'edit.php?post_type=saab_form_builder',
+				$parent_slug,
+				'Add New Form',
+				'Add New Form',
+				'manage_options',
+				'post-new.php?post_type=saab_form_builder'
+			);
+
+			add_submenu_page(
+				$parent_slug,
 				'Manage Entries',
 				'Manage Entries',
 				'manage_options',
 				'edit.php?post_type=manage_entries'
 			);
 			
+			// add_submenu_page(
+			// 	$parent_slug,
+			// 	'Notification Settings',
+			// 	'Notification Settings',
+			// 	'manage_options',
+			// 	'saab_notification_settings',
+			// 	array($this, 'saab_render_notification_settings_page')
+			// );
+
 			add_submenu_page(
-				$menu_hook_suffix, 
-				'Notification Settings',
-				'Notification Settings', 
-				'manage_options', 
-				'notification-settings', 
-				array($this, 'saab_render_notification_settings_page')
+				$parent_slug,
+				'Help & Support',
+				'Help & Support',
+				'manage_options',
+				'saab_help_support',
+				array($this, 'saab_help_support_page')
 			);
-			
+	
+		}
+
+		/**
+		 * Help & Support admin page.
+		 */
+		function saab_help_support_page() {
+			require_once SAAB_DIR . '/inc/admin/template/class.' . SAAB_PREFIX . '.help.support.php';
 		}
 		/**
 		 * 
