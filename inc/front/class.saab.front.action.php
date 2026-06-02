@@ -66,9 +66,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 */
 		function saab_action__wp_enqueue_scripts() {
 			if(is_admin()){
-				wp_enqueue_script( SAAB_PREFIX . '_bookingform', SAAB_URL . 'assets/js/booking/booking-form.js', array( 'jquery-core' ), SAAB_VERSION );
+				wp_enqueue_script( SAAB_PREFIX . '_bookingform', SAAB_URL . 'assets/js/booking/booking-form.js', array( 'jquery-core' ), SAAB_VERSION, false );
 			}
-			wp_enqueue_script( SAAB_PREFIX . '_front', SAAB_URL . 'assets/js/front.js', array( 'jquery-core' ), SAAB_VERSION );
+			wp_enqueue_script( SAAB_PREFIX . '_front', SAAB_URL . 'assets/js/front.js', array( 'jquery-core' ), SAAB_VERSION, false );
 			wp_enqueue_script( 'saab_formio_full_min', SAAB_URL.'assets/js/formio/formio.full.min.js', array( 'jquery' ), 1.1, false );
 			 // Create a nonce for the AJAX request
 			$ajax_nonce = wp_create_nonce('my_ajax_nonce');
@@ -113,7 +113,9 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- User's bookings filtered by user_mapped meta.
 			$args = array(
 				'post_type'      => 'manage_entries',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- User's bookings are looked up by mapped user id.
 				'meta_key'       => 'user_mapped',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- User's bookings are looked up by mapped user id.
 				'meta_value'     => $user_id,
 				'fields'         => 'ids',
 				'posts_per_page' => 55,
@@ -1967,6 +1969,7 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
             $args = array(
                 'post_type' => 'manage_entries',
                 'posts_per_page' => -1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Timeslot and booking_date filters are required for seat calculations.
                 'meta_query' => array(
                     'relation' => 'AND',
                     array(

@@ -169,7 +169,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 			 
 			 //boostrap folder
-			 wp_register_script( SAAB_PREFIX . '_admin_js', SAAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), SAAB_VERSION );
+			 wp_register_script( SAAB_PREFIX . '_admin_js', SAAB_URL . 'assets/js/admin.min.js', array( 'jquery-core' ), SAAB_VERSION, false );
 
 		}
 
@@ -356,7 +356,7 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				'manage_options',
 				$parent_slug,
 				function () {
-					wp_redirect(admin_url('edit.php?post_type=saab_form_builder'));
+					wp_safe_redirect(admin_url('edit.php?post_type=saab_form_builder'));
 					exit;
 				},
 				'dashicons-calendar',
@@ -1720,29 +1720,75 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$timeslot = isset( $_POST['timeslot'] ) ? sanitize_text_field( wp_unslash( $_POST['timeslot'] ) ) : '';
 			$booking_date = isset( $_POST['booking_date'] ) ? sanitize_text_field( wp_unslash( $_POST['booking_date'] ) ) : '';
 
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/booking_date.
-			$args = array(
-				'post_type'      => 'manage_entries',
-				'posts_per_page' => 5,
-				'paged'          => $current_page,
-				'meta_query'     => array(
-					'relation' => 'AND',
-					array(
-						'key'     => 'timeslot',
-						'value'   => $timeslot,
-						'compare' => '=',
-					),
-					array(
-						'key'     => 'booking_date',
-						'value'   => $booking_date,
-						'compare' => '=',
-					),
-				),
-			);
+			global $wpdb;
+			$saab_posts_per_page = 5;
+			$saab_offset         = ( $current_page - 1 ) * $saab_posts_per_page;
+			$saab_cache_group    = 'saab_waiting_list';
+			$saab_cache_key_base = md5( $timeslot . '|' . $booking_date );
+			$saab_count_cache_key = 'count_' . $saab_cache_key_base;
+			$saab_posts_cache_key = 'posts_' . $saab_cache_key_base . '_page_' . (int) $current_page;
 
-			$query = new WP_Query( $args );
+			$saab_total_items = wp_cache_get( $saab_count_cache_key, $saab_cache_group );
+			if ( false === $saab_total_items ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$saab_total_items = (int) $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(DISTINCT p.ID)
+						FROM {$wpdb->posts} p
+						INNER JOIN {$wpdb->postmeta} pm_timeslot
+							ON pm_timeslot.post_id = p.ID
+							AND pm_timeslot.meta_key = %s
+							AND pm_timeslot.meta_value = %s
+						INNER JOIN {$wpdb->postmeta} pm_booking_date
+							ON pm_booking_date.post_id = p.ID
+							AND pm_booking_date.meta_key = %s
+							AND pm_booking_date.meta_value = %s
+						WHERE p.post_type = %s
+							AND p.post_status = %s",
+						'timeslot',
+						$timeslot,
+						'booking_date',
+						$booking_date,
+						'manage_entries',
+						'publish'
+					)
+				);
+				wp_cache_set( $saab_count_cache_key, $saab_total_items, $saab_cache_group, MINUTE_IN_SECONDS );
+			}
+
+			$saab_post_ids = wp_cache_get( $saab_posts_cache_key, $saab_cache_group );
+			if ( false === $saab_post_ids ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$saab_post_ids = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT DISTINCT p.ID
+						FROM {$wpdb->posts} p
+						INNER JOIN {$wpdb->postmeta} pm_timeslot
+							ON pm_timeslot.post_id = p.ID
+							AND pm_timeslot.meta_key = %s
+							AND pm_timeslot.meta_value = %s
+						INNER JOIN {$wpdb->postmeta} pm_booking_date
+							ON pm_booking_date.post_id = p.ID
+							AND pm_booking_date.meta_key = %s
+							AND pm_booking_date.meta_value = %s
+						WHERE p.post_type = %s
+							AND p.post_status = %s
+						ORDER BY p.post_date DESC, p.ID DESC
+						LIMIT %d OFFSET %d",
+						'timeslot',
+						$timeslot,
+						'booking_date',
+						$booking_date,
+						'manage_entries',
+						'publish',
+						$saab_posts_per_page,
+						$saab_offset
+					)
+				);
+				wp_cache_set( $saab_posts_cache_key, $saab_post_ids, $saab_cache_group, MINUTE_IN_SECONDS );
+			}
 			ob_start();
-			if ($query->have_posts()) {
+			if ( ! empty( $saab_post_ids ) ) {
 				echo '<div class="border-top border-dark mb-2"></div>';
 				echo '<p>Waiting List</p>';
 				// echo '<div id="waitingtable">';
@@ -1756,10 +1802,8 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				echo '<th style="width:5%">Edit</th>';
 				echo '</tr>';
 				$i = ($current_page - 1) * 5 + 1;
-				while ($query->have_posts()) {
-					$query->the_post();
-					$post_id = get_the_ID();
-					$post_title = get_the_title();
+				foreach ( $saab_post_ids as $post_id ) {
+					$post_title = get_the_title( $post_id );
 					$booking_status = get_post_meta($post_id, 'saab_entry_status', true);
 					$no_of_bookings = get_post_meta($post_id, 'saab_slotcapacity', true);
 					
@@ -1778,12 +1822,11 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		
 				echo '</table>';
 				echo '</div>';
-				wp_reset_postdata();
 		
 				// Calculate the total number of pages
-				$total_pages = $query->max_num_pages;
+				$total_pages = (int) ceil( $saab_total_items / $saab_posts_per_page );
 				echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-				echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
+				echo '<span class="item-count" style="margin-right: 5px;">' . esc_html( $saab_total_items ) . ' Items</span>';
 				if ($total_pages > 1) {
 				
 					echo '<select id="saabpage-number" data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="'.esc_attr(wp_create_nonce('get_paginated_items_nonce')).'">';

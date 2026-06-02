@@ -11,130 +11,130 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-$plugin_data           = get_plugin_data( SAAB_FILE );
-$current_plugin_name   = isset( $plugin_data['Name'] ) ? $plugin_data['Name'] : '';
+$saab_plugin_data         = get_plugin_data( SAAB_FILE );
+$saab_current_plugin_name = isset( $saab_plugin_data['Name'] ) ? $saab_plugin_data['Name'] : '';
 
 /*--------------------------------------------------------------
 # Remote data (blogs + FAQs) with transient cache
 --------------------------------------------------------------*/
 
-$api_url    = 'https://api.zealousweb.com/wp-json/acf/v3/options/options/plugin_blogs/';
-$cache_key  = 'saab_plugin_blogs_cache_v1';
-$data       = get_transient( $cache_key );
-$needs_refetch = (
-	false === $data
-	|| ! is_array( $data )
-	|| empty( $data['plugin_blogs'] )
-	|| ! is_array( $data['plugin_blogs'] )
+$saab_api_url       = 'https://api.zealousweb.com/wp-json/acf/v3/options/options/plugin_blogs/';
+$saab_cache_key     = 'saab_plugin_blogs_cache_v1';
+$saab_data          = get_transient( $saab_cache_key );
+$saab_needs_refetch = (
+	false === $saab_data
+	|| ! is_array( $saab_data )
+	|| empty( $saab_data['plugin_blogs'] )
+	|| ! is_array( $saab_data['plugin_blogs'] )
 );
 
-if ( $needs_refetch ) {
-	$data = array();
-	$response = wp_remote_get(
-		$api_url,
+if ( $saab_needs_refetch ) {
+	$saab_data     = array();
+	$saab_response = wp_remote_get(
+		$saab_api_url,
 		array(
 			'timeout'   => 20,
 			'sslverify' => true,
 		)
 	);
 
-	if ( ! is_wp_error( $response ) ) {
-		$body = wp_remote_retrieve_body( $response );
-		$decoded = json_decode( $body, true );
-		if ( is_array( $decoded ) ) {
-			$data = $decoded;
+	if ( ! is_wp_error( $saab_response ) ) {
+		$saab_body    = wp_remote_retrieve_body( $saab_response );
+		$saab_decoded = json_decode( $saab_body, true );
+		if ( is_array( $saab_decoded ) ) {
+			$saab_data = $saab_decoded;
 		}
 	}
 
 	// Cache only valid payloads, so a temporary API failure does not hide blogs for 24h.
-	if ( ! empty( $data['plugin_blogs'] ) && is_array( $data['plugin_blogs'] ) ) {
-		set_transient( $cache_key, $data, DAY_IN_SECONDS );
+	if ( ! empty( $saab_data['plugin_blogs'] ) && is_array( $saab_data['plugin_blogs'] ) ) {
+		set_transient( $saab_cache_key, $saab_data, DAY_IN_SECONDS );
 	} else {
-		delete_transient( $cache_key );
+		delete_transient( $saab_cache_key );
 	}
 }
 
 
-$matched_blogs = array();
+$saab_matched_blogs = array();
 
-if ( ! empty( $data['plugin_blogs'] ) && is_array( $data['plugin_blogs'] ) ) {
-	$current_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $current_plugin_name ) );
-	foreach ( $data['plugin_blogs'] as $plugin_item ) {
-		if ( empty( $plugin_item['plugin_name'] ) || empty( $plugin_item['blogs'] ) || ! is_array( $plugin_item['blogs'] ) ) {
+if ( ! empty( $saab_data['plugin_blogs'] ) && is_array( $saab_data['plugin_blogs'] ) ) {
+	$saab_current_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $saab_current_plugin_name ) );
+	foreach ( $saab_data['plugin_blogs'] as $saab_plugin_item ) {
+		if ( empty( $saab_plugin_item['plugin_name'] ) || empty( $saab_plugin_item['blogs'] ) || ! is_array( $saab_plugin_item['blogs'] ) ) {
 			continue;
 		}
 
-		$api_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $plugin_item['plugin_name'] ) );
+		$saab_api_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $saab_plugin_item['plugin_name'] ) );
 
 		// Keep matching flexible: exact match first, then "contains" for minor naming variants.
 		if (
-			$api_name === $current_name
-			|| ( '' !== $api_name && '' !== $current_name && false !== strpos( $api_name, $current_name ) )
-			|| ( '' !== $api_name && '' !== $current_name && false !== strpos( $current_name, $api_name ) )
+			$saab_api_name === $saab_current_name
+			|| ( '' !== $saab_api_name && '' !== $saab_current_name && false !== strpos( $saab_api_name, $saab_current_name ) )
+			|| ( '' !== $saab_api_name && '' !== $saab_current_name && false !== strpos( $saab_current_name, $saab_api_name ) )
 		) {
-			$matched_blogs = $plugin_item['blogs'];
+			$saab_matched_blogs = $saab_plugin_item['blogs'];
 			break;
 		}
 	}
 }
 
 
-$help_blog_posts = array();
+$saab_help_blog_posts = array();
 
-foreach ( $matched_blogs as $blog ) {
-	$blog_slug  = isset( $blog['post_name'] ) ? sanitize_title( $blog['post_name'] ) : '';
-	$blog_title = isset( $blog['post_title'] ) ? $blog['post_title'] : '';
+foreach ( $saab_matched_blogs as $saab_blog ) {
+	$saab_blog_slug  = isset( $saab_blog['post_name'] ) ? sanitize_title( $saab_blog['post_name'] ) : '';
+	$saab_blog_title = isset( $saab_blog['post_title'] ) ? $saab_blog['post_title'] : '';
 
-	if ( '' === $blog_slug || '' === $blog_title ) {
+	if ( '' === $saab_blog_slug || '' === $saab_blog_title ) {
 		continue;
 	}
 
-	$help_blog_posts[] = array(
-		'url'   => trailingslashit( SAAB_FRONTEND_BLOG_URL ) . $blog_slug . '/',
-		'title' => $blog_title,
+	$saab_help_blog_posts[] = array(
+		'url'   => trailingslashit( SAAB_FRONTEND_BLOG_URL ) . $saab_blog_slug . '/',
+		'title' => $saab_blog_title,
 	);
 }
 
-$faq_api_url   = 'https://store.zealousweb.com/productfaq/products/faqs?sku=saaba';
-$faq_cache_key = 'saab_faqs_cache_v1';
-$faqs_raw      = get_transient( $faq_cache_key );
+$saab_faq_api_url   = 'https://store.zealousweb.com/productfaq/products/faqs?sku=saaba';
+$saab_faq_cache_key = 'saab_faqs_cache_v1';
+$saab_faqs_raw      = get_transient( $saab_faq_cache_key );
 
-if ( false === $faqs_raw || ! is_array( $faqs_raw ) ) {
-	$faqs_raw = array();
-	$faq_response = wp_remote_get(
-		$faq_api_url,
+if ( false === $saab_faqs_raw || ! is_array( $saab_faqs_raw ) ) {
+	$saab_faqs_raw  = array();
+	$saab_faq_response = wp_remote_get(
+		$saab_faq_api_url,
 		array(
 			'timeout'   => 20,
 			'sslverify' => true,
 		)
 	);
 
-	if ( ! is_wp_error( $faq_response ) ) {
-		$faq_body = wp_remote_retrieve_body( $faq_response );
-		$faq_data = json_decode( $faq_body, true );
+	if ( ! is_wp_error( $saab_faq_response ) ) {
+		$saab_faq_body = wp_remote_retrieve_body( $saab_faq_response );
+		$saab_faq_data = json_decode( $saab_faq_body, true );
 
-		if ( ! empty( $faq_data['faqs'] ) && is_array( $faq_data['faqs'] ) ) {
-			$faqs_raw = $faq_data['faqs'];
+		if ( ! empty( $saab_faq_data['faqs'] ) && is_array( $saab_faq_data['faqs'] ) ) {
+			$saab_faqs_raw = $saab_faq_data['faqs'];
 		}
 	}
 
-	set_transient( $faq_cache_key, $faqs_raw, DAY_IN_SECONDS );
+	set_transient( $saab_faq_cache_key, $saab_faqs_raw, DAY_IN_SECONDS );
 }
 
-$help_faqs = array();
+$saab_help_faqs = array();
 
-foreach ( $faqs_raw as $faq_index => $faq ) {
-	$question = isset( $faq['question'] ) ? $faq['question'] : '';
-	$answer   = isset( $faq['answer'] ) ? $faq['answer'] : '';
+foreach ( $saab_faqs_raw as $saab_faq_index => $saab_faq ) {
+	$saab_question = isset( $saab_faq['question'] ) ? $saab_faq['question'] : '';
+	$saab_answer   = isset( $saab_faq['answer'] ) ? $saab_faq['answer'] : '';
 
-	if ( '' === $question || '' === $answer ) {
+	if ( '' === $saab_question || '' === $saab_answer ) {
 		continue;
 	}
 
-	$help_faqs[] = array(
-		'id'       => isset( $faq['id'] ) ? $faq['id'] : (string) ( $faq_index + 1 ),
-		'question' => $question,
-		'answer'   => $answer,
+	$saab_help_faqs[] = array(
+		'id'       => isset( $saab_faq['id'] ) ? $saab_faq['id'] : (string) ( $saab_faq_index + 1 ),
+		'question' => $saab_question,
+		'answer'   => $saab_answer,
 	);
 }
 
@@ -142,12 +142,51 @@ foreach ( $faqs_raw as $faq_index => $faq ) {
 # Newsletter embed (cached HTML string)
 --------------------------------------------------------------*/
 
-$newsletter_embed_html = get_transient( 'saab_help_newsletter_embed_html_v1' );
+$saab_newsletter_embed_html = get_transient( 'saab_help_newsletter_embed_html_v1' );
 
-if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) || '' === $newsletter_embed_html ) {
-	$newsletter_embed_html  = '<iframe src="//api.zealousweb.com/gfembed/?f=55" width="100%" frameborder="0" scrolling="no" loading="lazy" class="gfiframe" style="display:block;border:0;overflow:hidden;min-height:170px;"></iframe>';
-	$newsletter_embed_html .= '<script src="//api.zealousweb.com/wp-content/plugins/gravity-forms-iframe-develop/assets/scripts/gfembed.min.js" type="text/javascript"></script>';
-	set_transient( 'saab_help_newsletter_embed_html_v1', $newsletter_embed_html, DAY_IN_SECONDS );
+if ( false === $saab_newsletter_embed_html || ! is_string( $saab_newsletter_embed_html ) || '' === $saab_newsletter_embed_html ) {
+	$saab_newsletter_embed_html  = '<iframe src="//api.zealousweb.com/gfembed/?f=55" width="100%" frameborder="0" scrolling="no" loading="lazy" class="gfiframe" style="display:block;border:0;overflow:hidden;min-height:170px;"></iframe>';
+	set_transient( 'saab_help_newsletter_embed_html_v1', $saab_newsletter_embed_html, DAY_IN_SECONDS );
+}
+
+wp_enqueue_script(
+	'saab-help-newsletter-embed',
+	'https://api.zealousweb.com/wp-content/plugins/gravity-forms-iframe-develop/assets/scripts/gfembed.min.js',
+	array(),
+	SAAB_VERSION,
+	true
+);
+
+if ( ! empty( $saab_help_faqs ) ) {
+	$saab_help_faq_inline_handle = 'saab-help-faq-inline';
+	wp_register_script( $saab_help_faq_inline_handle, '', array(), SAAB_VERSION, true );
+	wp_enqueue_script( $saab_help_faq_inline_handle );
+	wp_add_inline_script(
+		$saab_help_faq_inline_handle,
+		"(function () {
+	document.addEventListener('DOMContentLoaded', function () {
+		document.querySelectorAll('.saab-help-faq-question').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				var item = btn.closest('.saab-help-faq-item');
+				if (!item) {
+					return;
+				}
+				item.classList.toggle('is-open');
+				var open = item.classList.contains('is-open');
+				btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+				var answer = document.getElementById(btn.getAttribute('aria-controls'));
+				if (answer) {
+					answer.setAttribute('aria-hidden', open ? 'false' : 'true');
+				}
+				var sym = btn.querySelector('span[aria-hidden=\"true\"]');
+				if (sym) {
+					sym.textContent = open ? '\\u2212' : '+';
+				}
+			});
+		});
+	});
+})();"
+	);
 }
 
 ?>
@@ -218,7 +257,7 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 				<div class="saab-help-card-footer saab-help-newsletter-embed">
 					<?php
 					echo wp_kses(
-						$newsletter_embed_html,
+						$saab_newsletter_embed_html,
 						array(
 							'iframe' => array(
 								'src'         => true,
@@ -231,10 +270,6 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 								'class'       => true,
 								'style'       => true,
 							),
-							'script' => array(
-								'src'  => true,
-								'type' => true,
-							),
 						)
 					);
 					?>
@@ -243,7 +278,7 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 		</div>
 
 		<div class="saab-help-bottom-grid">
-			<?php if ( ! empty( $help_blog_posts ) ) : ?>
+			<?php if ( ! empty( $saab_help_blog_posts ) ) : ?>
                 <div class="saab-help-card saab-help-card-wide">
                     <div class="saab-help-card-icon" aria-hidden="true">
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -260,10 +295,10 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
                     </p>
 
                     <ul class="saab-help-list" aria-label="<?php esc_attr_e( 'Related blog posts', 'smart-appointment-booking' ); ?>">
-                        <?php foreach ( $help_blog_posts as $help_blog_post ) : ?>
+                        <?php foreach ( $saab_help_blog_posts as $saab_help_blog_post ) : ?>
                             <li>
-                                <a href="<?php echo esc_url( $help_blog_post['url'] ); ?>" target="_blank" rel="noopener noreferrer">
-                                    <?php echo esc_html( $help_blog_post['title'] ); ?>
+                                <a href="<?php echo esc_url( $saab_help_blog_post['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+                                    <?php echo esc_html( $saab_help_blog_post['title'] ); ?>
                                 </a>
                             </li>
                         <?php endforeach; ?>
@@ -281,27 +316,27 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 				<h2 class="saab-help-card-title"><?php esc_html_e( 'Frequently Asked Questions', 'smart-appointment-booking' ); ?></h2>
 
 				<div class="saab-help-faq-list" role="list">
-					<?php if ( ! empty( $help_faqs ) ) : ?>
-						<?php foreach ( $help_faqs as $faq_index => $help_faq ) : ?>
+					<?php if ( ! empty( $saab_help_faqs ) ) : ?>
+						<?php foreach ( $saab_help_faqs as $saab_faq_index => $saab_help_faq ) : ?>
 							<?php
-							$faq_id        = isset( $help_faq['id'] ) ? preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) $help_faq['id'] ) : (string) ( $faq_index + 1 );
-							$faq_suffix    = $faq_id . '-' . (int) $faq_index;
-							$is_first_open = ( 0 === (int) $faq_index );
-							$question_id   = 'saab-faq-question-' . $faq_suffix;
-							$answer_id     = 'saab-faq-answer-' . $faq_suffix;
+							$saab_faq_id        = isset( $saab_help_faq['id'] ) ? preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) $saab_help_faq['id'] ) : (string) ( $saab_faq_index + 1 );
+							$saab_faq_suffix    = $saab_faq_id . '-' . (int) $saab_faq_index;
+							$saab_is_first_open = ( 0 === (int) $saab_faq_index );
+							$saab_question_id   = 'saab-faq-question-' . $saab_faq_suffix;
+							$saab_answer_id     = 'saab-faq-answer-' . $saab_faq_suffix;
 							?>
-							<div class="saab-help-faq-item<?php echo $is_first_open ? ' is-open' : ''; ?>" role="listitem">
+							<div class="saab-help-faq-item<?php echo $saab_is_first_open ? ' is-open' : ''; ?>" role="listitem">
 								<button type="button" class="saab-help-faq-question"
-									aria-expanded="<?php echo $is_first_open ? 'true' : 'false'; ?>"
-									aria-controls="<?php echo esc_attr( $answer_id ); ?>"
-									id="<?php echo esc_attr( $question_id ); ?>">
-									<?php echo esc_html( $help_faq['question'] ); ?>
-									<span aria-hidden="true"><?php echo $is_first_open ? '&minus;' : '+'; ?></span>
+									aria-expanded="<?php echo $saab_is_first_open ? 'true' : 'false'; ?>"
+									aria-controls="<?php echo esc_attr( $saab_answer_id ); ?>"
+									id="<?php echo esc_attr( $saab_question_id ); ?>">
+									<?php echo esc_html( $saab_help_faq['question'] ); ?>
+									<span aria-hidden="true"><?php echo $saab_is_first_open ? '&minus;' : '+'; ?></span>
 								</button>
-								<div class="saab-help-faq-answer" id="<?php echo esc_attr( $answer_id ); ?>" role="region"
-									aria-labelledby="<?php echo esc_attr( $question_id ); ?>"
-									aria-hidden="<?php echo $is_first_open ? 'false' : 'true'; ?>">
-									<?php echo wp_kses_post( $help_faq['answer'] ); ?>
+								<div class="saab-help-faq-answer" id="<?php echo esc_attr( $saab_answer_id ); ?>" role="region"
+									aria-labelledby="<?php echo esc_attr( $saab_question_id ); ?>"
+									aria-hidden="<?php echo $saab_is_first_open ? 'false' : 'true'; ?>">
+									<?php echo wp_kses_post( $saab_help_faq['answer'] ); ?>
 								</div>
 							</div>
 						<?php endforeach; ?>
@@ -315,30 +350,3 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 		</div>
 	</div>
 </div>
-<?php if ( ! empty( $help_faqs ) ) : ?>
-<script>
-(function () {
-	document.addEventListener('DOMContentLoaded', function () {
-		document.querySelectorAll('.saab-help-faq-question').forEach(function (btn) {
-			btn.addEventListener('click', function () {
-				var item = btn.closest('.saab-help-faq-item');
-				if (!item) {
-					return;
-				}
-				item.classList.toggle('is-open');
-				var open = item.classList.contains('is-open');
-				btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-				var answer = document.getElementById(btn.getAttribute('aria-controls'));
-				if (answer) {
-					answer.setAttribute('aria-hidden', open ? 'false' : 'true');
-				}
-				var sym = btn.querySelector('span[aria-hidden="true"]');
-				if (sym) {
-					sym.textContent = open ? '\u2212' : '+';
-				}
-			});
-		});
-	});
-})();
-</script>
-<?php endif; ?>

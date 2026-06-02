@@ -29,6 +29,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $args = array(
                 'post_type'      => 'manage_entries',
                 'posts_per_page' => -1,
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Seats count filtered by timeslot/booking_date.
                 'meta_query'     => array(
                     'relation' => 'AND',
                     array(
@@ -243,6 +244,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         'paged'          => $current_page,
                         'orderby'        => 'date',
                         'order'          => 'ASC',
+                        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/status/booking_date.
                         'meta_query'     => array(
                             'relation' => 'AND',
                             array(
