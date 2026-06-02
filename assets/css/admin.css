@@ -458,3 +458,401 @@ div#group-premium {
 .post-type-saab_form_builder .notice-success a {
     display: none;
 }
+
+/* Help and Support Page Design (aligned with product reference UI) */
+
+.saab-help-wrapper {
+  max-width: 100%;
+}
+
+.saab-help-page {
+  margin-top: 24px;
+}
+
+.saab-help-page .saab-page-subtitle {
+  margin-bottom: 24px;
+  max-width: 1140px;
+  line-height: 20px;
+  font-size: 14px;
+  color: #50575e;
+}
+
+/* @extend replaced manually */
+.saab-help-page .primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #285064;
+  color: #fff !important;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none !important;
+  line-height: 1.3;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.saab-help-page .primary-btn:hover,
+.saab-help-page .primary-btn:focus {
+  background: #005a87;
+  color: #fff !important;
+}
+
+/* Top grid */
+.saab-help-top-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.saab-help-top-grid .saab-help-card .saab-help-card-title {
+  font-size: 20px;
+  line-height: 40px;
+}
+
+/* Bottom grid */
+.saab-help-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Card */
+.saab-help-card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eef0f2;
+  padding: 24px;
+  min-height: 255px;
+  display: flex;
+  flex-direction: column;
+}
+
+.saab-help-card-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  line-height: 0;
+}
+
+.saab-help-card-icon svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.saab-help-card-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1d2327;
+  line-height: 1.35;
+}
+
+.saab-help-card-text {
+  margin: 0;
+  color: #4a494b;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.saab-help-card-footer {
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.saab-help-card-footer > .saab-primary-btn,
+.saab-help-card-footer > .primary-btn {
+  float: right;
+}
+
+.saab-help-card-footer::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.saab-help-card-wide {
+  min-height: 338px;
+}
+
+.saab-help-card-wide .saab-help-card-title {
+  font-size: 20px;
+  line-height: 28px;
+  margin-bottom: 8px;
+}
+
+/* Newsletter */
+.saab-help-newsletter-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #50575e;
+  line-height: 20px;
+}
+
+.saab-help-newsletter-label .saab-help-required {
+  color: #e10a3e;
+  margin-left: 3px;
+}
+
+.saab-help-newsletter-input {
+  width: 100%;
+  height: 40px;
+  background: #fff;
+  border: 1px solid #9cd8ea;
+  border-radius: 8px;
+  padding: 0 12px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.saab-help-newsletter-input::placeholder {
+  color: #9aa1ab;
+}
+
+.saab-help-newsletter-input + .saab-primary-btn,
+.saab-help-newsletter-input + .primary-btn {
+  float: right;
+}
+
+.saab-help-newsletter-embed {
+  margin-top: 4px;
+}
+
+.saab-help-newsletter-embed .gfiframe {
+  max-width: 100%;
+}
+
+/* Primary button */
+.saab-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #285064;
+  color: #fff !important;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none !important;
+  line-height: 1.3;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.saab-primary-btn:hover,
+.saab-primary-btn:focus {
+  background: #0074A2;
+  color: #fff !important;
+}
+
+.saab-primary-btn-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  line-height: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.saab-primary-btn-icon svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+/* Help list */
+.saab-help-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saab-help-list li {
+  background: #fff;
+  border: 1px solid #eff1f4;
+  border-radius: 8px;
+  padding: 14px 16px 14px 22px;
+  position: relative;
+}
+
+.saab-help-list li::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 20px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f9ac8;
+}
+
+.saab-help-list a {
+  color: #007ab0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-decoration: none;
+}
+
+.saab-help-list a:hover,
+.saab-help-list a:focus {
+  text-decoration: underline;
+}
+
+/* FAQ */
+.saab-help-faq-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.saab-help-faq-item {
+  background: #fff;
+  border: 1px solid #e7edf1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.saab-help-faq-item.is-open {
+  border-color: #6fc2dd;
+}
+
+.saab-help-faq-item.is-open .saab-help-faq-answer {
+  max-height: 2000px;
+  opacity: 1;
+  padding: 0 16px 14px;
+}
+
+.saab-help-faq-item button {
+  outline: none !important;
+}
+
+.saab-help-faq-question {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  color: #056d99;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+  margin: 0;
+  box-shadow: none;
+}
+
+.saab-help-faq-question span {
+  font-size: 24px;
+  line-height: 1;
+  color: #4b5b66;
+}
+
+.saab-help-faq-answer {
+  padding: 0 16px 0;
+  color: #4a494b;
+  line-height: 20px;
+  font-size: 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.28s ease, opacity 0.2s ease;
+}
+
+/* Responsive */
+@media screen and (max-width: 1200px) {
+  .saab-help-top-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 960px) {
+  .saab-help-top-grid,
+  .saab-help-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Legacy */
+.saab-card-grid,
+.saab-lower-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.saab-lower-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.saab-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.saab-card h2 {
+  margin-top: 0;
+}
+
+.saab-card input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+}
+
+.saab-blog-list {
+  padding-left: 20px;
+}
+
+.saab-blog-list li {
+  margin-bottom: 10px;
+}
+
+.saab-faq-item {
+  border: 1px solid #e2e2e2;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}
+
+.saab-faq-item.active .saab-faq-answer {
+  display: block;
+}
+
+.saab-faq-question {
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.saab-faq-answer {
+  padding: 12px;
+  display: none;
+}

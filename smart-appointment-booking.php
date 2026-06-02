@@ -55,6 +55,10 @@ if ( ! defined( 'SAAB_PREFIX' ) ) {
 	define( 'SAAB_PREFIX', 'saab' ); // Plugin prefix
 }
 
+if ( ! defined( 'SAAB_FRONTEND_BLOG_URL' ) ) {
+    define( 'SAAB_FRONTEND_BLOG_URL', 'https://www.zealousweb.com/blog/' );
+}
+
 if ( ! function_exists( 'SAAB' ) ) {
 	if ( is_admin() ) {
         require_once( SAAB_DIR . '/inc/admin/class.saab.admin.action.php' );
