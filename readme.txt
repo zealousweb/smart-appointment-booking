@@ -6,8 +6,8 @@ Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
 Tested up to: 7.0
 License: GPLv3
-Version: 1.0.9
-Stable tag: 1.0.9
+Version: 2.0.0
+Stable tag: 2.0.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users
@@ -93,10 +93,6 @@ This plugin relies on the Form.io library for rendering form.
 - [Form.io Library Terms of Use](https://www.form.io/terms)
 - [Form.io Library Privacy Policy](https://www.form.io/privacy)
 
-## Boostrap 
-
-- jquery-3.7. 0.min.js
-
 == Installation ==
 Installing the plugin is easy. Just follow these steps:
 
@@ -128,6 +124,10 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 
 == Changelog ==
+
+= 2.0.0 =
+* Major update: improved admin menu (All Forms, Help & Support), security hardening (nonces, sanitization), and optimized entry queries for better performance.
+* WordPress.org Plugin Check and coding standards compliance improvements.
 
 = 1.0.9 =
 * Compatibility and code quality improvements for WordPress.org standards compliance.
@@ -164,6 +164,9 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 * Initial Release
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+* Major update with admin menu fixes, security improvements, and faster booking entry queries. Recommended for all users.
 
 = 1.0.9 =
 * Compatibility and code quality improvements for WordPress.org standards compliance.

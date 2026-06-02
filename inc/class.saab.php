@@ -59,10 +59,8 @@ if ( ! class_exists( 'SAAB' ) ) {
 				$get_locale = get_user_locale();
 			}
 
-			# Traditional WordPress plugin locale filters.
+			# Traditional WordPress plugin locale filter.
 			$locale = apply_filters( 'saab_plugin_locale', $get_locale, 'wp-smart-appointment-booking' );
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Backward compatibility with core's historical plugin_locale filter.
-			$locale = apply_filters( 'plugin_locale', $locale, 'wp-smart-appointment-booking' );
 			$mofile = sprintf( '%1$s-%2$s.mo', 'wp-smart-appointment-booking', $locale );
 
 			# Setup paths to current locale file

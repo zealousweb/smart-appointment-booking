@@ -84,7 +84,7 @@ jQuery(document).ready(function($) {
               url: myAjax.ajaxurl,
               type: 'post',
               data: {
-                  action: 'cancel_booking_shortcode',
+                  action: 'saab_cancel_booking_shortcode',
                   bookingId: bookingId,
                   security: nonce, 
               },

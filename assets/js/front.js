@@ -26,7 +26,8 @@ function getClickedId(element) {
         data: { 
         action: "saab_action_display_available_timeslots",
         form_data: data_day,
-        clickedId:clickedId
+        clickedId:clickedId,
+        security: ( typeof myAjax !== 'undefined' ? myAjax.nonce : '' )
         },
         success: function (data) {
            
@@ -87,6 +88,7 @@ function reloadCalendar(currentMonth, currentYear) {
           currentMonth: currentMonth,
           currentYear: currentYear,
           form_id: form_id,
+          security: ( typeof myAjax !== 'undefined' ? myAjax.nonce : '' )
       },
       success: function(data) {
           jQuery('#month-navigationid').html(data);
@@ -207,6 +209,7 @@ jQuery('.booking-cancellation-buttons .btn-yes').on('click', function() {
  
     var bookingId = cancelbooking_getQueryParam("booking_id");
     var bookingstatus = cancelbooking_getQueryParam("status");
+    var cancelSecurity = cancelbooking_getQueryParam("security") || ( typeof myAjax !== 'undefined' ? myAjax.nonce : '' );
 
     if (bookingId && bookingstatus === 'cancel') {
         jQuery.ajax({
@@ -214,7 +217,8 @@ jQuery('.booking-cancellation-buttons .btn-yes').on('click', function() {
             type: 'post',
             data: {
                 action: 'saab_cancel_booking_shortcode',
-                bookingId: bookingId
+                bookingId: bookingId,
+                security: cancelSecurity
             },
             success: function(response) {
               // console.log(response.message);
