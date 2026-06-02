@@ -4,11 +4,10 @@ Contributors: zealopensource
 Tags: Booking, Appointment, Scheduling form, forms, Booking Appointments
 Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
-Tested up to: 6.9
-License: GPL-3.0-or-later
-Version: 1.0.8
-Stable tag: 1.0.8
-License: GPLv3 or later License
+Tested up to: 7.0
+License: GPLv3
+Version: 1.0.9
+Stable tag: 1.0.9
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users
@@ -130,11 +129,11 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Changelog ==
 
+= 1.0.9 =
+* Compatibility and code quality improvements for WordPress.org standards compliance.
+
 = 1.0.8 =
-* Security: Nonce verification and input sanitization improvements across admin and front forms.
-* Security: Proper use of wp_unslash() before sanitization for POST/GET data.
-* Code quality: Addressed WordPress PHPCS warnings (escaping, validated input, slow query notices).
-* Tested with the latest version of WordPress (6.9).
+* Security and code-quality update: improved nonce/input handling and PHPCS compliance.
 
 = 1.0.7 =
 * Tested with the latest version of WordPress (6.9).
@@ -146,18 +145,7 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 * Issue Fixed
 
 = 1.0.4 =
-* Fix: Issue with enabling or disabling the booking form
-* Fix: Calendar not displaying when clicking arrows
-* Fix: Calendar not displaying when selecting a month
-* Fix: Calendar not displaying when selecting a year
-* Fix: Timeslot issue in the 'Manage Entry' section
-* Fix: Display of booked timeslots in the form
-* Fix: Change button name for "Add New Form (Booking Form)"
-* Fix: Remove "View Post" link after form is published
-* Fix: Generate shortcode when publishing the form
-* Add: List of added users
-* Add: List of added statuses
-* Add: "Appointment Type: Virtual" option
+* Booking/calendar fixes plus manage-entry, shortcode, and virtual appointment improvements.
 
 = 1.0.3 =
 * Fix: Date being selected in calendar issue
@@ -177,11 +165,11 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Upgrade Notice ==
 
+= 1.0.9 =
+* Compatibility and code quality improvements for WordPress.org standards compliance.
+
 = 1.0.8 =
-* Security: Nonce verification and input sanitization improvements across admin and front forms.
-* Security: Proper use of wp_unslash() before sanitization for POST/GET data.
-* Code quality: Addressed WordPress PHPCS warnings (escaping, validated input, slow query notices).
-* Tested with the latest version of WordPress (6.9).
+* Security and code-quality improvements for nonce, sanitization, and PHPCS compliance.
 
 = 1.0.7 =
 * Tested with the latest version of WordPress (6.9).
@@ -193,18 +181,7 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 * Issue Fixed
 
 = 1.0.4 =
-* Fix: Issue with enabling or disabling the booking form
-* Fix: Calendar not displaying when clicking arrows
-* Fix: Calendar not displaying when selecting a month
-* Fix: Calendar not displaying when selecting a year
-* Fix: Timeslot issue in the 'Manage Entry' section
-* Fix: Display of booked timeslots in the form
-* Fix: Change button name for "Add New Form (Booking Form)"
-* Fix: Remove "View Post" link after form is published
-* Fix: Generate shortcode when publishing the form
-* Add: List of added users
-* Add: List of added statuses
-* Add: "Appointment Type: Virtual" option
+* Booking/calendar fixes and manage-entry improvements, plus virtual appointment enhancements.
 
 = 1.0.3 =
 * Fix: Date being selected in calendar issue
