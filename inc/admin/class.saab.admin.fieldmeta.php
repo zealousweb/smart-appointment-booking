@@ -24,33 +24,65 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             add_action('save_post', array( $this, 'saab_save_notes_data' ) );
         }
 
+        /**
+         * Waiting-list pagination page from a verified admin request.
+         *
+         * @param int $post_id Entry post ID.
+         * @return int
+         */
+        private function saab_get_waiting_list_page_from_request( $post_id ) {
+            $current_page = 1;
+
+            if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                return $current_page;
+            }
+
+            if ( isset( $_GET['saab_wl_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['saab_wl_nonce'] ) ), 'saab_waiting_list_paged' ) ) {
+                if ( isset( $_GET['saab_wl_paged'] ) ) {
+                    $current_page = max( 1, absint( wp_unslash( $_GET['saab_wl_paged'] ) ) );
+                } else {
+                    $wl_page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT );
+                    if ( $wl_page ) {
+                        $current_page = max( 1, absint( $wl_page ) );
+                    }
+                }
+                return $current_page;
+            }
+
+            global $pagenow;
+            $get_post_id = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
+            $get_page    = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT );
+            if ( 'post.php' === $pagenow && $get_post_id && (int) $get_post_id === (int) $post_id && $get_page ) {
+                $current_page = max( 1, absint( $get_page ) );
+            }
+
+            return $current_page;
+        }
+
         function saab_get_available_seats_per_timeslot($checktimeslot,$date){
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Seats count filtered by timeslot/booking_date.
-            $args = array(
-                'post_type'      => 'manage_entries',
-                'posts_per_page' => -1,
-                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Seats count filtered by timeslot/booking_date.
-                'meta_query'     => array(
-                    'relation' => 'AND',
+            $seat_query = SAAB_Query::query_by_meta_and(
+                'manage_entries',
+                array(
                     array(
-                        'key' => 'timeslot',
-                        'value' => $checktimeslot,
-                        'compare' => '='
+                        'key'     => 'timeslot',
+                        'value'   => $checktimeslot,
+                        'compare' => '=',
                     ),
                     array(
-                        'key' => 'booking_date',
-                        'value' => $date,
-                        'compare' => '='
-                    )
+                        'key'     => 'booking_date',
+                        'value'   => $date,
+                        'compare' => '=',
+                    ),
+                ),
+                array(
+                    'posts_per_page' => -1,
                 )
             );
-            
-            $query = new WP_Query($args);
-            
-            if ($query->have_posts()) {
-                $post_count = $query->found_posts;
+
+            if ( $seat_query['found_posts'] > 0 ) {
+                $post_count = $seat_query['found_posts'];
             }
-            
+
             return $post_count;
         }
     
@@ -234,40 +266,35 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                     </div>
                     <div id="waitinglist_main">
                     <?php
-                       // Pagination; nonce not used for GET page parameter in admin list.
-                       // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                       $current_page = isset( $_GET['page'] ) ? absint( wp_unslash( $_GET['page'] ) ) : 1;
-                       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/status/booking_date.
-                       $args = array(
-                        'post_type'      => 'manage_entries',
-                        'posts_per_page' => 5,
-                        'paged'          => $current_page,
-                        'orderby'        => 'date',
-                        'order'          => 'ASC',
-                        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Waiting list filtered by timeslot/status/booking_date.
-                        'meta_query'     => array(
-                            'relation' => 'AND',
+                       $current_page = $this->saab_get_waiting_list_page_from_request( $post->ID );
+                       $waiting_query = SAAB_Query::query_by_meta_and(
+                        'manage_entries',
+                        array(
                             array(
-                                'key' => 'timeslot',
-                                'value' => $timeslot,
-                                'compare' => '='
+                                'key'     => 'timeslot',
+                                'value'   => $timeslot,
+                                'compare' => '=',
                             ),
                             array(
-                                'key' => 'entry_status',
-                                'value' => 'waiting',
-                                'compare' => 'LIKE'
+                                'key'     => 'entry_status',
+                                'value'   => 'waiting',
+                                'compare' => 'LIKE',
                             ),
                             array(
-                                'key' => 'booking_date',
-                                'value' => $booking_date,
-                                'compare' => '='
-                            )
+                                'key'     => 'booking_date',
+                                'value'   => $booking_date,
+                                'compare' => '=',
+                            ),
+                        ),
+                        array(
+                            'posts_per_page' => 5,
+                            'paged'          => $current_page,
+                            'orderby'        => 'date',
+                            'order'          => 'ASC',
                         )
                     );
 
-                        $query = new WP_Query($args);
-
-                        if ($query->have_posts()) {
+                        if ( ! empty( $waiting_query['posts'] ) ) {
                             echo '<div class="border-top section-break mb-2"></div>';
                             echo '<p class="h6">Waiting List</p>';
                             echo '<table class="table table-bordered waitingtable " style="width:70%;text-align: center;">';
@@ -281,12 +308,10 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             echo '<th style="width:5%">Edit</th>';
                             echo '</tr>';
                             $i = 1;
-                            while ($query->have_posts()) {
-                                $query->the_post();
-                                $post_id = get_the_ID();
-                                $post_title = get_the_title();
-                                $booking_status = get_post_meta($post_id, 'saab_entry_status', true);
-                                $no_of_bookings = get_post_meta($post_id, 'saab_slotcapacity', true);
+                            foreach ( $waiting_query['posts'] as $post_id ) {
+                                $post_title     = get_the_title( $post_id );
+                                $booking_status = get_post_meta( $post_id, 'saab_entry_status', true );
+                                $no_of_bookings   = get_post_meta( $post_id, 'saab_slotcapacity', true );
 
                                 if ($booking_status === 'waiting') {
                                  
@@ -305,13 +330,12 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                             }
 
                             echo '</table>';
-                            wp_reset_postdata();
                         }
-                        if ($query->have_posts()) {
+                        if ( ! empty( $waiting_query['posts'] ) ) {
                             // Calculate the total number of pages
-                            $total_pages = $query->max_num_pages;
+                            $total_pages = $waiting_query['max_num_pages'];
                             echo '<div id="pagination-links" style="font-size: 15px;font-weight: 600;">';
-                            echo '<span class="item-count" style="margin-right: 5px;">' . esc_html($query->found_posts) . ' Items</span>';
+                            echo '<span class="item-count" style="margin-right: 5px;">' . esc_html( $waiting_query['found_posts'] ) . ' Items</span>';
                             if ($total_pages > 1) {
                                 
                                     echo '<select id="saabpage-number"  data-timeslot="' . esc_attr($timeslot) . '" data-booking_date="' . esc_attr($booking_date) . '" data-nonce="' . esc_attr( wp_create_nonce( 'get_paginated_items_nonce' ) ) . '">';
@@ -355,7 +379,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                 ?>
                 <script type='text/javascript'>
                     
-                    var myScriptData = <?php echo $myScriptData; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON schema from post meta, validated on save. ?>;
+                    var myScriptData = <?php echo wp_json_encode( $myScriptData ); ?>;
                     window.onload = function() {
                         
                         var formioBuilder = Formio.builder(document.getElementById('builder'), {
@@ -590,7 +614,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                         );
                                         //echo wp_kses( $this->timezone_dropdown($post->ID), $allow_time_dropdown );
                                     ?>
-                                    <?php echo wp_kses_post( $this->timezone_dropdown( $post->ID ) ); ?>
+                                    <?php echo wp_kses( $this->timezone_dropdown( $post->ID ), $allow_time_dropdown ); ?>
                                     
                                 </div> 
                                 <div class="form-group form-general-group">
@@ -1210,11 +1234,26 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $encrypted_booking_id = $bookingId;
             $user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
             
-            if ($user_mapping) {
-                $cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
-                $cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel';
+            $cancel_nonce = wp_create_nonce( 'my_ajax_nonce' );
+            if ( $user_mapping ) {
+                $cancelbooking_pageid = isset( $user_mapping['cancel_bookingpage'] ) ? sanitize_text_field( $user_mapping['cancel_bookingpage'] ) : '';
+                $cancelbooking_url = add_query_arg(
+                    array(
+                        'booking_id' => $encrypted_booking_id,
+                        'status'     => 'cancel',
+                        'security'   => $cancel_nonce,
+                    ),
+                    get_permalink( $cancelbooking_pageid )
+                );
             } else {
-                $cancelbooking_url = home_url('/?booking_id=' . $encrypted_booking_id . '&status=cancel');
+                $cancelbooking_url = add_query_arg(
+                    array(
+                        'booking_id' => $encrypted_booking_id,
+                        'status'     => 'cancel',
+                        'security'   => $cancel_nonce,
+                    ),
+                    home_url( '/' )
+                );
             }
             $no_of_booking = get_post_meta($form_id, 'saab_no_of_booking', true);
             
@@ -1307,16 +1346,14 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                         $message = esc_html__('Email sent successfully','smart-appointment-booking');
                     } else {
                         $message = esc_html__('Failed to send email','smart-appointment-booking');
-                        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                        error_log( 'Failed to send email' );
+                        $this->saab_debug_log( 'Failed to send email' );
                     }
                 }
                         
             }
             if ( $notificationFound === false ) {
                 $message = esc_html__( 'Notification not found for the given status', 'smart-appointment-booking' );
-                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                error_log( 'Notification not found for the given status' );
+                $this->saab_debug_log( 'Notification not found for the given status' );
             }
             return $message;
         }
@@ -2143,7 +2180,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="Africa">';
             foreach ($timezones_Africa as $value_Africa => $label_africa) {
                 $selected = ($value_Africa == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html( $value_Africa) . '" ' . esc_html( $selected ). '>' . esc_html($label_africa) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Africa ) . '" ' . $selected . '>' . esc_html( $label_africa ) . '</option>';
 
             }
             $dropdown_timezone .= '</optgroup>';
@@ -2151,47 +2188,47 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="America">';
             foreach ($timezones_America as $value_America => $label_America) {
                 $selected = ($value_America == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_America) . '" ' . esc_html($selected) . '>' . esc_html($label_America) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_America ) . '" ' . $selected . '>' . esc_html( $label_America ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Antarctica">';
             foreach ($timezones_Antarctica as $value_Antarctica => $label_Antarctica) {
                 $selected = ($value_Antarctica == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Antarctica) . '" ' . esc_html($selected ). '>' . esc_html($label_Antarctica) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Antarctica ) . '" ' . $selected . '>' . esc_html( $label_Antarctica ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Arctic">';
             $selected = ("Arctic" == $get_timezone_value) ? 'selected="selected"' : '';
-            $dropdown_timezone .= '<option value="Arctic/Longyearbyen"' . esc_html($selected ). '>Longyearbyen</option>';
+            $dropdown_timezone .= '<option value="Arctic/Longyearbyen" ' . $selected . '>Longyearbyen</option>';
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Asia">';
             foreach ($timezones_Asia as $value_Asia => $label_Asia) {
                 $selected = ($value_Asia == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Asia) . '" ' . esc_html($selected) . '>' . esc_html($label_Asia) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Asia ) . '" ' . $selected . '>' . esc_html( $label_Asia ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Atlantic">';
             foreach ($timezones_Atlantic as $value_Atlantic => $label_Atlantic) {
                 $selected = ($value_Atlantic == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Atlantic) . '" ' . esc_html($selected) . '>' . esc_html($label_Atlantic) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Atlantic ) . '" ' . $selected . '>' . esc_html( $label_Atlantic ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Australia">';
             foreach ($timezones_Australia as $value_Australia => $label_Australia) {
                 $selected = ($value_Australia == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Australia) . '" ' . esc_html($selected). '>' . $label_Australia . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Australia ) . '" ' . $selected . '>' . esc_html( $label_Australia ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="Europe">';
             foreach ($timezones_Europe as $value_Europe => $label_Europe) {
                 $selected = ($value_Europe == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Australia) . '" ' . $selected . '>' . esc_html($label_Australia) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Europe ) . '" ' . $selected . '>' . esc_html( $label_Europe ) . '</option>';
 
             }
             $dropdown_timezone .= '</optgroup>';
@@ -2199,31 +2236,43 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             $dropdown_timezone .= '<optgroup label="Indian">';
             foreach ($timezones_Indian as $value_Indian => $label_Indian) {
                 $selected = ($value_Indian == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Europe) . '" ' . esc_html($selected) . '>' . esc_html($label_Europe) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Indian ) . '" ' . $selected . '>' . esc_html( $label_Indian ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
             $dropdown_timezone .= '<optgroup label="Pacific">';
             foreach ($timezones_Pacific as $value_Pacific => $label_Pacific) {
                 $selected = ($value_Pacific == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_Pacific) . '" ' . esc_html($selected) . '>' . esc_html($label_Pacific) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_Pacific ) . '" ' . $selected . '>' . esc_html( $label_Pacific ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="UTC">';
-            $selected = ("UTC" == $get_timezone_value) ? 'selected="selected"' : '';
-            $dropdown_timezone .= '<option value="' . esc_attr("UTC") . '" ' . selected($selected, "UTC", false) . '>UTC</option>';
+            $selected = ( 'UTC' === $get_timezone_value ) ? 'selected="selected"' : '';
+            $dropdown_timezone .= '<option value="UTC" ' . $selected . '>UTC</option>';
             $dropdown_timezone .= '</optgroup>';
 
             $dropdown_timezone .= '<optgroup label="UTC">';
             foreach ($timezones_UTC as $value_UTC => $label_UTC) {
                 $selected = ($value_UTC == $get_timezone_value) ? 'selected="selected"' : '';
-                $dropdown_timezone .= '<option value="' . esc_html($value_UTC) . '" ' . esc_html($selected) . '>' . esc_html($label_UTC) . '</option>';
+                $dropdown_timezone .= '<option value="' . esc_attr( $value_UTC ) . '" ' . $selected . '>' . esc_html( $label_UTC ) . '</option>';
             }
             $dropdown_timezone .= '</optgroup>';
             $dropdown_timezone .= '</select>';
             
             
             return $dropdown_timezone;
+        }
+
+        /**
+         * Fire debug log hook only when debug mode is enabled.
+         *
+         * @param string $message Debug message.
+         * @return void
+         */
+        private function saab_debug_log( $message ) {
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                do_action( 'saab_debug_log', sanitize_text_field( $message ) );
+            }
         }
         
     }           
