@@ -6,8 +6,8 @@ Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
 Tested up to: 7.0
 License: GPLv3
-Version: 2.0.0
-Stable tag: 2.0.0
+Version: 2.0.1
+Stable tag: 2.0.1
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users
@@ -125,6 +125,9 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Changelog ==
 
+= 2.0.1 =
+* Security: capability checks and per-booking cancel authorization; PHPCS compliance for cancel booking AJAX handlers.
+
 = 2.0.0 =
 * Major update: improved admin menu (All Forms, Help & Support), security hardening (nonces, sanitization), and optimized entry queries for better performance.
 * WordPress.org Plugin Check and coding standards compliance improvements.
@@ -164,6 +167,9 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 * Initial Release
 
 == Upgrade Notice ==
+
+= 2.0.1 =
+* Security and coding standards update for booking cancellation and admin access control. Recommended for all users.
 
 = 2.0.0 =
 * Major update with admin menu fixes, security improvements, and faster booking entry queries. Recommended for all users.

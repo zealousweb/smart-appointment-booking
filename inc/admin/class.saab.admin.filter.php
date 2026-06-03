@@ -28,7 +28,7 @@ if ( !class_exists( 'SAAB_Admin_Filter' ) ) {
 		 * Add custom action link to row actions
 		 * */ 
 		function saab_add_notification_row_action($actions, $post) {
-			if ($post->post_type === 'saab_form_builder') {
+			if ( 'saab_form_builder' === $post->post_type && current_user_can( 'edit_post', $post->ID ) ) {
 				// Generate the notification URL
 				$nonce = wp_create_nonce('other_setting');
 				$notification_url = admin_url('admin.php?page=notification-settings&post_type=' . $post->post_type.'&post_id=' . $post->ID.'&nonce=' . $nonce);

@@ -90,7 +90,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         /**
          * Display saab submission Entries
          */ 
-        function saab_entries_render_meta_box_content( $post ){
+        function saab_entries_render_meta_box_content( $post ) {
+            if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                echo '<p>' . esc_html__( 'Sorry, you are not allowed to edit this entry.', 'smart-appointment-booking' ) . '</p>';
+                return;
+            }
 
             //Add a nonce field to the meta box.
             wp_nonce_field('saab_entries_nonce', 'saab_entries_nonce_field');
@@ -433,7 +437,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
          * Booking Configuration - add meta box callback
          */
         function saab_repeat_appointment($post) {
-           
+            if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                echo '<p>' . esc_html__( 'Sorry, you are not allowed to edit this form.', 'smart-appointment-booking' ) . '</p>';
+                return;
+            }
+
             wp_nonce_field('saab_repeat_appointment_nonce', 'saab_repeat_appointment_nonce_field');
             // Retrieve saved meta box values
             $title = get_post_meta($post->ID, 'saab_cal_title', true);
@@ -890,6 +898,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
             {
               return $post_id;
             }
+
+            if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                return $post_id;
+            }
+
             if ( isset( $_POST['cal_title'] ) ) {
                 $cal_title = sanitize_text_field( wp_unslash( $_POST['cal_title'] ) );
                 update_post_meta( $post_id, 'saab_cal_title', $cal_title );
@@ -1128,6 +1141,10 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
          * 
          */
         function saab_save_notes_data($post_id) {
+            if ( 'manage_entries' !== get_post_type( $post_id ) ) {
+                return;
+            }
+
             if (!isset($_POST['notes_nonce']) || !wp_verify_nonce(sanitize_text_field( wp_unslash ( $_POST['notes_nonce'] ) ), 'save_notes')) {
                 return;
             }
@@ -1540,7 +1557,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         function saab_render_configure_notifications($post){
             $post_id = $post->ID;
             $post_type = get_post_type( $post_id );
-            if($post_type === 'saab_form_builder'){
+            if ( 'saab_form_builder' === $post_type && current_user_can( 'edit_post', $post_id ) ) {
                 $form_id = get_post_meta($post_id,'saab_form_id',true);
                 $page_slug = 'notification-settings';
                 $post_type = 'saab_form_builder';
@@ -1568,6 +1585,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
        // Render the meta box content
        
         function notification_logs($post) {
+            if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                echo '<p>' . esc_html__( 'Sorry, you are not allowed to send notifications for this entry.', 'smart-appointment-booking' ) . '</p>';
+                return;
+            }
+
             $post_id = $post->ID;
             $form_id = get_post_meta($post_id,'saab_form_id',true);
             $message = get_post_meta($post_id,'saab_manual_notification',true);
@@ -1595,6 +1617,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         }
         
         function saab_edit_form_details($post) {
+            if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                echo '<p>' . esc_html__( 'Sorry, you are not allowed to edit this entry.', 'smart-appointment-booking' ) . '</p>';
+                return;
+            }
+
             $form_id = get_post_meta($post->ID, 'saab_form_id', true); 
             $form_schema = get_post_meta($form_id, 'saab_formschema', true);
             $form_data = get_post_meta($post->ID, 'saab_submission_data', true);
@@ -1642,7 +1669,7 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
                                     action: 'update_form_entry_data',
                                     entry_id: entryId,
                                     updated_data: updatedData,
-                                    //zwt_saab_common_nonce: '<//?php //echo esc_attr(wp_create_nonce('zwt_saab_common_nonce')); ?>'
+                                    security: '<?php echo esc_js( wp_create_nonce( 'saab_ajax_nonce' ) ); ?>'
                                 },
                                 success: function(response) {
                                     if (response.success) {
@@ -1672,6 +1699,11 @@ if ( !class_exists( 'SAAB_Admin_Fieldmeta' ) ) {
         }
         
         function saab_render_notes_meta_box($post) {
+            if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                echo '<p>' . esc_html__( 'Sorry, you are not allowed to edit this entry.', 'smart-appointment-booking' ) . '</p>';
+                return;
+            }
+
             $notes = get_post_meta($post->ID, 'saab_notes', true);
             wp_nonce_field('save_notes', 'notes_nonce');
             ?>
