@@ -31,35 +31,29 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			add_action('manage_saab_form_builder_posts_custom_column', array( $this, 'saab_populate_custom_column' ), 10, 2);
 			add_action('manage_manage_entries_posts_custom_column', array( $this, 'saab_populate_custom_column' ), 10, 2);
 
-			add_action('wp_ajax_saab_preiveiw_timeslot', array( $this, 'saab_preiveiw_timeslot' ) );
-			add_action('wp_ajax_nopriv_saab_preiveiw_timeslot', array( $this, 'saab_preiveiw_timeslot' ) );
+			add_action( 'wp_ajax_saab_preiveiw_timeslot', array( $this, 'saab_preiveiw_timeslot' ) );
 
-			add_action( 'wp_ajax_saab_save_new_notification', array( $this, 'saab_save_new_notification' ));
-			add_action('wp_ajax_nopriv_saab_save_new_notification', array( $this, 'saab_save_new_notification' ) );
+			add_action( 'wp_ajax_saab_save_new_notification', array( $this, 'saab_save_new_notification' ) );
 
-			add_action('init', array( $this, 'saab_add_notification_capability' ) );
-			add_action('admin_enqueue_scripts',  array( $this, 'saab_enqueue_admin_scripts' ), 10, 2);
-			
-			add_action('wp_ajax_delete_notification_indexes', array( $this, 'saab_delete_notification_indexes' ) );
+			add_action( 'init', array( $this, 'saab_add_notification_capability' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'saab_enqueue_admin_scripts' ), 10, 2 );
 
-			add_action( 'wp_ajax_saab_update_notification_state', array( $this, 'saab_update_notification_state' ));
-			add_action('wp_ajax_nopriv_saab_update_notification_state', array( $this, 'saab_update_notification_state' ) );
+			add_action( 'wp_ajax_delete_notification_indexes', array( $this, 'saab_delete_notification_indexes' ) );
 
-			add_action('wp_ajax_saab_save_user_mapping', array( $this, 'saab_save_user_mapping' ) );
-			add_action('wp_ajax_nopriv_saab_save_user_mapping', array( $this, 'saab_save_user_mapping' ) );
+			add_action( 'wp_ajax_saab_update_notification_state', array( $this, 'saab_update_notification_state' ) );
 
-			add_action( 'wp_ajax_saab_save_confirmation', array( $this, 'saab_save_confirmation' ));
-			add_action('wp_ajax_nopriv_saab_save_confirmation', array( $this, 'saab_save_confirmation' ) );
+			add_action( 'wp_ajax_saab_save_user_mapping', array( $this, 'saab_save_user_mapping' ) );
 
-			add_action('wp_ajax_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
-			add_action('wp_ajax_nopriv_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
+			add_action( 'wp_ajax_saab_save_confirmation', array( $this, 'saab_save_confirmation' ) );
+
+			add_action( 'wp_ajax_saab_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
+			add_action( 'wp_ajax_update_form_entry_data', array( $this, 'saab_update_form_entry_data' ) );
 			
 			add_action( 'restrict_manage_posts', array( $this, 'saab_add_custom_booking_status_filter' ) );
 			add_action( 'pre_get_posts', array( $this, 'saab_filter_custom_booking_status' ) );
 			
 			add_action('post_submitbox_misc_actions', array( $this, 'saab_modify_submitdiv_content' ) );			
-			add_action('wp_ajax_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
-			add_action('wp_ajax_nopriv_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
+			add_action( 'wp_ajax_saab_get_paginated_items_for_waiting_list', array( $this, 'saab_get_paginated_items_for_waiting_list' ) );
 			
 
 		}
@@ -181,23 +175,27 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		}
 		// Add capability to user role
 		function saab_add_notification_capability() {
-			$role = get_role('administrator'); 
-			$role->add_cap('edit_notifications'); 
+			$role = get_role( 'administrator' );
+			if ( $role ) {
+				$role->add_cap( 'edit_notifications' );
+			}
 		}
 		
 		/**
 		 * save new notification
 		*/
 		function saab_save_new_notification() {
-			
+			$this->saab_require_ajax_logged_in_editor();
+
 			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
 				$response = array(
 					'success' => false,
 					'message' => 'Invalid Nonce request.',
 				);
-				wp_send_json_success( $response);
-				exit;  
+				wp_send_json_success( $response );
+				exit;
 			}
+
 			$response = array(
 				'success' => false,
 				'message' => 'Invalid request.',
@@ -205,7 +203,12 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			$get_notification_array = array();
 			if ( isset( $_POST['notification_data'] ) ) {
 				parse_str( sanitize_text_field( wp_unslash( $_POST['notification_data'] ) ), $form_data );
-				$post_id = $form_data['form_id'];
+				$post_id = isset( $form_data['form_id'] ) ? absint( $form_data['form_id'] ) : 0;
+
+				if ( ! $this->saab_user_can_edit_form_notifications( $post_id ) ) {
+					$this->saab_ajax_permission_denied();
+				}
+
                	$index = $form_data['editnotify'];
 				$mail_body='mail_body' . $index;
 				
@@ -399,6 +402,16 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 
 			// Remove only the auto-added duplicate submenu (same slug as top-level), not All Forms.
 			remove_submenu_page( $parent_slug, $parent_slug );
+
+			// Hidden admin screen for per-form notification settings (capability checked again in callback).
+			add_submenu_page(
+				null,
+				esc_html__( 'Notification Settings', 'smart-appointment-booking' ),
+				esc_html__( 'Notification Settings', 'smart-appointment-booking' ),
+				'edit_posts',
+				'notification-settings',
+				array( $this, 'saab_render_notification_settings_page' )
+			);
 		}
 
 		/**
@@ -460,8 +473,13 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		/**
 		 * Update booking form entries in backend
 		 */
-		function view_booking_entry( $post ){
+		function view_booking_entry( $post ) {
 			$post_id = isset( $post->ID ) ? absint( $post->ID ) : 0;
+
+			if ( ! $this->saab_user_can_edit_entry_post( $post_id ) ) {
+				wp_die( esc_html__( 'Sorry, you are not allowed to view this entry.', 'smart-appointment-booking' ) );
+			}
+
             $form_data = get_post_meta( $post_id, 'saab_submission_data', true );	
             $form_id = get_post_meta( $post_id, 'saab_form_id', true );	
             $timeslot = get_post_meta( $post_id, 'saab_timeslot', true );
@@ -587,13 +605,18 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			</div>
             <?php
         }
-		function update_form_entry_data(){
+		function saab_update_form_entry_data() {
+			$this->saab_require_ajax_logged_in_editor();
+
 			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
 				wp_send_json_error( array( 'message' => __( 'Security check failed.', 'smart-appointment-booking' ) ) );
 				wp_die();
 			}
+
 			if ( isset( $_POST['entry_id'] ) && isset( $_POST['updated_data'] ) ) {
-				$entry_id = isset( $_POST['entry_id'] ) ? absint( wp_unslash( $_POST['entry_id'] ) ) : 0;
+				$entry_id = absint( wp_unslash( $_POST['entry_id'] ) );
+
+				$this->saab_require_ajax_entry_edit( $entry_id );
 				$get_submitted_data = get_post_meta( $entry_id, 'saab_submission_data', true );
 				$updated_data = isset( $_POST['updated_data'] ) && is_array( $_POST['updated_data'] ) ? map_deep( wp_unslash( $_POST['updated_data'] ), 'sanitize_text_field' ) : array(); 
 				foreach ($updated_data as $key => $value) {
@@ -632,13 +655,20 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * Render notification setting page
 		 */
 		function saab_render_notification_settings_page() {
-			// Add your page content here
 			echo "<div class='notification-page-main m-4 p-1 ' >";
-		
-			if ( isset( $_GET['post_type'] ) && isset( $_GET['post_id'] ) && isset( $_GET['nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'other_setting' ) ) {
-				$post_type = sanitize_text_field( wp_unslash( $_GET['post_type'] ) );
-				$post_id = absint( wp_unslash( $_GET['post_id'] ) );				
-			
+
+			if ( ! isset( $_GET['post_type'], $_GET['post_id'], $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'other_setting' ) ) {
+				echo '</div>';
+				return;
+			}
+
+			$post_type = sanitize_text_field( wp_unslash( $_GET['post_type'] ) );
+			$post_id   = absint( wp_unslash( $_GET['post_id'] ) );
+
+			if ( 'saab_form_builder' !== $post_type || ! $this->saab_user_can_edit_form_notifications( $post_id ) ) {
+				wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'smart-appointment-booking' ) );
+			}
+
 				?>
 				<ul class="nav nav-tabs" id="myTabs" role="tablist">
 					<li class="nav-item">
@@ -1004,9 +1034,6 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 					</button>
 				</a>
 				<?php
-			} else {
-				echo "Error: Post type and/or post ID not found.";
-			}
 			echo '</div>';
 		}
 		/**
@@ -1044,17 +1071,22 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * Update notification status: enable and disable
 		 */
 		function saab_update_notification_state() {
+			$this->saab_require_ajax_logged_in_editor();
+
 			$response = array(
 				'success' => false,
 				'message' => 'Invalid request.',
 			);
-			
-			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' )) {
-				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
-				wp_send_json($response);
-			}else{
-				if ( isset( $_POST['post_id'] ) && isset( $_POST['notification_id'] ) && isset( $_POST['new_state'] ) ) {
+
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
+				$response['message'] = esc_html__( 'Something went wrong', 'smart-appointment-booking' );
+				wp_send_json( $response );
+			}
+
+			if ( isset( $_POST['post_id'], $_POST['notification_id'], $_POST['new_state'] ) ) {
 					$post_id = absint( wp_unslash( $_POST['post_id'] ) );
+
+					$this->saab_require_ajax_form_edit( $post_id );
 					$notification_id = absint( wp_unslash( $_POST['notification_id'] ) );
 
 					$index = ltrim( (string) $notification_id, 'notify_' );
@@ -1077,16 +1109,16 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 						$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
 					}
 				}
-			
-				wp_send_json($response);
-				
-			}
+
+			wp_send_json( $response );
 			wp_die();
 		}
 		/**
 		 * delete Notification entry from backend
 		 */
 		function saab_delete_notification_indexes() {
+			$this->saab_require_ajax_logged_in_editor();
+
 			if ( ! check_ajax_referer( 'saab_ajax_nonce', 'security', false ) ) {
 				wp_send_json_error( 'Invalid request.' );
 				wp_die();
@@ -1097,7 +1129,9 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 				wp_die();
 			}
 
-			$post_id           = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+			$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+
+			$this->saab_require_ajax_form_edit( $post_id );
 			$indexes_to_delete = array_map( 'absint', wp_unslash( $_POST['indexes'] ) );
 			$notification_metadata = get_post_meta( $post_id, 'saab_notification_data', true );
 
@@ -1260,20 +1294,21 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * save form data
 		 * */	
 		function saab_save_form_data() {
+			$this->saab_require_ajax_logged_in_editor();
 
-			if ( isset( $_POST['security'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
-			
-				$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
+				wp_send_json_error( 'Nonce verification failed' );
+			}
+
+			$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+
+			$this->saab_require_ajax_form_edit( $post_id );
 
 				$form_data = isset( $_POST['form_data'] ) ? sanitize_text_field( wp_unslash( $_POST['form_data'] ) ) : '';
 				
 				update_post_meta($post_id, 'saab_formschema', $form_data );
 
 				wp_send_json_success( 'Form data saved successfully.' );
-				
-			}else{
-				wp_send_json_error('Nonce verification failed');
-			}
 			exit;
 
 		}
@@ -1343,21 +1378,25 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * 
 		 */
 		function saab_preiveiw_timeslot() {
+			$this->saab_require_ajax_logged_in_editor();
+
 			$error = 0;
-			$output = '';		
-		
-			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['security'] ) ) , 'saab_ajax_nonce' )) {
-				$error = 1;
-				$error_mess = "Nonce verification failed";
-				// Send error response
-				wp_send_json_error(array(
-					'error_mess' => $error_mess
-				));				
+			$output = '';
+
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
+				wp_send_json_error(
+					array(
+						'error_mess' => 'Nonce verification failed',
+					)
+				);
 				wp_die();
 			}
+
 			if ( isset( $_POST['post_id'] ) ) {
 
-					$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+					$post_id = absint( wp_unslash( $_POST['post_id'] ) );
+
+					$this->saab_require_ajax_form_edit( $post_id );
 					$start_time = get_post_meta($post_id, 'saab_start_time', true);
 					$end_time = get_post_meta($post_id, 'saab_end_time', true);
 					$break_times = get_post_meta($post_id, 'saab_breaktimeslots', true);
@@ -1491,19 +1530,22 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * This function is responsible for saving user mapping fields.
 		 */
 		function saab_save_user_mapping() {
-			if (!is_admin()) {
-				wp_send_json_error('Invalid request.');
-			}
-			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['security'] ) ) , 'saab_ajax_nonce' )) {
-				wp_send_json_error(array('message' => 'Nonce verification failed'));
+			$this->saab_require_ajax_logged_in_editor();
+
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
+				wp_send_json_error( array( 'message' => 'Nonce verification failed' ) );
 				wp_die();
 			}
+
 			$user_mapping = isset( $_POST['saabuser_mapping'] ) ? sanitize_text_field( wp_unslash( $_POST['saabuser_mapping'] ) ) : '';
-		
-			parse_str($user_mapping, $user_mapping_array);
-		
-			$post_id = isset($user_mapping_array['post_id']) ? sanitize_text_field($user_mapping_array['post_id']) : '';
-			if (!empty($post_id)) {
+
+			parse_str( $user_mapping, $user_mapping_array );
+
+			$post_id = isset( $user_mapping_array['post_id'] ) ? absint( $user_mapping_array['post_id'] ) : 0;
+
+			$this->saab_require_ajax_form_edit( $post_id );
+
+			if ( ! empty( $post_id ) ) {
 				update_post_meta($post_id, 'saab_user_mapping', $user_mapping_array);
 
 				$response['message'] = esc_html__('User mapping saved successfully.', 'smart-appointment-booking');
@@ -1523,16 +1565,24 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * @return void
 		 */
 		function saab_save_confirmation() {
-			if (!isset($_POST['security']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['security'] ) ) , 'saab_ajax_nonce' )) {
-				$response['message'] = esc_html__('Something went wrong', 'smart-appointment-booking');
-				wp_send_json($response);
+			$this->saab_require_ajax_logged_in_editor();
+
+			$response = array(
+				'message' => esc_html__( 'Something went wrong', 'smart-appointment-booking' ),
+			);
+
+			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'saab_ajax_nonce' ) ) {
+				wp_send_json( $response );
 				exit;
 			}
-			if (isset($_POST['confirmation_data'])) {
+
+			if ( isset( $_POST['confirmation_data'] ) ) {
 
 				parse_str( sanitize_text_field( wp_unslash( $_POST['confirmation_data'] ) ), $formdata );
-				
-				$post_id = $formdata['post_id'];
+
+				$post_id = isset( $formdata['post_id'] ) ? absint( $formdata['post_id'] ) : 0;
+
+				$this->saab_require_ajax_form_edit( $post_id );
 				if (isset($formdata['confirmation'])) {
 					$redirect_url = sanitize_text_field($formdata['confirmation']);
 					update_post_meta($post_id, 'saab_confirmation', $redirect_url);
@@ -1593,8 +1643,12 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 */
 		function saab_add_custom_booking_status_filter($post_type) {
 
-			if('manage_entries' !== $post_type){
-				return; 
+			if ( 'manage_entries' !== $post_type ) {
+				return;
+			}
+
+			if ( ! current_user_can( 'edit_posts' ) ) {
+				return;
 			}
 			
 			$args = array(
@@ -1666,7 +1720,11 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			if (!is_admin() || !in_array($query->get('post_type'), array('manage_entries'))) {
 				return;
 			}
-			
+
+			if ( ! current_user_can( 'edit_posts' ) ) {
+				return;
+			}
+
 			if (!isset($_GET['booking_status_filter_nonce']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_GET['booking_status_filter_nonce'] ) ) , 'booking_status_filter_nonce' )) {
 				return;
 			}
@@ -1710,22 +1768,20 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			global $post;
 			$post_id = $post->ID;
 			$post_type = get_post_type( $post_id );
-			if($post_type === 'saab_form_builder'){
-				$form_id = get_post_meta($post_id,'saab_form_id',true);
+			if ( 'saab_form_builder' === $post_type && $this->saab_user_can_edit_form_notifications( $post_id ) ) {
 				$page_slug = 'notification-settings';
-				$post_type = 'saab_form_builder';
-				
-				$admin_url = esc_url(admin_url('admin.php'));
+
 				$view_entry_url = add_query_arg(
 					array(
-						'page' => $page_slug,
-						'post_type' => $post_type,
-						'post_id' => $post_id
+						'page'      => $page_slug,
+						'post_type' => 'saab_form_builder',
+						'post_id'   => $post_id,
+						'nonce'     => wp_create_nonce( 'other_setting' ),
 					),
-					$admin_url
+					admin_url( 'admin.php' )
 				);
 
-				echo '<div class="misc-pub-section misc-pub-post-status" id="misc-notification"> <a href="' . esc_url($view_entry_url) . '" style="color:black;" target="_blank"><b>Configure Email Notifications</a> </b></div>';
+				echo '<div class="misc-pub-section misc-pub-post-status" id="misc-notification"> <a href="' . esc_url( $view_entry_url ) . '" style="color:black;" target="_blank"><b>Configure Email Notifications</a> </b></div>';
 				?>
 			
 				<?php
@@ -1741,9 +1797,12 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * @return void
 		 */
 		function saab_get_paginated_items_for_waiting_list(){
+			$this->saab_require_ajax_entries_access();
+
 			if ( ! check_ajax_referer( 'get_paginated_items_nonce', 'security', false ) ) {
 				wp_die( -1, 403 );
 			}
+
 			// Define the current page number
 			
 			$current_page = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : 1;
@@ -1864,11 +1923,22 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 		 * @return bool
 		 */
 		private function saab_is_notification_settings_request() {
-			if ( ! is_admin() || ! isset( $_GET['nonce'] ) ) {
+			if ( ! is_admin() || ! isset( $_GET['page'], $_GET['nonce'], $_GET['post_id'] ) ) {
 				return false;
 			}
 
-			return (bool) wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'other_setting' );
+			$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+			if ( 'notification-settings' !== $page ) {
+				return false;
+			}
+
+			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'other_setting' ) ) {
+				return false;
+			}
+
+			$post_id = absint( wp_unslash( $_GET['post_id'] ) );
+
+			return $this->saab_user_can_edit_form_notifications( $post_id );
 		}
 
 		/**
@@ -1917,6 +1987,123 @@ if ( !class_exists( 'SAAB_Admin_Action' ) ) {
 			}
 
 			return false;
+		}
+
+		/**
+		 * Whether the current user can manage plugin-wide admin settings.
+		 *
+		 * @return bool
+		 */
+		private function saab_user_can_manage_plugin() {
+			return current_user_can( 'manage_options' );
+		}
+
+		/**
+		 * Whether the current user can edit a form builder post.
+		 *
+		 * @param int $post_id Form post ID.
+		 * @return bool
+		 */
+		private function saab_user_can_edit_form_post( $post_id ) {
+			$post_id = absint( $post_id );
+			if ( $post_id <= 0 || 'saab_form_builder' !== get_post_type( $post_id ) ) {
+				return false;
+			}
+
+			return current_user_can( 'edit_post', $post_id );
+		}
+
+		/**
+		 * Whether the current user can edit form notifications / settings.
+		 *
+		 * @param int $post_id Form post ID.
+		 * @return bool
+		 */
+		private function saab_user_can_edit_form_notifications( $post_id ) {
+			if ( $this->saab_user_can_edit_form_post( $post_id ) ) {
+				return true;
+			}
+
+			return current_user_can( 'edit_notifications' );
+		}
+
+		/**
+		 * Whether the current user can edit a booking entry post.
+		 *
+		 * @param int $post_id Entry post ID.
+		 * @return bool
+		 */
+		private function saab_user_can_edit_entry_post( $post_id ) {
+			$post_id = absint( $post_id );
+			if ( $post_id <= 0 || 'manage_entries' !== get_post_type( $post_id ) ) {
+				return false;
+			}
+
+			return current_user_can( 'edit_post', $post_id );
+		}
+
+		/**
+		 * Require a logged-in user who can access plugin admin features (AJAX).
+		 *
+		 * @return void
+		 */
+		private function saab_require_ajax_logged_in_editor() {
+			if ( ! is_user_logged_in() ) {
+				$this->saab_ajax_permission_denied();
+			}
+
+			if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'manage_options' ) ) {
+				$this->saab_ajax_permission_denied();
+			}
+		}
+
+		/**
+		 * Send a JSON error when the AJAX caller lacks permission.
+		 *
+		 * @return void
+		 */
+		private function saab_ajax_permission_denied() {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Sorry, you are not allowed to perform this action.', 'smart-appointment-booking' ),
+				),
+				403
+			);
+		}
+
+		/**
+		 * Require edit permission for a form builder post (AJAX).
+		 *
+		 * @param int $post_id Form post ID.
+		 * @return void
+		 */
+		private function saab_require_ajax_form_edit( $post_id ) {
+			if ( ! is_user_logged_in() || ! $this->saab_user_can_edit_form_post( $post_id ) ) {
+				$this->saab_ajax_permission_denied();
+			}
+		}
+
+		/**
+		 * Require edit permission for a booking entry post (AJAX).
+		 *
+		 * @param int $post_id Entry post ID.
+		 * @return void
+		 */
+		private function saab_require_ajax_entry_edit( $post_id ) {
+			if ( ! is_user_logged_in() || ! $this->saab_user_can_edit_entry_post( $post_id ) ) {
+				$this->saab_ajax_permission_denied();
+			}
+		}
+
+		/**
+		 * Require permission to work with manage_entries posts in admin (AJAX).
+		 *
+		 * @return void
+		 */
+		private function saab_require_ajax_entries_access() {
+			if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+				$this->saab_ajax_permission_denied();
+			}
 		}
 
 		/**

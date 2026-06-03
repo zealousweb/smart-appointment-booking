@@ -81,15 +81,14 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			
 			//cancel booking 
 
-			if (is_front_page()) {
-
+			if ( $this->saab_is_booking_cancel_page_request() ) {
 				wp_enqueue_script( 'cancel-booking', SAAB_URL . 'assets/js/booking/cancelbooking.js', array( 'jquery' ), SAAB_VERSION, true );
 				wp_localize_script(
 					'cancel-booking',
 					'myAjax',
 					array(
 						'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
-						'nonce'   => wp_create_nonce( 'my_ajax_nonce' ),
+						'nonce'   => '',
 					)
 				);
 			}
@@ -658,28 +657,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				));
 			}
 		}
-		$encrypted_booking_id = base64_encode($created_post_id);
-		$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
-		$cancel_nonce = wp_create_nonce( 'my_ajax_nonce' );
-		if ( $user_mapping ) {
-			$cancelbooking_pageid = isset( $user_mapping['cancel_bookingpage'] ) ? sanitize_text_field( $user_mapping['cancel_bookingpage'] ) : '';
-			$cancelbooking_url = add_query_arg(
-				array(
-					'booking_id' => $encrypted_booking_id,
-					'status'     => 'cancel',
-					'security'   => $cancel_nonce,
-				),
-				get_permalink( $cancelbooking_pageid )
-			);
+		$user_mapping = get_post_meta( $form_id, 'saab_user_mapping', true );
+		if ( $user_mapping && ! empty( $user_mapping['cancel_bookingpage'] ) ) {
+			$cancelbooking_url = $this->saab_create_booking_cancel_url( $created_post_id, get_permalink( $user_mapping['cancel_bookingpage'] ) );
 		} else {
-			$cancelbooking_url = add_query_arg(
-				array(
-					'booking_id' => $encrypted_booking_id,
-					'status'     => 'cancel',
-					'security'   => $cancel_nonce,
-				),
-				home_url( '/' )
-			);
+			$cancelbooking_url = $this->saab_create_booking_cancel_url( $created_post_id, home_url( '/' ) );
 		}				
 		$other_label_val = array();
 		$publishedDate = get_the_date( 'M d,Y', $form_id );
@@ -945,14 +927,11 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 			 } 
 					 
 				
-			$encrypted_booking_id = $created_post_id;
-			$user_mapping = get_post_meta($form_id, 'saab_user_mapping', true);
-			$ajax_nonce = wp_create_nonce('my_ajax_nonce');
-			if ($user_mapping) {
-				$cancelbooking_pageid = isset($user_mapping['cancel_bookingpage']) ? sanitize_text_field($user_mapping['cancel_bookingpage']) : '';
-				$cancelbooking_url = get_permalink($cancelbooking_pageid).'?booking_id=' . $encrypted_booking_id . '&status=cancel&security='.$ajax_nonce;
+			$user_mapping = get_post_meta( $form_id, 'saab_user_mapping', true );
+			if ( $user_mapping && ! empty( $user_mapping['cancel_bookingpage'] ) ) {
+				$cancelbooking_url = $this->saab_create_booking_cancel_url( $created_post_id, get_permalink( $user_mapping['cancel_bookingpage'] ) );
 			} else {
-				$cancelbooking_url = home_url('/?booking_id=' . $encrypted_booking_id . '&status=cancel&security='.$ajax_nonce);
+				$cancelbooking_url = $this->saab_create_booking_cancel_url( $created_post_id, home_url( '/' ) );
 			}				
 			$other_label_val = array();
 			$bookingdate = get_the_date( 'M d,Y', $form_id );
@@ -2538,28 +2517,28 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * Cancel Booking via linked clicked by user send in mail by using shortcode placed on cancel booking page
 		 */
 		  function saab_cancel_booking() {
-			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'my_ajax_nonce' ) ) {
+			$request = $this->saab_get_authorized_cancel_booking_ajax_request( true );
+
+			if ( false === $request ) {
 				wp_send_json(
 					array(
-						'message' => esc_html__( 'Something went wrong, please try again later', 'smart-appointment-booking' ),
+						'message' => esc_html__( 'Sorry, you are not allowed to cancel this booking.', 'smart-appointment-booking' ),
 						'error'   => true,
 						'status'  => 'check',
 					)
 				);
 				wp_die();
 			}
-			$encrypt_bookingId = isset( $_POST['bookingId'] ) ? absint( wp_unslash( $_POST['bookingId'] ) ) : 0;
-			
-			$response = array();
-		
-			if ( isset( $_POST['bookingId'] ) && isset( $_POST['bookingstatus'] ) ) {
-				// $booking_id = wp_base64_decode($encrypt_bookingId);
-				$booking_id    = $encrypt_bookingId;
-				$bookingstatus = isset( $_POST['bookingstatus'] ) ? sanitize_text_field( wp_unslash( $_POST['bookingstatus'] ) ) : '';
 
+			$booking_id    = $request['booking_id'];
+			$bookingstatus = $request['bookingstatus'];
+			$status        = $request['status'];
+
+			$response = array();
+
+			if ( '' !== $bookingstatus ) {
 				if ( $bookingstatus === 'cancel' ) {
-					if ( isset( $_POST['status'] ) ) {
-						$status = sanitize_text_field( wp_unslash( $_POST['status'] ) );
+					if ( '' !== $status ) {
 						if ($status === 'check') {
 							$get_current_status = get_post_meta($booking_id, 'saab_entry_status', true);
 							if ($get_current_status === 'cancelled') {
@@ -2652,25 +2631,27 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * shortcode to add in page
 		 */
 		function saab_cancel_booking_shortcode() {
-			$response = array(					
-				'message' => '',
+			$response = array(
+				'message'      => '',
 				'mail_message' => '',
-				
 			);
-			if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['security'] ) ) , 'my_ajax_nonce' ) ){
-				$response = array(					
-					'message' => esc_html__('An error occurred','smart-appointment-booking'),
-					'mail_message' => 'none',
-					
-				); 
-				$error_message = 'An error occurred';
-				wp_send_json_error($response);
+
+			$request = $this->saab_get_authorized_cancel_booking_ajax_request( false );
+
+			if ( false === $request ) {
+				wp_send_json_error(
+					array(
+						'message'      => esc_html__( 'Sorry, you are not allowed to cancel this booking.', 'smart-appointment-booking' ),
+						'mail_message' => 'none',
+					)
+				);
 				wp_die();
 			}
 
-			if ( isset( $_POST['bookingId'] ) ) {
-				$get_bookingId = absint( wp_unslash( $_POST['bookingId'] ) );
-				$bookingId = $get_bookingId;
+			$booking_id = $request['booking_id'];
+
+			if ( $booking_id ) {
+				$bookingId = $booking_id;
 				$status = 'cancelled';
 				$formdata = get_post_meta($bookingId,'saab_submission_data',true);
 				$form_id = get_post_meta($bookingId,'saab_form_id',true);
@@ -2796,6 +2777,21 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		}
 
 		/**
+		 * Whether the current front request is the booking cancellation page.
+		 *
+		 * @return bool
+		 */
+		private function saab_is_booking_cancel_page_request() {
+			$status = filter_input( INPUT_GET, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			if ( 'cancel' !== $status ) {
+				return false;
+			}
+
+			$raw_booking_id = filter_input( INPUT_GET, 'booking_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			return (bool) $this->saab_resolve_booking_id( $raw_booking_id );
+		}
+
+		/**
 		 * Validates Google Calendar OAuth redirect parameters.
 		 *
 		 * @return array|false Associative array with auth_code, form_id, post_id; or false.
@@ -2837,31 +2833,15 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 		 * @return array|false Keys booking_id and status, or false when invalid.
 		 */
 		private function saab_get_cancel_booking_request_args() {
-			$nonce = filter_input( INPUT_GET, 'security', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$raw_booking_id = filter_input( INPUT_GET, 'booking_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$status         = filter_input( INPUT_GET, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-			if ( $nonce && wp_verify_nonce( $nonce, 'my_ajax_nonce' ) ) {
-				$booking_id = filter_input( INPUT_GET, 'booking_id', FILTER_SANITIZE_NUMBER_INT );
-				$status     = filter_input( INPUT_GET, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-				if ( $booking_id && 'cancel' === $status ) {
-					return array(
-						'booking_id' => absint( $booking_id ),
-						'status'     => sanitize_text_field( $status ),
-					);
-				}
-
+			if ( ! $raw_booking_id || 'cancel' !== $status ) {
 				return false;
 			}
 
-			$booking_id = filter_input( INPUT_GET, 'booking_id', FILTER_SANITIZE_NUMBER_INT );
-			$status     = filter_input( INPUT_GET, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-			if ( ! $booking_id || 'cancel' !== $status ) {
-				return false;
-			}
-
-			$booking_id = absint( $booking_id );
-			if ( 'manage_entries' !== get_post_type( $booking_id ) ) {
+			$booking_id = $this->saab_resolve_booking_id( $raw_booking_id );
+			if ( ! $booking_id || ! $this->saab_user_can_cancel_booking( $booking_id ) ) {
 				return false;
 			}
 
@@ -2869,6 +2849,136 @@ if ( !class_exists( 'SAAB_Front_Action' ) ){
 				'booking_id' => $booking_id,
 				'status'     => sanitize_text_field( $status ),
 			);
+		}
+
+		/**
+		 * Resolve a booking entry ID from plain or base64-encoded values.
+		 *
+		 * @param string $raw Raw booking id from request.
+		 * @return int
+		 */
+		private function saab_resolve_booking_id( $raw ) {
+			$raw = is_scalar( $raw ) ? (string) $raw : '';
+			if ( '' === $raw ) {
+				return 0;
+			}
+
+			$post_id = absint( $raw );
+			if ( $post_id > 0 && 'manage_entries' === get_post_type( $post_id ) ) {
+				return $post_id;
+			}
+
+			$decoded = base64_decode( $raw, true );
+			if ( false !== $decoded && is_numeric( $decoded ) ) {
+				$post_id = absint( $decoded );
+				if ( $post_id > 0 && 'manage_entries' === get_post_type( $post_id ) ) {
+					return $post_id;
+				}
+			}
+
+			return 0;
+		}
+
+		/**
+		 * Nonce action for a single booking cancellation link.
+		 *
+		 * @param int $booking_id Booking entry ID.
+		 * @return string
+		 */
+		private function saab_get_booking_cancel_nonce_action( $booking_id ) {
+			return 'saab_cancel_booking_' . absint( $booking_id );
+		}
+
+		/**
+		 * Build a cancel-booking URL with a booking-specific nonce.
+		 *
+		 * @param int    $booking_id Booking entry ID.
+		 * @param string $base_url   Page base URL.
+		 * @return string
+		 */
+		private function saab_create_booking_cancel_url( $booking_id, $base_url ) {
+			$booking_id = absint( $booking_id );
+			if ( $booking_id <= 0 ) {
+				return $base_url;
+			}
+
+			return add_query_arg(
+				array(
+					'booking_id' => $booking_id,
+					'status'     => 'cancel',
+					'security'   => wp_create_nonce( $this->saab_get_booking_cancel_nonce_action( $booking_id ) ),
+				),
+				$base_url
+			);
+		}
+
+		/**
+		 * Parse cancel-booking AJAX POST data and verify authorization.
+		 *
+		 * @param bool $include_status_fields Whether to include bookingstatus and status.
+		 * @return array|false Authorized request data or false.
+		 */
+		private function saab_get_authorized_cancel_booking_ajax_request( $include_status_fields = false ) {
+			$raw_booking_id = filter_input( INPUT_POST, 'bookingId', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			if ( ! is_string( $raw_booking_id ) || '' === $raw_booking_id ) {
+				return false;
+			}
+
+			$booking_id = $this->saab_resolve_booking_id( $raw_booking_id );
+			if ( ! $booking_id || ! $this->saab_user_can_cancel_booking( $booking_id ) ) {
+				return false;
+			}
+
+			$data = array(
+				'booking_id' => $booking_id,
+			);
+
+			if ( $include_status_fields ) {
+				$bookingstatus = filter_input( INPUT_POST, 'bookingstatus', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+				$status        = filter_input( INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+				$data['bookingstatus'] = is_string( $bookingstatus ) ? $bookingstatus : '';
+				$data['status']        = is_string( $status ) ? $status : '';
+			}
+
+			return $data;
+		}
+
+		/**
+		 * Whether the current user may cancel a specific booking.
+		 *
+		 * Administrators/editors: current_user_can( 'edit_post', $booking_id ).
+		 * Customers: valid per-booking nonce from the cancellation email link.
+		 *
+		 * @param int $booking_id Booking entry ID.
+		 * @return bool
+		 */
+		private function saab_user_can_cancel_booking( $booking_id ) {
+			$booking_id = absint( $booking_id );
+			if ( $booking_id <= 0 || 'manage_entries' !== get_post_type( $booking_id ) ) {
+				return false;
+			}
+
+			if ( current_user_can( 'edit_post', $booking_id ) ) {
+				return true;
+			}
+
+			$nonce_action = $this->saab_get_booking_cancel_nonce_action( $booking_id );
+			$nonce        = filter_input( INPUT_POST, 'security', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+			if ( ! is_string( $nonce ) || '' === $nonce ) {
+				$nonce = filter_input( INPUT_GET, 'security', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			}
+
+			if ( ! is_string( $nonce ) ) {
+				$nonce = '';
+			}
+
+			if ( '' !== $nonce && wp_verify_nonce( $nonce, $nonce_action ) ) {
+				return true;
+			}
+
+			return false;
 		}
 
 		/**
