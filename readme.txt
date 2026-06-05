@@ -6,8 +6,8 @@ Donate link: http://www.zealousweb.com/payment/
 Requires at least: 5.9
 Tested up to: 7.0
 License: GPLv3
-Version: 2.0.1
-Stable tag: 2.0.1
+Version: 2.0.2
+Stable tag: 2.0.2
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 The Smart Appointment & Booking all-in-one plugin offers a seamless experience by providing customizable forms, email notifications,  redirect users
@@ -125,6 +125,11 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 
 == Changelog ==
 
+= 2.0.2 =
+* Access helpful resources including documentation, FAQs, and support options in one place.
+* Easily submit support tickets or explore guides to resolve issues quickly.
+* Stay updated with the latest insights through blogs and newsletter subscriptions.
+
 = 2.0.1 =
 * Security: capability checks and per-booking cancel authorization; PHPCS compliance for cancel booking AJAX handlers.
 
@@ -167,6 +172,11 @@ Navigate to Submit button display setting, and set button as Initial Focus optio
 * Initial Release
 
 == Upgrade Notice ==
+
+= 2.0.2 =
+* Access helpful resources including documentation, FAQs, and support options in one place.
+* Easily submit support tickets or explore guides to resolve issues quickly.
+* Stay updated with the latest insights through blogs and newsletter subscriptions.
 
 = 2.0.1 =
 * Security and coding standards update for booking cancellation and admin access control. Recommended for all users.
