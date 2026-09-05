@@ -69,3 +69,5 @@ And admin wil receive notification on cancelling appointment.
 <!-- Security scan triggered at 2025-11-24 23:37:49 -->
 
 <!-- Security scan triggered at 2026-09-05 07:19:59 -->
+
+<!-- Security scan triggered at 2026-09-05 07:43:54 -->
